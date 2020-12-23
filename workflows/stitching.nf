@@ -77,8 +77,8 @@ workflow stitching {
 
 def wave_lengths_json_inputs(data_dir, wave_lengths) {
     wave_lengths
-        .map { wl ->
-            "-i ${data_dir}/${wl}.json"
+        .map {
+            "-i ${data_dir}/${it}.json"
         }
         .join(' ')
 }
