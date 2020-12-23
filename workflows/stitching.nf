@@ -81,5 +81,5 @@ def wave_lengths_json_inputs(data_dir, wave_lengths) {
         arg, item -> "${arg} -i ${data_dir}/${item}.json"
     }
     println "!!!!! WL args " + wave_lengths_args
-    return wave_lengths_args.join(' ')
+    return wave_lengths_args
 }
