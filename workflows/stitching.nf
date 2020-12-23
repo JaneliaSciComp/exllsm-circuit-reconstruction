@@ -24,7 +24,6 @@ workflow stitching {
     driver_logconfig
 
     main:
-    println "!!!! FP = " + spark_conf + "," + spark_work_dir +  nworkers + worker_cores
     spark_uri = spark_cluster(spark_conf, spark_work_dir, nworkers, worker_cores)
     spark_uri \
     | map {[
