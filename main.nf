@@ -38,6 +38,9 @@ axis_mapping = final_params.axis
 wave_lengths = final_params.wave_length?.tokenize(' ')
 block_size = final_params.block_size
 
+if( !spark_work_dir.exists() ) {
+    spark_work_dir.mkdirs()
+}
 
 workflow {
     stitching(

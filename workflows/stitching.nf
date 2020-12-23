@@ -6,10 +6,6 @@ include {
                                                        crepo: params.crepo,
                                                        spark_version: params.spark_version)
 
-if( !spark_work_dir.exists() ) {
-    spark_work_dir.mkdirs()
-}
-
 workflow stitching {
     take:
     stitching_app
