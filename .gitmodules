@@ -1,0 +1,3 @@
+[submodule "external-modules/spark"]
+	path = external-modules/spark
+	url = git@github.com:JaneliaSciComp/nextflow-spark.git
