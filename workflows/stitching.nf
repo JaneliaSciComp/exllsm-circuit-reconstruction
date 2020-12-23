@@ -1,5 +1,6 @@
 include {
     spark_cluster;
+    spark_start_app;
     terminate_spark;
 } from '../external-modules/spark/lib/spark' addParams(lsf_opts: params.lsf_opts, 
                                                        crepo: params.crepo,
