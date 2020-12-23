@@ -7,7 +7,7 @@ include {
 } from './external-modules/spark/lib/param_utils'
 
 // app parameters
-params.stitching_app = 'resources/stitching-spark/stitching-spark-1.8.2-SNAPSHOT.jar'
+params.stitching_app = 'external-modules/stitching-spark/target/stitching-spark-1.8.2-SNAPSHOT.jar'
 params.resolution = '0.104,0.104,0.18'
 params.axis = '-y,-x,z'
 params.wave_length = '488nm 560nm 642nm'
