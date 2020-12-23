@@ -48,7 +48,7 @@ workflow stitching {
     )
     wave_json_input = wave_lengths_json_inputs(data_dir, wave_lengths)
     tiff2n5_res = run_spark_app_on_existing_cluster(
-        spark_uri,
+        parse_res,
         stitching_app,
         "org.janelia.stitching.ConvertTIFFTilesToN5Spark",
         "${wave_json_input} \
