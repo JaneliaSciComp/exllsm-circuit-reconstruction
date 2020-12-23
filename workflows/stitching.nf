@@ -1,10 +1,14 @@
 include {
     spark_cluster;
-    spark_start_app;
+    run_spark_app_on_existing_cluster;
     terminate_spark;
 } from '../external-modules/spark/lib/spark' addParams(lsf_opts: params.lsf_opts, 
                                                        crepo: params.crepo,
                                                        spark_version: params.spark_version)
+
+if( !spark_work_dir.exists() ) {
+    spark_work_dir.mkdirs()
+}
 
 workflow stitching {
     take:
@@ -25,9 +29,16 @@ workflow stitching {
 
     main:
     spark_uri = spark_cluster(spark_conf, spark_work_dir, nworkers, worker_cores)
-    spark_uri \
-    | map {[
-        it,
+    parse_res = run_spark_app_on_existing_cluster(
+        spark_uri,
+        stitching_app,
+        "org.janelia.stitching.ParseTilesImageList",
+        "-i ${data_dir}/ImageList_images.csv \
+         -r '${resolution}' \
+         -a '${axis_mapping}' \
+         -b ${data_dir} \
+         --skipMissingTiles",
+        "parseTiles.log",
         spark_conf,
         spark_work_dir,
         nworkers,
@@ -37,18 +48,16 @@ workflow stitching {
         driver_memory,
         '128m',
         driver_logconfig,
-        '',
+        ''
+    )
+    wave_json_input = wave_lengths_json_inputs(data_dir, wave_lengths)
+    tiff2n5_res = run_spark_app_on_existing_cluster(
+        spark_uri,
         stitching_app,
-        "org.janelia.stitching.ParseTilesImageList",
-        "-i ${data_dir}/ImageList_images.csv \
-         -r ${resolution} \
-         -a ${axis_mapping} \
-         -b ${data_dir} \
-         --skipMissingTiles",
-         "parseTiles.log"]} \
-    | spark_start_app \
-    | map {[
-        it[0],
+        "org.janelia.stitching.ConvertTIFFTilesToN5Spark",
+        "${wave_json_input} \
+         --blockSize '${block_size}'",
+        "tiff2n5.log",
         spark_conf,
         spark_work_dir,
         nworkers,
@@ -58,22 +67,16 @@ workflow stitching {
         driver_memory,
         '',
         driver_logconfig,
-        '',
-        stitching_app,
-        "org.janelia.stitching.ConvertTIFFTilesToN5Spark",
-        "-i ${data_dir}/488nm.json \
-         -i ${data_dir}/560nm.json \
-         -i ${data_dir}/642nm.json \
-         --blockSize ${block_size}",
-         "tiff2n5.log"]} \
-    | spark_start_app
+        ''
+    )
+
+    tiff2n5_res \
     | map { spark_work_dir } \
     | terminate_spark \
     | set { done }
 
     emit:
     done
-
 }
 
 def wave_lengths_json_inputs(data_dir, wave_lengths) {
