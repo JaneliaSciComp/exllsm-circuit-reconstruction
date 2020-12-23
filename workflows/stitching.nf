@@ -48,7 +48,7 @@ workflow stitching {
          "parseTiles.log"]} \
     | spark_start_app \
     | map {[
-        spark_uri,
+        it[0],
         spark_conf,
         spark_work_dir,
         nworkers,
