@@ -73,7 +73,22 @@ workflow deconvolution {
         }
     deconv_process_input = Channel.fromList(deconv_process_input_list)
     deconv_jobs_results = deconvolution_job(deconv_process_input)
-    deconv_jobs_results.groupBy { r -> r[0] }.set { deconv_results }
+    deconv_jobs_results
+        .groupTuple(by:0)
+        .map { ch_res ->
+            tiles_config_file = file("${data_dir}/${ch_res[0]}.json")
+            tiles_data = read_config(tiles_config_file)
+            deconv_data = tiles_data
+                            .collect { tile_config ->
+                                tile_filename = tile_config.file
+                                tile_deconv_file = tile_deconv_output(data_dir, tile_filename)
+                                tile_config.file = tile_deconv_file
+                                return tile_config
+                            }
+            dconv_json_file = file("${data_dir}/${ch}-decon.json")
+            write_config(deconv_data, dconv_json_file)
+        }
+        .set { deconv_results }
 
     emit:
     deconv_results
