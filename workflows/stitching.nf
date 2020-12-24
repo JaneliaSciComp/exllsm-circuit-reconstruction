@@ -1,6 +1,8 @@
 include {
     spark_cluster;
-    run_spark_app_on_existing_cluster;
+    run_spark_app_on_existing_cluster as run_parse_tiles;
+    run_spark_app_on_existing_cluster as run_tiff2n5;
+
     terminate_spark;
 } from '../external-modules/spark/lib/spark' addParams(lsf_opts: params.lsf_opts, 
                                                        crepo: params.crepo,
@@ -25,7 +27,7 @@ workflow stitching {
 
     main:
     spark_uri = spark_cluster(spark_conf, spark_work_dir, nworkers, worker_cores)
-    parse_res = run_spark_app_on_existing_cluster(
+    parse_res = run_parse_tiles(
         spark_uri,
         stitching_app,
         "org.janelia.stitching.ParseTilesImageList",
@@ -47,7 +49,7 @@ workflow stitching {
         ''
     )
     wave_json_input = wave_lengths_json_inputs(data_dir, wave_lengths)
-    tiff2n5_res = run_spark_app_on_existing_cluster(
+    tiff2n5_res = run_tiff2n5(
         parse_res,
         stitching_app,
         "org.janelia.stitching.ConvertTIFFTilesToN5Spark",
