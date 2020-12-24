@@ -35,20 +35,17 @@ workflow deconvolution {
                 .collect { tile_config ->
                     tile_filename = tile_config["file"]
                     resolutions = tile_config["pixelResolution"]
-                    return tile_filename
-/*
                     return [
-                        "tile_filepath":, tile_filename,
+                        "tile_filepath": tile_filename,
                         "output_tile_dir": deconv_dir,
                         "output_tile_filepath": tile_deconv_output(data_dir, tile_filename),
                         "psf_filepath": ch_psf,
                         "flatfield_dirpath": flatfield_attrs_file.getParent(),
-                        "background_value":, background_intensity,
-                        "data_z_resolution":, resolutions[2],
+                        "background_value": background_intensity,
+                        "data_z_resolution": resolutions[2],
                         "psf_z_step": psf_z_step_um,
                         "num_iterations": iterations
                     ]
-                    */
                 }
         }
 /*
