@@ -48,8 +48,8 @@ workflow deconvolution {
                     ]
                 }
         }
-/*
         .flatten()
+/*
         .collect {
             [
                 it.tile_filepath,
