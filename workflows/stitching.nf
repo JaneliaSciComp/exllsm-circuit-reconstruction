@@ -8,13 +8,17 @@ include {
                                                        crepo: params.crepo,
                                                        spark_version: params.spark_version)
 
+include {
+    channels_json_inputs
+} from './stitching_utils'
+
 workflow stitching {
     take:
     stitching_app
     data_dir
     resolution
     axis_mapping
-    wave_lengths
+    channels
     block_size
     spark_conf
     spark_work_dir
@@ -48,12 +52,12 @@ workflow stitching {
         driver_logconfig,
         ''
     )
-    wave_json_input = wave_lengths_json_inputs(data_dir, wave_lengths, '')
+    tile_json_inputs = channels_json_inputs(data_dir, channels, '')
     tiff2n5_res = run_tiff2n5(
         parse_res,
         stitching_app,
         "org.janelia.stitching.ConvertTIFFTilesToN5Spark",
-        "${wave_json_input} --blockSize '${block_size}'",
+        "${tile_json_inputs} --blockSize '${block_size}'",
         "tiff2n5.log",
         spark_conf,
         spark_work_dir,
@@ -67,7 +71,7 @@ workflow stitching {
         ''
     )
 
-    n5_json_input = wave_lengths_json_inputs(data_dir, wave_lengths, '-n5')
+    n5_json_input = channels_json_inputs(data_dir, channels, '-n5')
     flatfield_res = run_flatfield_correction(
         tiff2n5_res,
         stitching_app,
@@ -86,17 +90,11 @@ workflow stitching {
         ''
     )
 
-    tiff2n5_res \
+    flatfield_res \
     | map { spark_work_dir } \
     | terminate_spark \
     | set { done }
 
     emit:
     done
-}
-
-def wave_lengths_json_inputs(data_dir, wave_lengths, suffix) {
-    return wave_lengths.inject('') {
-        arg, item -> "${arg} -i ${data_dir}/${item}${suffix}.json"
-    }
 }
