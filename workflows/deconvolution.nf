@@ -12,7 +12,6 @@ workflow deconvolution {
     deconv_dir = deconv_output_dir(data_dir)
     
     deconv_process_input_list = GroovyCollections.transpose([channels, channels_psfs, iterations_per_channel])
-/*
         .collect { ch_info ->
             channel = ch_info[0]
             channel_psf = ch_info[1]
@@ -46,6 +45,7 @@ workflow deconvolution {
                 }
         }
         .flatten()
+/*
         .collect {
             [
                 it.tile_filepath,
