@@ -21,7 +21,7 @@ workflow deconvolution {
             ch_psf = ch_info[1]
             iterations = ch_info[2]
             tiles_config_file = file("${data_dir}/${ch}.json")
-            tiles_config = read_config(tiles_config_file)
+            tiles_data = read_config(tiles_config_file)
             flatfield_attrs_file = ["-flatfield", "-n5-flatfield"]
                 .collect { file("${data_dir}/${ch}${it}/attributes.json") }
                 .find { it.exists() }
@@ -31,8 +31,7 @@ workflow deconvolution {
                 flatfield_config = read_config(flatfield_attrs_file)
                 background_intensity = flatfield_config.pivotValue
             }
-            return flatfield_attrs_file
-/*
+            return tiles_data
                 .collect { tile_config ->
                     tile_filename = tile_config["file"]
                     resolutions = tile_config["pixelResolution"]
@@ -48,7 +47,6 @@ workflow deconvolution {
                         "num_iterations": iterations
                     ]
                 }
-*/
         }
 /*
         .flatten()
