@@ -47,6 +47,9 @@ workflow deconvolution {
                         "num_iterations": iterations
                     ]
                 }
+                .findAll {
+                    file(it.tile_filepath).exists()
+                }
         }
         .flatten()
         .collect {
@@ -64,6 +67,7 @@ workflow deconvolution {
         }
     deconv_process_input = Channel.fromList(deconv_process_input_list)
     
+    deconv_res = 
     emit:
     deconv_process_input
 }
@@ -86,7 +90,7 @@ process deconvolution_job {
           val(iterations)
 
     output:
-    path(deconv_result)
+    path(output_file)
 
     script:
     """

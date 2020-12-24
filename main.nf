@@ -15,7 +15,7 @@ params.iterations_per_channel = '10 10 10'
 params.block_size = '128,128,64'
 params.psf_z_step_um = '0.1'
 params.background = ''
-params.deconv_cores = 8
+params.deconv_cores = 4
 
 final_params = default_spark_params() + params
 
