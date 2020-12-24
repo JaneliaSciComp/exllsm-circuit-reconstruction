@@ -79,6 +79,14 @@ workflow {
         driver_logconfig
     ) \
     */
+    println data_dir
+    println channels
+    println channels_psfs
+    println psf_z_step_um
+    println background
+    println iterations_per_channel
+    println deconv_cores
+
     deconvolution(
         data_dir,
         channels,
