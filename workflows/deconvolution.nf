@@ -66,8 +66,8 @@ workflow deconvolution {
             ]
         }
     deconv_process_input = Channel.fromList(deconv_process_input_list)
-    
-    deconv_res = 
+    deconv_results = deconvolution_job(deconv_process_input)
+
     emit:
     deconv_process_input
 }
