@@ -21,18 +21,15 @@ params.deconv_cores = 4
 final_params = default_spark_params() + params
 
 include {
-    stitching;
+    prepare_deconvolution;
 } from './workflows/stitching' addParams(lsf_opts: final_params.lsf_opts, 
                                          crepo: final_params.crepo,
-                                         deconvrepo: final_params.deconvrepo,
                                          spark_version: final_params.spark_version)
 
 include {
     deconvolution
 } from './workflows/deconvolution' addParams(lsf_opts: final_params.lsf_opts, 
-                                             crepo: final_params.crepo,
-                                             deconvrepo: final_params.deconvrepo,
-                                             spark_version: final_params.spark_version)
+                                             deconvrepo: final_params.deconvrepo)
 
 // spark config
 spark_conf = final_params.spark_conf
@@ -66,8 +63,7 @@ if( !spark_work_dir.exists() ) {
 }
 
 workflow {
-    /*
-    stitching(
+    prepare_deconvolution(
         stitching_app,
         data_dir,
         resolution,
@@ -83,16 +79,7 @@ workflow {
         driver_memory,
         driver_logconfig
     ) \
-    */
-    println data_dir
-    println channels
-    println channels_psfs
-    println psf_z_step_um
-    println background
-    println iterations_per_channel
-    println deconv_cores
-
-    deconvolution(
+    | deconvolution(
         data_dir,
         channels,
         channels_psfs,

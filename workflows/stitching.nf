@@ -12,7 +12,7 @@ include {
     channels_json_inputs
 } from './stitching_utils'
 
-workflow stitching {
+workflow prepare_deconvolution {
     take:
     stitching_app
     data_dir
