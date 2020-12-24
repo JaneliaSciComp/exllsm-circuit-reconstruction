@@ -35,6 +35,8 @@ workflow deconvolution {
                 .collect { tile_config ->
                     tile_filename = tile_config["file"]
                     resolutions = tile_config["pixelResolution"]
+                    return tile_filename
+/*
                     return [
                         "tile_filepath":, tile_filename,
                         "output_tile_dir": deconv_dir,
@@ -46,6 +48,7 @@ workflow deconvolution {
                         "psf_z_step": psf_z_step_um,
                         "num_iterations": iterations
                     ]
+                    */
                 }
         }
 /*
