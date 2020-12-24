@@ -25,13 +25,15 @@ workflow deconvolution {
             flatfield_attrs_file = ["-flatfield", "-n5-flatfield"]
                 .collect { file("${data_dir}/${channel}${it}/attributes.json") }
                 .find { it.exists() }
+            /*
             if (background != null && background != '') {
                 background_intensity = background as float
             } else { 
                 flatfield_config = read_config(flatfield_attrs_file)
                 background_intensity = flatfield_config.pivotValue
             }
-            return tiles_config
+            */
+            return flatfield_attrs_file
 /*
                 .collect { tile_config ->
                     tile_filename = tile_config["file"]
