@@ -23,7 +23,7 @@ workflow deconvolution {
             tiles_config_file = file("${data_dir}/${ch}.json")
             tiles_config = read_config(tiles_config_file)
             flatfield_attrs_file = ["-flatfield", "-n5-flatfield"]
-                .collect { file("${data_dir}/${channel}${it}/attributes.json") }
+                .collect { file("${data_dir}/${ch}${it}/attributes.json") }
                 // .find { it.exists() }
             /*
             if (background != null && background != '') {
