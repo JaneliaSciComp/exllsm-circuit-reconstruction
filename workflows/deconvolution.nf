@@ -1,3 +1,7 @@
+include {
+    read_config;
+} from ('./stitching_utils')
+
 workflow deconvolution {
     take:
     data_dir
