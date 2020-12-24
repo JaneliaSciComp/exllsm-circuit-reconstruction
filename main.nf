@@ -45,8 +45,7 @@ psf_dir = file(final_params.psf_dir)
 resolution = final_params.resolution
 axis_mapping = final_params.axis
 channels = final_params.channels?.tokenize(' ')
-iterations_per_channel = final_params.iterations_per_channel?
-                .tokenize(' ')
+iterations_per_channel = final_params.iterations_per_channel?.tokenize(' ')
                 .collect { it as int }
 channels_psfs = channels.collect {
     ch = it.replace("nm", "")

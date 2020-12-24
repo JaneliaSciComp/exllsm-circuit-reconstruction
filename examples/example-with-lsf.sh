@@ -7,5 +7,5 @@
         --driver_memory 10g \
         --spark_work_dir "$PWD/local" \
         --stitching_app "external-modules/stitching-spark/target/stitching-spark-1.8.2-SNAPSHOT.jar" \
-        --data_dir /nrs/scicompsoft/goinac/lillvis/DA1/images
+        --data_dir /nrs/scicompsoft/goinac/lillvis/DA1/images \
         --psf_dir /groups/dickson/dicksonlab/lillvis/ExM/lattice/PSFs/20200928/PSFs
