@@ -13,8 +13,11 @@ workflow deconvolution {
     deconv_cores
 
     main:
-    deconv_dir = deconv_output_dir(data_dir)
-    
+    deconv_dir = file(deconv_output_dir(data_dir))
+    if(!deconv_dir.exists()) {
+        deconv_dir.mkdirs()
+    }
+
     deconv_process_input_list = GroovyCollections.transpose([channels, channels_psfs, iterations_per_channel])
         .collect { ch_info ->
             ch = ch_info[0]
@@ -68,10 +71,10 @@ workflow deconvolution {
             ]
         }
     deconv_process_input = Channel.fromList(deconv_process_input_list)
-    // deconv_results = deconvolution_job(deconv_process_input)
+    deconv_results = deconvolution_job(deconv_process_input)
 
     emit:
-    deconv_process_input
+    deconv_results
 }
 
 
@@ -82,23 +85,22 @@ process deconvolution_job {
 
     input:
     tuple val(ch),
-          path(tile_file),
-          path(output_dir),
-          path(output_file),
-          path(psf_input),
-          path(flatfield_dir),
+          val(tile_file),
+          val(output_dir),
+          val(output_file),
+          val(psf_input),
+          val(flatfield_dir),
           val(background),
           val(z_resolution),
           val(psf_z_step),
           val(iterations)
 
     output:
-    tuple val(ch), path(tile_file), path(output_file)
+    tuple val(ch), val(tile_file), val(output_file)
 
     script:
     """
     umask 0002
-    mkdir -p ${output_dir}
     /app/entrypoint.sh \
         ${tile_file} \
         ${output_file} \
