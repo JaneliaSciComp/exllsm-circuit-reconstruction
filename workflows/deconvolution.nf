@@ -49,7 +49,6 @@ workflow deconvolution {
                 }
         }
         .flatten()
-/*
         .collect {
             [
                 it.tile_filepath,
@@ -63,7 +62,6 @@ workflow deconvolution {
                 it.num_iterations
             ]
         }
-*/
     deconv_process_input = Channel.fromList(deconv_process_input_list)
     
     emit:
