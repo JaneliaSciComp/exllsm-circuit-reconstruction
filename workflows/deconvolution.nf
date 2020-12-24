@@ -28,6 +28,7 @@ workflow deconvolution {
                 background_intensity = flatfield_config.pivotValue
             }
             return tiles_config
+/*
                 .collect { tile_config ->
                     tile_filename = tile_config["file"]
                     resolutions = tile_config["pixelResolution"]
@@ -43,9 +44,10 @@ workflow deconvolution {
                         "num_iterations": iterations
                     ]
                 }
+*/
         }
-        .flatten()
 /*
+        .flatten()
         .collect {
             [
                 it.tile_filepath,
