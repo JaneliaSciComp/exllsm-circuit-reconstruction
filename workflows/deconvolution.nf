@@ -1,5 +1,6 @@
 include {
     read_config;
+    write_config;
 } from ('./stitching_utils')
 
 workflow deconvolution {
