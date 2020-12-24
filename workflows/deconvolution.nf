@@ -69,7 +69,7 @@ workflow deconvolution {
     deconv_results = deconvolution_job(deconv_process_input)
 
     emit:
-    deconv_process_input
+    deconv_results
 }
 
 
