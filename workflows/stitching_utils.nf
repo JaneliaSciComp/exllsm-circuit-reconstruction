@@ -15,3 +15,9 @@ def read_config(cf) {
     jsonSlurper = new groovy.json.JsonSlurper()
     return jsonSlurper.parse(cf)
 }
+
+def write_config(data, cf) {
+    json_str = groovy.json.JsonOutput.toJson(data)
+    json_beauty = groovy.json.JsonOutput.prettyPrint(json_str)
+    cf.write(json_beauty)
+}
