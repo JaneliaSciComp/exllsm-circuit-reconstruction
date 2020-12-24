@@ -74,7 +74,7 @@ workflow deconvolution {
 
 
 process deconvolution_job {
-    container = "${params.deconvrepo}/:1.0"
+    container = "${params.deconvrepo}/matlab-deconv:1.0"
 
     cpus { ncores }
 

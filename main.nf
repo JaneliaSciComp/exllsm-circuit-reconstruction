@@ -7,6 +7,7 @@ include {
 } from './external-modules/spark/lib/param_utils'
 
 // app parameters
+params.deconvrepo = 'registry.int.janelia.org/janeliascicomp'
 params.stitching_app = 'external-modules/stitching-spark/target/stitching-spark-1.8.2-SNAPSHOT.jar'
 params.resolution = '0.104,0.104,0.18'
 params.axis = '-y,-x,z'
@@ -23,11 +24,15 @@ include {
     stitching;
 } from './workflows/stitching' addParams(lsf_opts: final_params.lsf_opts, 
                                          crepo: final_params.crepo,
+                                         deconvrepo: final_params.deconvrepo,
                                          spark_version: final_params.spark_version)
 
 include {
     deconvolution
-} from './workflows/deconvolution'
+} from './workflows/deconvolution' addParams(lsf_opts: final_params.lsf_opts, 
+                                             crepo: final_params.crepo,
+                                             deconvrepo: final_params.deconvrepo,
+                                             spark_version: final_params.spark_version)
 
 // spark config
 spark_conf = final_params.spark_conf
