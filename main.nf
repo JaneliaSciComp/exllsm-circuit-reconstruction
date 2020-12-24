@@ -16,7 +16,7 @@ params.iterations_per_channel = '10 10 10'
 params.block_size = '128,128,64'
 params.psf_z_step_um = '0.1'
 params.background = ''
-params.deconv_cores = 4
+params.deconv_cores = 1
 
 final_params = default_spark_params() + params
 
@@ -59,7 +59,7 @@ channels_psfs = channels.collect {
 block_size = final_params.block_size
 psf_z_step_um = final_params.psf_z_step_um
 background = final_params.background
-deconv_cores = final_params.deconv_cores
+deconv_cores = final_params.deconv_cores > 0 ? final_params.deconv_cores : 1
 
 if( !spark_work_dir.exists() ) {
     spark_work_dir.mkdirs()

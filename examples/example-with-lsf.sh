@@ -1,6 +1,6 @@
 ./main.nf \
         -profile lsf \
-        --runtime_opts "-e -B /nrs/scicompsoft/goinac" \
+        --runtime_opts "-B /nrs/scicompsoft/goinac" \
         --lsf_opts "-P scicompsoft" \
         --workers 5 \
         --worker_cores 3 \

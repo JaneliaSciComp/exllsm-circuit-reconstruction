@@ -67,7 +67,8 @@ workflow deconvolution {
                 it.background_value,
                 it.data_z_resolution,
                 it.psf_z_step,
-                it.num_iterations
+                it.num_iterations,
+                deconv_cores
             ]
         }
     deconv_process_input = Channel.fromList(deconv_process_input_list)
@@ -93,7 +94,8 @@ process deconvolution_job {
           val(background),
           val(z_resolution),
           val(psf_z_step),
-          val(iterations)
+          val(iterations),
+          val(ncores)
 
     output:
     tuple val(ch), val(tile_file), val(output_file)
