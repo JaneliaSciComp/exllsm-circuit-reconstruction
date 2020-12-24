@@ -13,10 +13,10 @@ workflow deconvolution {
     
     deconv_process_input_list = GroovyCollections.transpose([channels, channels_psfs, iterations_per_channel])
         .collect { ch_info ->
-            channel = ch_info[0]
-            channel_psf = ch_info[1]
+            ch = ch_info[0]
+            ch_psf = ch_info[1]
             iterations = ch_info[2]
-            tiles_config_file = file("${data_dir}/${channel}.json")
+            tiles_config_file = file("${data_dir}/${ch}.json")
             tiles_config = read_config(tiles_config_file)
             flatfield_attrs_file = ["-flatfield", "-n5-flatfield"]
                 .collect { new File("${data_dir}/${channel}${it}/attributes.json") }
@@ -36,7 +36,7 @@ workflow deconvolution {
                         "tile_filepath":, tile_filename,
                         "output_tile_dir": deconv_dir,
                         "output_tile_filepath": tile_deconv_output(data_dir, tile_filename),
-                        "psf_filepath": channel_psf,
+                        "psf_filepath": ch_psf,
                         "flatfield_dirpath": flatfield_attrs_file.getParent(),
                         "background_value":, background_intensity,
                         "data_z_resolution":, resolutions[2],
