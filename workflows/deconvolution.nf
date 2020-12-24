@@ -22,6 +22,7 @@ workflow deconvolution {
             iterations = ch_info[2]
             tiles_config_file = file("${data_dir}/${ch}.json")
             tiles_config = read_config(tiles_config_file)
+            /*
             flatfield_attrs_file = ["-flatfield", "-n5-flatfield"]
                 .collect { new File("${data_dir}/${channel}${it}/attributes.json") }
                 .find { it.exists() }
@@ -31,6 +32,7 @@ workflow deconvolution {
                 flatfield_config = read_config(flatfield_attrs_file)
                 background_intensity = flatfield_config.pivotValue
             }
+            */
             return tiles_config
 /*
                 .collect { tile_config ->
