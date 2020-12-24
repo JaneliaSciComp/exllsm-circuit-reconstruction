@@ -1,7 +1,3 @@
-include {
-    channels_inputs
-} from ('./stitching_utils')
-
 workflow deconvolution {
     take:
     data_dir
@@ -16,6 +12,7 @@ workflow deconvolution {
     deconv_dir = deconv_output_dir(data_dir)
     
     deconv_process_input_list = GroovyCollections.transpose([channels, channels_psfs, iterations_per_channel])
+/*
         .collect { ch_info ->
             channel = ch_info[0]
             channel_psf = ch_info[1]
@@ -62,7 +59,7 @@ workflow deconvolution {
                 it.num_iterations
             ]
         }
-
+*/
     deconv_process_input = Channel.fromList(deconv_process_input_list)
     
     emit:
