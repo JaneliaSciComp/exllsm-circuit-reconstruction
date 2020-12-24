@@ -71,7 +71,7 @@ workflow stitching {
     flatfield_res = run_flatfield_correction(
         tiff2n5_res,
         stitching_app,
-        "org.janelia.stitching.FlatfieldCorrection",
+        "org.janelia.flatfield.FlatfieldCorrection",
         "${n5_json_input} -v 101 --2d --bins 256",
         "flatfield.log",
         spark_conf,
