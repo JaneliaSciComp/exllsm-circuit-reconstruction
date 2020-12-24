@@ -22,10 +22,11 @@ workflow deconvolution {
             iterations = ch_info[2]
             tiles_config_file = file("${data_dir}/${ch}.json")
             tiles_config = read_config(tiles_config_file)
-            /*
             flatfield_attrs_file = ["-flatfield", "-n5-flatfield"]
                 .collect { new File("${data_dir}/${channel}${it}/attributes.json") }
-                .find { it.exists() }
+                .find { it.exist() }
+            println "!!!!", flatfield_attrs_file
+            /*
             if (background != null && background != '') {
                 background_intensity = background as float
             } else { 
