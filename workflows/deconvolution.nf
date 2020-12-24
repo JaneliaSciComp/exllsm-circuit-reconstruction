@@ -36,6 +36,7 @@ workflow deconvolution {
                     tile_filename = tile_config["file"]
                     resolutions = tile_config["pixelResolution"]
                     return [
+                        "ch": ch,
                         "tile_filepath": tile_filename,
                         "output_tile_dir": deconv_dir,
                         "output_tile_filepath": tile_deconv_output(data_dir, tile_filename),
@@ -54,6 +55,7 @@ workflow deconvolution {
         .flatten()
         .collect {
             [
+                it.ch,
                 it.tile_filepath,
                 it.output_tile_dir,
                 it.output_tile_filepath,
@@ -66,10 +68,10 @@ workflow deconvolution {
             ]
         }
     deconv_process_input = Channel.fromList(deconv_process_input_list)
-    deconv_results = deconvolution_job(deconv_process_input)
+    // deconv_results = deconvolution_job(deconv_process_input)
 
     emit:
-    deconv_results
+    deconv_process_input
 }
 
 
@@ -79,7 +81,8 @@ process deconvolution_job {
     cpus { ncores }
 
     input:
-    tuple path(tile_file),
+    tuple val(ch),
+          path(tile_file),
           path(output_dir),
           path(output_file),
           path(psf_input),
@@ -90,7 +93,7 @@ process deconvolution_job {
           val(iterations)
 
     output:
-    path(output_file)
+    tuple val(ch), path(tile_file), path(output_file)
 
     script:
     """
