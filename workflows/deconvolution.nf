@@ -1,4 +1,4 @@
-import {
+include {
     channels_inputs
 } from ('./stitching_utils')
 
