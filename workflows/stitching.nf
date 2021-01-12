@@ -52,12 +52,14 @@ workflow prepare_deconvolution {
         driver_logconfig,
         ''
     )
+
     tiff2n5_res = run_tiff2n5(
         parse_res,
         stitching_app,
         "org.janelia.stitching.ConvertTIFFTilesToN5Spark",
         {
-            tile_json_inputs = get_inputs(parse_res, data_dir, channels, '')
+            tile_json_inputs = channels_json_inputs(data_dir, channels, '')
+            println "!!!! TILE JSON tile_json_inputs"
             return "${tile_json_inputs} --blockSize '${block_size}'"
         },
         "tiff2n5.log",
@@ -73,12 +75,14 @@ workflow prepare_deconvolution {
         ''
     )
 
-    n5_json_input = get_inputs(tiff2n5_res, data_dir, channels, '-n5')
     flatfield_res = run_flatfield_correction(
         tiff2n5_res,
         stitching_app,
         "org.janelia.flatfield.FlatfieldCorrection",
-        "${n5_json_input} -v 101 --2d --bins 256",
+        {
+            n5_json_input = channels_json_inputs(data_dir, channels, '-n5')
+            return "${n5_json_input} -v 101 --2d --bins 256"
+        },
         "flatfield.log",
         spark_conf,
         spark_work_dir,
