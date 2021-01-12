@@ -52,7 +52,7 @@ workflow prepare_deconvolution {
         driver_logconfig,
         ''
     )
-    tile_json_inputs = get_inputs(parse, data_dir, channels, '')
+    tile_json_inputs = get_inputs(parse_res, data_dir, channels, '')
     tiff2n5_res = run_tiff2n5(
         parse_res,
         stitching_app,
@@ -71,7 +71,7 @@ workflow prepare_deconvolution {
         ''
     )
 
-    n5_json_input = channels_json_inputs(data_dir, channels, '-n5')
+    n5_json_input = get_inputs(tiff2n5_res, data_dir, channels, '-n5')
     flatfield_res = run_flatfield_correction(
         tiff2n5_res,
         stitching_app,
@@ -99,6 +99,9 @@ workflow prepare_deconvolution {
     done
 }
 
-def get_inputs(dependency, data_dir, channels) {
-    channels_json_inputs(data_dir, channels, '')
+def get_inputs(dependency, data_dir, channels, suffix) {
+    println "!!!!!!", dependency
+    done = dependency | map { it -> channels_json_inputs(data_dir, channels, suffix)  }
+    println "!!!!!!DONE ", done
+    return done
 }
