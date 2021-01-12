@@ -52,7 +52,7 @@ workflow prepare_deconvolution {
         driver_logconfig,
         ''
     )
-    tile_json_inputs = channels_json_inputs(data_dir, channels, '')
+    tile_json_inputs = parse_res | channels_json_inputs(data_dir, channels, '')
     tiff2n5_res = run_tiff2n5(
         parse_res,
         stitching_app,
