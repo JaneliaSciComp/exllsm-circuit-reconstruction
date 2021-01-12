@@ -53,15 +53,12 @@ workflow prepare_deconvolution {
         ''
     )
 
+    tile_json_inputs = channels_json_inputs(data_dir, channels, '')
     tiff2n5_res = run_tiff2n5(
         parse_res,
         stitching_app,
         "org.janelia.stitching.ConvertTIFFTilesToN5Spark",
-        {
-            tile_json_inputs = channels_json_inputs(data_dir, channels, '')
-            println "!!!! TILE JSON tile_json_inputs"
-            return "${tile_json_inputs} --blockSize '${block_size}'"
-        },
+        "${tile_json_inputs} --blockSize '${block_size}'",
         "tiff2n5.log",
         spark_conf,
         spark_work_dir,
@@ -75,14 +72,12 @@ workflow prepare_deconvolution {
         ''
     )
 
+    n5_json_input = channels_json_inputs(data_dir, channels, '-n5')
     flatfield_res = run_flatfield_correction(
         tiff2n5_res,
         stitching_app,
         "org.janelia.flatfield.FlatfieldCorrection",
-        {
-            n5_json_input = channels_json_inputs(data_dir, channels, '-n5')
-            return "${n5_json_input} -v 101 --2d --bins 256"
-        },
+        "${n5_json_input} -v 101 --2d --bins 256",
         "flatfield.log",
         spark_conf,
         spark_work_dir,
@@ -103,11 +98,4 @@ workflow prepare_deconvolution {
 
     emit:
     done
-}
-
-def get_inputs(dependency, data_dir, channels, suffix) {
-    println "!!!!!!", dependency
-    done = dependency | map { it -> channels_json_inputs(data_dir, channels, suffix)  }
-    println "!!!!!!DONE ", done
-    return done
 }
