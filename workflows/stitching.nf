@@ -52,7 +52,7 @@ workflow prepare_deconvolution {
         driver_logconfig,
         ''
     )
-    tile_json_inputs = parse_res | channels_json_inputs(data_dir, channels, '')
+    tile_json_inputs = get_inputs(parse, data_dir, channels, '')
     tiff2n5_res = run_tiff2n5(
         parse_res,
         stitching_app,
@@ -97,4 +97,8 @@ workflow prepare_deconvolution {
 
     emit:
     done
+}
+
+def get_inputs(dependency, data_dir, channels) {
+    channels_json_inputs(data_dir, channels, '')
 }
