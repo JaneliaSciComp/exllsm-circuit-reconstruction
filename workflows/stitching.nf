@@ -52,12 +52,14 @@ workflow prepare_deconvolution {
         driver_logconfig,
         ''
     )
-    tile_json_inputs = get_inputs(parse_res, data_dir, channels, '')
     tiff2n5_res = run_tiff2n5(
         parse_res,
         stitching_app,
         "org.janelia.stitching.ConvertTIFFTilesToN5Spark",
-        "${tile_json_inputs} --blockSize '${block_size}'",
+        {
+            tile_json_inputs = get_inputs(parse_res, data_dir, channels, '')
+            return "${tile_json_inputs} --blockSize '${block_size}'"
+        },
         "tiff2n5.log",
         spark_conf,
         spark_work_dir,
