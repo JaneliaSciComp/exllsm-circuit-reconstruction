@@ -1,7 +1,7 @@
 def channels_json_inputs(data_dir, channels, suffix) {
     channels_inputs(data_dir, channels, "${suffix}.json")
         .inject('') {
-            arg, item -> "${arg} -i ${data_dir}/${item}${suffix}.json"
+            arg, item -> "${arg} -i ${item}"
         }
 }
 
