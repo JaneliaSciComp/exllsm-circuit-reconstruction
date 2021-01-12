@@ -79,14 +79,15 @@ workflow {
         driver_memory,
         driver_logconfig
     ) \
-    | deconvolution(
-        data_dir,
-        channels,
-        channels_psfs,
-        psf_z_step_um,
-        background,
-        iterations_per_channel,
-        deconv_cores
-    ) \
+    | map {
+        deconvolution(
+            data_dir,
+            channels,
+            channels_psfs,
+            psf_z_step_um,
+            background,
+            iterations_per_channel,
+            deconv_cores)
+    } \
     | view
 }

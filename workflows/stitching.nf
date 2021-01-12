@@ -94,6 +94,7 @@ workflow prepare_deconvolution {
     flatfield_res \
     | map { spark_work_dir } \
     | terminate_spark \
+    | map { data_dir }
     | set { done }
 
     emit:
