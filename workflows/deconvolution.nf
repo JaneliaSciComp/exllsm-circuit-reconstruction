@@ -86,7 +86,7 @@ workflow deconvolution {
                                 tile_config.file = tile_deconv_file
                                 return tile_config
                             }
-            dconv_json_file = file("${data_dir}/${ch}-decon.json")
+            dconv_json_file = file("${data_dir}/${ch_res[0]}-decon.json")
             write_config(deconv_data, dconv_json_file)
         }
         .set { deconv_results }
