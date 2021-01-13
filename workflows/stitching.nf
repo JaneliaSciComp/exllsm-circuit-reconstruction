@@ -3,6 +3,7 @@ include {
     run_spark_app_on_existing_cluster as run_parse_tiles;
     run_spark_app_on_existing_cluster as run_tiff2n5;
     run_spark_app_on_existing_cluster as run_flatfield_correction;
+    run_spark_app_on_existing_cluster as run_stitching;
     terminate_spark;
 } from '../external-modules/spark/lib/spark' addParams(lsf_opts: params.lsf_opts, 
                                                        crepo: params.crepo,
@@ -101,3 +102,46 @@ workflow pre_stitching {
     done
 }
 
+workflow stitching {
+    take:
+    stitching_app
+    data_dir
+    resolution
+    axis_mapping
+    channels
+    block_size
+    spark_conf
+    spark_work_dir
+    nworkers
+    worker_cores
+    memgb_per_core
+    driver_cores
+    driver_memory
+    driver_logconfig
+
+    main:
+    spark_uri = spark_cluster(spark_conf, spark_work_dir, nworkers, worker_cores)
+    stitching_json_inputs = channels_json_inputs(data_dir, channels, '-decon')
+    stitching_res = run_stitching(
+        spark_uri,
+        stitching_app,
+        "org.janelia.stitching.StitchingSpark",
+        "--stitch \
+        -r -1 \
+        ${stitching_json_inputs} \
+        --mode 'incremental' \
+        --padding '0,0,0' --blurSigma 2",
+        "stitching.log",
+        spark_conf,
+        spark_work_dir,
+        nworkers,
+        worker_cores,
+        memgb_per_core,
+        driver_cores,
+        driver_memory,
+        '',
+        driver_logconfig,
+        ''
+    )
+
+}
