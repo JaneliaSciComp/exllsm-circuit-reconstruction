@@ -3,17 +3,13 @@ include {
     write_config;
 } from ('./stitching_utils')
 
-workflow deconvolution {
-    take:
-    data_dir
-    channels
-    channels_psfs
-    psf_z_step_um
-    background
-    iterations_per_channel
-    deconv_cores
-
-    main:
+def deconvolution(data_dir,
+                  channels,
+                  channels_psfs,
+                  psf_z_step_um,
+                  background,
+                  iterations_per_channel,
+                  deconv_cores) {
     deconv_dir = file(deconv_output_dir(data_dir))
     println "Invoke deconvolution for ${data_dir} -> ${deconv_dir}"
     if(!deconv_dir.exists()) {
@@ -74,7 +70,7 @@ workflow deconvolution {
         }
     deconv_process_input = Channel.fromList(deconv_process_input_list)
     deconv_jobs_results = deconvolution_job(deconv_process_input)
-    deconv_jobs_results
+    return deconv_jobs_results
         .groupTuple(by:0)
         .map { ch_res ->
             tiles_config_file = file("${data_dir}/${ch_res[0]}.json")
@@ -89,10 +85,6 @@ workflow deconvolution {
             dconv_json_file = file("${data_dir}/${ch_res[0]}-decon.json")
             write_config(deconv_data, dconv_json_file)
         }
-        .set { deconv_results }
-
-    emit:
-    deconv_results
 }
 
 
