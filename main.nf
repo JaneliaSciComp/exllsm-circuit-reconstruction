@@ -78,14 +78,16 @@ workflow {
         driver_cores,
         driver_memory,
         driver_logconfig
-    ) 
-    deconvolution(
-        pre_stitching.out.deconv_results,
-        channels,
-        channels_psfs,
-        psf_z_step_um,
-        background,
-        iterations_per_channel,
-        deconv_cores) \
+    ) \
+    | map {
+        deconvolution(
+            it,
+            channels,
+            channels_psfs,
+            psf_z_step_um,
+            background,
+            iterations_per_channel,
+            deconv_cores)
+    } \
     | view
 }
