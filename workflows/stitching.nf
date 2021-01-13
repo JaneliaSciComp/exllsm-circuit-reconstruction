@@ -108,10 +108,8 @@ workflow stitching {
     take:
     stitching_app
     data_dir
-    resolution
-    axis_mapping
     channels
-    block_size
+    export_level
     spark_conf
     spark_work_dir
     nworkers
@@ -165,7 +163,25 @@ workflow stitching {
         ''
     )
 
-    final_stitching_res \
+    export_res = run_final_stitching(
+        final_stitching_res,
+        stitching_app,
+        "org.janelia.stitching.N5ToSliceTiffSpark",
+        "-i ${data_dir}/export.n5 --scaleLevel ${export_level}",
+        "export.log",
+        spark_conf,
+        spark_work_dir,
+        nworkers,
+        worker_cores,
+        memgb_per_core,
+        driver_cores,
+        driver_memory,
+        '',
+        driver_logconfig,
+        ''
+    )
+
+    export_res \
     | map { spark_work_dir } \
     | terminate_stitching \
     | map { data_dir }
