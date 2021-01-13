@@ -86,7 +86,6 @@ workflow {
         psf_z_step_um,
         background,
         iterations_per_channel,
-        deconv_cores)
-    } \
+        deconv_cores) \
     | view
 }
