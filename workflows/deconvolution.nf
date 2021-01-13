@@ -5,17 +5,15 @@ include {
 
 workflow deconvolution {
     take:
-    deconv_params
+    data_dir
+    channels
+    channels_psfs
+    psf_z_step_um
+    background
+    iterations_per_channel
+    deconv_cores
 
     main:
-    data_dir = deconv_params[0]
-    channels = deconv_params[1]
-    channels_psfs = deconv_params[2]
-    psf_z_step_um = deconv_params[3]
-    background = deconv_params[4]
-    iterations_per_channel = deconv_params[5]
-    deconv_cores = deconv_params[6]
-
     deconv_dir = file(deconv_output_dir(data_dir))
     println "Invoke deconvolution for ${data_dir} -> ${deconv_dir}"
     if(!deconv_dir.exists()) {

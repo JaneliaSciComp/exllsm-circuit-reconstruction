@@ -81,7 +81,7 @@ workflow {
     ) \
     | map {
         [
-            data_dir,
+            it,
             channels,
             channels_psfs,
             psf_z_step_um,
