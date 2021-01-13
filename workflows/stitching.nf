@@ -4,7 +4,9 @@ include {
     run_spark_app_on_existing_cluster as run_tiff2n5;
     run_spark_app_on_existing_cluster as run_flatfield_correction;
     run_spark_app_on_existing_cluster as run_stitching;
-    terminate_spark;
+    run_spark_app_on_existing_cluster as run_final_stitching;
+    terminate_spark as terminate_pre_stitching;
+    terminate_spark as terminate_stitching;
 } from '../external-modules/spark/lib/spark' addParams(lsf_opts: params.lsf_opts, 
                                                        crepo: params.crepo,
                                                        spark_version: params.spark_version)
@@ -94,7 +96,7 @@ workflow pre_stitching {
 
     flatfield_res \
     | map { spark_work_dir } \
-    | terminate_spark \
+    | terminate_pre_stitching \
     | map { data_dir }
     | set { done }
 
@@ -143,5 +145,33 @@ workflow stitching {
         driver_logconfig,
         ''
     )
+
+    final_stitching_json_inputs = channels_json_inputs(data_dir, channels, '-decon-final')
+    final_stitching_res = run_final_stitching(
+        stitching_res,
+        stitching_app,
+        "org.janelia.stitching.StitchingSpark",
+        "--fuse ${final_stitching_json_inputs} --blending",
+        "stitching-final.log",
+        spark_conf,
+        spark_work_dir,
+        nworkers,
+        worker_cores,
+        memgb_per_core,
+        driver_cores,
+        driver_memory,
+        '',
+        driver_logconfig,
+        ''
+    )
+
+    final_stitching_res \
+    | map { spark_work_dir } \
+    | terminate_stitching \
+    | map { data_dir }
+    | set { done }
+
+    emit:
+    done
 
 }
