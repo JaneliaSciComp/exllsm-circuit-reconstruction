@@ -18,7 +18,7 @@ workflow deconvolution {
     if(!deconv_dir.exists()) {
         deconv_dir.mkdirs()
     }
-
+    println "Invoke deconvolution for ${deconv_dir}"
     deconv_process_input_list = GroovyCollections.transpose([channels, channels_psfs, iterations_per_channel])
         .collect { ch_info ->
             ch = ch_info[0]
