@@ -12,7 +12,7 @@ include {
     channels_json_inputs
 } from './stitching_utils'
 
-workflow prepare_deconvolution {
+workflow pre_stitching {
     take:
     stitching_app
     data_dir
@@ -100,3 +100,4 @@ workflow prepare_deconvolution {
     emit:
     done
 }
+
