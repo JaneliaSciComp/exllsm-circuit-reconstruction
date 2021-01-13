@@ -31,7 +31,7 @@ workflow deconvolution {
     } \
     | transpose \
     | map { ch_info ->
-        println "!!!!!!!! CH INFO $ch_info"
+        println "Collect tile data for: ${ch_info}"
         data_dir = ch_info[0]
         deconv_dir = ch_info[1]
         ch = ch_info[2]
@@ -88,10 +88,12 @@ workflow deconvolution {
         ]
     } \
     | deconvolution_job \
-    | groupTuple \
+    | groupTuple(by: [0,1,2]) \
     | map { ch_res ->
         ch = ch_res[0]
         data_dir = ch_res[1]
+        dconv_json_file = file("${data_dir}/${ch}-decon.json")
+        println "Create deconvolution output for channel ${ch} -> ${dconv_json_file}"
 
         tiles_config_file = file("${data_dir}/${ch}.json")
         tiles_data = read_config(tiles_config_file)
@@ -102,15 +104,18 @@ workflow deconvolution {
                             tile_config.file = tile_deconv_file
                             return tile_config
                         }
-        dconv_json_file = file("${data_dir}/${ch}-decon.json")
         write_config(deconv_data, dconv_json_file)
+        return [
+            ch,
+            data_dir,
+            dconv_json_file
+        ]
     } \
     | set { deconv_results }
 
     emit:
     deconv_results
 }
-
 
 process deconvolution_job {
     container = "${params.deconvrepo}/matlab-deconv:1.0"
@@ -132,7 +137,11 @@ process deconvolution_job {
           val(ncores)
 
     output:
-    tuple val(ch), val(data_dir), val(output_dir), val(tile_file), val(output_file)
+    tuple val(ch),
+          val(data_dir),
+          val(output_dir),
+          val(tile_file),
+          val(output_file)
 
     script:
     """
