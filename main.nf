@@ -63,7 +63,7 @@ if( !spark_work_dir.exists() ) {
 }
 
 workflow {
-    dest = pre_stitching(
+    pre_stitching(
         stitching_app,
         data_dir,
         resolution,
@@ -80,7 +80,7 @@ workflow {
         driver_logconfig
     ) 
     deconvolution(
-        dest.out,
+        pre_stitching.out.deconv_results,
         channels,
         channels_psfs,
         psf_z_step_um,
