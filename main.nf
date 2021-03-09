@@ -87,6 +87,9 @@ workflow {
         spark_driver_stack,
         spark_driver_logconfig
     )
+
+    pre_stitching_res | view
+
     // deconv_res = deconvolution(
     //     pre_stitching_res, 
     //     channels,

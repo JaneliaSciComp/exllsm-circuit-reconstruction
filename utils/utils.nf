@@ -15,3 +15,14 @@ def index_channel(c) {
         [ accum[0]+1, accum[1]+[indexed_elem] ]
     } | flatMap { it[1] }
 }
+
+def read_json(cf) {
+    def jsonSlurper = new groovy.json.JsonSlurper()
+    return jsonSlurper.parse(cf)
+}
+
+def write_json(data, cf) {
+    def json_str = groovy.json.JsonOutput.toJson(data)
+    def json_beauty = groovy.json.JsonOutput.prettyPrint(json_str)
+    cf.write(json_beauty)
+}
