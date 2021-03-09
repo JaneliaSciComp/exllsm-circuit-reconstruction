@@ -1,7 +1,7 @@
 include {
     read_json;
     write_json;
-} from './stitching_utils'
+} from '../utils/utils'
 
 include {
     prepare_deconv_dir;
