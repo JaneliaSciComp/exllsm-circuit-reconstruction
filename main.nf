@@ -94,10 +94,9 @@ workflow {
         pre_stitching_res, 
         channels,
         channels_psfs,
-        psf_z_step_um,
-        background,
-        iterations_per_channel,
-        deconv_cores)
+        final_params.psf_z_step_um,
+        final_params.background,
+        iterations_per_channel)
     
     deconv_res | view
 }
