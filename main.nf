@@ -10,6 +10,7 @@ include {
     default_em_params;
     get_value_or_default;
     get_list_or_default;
+    deconvolution_container_param;
 } from './param_utils'
 
 // app parameters
@@ -23,10 +24,10 @@ include {
     prepare_tiles_for_stitching;
 } from './workflows/stitching' addParams(final_params)
 
-// include {
-//     deconvolution
-// } from './workflows/deconvolution' addParams(lsf_opts: final_params.lsf_opts, 
-//                                              deconvrepo: final_params.deconvrepo)
+deconv_params = final_params + [deconvolution_container: deconvolution_container_param(final_params)]
+include {
+    deconvolution
+} from './workflows/deconvolution' addParams(deconv_params)
 
 data_dir = final_params.data_dir
 pipeline_output_dir = get_value_or_default(final_params, 'output_dir', data_dir)
@@ -46,13 +47,12 @@ spark_driver_stack = final_params.driver_stack
 spark_driver_logconfig = final_params.driver_logconfig
 
 // deconvolution params
-psf_dirname = final_params.psf_dir
 iterations_per_channel = get_list_or_default(final_params, 'iterations_per_channel', []).collect {
     it as int
 }
 channels_psfs = channels.collect {
     ch = it.replace('nm', '')
-    return "${psf_dirname}/${ch}_PSF.tif"
+    return "${final_params.psf_dir}/${ch}_PSF.tif"
 }
 
 workflow {
@@ -67,9 +67,9 @@ workflow {
         spark_work_dir
     ) // [ dataset, dataset_input_dir, stitching_dir, stitching_working_dir ]
 
-    stitching_data | view
+    stitching_data.subscribe { log.debug "Stitching: $it" }
 
-    pre_stitching_res = prepare_tiles_for_stitching(
+    def pre_stitching_res = prepare_tiles_for_stitching(
         final_params.stitching_app,
         stitching_data.map { it[0] },  // dataset
         stitching_data.map { it[1] },  // dataset input dir
@@ -90,16 +90,16 @@ workflow {
 
     pre_stitching_res | view
 
-    // deconv_res = deconvolution(
-    //     pre_stitching_res, 
-    //     channels,
-    //     channels_psfs,
-    //     psf_z_step_um,
-    //     background,
-    //     iterations_per_channel,
-    //     deconv_cores)
+    def deconv_res = deconvolution(
+        pre_stitching_res, 
+        channels,
+        channels_psfs,
+        psf_z_step_um,
+        background,
+        iterations_per_channel,
+        deconv_cores)
     
-    // deconv_res | view
+    deconv_res | view
 }
 
 def create_output_dir(output_dirname) {

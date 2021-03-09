@@ -1,7 +1,24 @@
-process deconvolution_job {
-    container = "${params.deconvrepo}/matlab-deconv:1.0"
+process prepare_deconv_dir {
+    container { params.deconvolution_container }
+    executor "Local"
 
-    cpus { ncores }
+    input:
+    val(data_dir)
+    val(deconv_dir)
+
+    input:
+    tuple val(data_dir), val(deconv_dir)
+
+    script:
+    """
+    umask 0002
+    mkdir -p "${deconv_dir}"
+    """
+}
+
+process deconvolution_job {
+    container { params.deconvolution_container }
+    cpus { params.deconv_cpus }
 
     input:
     val(ch)
@@ -15,7 +32,6 @@ process deconvolution_job {
     val(z_resolution)
     val(psf_z_step)
     val(iterations)
-    val(ncores)
 
     output:
     tuple val(ch),

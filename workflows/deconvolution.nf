@@ -1,11 +1,16 @@
 include {
     read_json;
     write_json;
-} from ('./stitching_utils')
+} from './stitching_utils'
+
+include {
+    prepare_deconv_dir;
+    deconvolution_job;
+} from '../processes/deconvolution'
 
 workflow deconvolution {
     take:
-    data_dir_param
+    data_dir
     channels
     channels_psfs
     psf_z_step_um
@@ -14,107 +19,110 @@ workflow deconvolution {
     deconv_cores
 
     main:
-    data_dir_param \
-    | map { data_dir ->
-        deconv_dir = file(deconv_output_dir(data_dir))
-        println "Invoke deconvolution for ${data_dir} -> ${deconv_dir}"
-        if(!deconv_dir.exists()) {
-            deconv_dir.mkdirs()
-        }
-        [
-            data_dir, 
-            deconv_dir,
-            channels, 
-            channels_psfs, 
-            iterations_per_channel
-        ]
-    } \
-    | transpose \
-    | map { ch_info ->
-        println "Collect tile data for: ${ch_info}"
-        data_dir = ch_info[0]
-        deconv_dir = ch_info[1]
-        ch = ch_info[2]
-        ch_psf = ch_info[3]
-        iterations = ch_info[4]
-        tiles_config_file = file("${data_dir}/${ch}.json")
-        tiles_data = read_config(tiles_config_file)
-        flatfield_attrs_file = ["-flatfield", "-n5-flatfield"]
-            .collect { file("${data_dir}/${ch}${it}/attributes.json") }
-            .find { it.exists() }
-        if (background != null && background != '') {
-            background_intensity = background as float
-        } else { 
-            flatfield_config = read_config(flatfield_attrs_file)
-            background_intensity = flatfield_config.pivotValue
-        }
-        return tiles_data
-            .collect { tile_config ->
-                tile_filename = tile_config["file"]
-                resolutions = tile_config["pixelResolution"]
-                return [
-                    "ch": ch,
-                    "tile_filepath": tile_filename,
-                    "data_dir": data_dir,
-                    "output_tile_dir": deconv_dir,
-                    "output_tile_filepath": tile_deconv_output(data_dir, tile_filename),
-                    "psf_filepath": ch_psf,
-                    "flatfield_dirpath": flatfield_attrs_file.getParent(),
-                    "background_value": background_intensity,
-                    "data_z_resolution": resolutions[2],
-                    "psf_z_step": psf_z_step_um,
-                    "num_iterations": iterations
+    def deconv_input = prepare_deconv_dir(
+        data_dir,
+        data_dir.map { deconv_output_dir(it) }
+    )
+    | flatMap { input_dir, output_dir ->
+        [channels, channels_psfs, iterations_per_channel]
+            .transpose()
+            .collect { ch_info ->
+                def ch = ch_info[0]
+                def tiles_file = file("${input_dir}/${ch}.json")
+                def flatfield_file = ["-flatfield", "-n5-flatfield"]
+                    .collect { flatfield_suffix ->
+                        file("${input_dir}/${ch}${flatfield_suffix}/attributes.json")
+                    }
+                    .find { it.exists() }
+                def background_intensity
+                if (background != null && background != '') {
+                    background_intensity = background as float
+                } else { 
+                    flatfield_config = read_json(flatfield_file)
+                    background_intensity = flatfield_config.pivotValue
+                }
+                
+                [
+                    input_dir,
+                    output_dir,
+                    tiles_file,
+                    flatfield_file,
+                    ch,
+                    ch_info[1], // channel psf
+                    ch_info[2], // iterations
+                    background_intensity
                 ]
             }
-            .findAll {
-                file(it.tile_filepath).exists()
+    }
+    | flatMap {
+        def input_dir = it[0]
+        def output_dir = it[1]
+        def tiles_file = it[2]
+        def flatfield_file = it[3]
+        def ch = it[4]
+        def ch_psf_file = it[5]
+        def iterations = it[6]
+        def background_intensity = it[7]
+        read_json(tiles_file)
+            .collect { tile ->
+                def tile_filename = tile.file
+                def z_resolution = tile.pixelResolution[2]
+                [
+                    ch,
+                    tile_filename,
+                    input_dir,
+                    output_dir,
+                    tile_deconv_output(input_dir, tile_filename),
+                    ch_psf_file,
+                    flatfield_file.parent,
+                    background_intensity,
+                    z_resolution,
+                    psf_z_step_um,
+                    iterations
+                ]
             }
-    } \
-    | flatten \
-    | map {
-        [
-            it.ch,
-            it.tile_filepath,
-            it.data_dir,
-            it.output_tile_dir,
-            it.output_tile_filepath,
-            it.psf_filepath,
-            it.flatfield_dirpath,
-            it.background_value,
-            it.data_z_resolution,
-            it.psf_z_step,
-            it.num_iterations,
-            deconv_cores
-        ]
-    } \
-    | deconvolution_job \
-    | groupTuple(by: [0,1,2]) \
-    | map { ch_res ->
-        ch = ch_res[0]
-        data_dir = ch_res[1]
-        dconv_json_file = file("${data_dir}/${ch}-decon.json")
-        println "Create deconvolution output for channel ${ch} -> ${dconv_json_file}"
+    }
+    | filter { file(it[1]).exists() } // tile_file exists
 
-        tiles_config_file = file("${data_dir}/${ch}.json")
-        tiles_data = read_config(tiles_config_file)
-        deconv_data = tiles_data
-                        .collect { tile_config ->
-                            tile_filename = tile_config.file
-                            tile_deconv_file = tile_deconv_output(data_dir, tile_filename)
-                            tile_config.file = tile_deconv_file
-                            return tile_config
-                        }
-        write_config(deconv_data, dconv_json_file)
-        return [
+    def deconv_results = deconvolution_job(
+        deconv_input.map { it[0] }, // ch
+        deconv_input.map { it[1] }, // tile_file
+        deconv_input.map { it[2] }, // input dir
+        deconv_input.map { it[3] }, // output dir
+        deconv_input.map { it[4] }, // output tile file
+        deconv_input.map { it[5] }, // psf file
+        deconv_input.map { it[6] }, // flatten dir
+        deconv_input.map { it[7] }, // background
+        deconv_input.map { it[8] }, // z resolution
+        deconv_input.map { it[9] }, // psf z step
+        deconv_input.map { it[10] } // iteration
+    )
+    | groupTuple(by: [0,1,2])
+    | map { res ->
+        def ch = res[0]
+        def input_dir = res[1]
+        def dconv_json_file = file("${input_dir}/${ch}-decon.json")
+        log.info "Create deconvolution output for channel ${ch} -> ${dconv_json_file}"
+        def tiles_file = file("${input_dir}/${ch}.json")
+        def deconv_tiles = read_json(tiles_file)
+                            .collect { tile ->
+                                def tile_filename = tile.file
+                                def tile_deconv_file = tile_deconv_output(input_dir, tile_filename)
+                                tile.file = tile_deconv_file
+                                tile
+                            }
+        write_json(deconv_tiles, dconv_json_file)
+        def deconv_res = [
             ch,
-            data_dir,
+            input_dir,
             dconv_json_file
         ]
-    } \
-    | set { deconv_results }
+        log.info "Deconvolution result for channel $ch -> ${deconv_res}"
+        deconv_res
+    }
 
     emit:
-    deconv_results
+    done = deconv_results
 }
 
 
@@ -123,7 +131,7 @@ def deconv_output_dir(data_dir) {
 }
 
 def tile_deconv_output(data_dir, tile_filename) {
-    fn_and_ext = new File(tile_filename).getName().split("\\.")
-    output_dir = deconv_output_dir(data_dir)
+    def fn_and_ext = new File(tile_filename).getName().split("\\.")
+    def output_dir = deconv_output_dir(data_dir)
     return "${output_dir}/${fn_and_ext[0]}_decon.${fn_and_ext[1]}"
 }

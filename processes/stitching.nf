@@ -23,6 +23,7 @@ process prepare_stitching_data {
         : "${stitching_dir}/tmp"
     dataset_input_dir = "${stitching_dir}/images"
     """
+    umask 0002
     mkdir -p "${stitching_dir}"
     mkdir -p "${stitching_working_dir}"
     if [[ ! -e "${dataset_input_dir}" ]] ; then 

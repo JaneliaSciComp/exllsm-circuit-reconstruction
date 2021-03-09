@@ -1,8 +1,6 @@
 def default_em_params() {
-    def deconvrepo = 'registry.int.janelia.org/janeliascicomp'
-
     [
-        deconvrepo: deconvrepo,
+        deconvrepo: 'registry.int.janelia.org/janeliascicomp',
 
         datasets: '',
         data_dir: '',
@@ -26,7 +24,6 @@ def default_em_params() {
 
         deconv_cpus: 4,
         iterations_per_channel: '10,10,10',
-
     ]
 }
 
@@ -46,4 +43,12 @@ def get_list_or_default(Map ps, String param, List default_list) {
     return value
         ? value.tokenize(',').collect { it.trim() }
         : default_list
+}
+
+def deconvolution_container_param(Map ps) {
+    def deconvolution_container = ps.deconvolution_container
+    if (!deconvolution_container)
+        "${ps.deconvrepo}/matlab-deconv:1.0"
+    else
+        deconvolution_container
 }
