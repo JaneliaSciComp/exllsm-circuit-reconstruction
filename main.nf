@@ -17,16 +17,11 @@ final_params = default_spark_params() + default_em_params() + params
 
 include {
     prepare_stitching_data;
-} from './processes/stitching' addParams(lsf_opts: final_params.lsf_opts, 
-                                         crepo: final_params.crepo,
-                                         spark_version: final_params.spark_version)
+} from './processes/stitching' addParams(final_params)
 
 include {
     prepare_tiles_for_stitching;
-} from './workflows/stitching' addParams(lsf_opts: final_params.lsf_opts, 
-                                         crepo: final_params.crepo,
-                                         spark_version: final_params.spark_version)
-
+} from './workflows/stitching' addParams(final_params)
 
 // include {
 //     deconvolution
@@ -72,16 +67,18 @@ workflow {
         spark_work_dir
     ) // [ dataset, dataset_input_dir, stitching_dir, stitching_working_dir ]
 
+    stitching_data | view
+
     pre_stitching_res = prepare_tiles_for_stitching(
         final_params.stitching_app,
         stitching_data.map { it[0] },  // dataset
-        stitching_data.map { it[1] },  // dataset input dir
+        stitching_data.map { it[2] },  // dataset input dir same as stitching_dir
         channels,
         final_params.resolution,
         final_params.axis_mapping,
         final_params.block_size,
         spark_conf,
-        spark_work_dir,
+        stitching_data.map { it[3] },
         spark_workers,
         spark_worker_cores,
         spark_gb_per_core,

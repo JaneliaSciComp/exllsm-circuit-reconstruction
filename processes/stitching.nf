@@ -7,7 +7,10 @@ process prepare_stitching_data {
     val(working_dir)
 
     output:
-    tuple val(dataset_name), val(dataset_input_dir), val(stitching_dir), val(stitching_working_dir)
+    tuple val(dataset_name),
+          val(dataset_input_dir),
+          val(stitching_dir),
+          val(stitching_working_dir)
 
     script:
     def input_images_dir = "${input_dir}/${dataset_name}/images"
