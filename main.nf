@@ -10,7 +10,8 @@ include {
     default_em_params;
     get_value_or_default;
     get_list_or_default;
-}
+} from './param_utils'
+
 // app parameters
 final_params = default_spark_params() + default_em_params() + params
 
