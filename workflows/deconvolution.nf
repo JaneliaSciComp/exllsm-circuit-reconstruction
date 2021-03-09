@@ -10,6 +10,7 @@ include {
 
 workflow deconvolution {
     take:
+    dataset
     data_dir
     channels
     channels_psfs
@@ -19,12 +20,14 @@ workflow deconvolution {
 
     main:
     def deconv_input = prepare_deconv_dir(
+        dataset
         data_dir,
         data_dir.map { deconv_output_dir(it) }
     )
     | flatMap {
-        input_dir = it[0]
-        output_dir = it[1]
+        current_dataset = it[0]
+        input_dir = it[1]
+        output_dir = it[2]
         [channels, channels_psfs, iterations_per_channel]
             .transpose()
             .collect { ch_info ->
@@ -44,6 +47,7 @@ workflow deconvolution {
                 }
                 
                 [
+                    current_dataset,
                     input_dir,
                     output_dir,
                     tiles_file,
@@ -56,19 +60,21 @@ workflow deconvolution {
             }
     }
     | flatMap {
-        def input_dir = it[0]
-        def output_dir = it[1]
-        def tiles_file = it[2]
-        def flatfield_file = it[3]
-        def ch = it[4]
-        def ch_psf_file = it[5]
-        def iterations = it[6]
-        def background_intensity = it[7]
+        def current_dataset = it[0]
+        def input_dir = it[1]
+        def output_dir = it[2]
+        def tiles_file = it[3]
+        def flatfield_file = it[4]
+        def ch = it[5]
+        def ch_psf_file = it[6]
+        def iterations = it[7]
+        def background_intensity = it[8]
         read_json(tiles_file)
             .collect { tile ->
                 def tile_filename = tile.file
                 def z_resolution = tile.pixelResolution[2]
                 [
+                    current_dataset,
                     ch,
                     tile_filename,
                     input_dir,
@@ -86,22 +92,24 @@ workflow deconvolution {
     | filter { file(it[1]).exists() } // tile_file exists
 
     def deconv_results = deconvolution_job(
-        deconv_input.map { it[0] }, // ch
-        deconv_input.map { it[1] }, // tile_file
-        deconv_input.map { it[2] }, // input dir
-        deconv_input.map { it[3] }, // output dir
-        deconv_input.map { it[4] }, // output tile file
-        deconv_input.map { it[5] }, // psf file
-        deconv_input.map { it[6] }, // flatten dir
-        deconv_input.map { it[7] }, // background
-        deconv_input.map { it[8] }, // z resolution
-        deconv_input.map { it[9] }, // psf z step
-        deconv_input.map { it[10] } // iteration
+        deconv_input.map { it[0] }, // dataset
+        deconv_input.map { it[1] }, // ch
+        deconv_input.map { it[2] }, // tile_file
+        deconv_input.map { it[3] }, // input dir
+        deconv_input.map { it[4] }, // output dir
+        deconv_input.map { it[5] }, // output tile file
+        deconv_input.map { it[6] }, // psf file
+        deconv_input.map { it[7] }, // flatten dir
+        deconv_input.map { it[8] }, // background
+        deconv_input.map { it[9] }, // z resolution
+        deconv_input.map { it[10] }, // psf z step
+        deconv_input.map { it[11] } // iterations
     )
-    | groupTuple(by: [0,1,2])
+    | groupTuple(by: [0,1,2,3])
     | map { res ->
-        def ch = res[0]
-        def input_dir = res[1]
+        def current_dataset = res[0] 
+        def ch = res[1]
+        def input_dir = res[2]
         def dconv_json_file = file("${input_dir}/${ch}-decon.json")
         log.info "Create deconvolution output for channel ${ch} -> ${dconv_json_file}"
         def tiles_file = file("${input_dir}/${ch}.json")
@@ -114,11 +122,12 @@ workflow deconvolution {
                             }
         write_json(deconv_tiles, dconv_json_file)
         def deconv_res = [
+            current_dataset,
             ch,
             input_dir,
             dconv_json_file
         ]
-        log.info "Deconvolution result for channel $ch -> ${deconv_res}"
+        log.info "Deconvolution result for ${current_dataset}:${ch} -> ${deconv_res}"
         deconv_res
     }
 

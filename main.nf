@@ -91,6 +91,7 @@ workflow {
     pre_stitching_res | view
 
     def deconv_res = deconvolution(
+        pre_stitching_res.map { it[0] },
         pre_stitching_res.map { it[1] },
         channels,
         channels_psfs,
