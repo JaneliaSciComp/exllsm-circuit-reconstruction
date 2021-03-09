@@ -5,16 +5,12 @@ include {
     run_spark_app_on_existing_cluster as run_flatfield_correction;
     run_spark_app_on_existing_cluster as run_stitching;
     run_spark_app_on_existing_cluster as run_final_stitching;
-} from '../external-modules/spark/lib/workflows' addParams(lsf_opts: params.lsf_opts, 
-                                                           crepo: params.crepo,
-                                                           spark_version: params.spark_version)
+} from '../external-modules/spark/lib/workflows'
 
 include {
     terminate_spark as terminate_pre_stitching;
     terminate_spark as terminate_stitching;
-} from '../external-modules/spark/lib/processes' addParams(lsf_opts: params.lsf_opts, 
-                                                           crepo: params.crepo,
-                                                           spark_version: params.spark_version)
+} from '../external-modules/spark/lib/processes'
 
 include {
     entries_inputs_args
@@ -100,6 +96,7 @@ workflow prepare_tiles_for_stitching {
         parse_tiles_args.map { it[1] }, // main
         parse_tiles_args.map { it[2] }, // args
         parse_tiles_args.map { it[3] }, // log
+        terminate_stitching, // terminate name
         spark_conf,
         parse_tiles_args.map { it[4] }, // spark work dir
         spark_workers,
@@ -135,6 +132,7 @@ workflow prepare_tiles_for_stitching {
         tiff_to_n5_args.map { it[1] }, // main
         tiff_to_n5_args.map { it[2] }, // args
         tiff_to_n5_args.map { it[3] }, // log
+        terminate_stitching, // terminate name
         spark_conf,
         tiff_to_n5_args.map { it[4] }, // spark work dir
         spark_workers,
@@ -170,6 +168,7 @@ workflow prepare_tiles_for_stitching {
         flatfield_args.map { it[1] }, // main
         flatfield_args.map { it[2] }, // args
         flatfield_args.map { it[3] }, // log
+        terminate_stitching, // terminate name
         spark_conf,
         flatfield_args.map { it[4] }, // spark work dir
         spark_workers,
