@@ -207,7 +207,8 @@ workflow prepare_tiles_for_stitching {
     done = terminate_pre_stitching(
         flatfield_res.map { it[1] },
         terminate_stitching
-    ) | join(indexed_data, by:1) | map { 
+    )
+    | join(indexed_data, by:1) | map { 
         // [ work_dir, <ignored from terminate>,  idx, uri, stitching_dir, dataset]
         log.debug "Completed pre stitching for ${it}"
         // dataset_name, stitching_dir
@@ -312,7 +313,9 @@ def prepare_app_args(app_name,
                      indexed_data,
                      previous_result_dir,
                      app_args_closure) {
-    return indexed_data | join(previous_result_dir, by: 1) | map {
+    return indexed_data
+    | join(previous_result_dir, by: 1)
+    | map {
         // [ work_dir, idx, uri, stitching_dir, dataset, <ignored elem from prev res> ]
         log.debug "Create ${app_name} inputs from ${it}"
         def idx = it[1]
