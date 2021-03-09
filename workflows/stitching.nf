@@ -328,7 +328,7 @@ def prepare_app_args(app_name,
             spark_uri,
             app_main,
             app_args,
-            "${app_name}.log"
+            "${app_name}.log",
             spark_work_dir
         ]
         log.debug "${app_name} app input ${idx}: ${app_inputs}"
