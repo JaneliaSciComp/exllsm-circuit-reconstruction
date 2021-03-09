@@ -89,7 +89,14 @@ workflow deconvolution {
                 ]
             }
     }
-    | filter { file(it[1]).exists() } // tile_file exists
+    | filter {
+        def r = file(it[2]).exists()
+        if (r) {
+            // tile_file exists
+            log.debug "Deconvolution input: $it"
+        }
+        r
+    }
 
     def deconv_results = deconvolution_job(
         deconv_input.map { it[0] }, // dataset
@@ -119,6 +126,9 @@ workflow deconvolution {
                                 def tile_deconv_file = tile_deconv_output(input_dir, tile_filename)
                                 tile.file = tile_deconv_file
                                 tile
+                            }
+                            .findAll {
+                                file(tile.file).exists()
                             }
         write_json(deconv_tiles, dconv_json_file)
         def deconv_res = [
