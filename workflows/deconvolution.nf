@@ -22,7 +22,9 @@ workflow deconvolution {
         data_dir,
         data_dir.map { deconv_output_dir(it) }
     )
-    | flatMap { input_dir, output_dir ->
+    | flatMap {
+        input_dir = it[0]
+        output_dir = it[1]
         [channels, channels_psfs, iterations_per_channel]
             .transpose()
             .collect { ch_info ->
