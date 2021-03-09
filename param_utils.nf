@@ -16,13 +16,14 @@ def default_em_params() {
         axis: '-y,-x,z',
         channels: '488nm,560nm,642nm',
         block_size: '128,128,64',
-        psf_z_step_um: '0.1',
         retile_z_size: '64',
         stitching_mode: 'incremental',
         stitching_padding: '0,0,0',
         blur_sigma: '2',
 
         deconv_cpus: 4,
+        background: '',
+        psf_z_step_um: '0.1',
         iterations_per_channel: '10,10,10',
     ]
 }
