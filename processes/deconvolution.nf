@@ -6,7 +6,7 @@ process prepare_deconv_dir {
     val(data_dir)
     val(deconv_dir)
 
-    input:
+    output:
     tuple val(data_dir), val(deconv_dir)
 
     script:
