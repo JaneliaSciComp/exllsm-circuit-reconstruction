@@ -123,7 +123,7 @@ workflow prepare_tiles_for_stitching {
         parse_res,
         { dataset_name, dataset_stitching_dir ->
             def tile_json_inputs = entries_inputs_args(
-                stitching_dir,
+                dataset_stitching_dir,
                 channels,
                 '-i',
                 '',
@@ -159,7 +159,7 @@ workflow prepare_tiles_for_stitching {
         tiff2n5_res,
         { dataset_name, dataset_stitching_dir ->
             def n5_json_input = entries_inputs_args(
-                stitching_dir,
+                dataset_stitching_dir,
                 channels,
                 '-i',
                 '-n5',

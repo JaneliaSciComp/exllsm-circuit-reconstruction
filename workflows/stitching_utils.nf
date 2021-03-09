@@ -14,13 +14,13 @@ def entries_inputs(data_dir, entries, suffix) {
     }
 }
 
-def read_config(cf) {
-    jsonSlurper = new groovy.json.JsonSlurper()
+def read_json(cf) {
+    def jsonSlurper = new groovy.json.JsonSlurper()
     return jsonSlurper.parse(cf)
 }
 
-def write_config(data, cf) {
-    json_str = groovy.json.JsonOutput.toJson(data)
-    json_beauty = groovy.json.JsonOutput.prettyPrint(json_str)
+def write_json(data, cf) {
+    def json_str = groovy.json.JsonOutput.toJson(data)
+    def json_beauty = groovy.json.JsonOutput.prettyPrint(json_str)
     cf.write(json_beauty)
 }
