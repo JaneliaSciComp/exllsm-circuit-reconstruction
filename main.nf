@@ -44,15 +44,11 @@ spark_conf = final_params.spark_conf
 spark_work_dir = final_params.spark_work_dir
 spark_workers = final_params.workers
 spark_worker_cores = final_params.worker_cores
-gb_per_core = final_params.gb_per_core
-driver_cores = final_params.driver_cores
-driver_memory = final_params.driver_memory
-driver_stack = final_params.driver_stack
-driver_logconfig = final_params.driver_logconfig
-
-stitching_app = final_params.stitching_app
-resolution = final_params.resolution
-axis_mapping = final_params.axis
+spark_gb_per_core = final_params.gb_per_core
+spark_driver_cores = final_params.driver_cores
+spark_driver_memory = final_params.driver_memory
+spark_driver_stack = final_params.driver_stack
+spark_driver_logconfig = final_params.driver_logconfig
 
 // deconvolution params
 psf_dirname = final_params.psf_dir
@@ -77,22 +73,22 @@ workflow {
     ) // [ dataset, dataset_input_dir, stitching_dir, stitching_working_dir ]
 
     pre_stitching_res = prepare_tiles_for_stitching(
-        stitching_app,
+        final_params.stitching_app,
         stitching_data.map { it[0] },  // dataset
         stitching_data.map { it[1] },  // dataset input dir
         channels,
-        resolution,
-        axis_mapping,
-        block_size,
+        final_params.resolution,
+        final_params.axis_mapping,
+        final_params.block_size,
         spark_conf,
         spark_work_dir,
         spark_workers,
         spark_worker_cores,
-        gb_per_core,
-        driver_cores,
-        driver_memory,
-        driver_stack,
-        driver_logconfig
+        spark_gb_per_core,
+        spark_driver_cores,
+        spark_driver_memory,
+        spark_driver_stack,
+        spark_driver_logconfig
     )
     // deconv_res = deconvolution(
     //     pre_stitching_res, 
