@@ -25,7 +25,7 @@ workflow deconvolution {
         data_dir.map { deconv_output_dir(it) }
     )
     | flatMap {
-        current_dataset = it[0]
+        ds = it[0]
         input_dir = it[1]
         output_dir = it[2]
         [channels, channels_psfs, iterations_per_channel]
@@ -47,7 +47,7 @@ workflow deconvolution {
                 }
                 
                 [
-                    current_dataset,
+                    ds,
                     input_dir,
                     output_dir,
                     tiles_file,
@@ -60,7 +60,7 @@ workflow deconvolution {
             }
     }
     | flatMap {
-        def current_dataset = it[0]
+        def ds = it[0]
         def input_dir = it[1]
         def output_dir = it[2]
         def tiles_file = it[3]
@@ -74,7 +74,7 @@ workflow deconvolution {
                 def tile_filename = tile.file
                 def z_resolution = tile.pixelResolution[2]
                 [
-                    current_dataset,
+                    ds,
                     ch,
                     tile_filename,
                     input_dir,
@@ -107,11 +107,11 @@ workflow deconvolution {
     )
     | groupTuple(by: [0,1,2,3])
     | map { res ->
-        def current_dataset = res[0] 
+        def ds = res[0] 
         def ch = res[1]
         def input_dir = res[2]
         def dconv_json_file = file("${input_dir}/${ch}-decon.json")
-        log.info "Create deconvolution output for channel ${ch} -> ${dconv_json_file}"
+        log.info "Create deconvolution output for ${ds}:${ch} -> ${dconv_json_file}"
         def tiles_file = file("${input_dir}/${ch}.json")
         def deconv_tiles = read_json(tiles_file)
                             .collect { tile ->
@@ -122,12 +122,12 @@ workflow deconvolution {
                             }
         write_json(deconv_tiles, dconv_json_file)
         def deconv_res = [
-            current_dataset,
+            ds,
             ch,
             input_dir,
             dconv_json_file
         ]
-        log.info "Deconvolution result for ${current_dataset}:${ch} -> ${deconv_res}"
+        log.info "Deconvolution result for ${ds}:${ch} -> ${deconv_res}"
         deconv_res
     }
 
