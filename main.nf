@@ -72,7 +72,7 @@ workflow {
     pre_stitching_res = prepare_tiles_for_stitching(
         final_params.stitching_app,
         stitching_data.map { it[0] },  // dataset
-        stitching_data.map { it[2] },  // dataset input dir same as stitching_dir
+        stitching_data.map { it[1] },  // dataset input dir
         channels,
         final_params.resolution,
         final_params.axis,
