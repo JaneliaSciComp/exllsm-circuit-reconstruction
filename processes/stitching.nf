@@ -25,6 +25,8 @@ process prepare_stitching_data {
     """
     mkdir -p "${stitching_dir}"
     mkdir -p "${stitching_working_dir}"
-    ln -s "${input_images_dir}" "${dataset_input_dir}" || true
+    if [[ ! -e "${dataset_input_dir}" ]] ; then 
+        ln -s "${input_images_dir}" "${dataset_input_dir}"
+    fi;
     """
 }
