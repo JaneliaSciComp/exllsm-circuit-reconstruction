@@ -21,7 +21,7 @@ def default_em_params() {
         stitching_padding: '0,0,0',
         blur_sigma: '2',
 
-        deconv_cpus: 4,
+        deconv_cpus: 6,
         background: '',
         psf_z_step_um: '0.1',
         iterations_per_channel: '10,10,10',
