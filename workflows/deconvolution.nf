@@ -127,7 +127,7 @@ workflow deconvolution {
                                 tile.file = tile_deconv_file
                                 tile
                             }
-                            .findAll {
+                            .findAll { tile ->
                                 file(tile.file).exists()
                             }
         write_json(deconv_tiles, dconv_json_file)
