@@ -219,93 +219,93 @@ workflow prepare_tiles_for_stitching {
     done
 }
 
-workflow stitching {
-    take:
-    stitching_app
-    data_dir
-    channels
-    export_level
-    spark_conf
-    spark_work_dir
-    nworkers
-    worker_cores
-    memgb_per_core
-    driver_cores
-    driver_memory
-    driver_logconfig
+// workflow stitching {
+//     take:
+//     stitching_app
+//     data_dir
+//     channels
+//     export_level
+//     spark_conf
+//     spark_work_dir
+//     nworkers
+//     worker_cores
+//     memgb_per_core
+//     driver_cores
+//     driver_memory
+//     driver_logconfig
 
-    main:
-    spark_uri = spark_cluster(spark_conf, spark_work_dir, nworkers, worker_cores)
-    stitching_json_inputs = channels_json_inputs(data_dir, channels, '-decon')
-    stitching_res = run_stitching(
-        spark_uri,
-        stitching_app,
-        "org.janelia.stitching.StitchingSpark",
-        "--stitch \
-        -r -1 \
-        ${stitching_json_inputs} \
-        --mode 'incremental' \
-        --padding '0,0,0' --blurSigma 2",
-        "stitching.log",
-        spark_conf,
-        spark_work_dir,
-        nworkers,
-        worker_cores,
-        memgb_per_core,
-        driver_cores,
-        driver_memory,
-        '',
-        driver_logconfig,
-        ''
-    )
+//     main:
+//     def spark_uri = spark_cluster(spark_conf, spark_work_dir, nworkers, worker_cores)
+//     def stitching_json_inputs = channels_json_inputs(data_dir, channels, '-decon')
+//     def stitching_res = run_stitching(
+//         spark_uri,
+//         stitching_app,
+//         "org.janelia.stitching.StitchingSpark",
+//         "--stitch \
+//         -r -1 \
+//         ${stitching_json_inputs} \
+//         --mode 'incremental' \
+//         --padding '0,0,0' --blurSigma 2",
+//         "stitching.log",
+//         spark_conf,
+//         spark_work_dir,
+//         nworkers,
+//         worker_cores,
+//         memgb_per_core,
+//         driver_cores,
+//         driver_memory,
+//         '',
+//         driver_logconfig,
+//         ''
+//     )
 
-    final_stitching_json_inputs = channels_json_inputs(data_dir, channels, '-decon-final')
-    final_stitching_res = run_final_stitching(
-        stitching_res,
-        stitching_app,
-        "org.janelia.stitching.StitchingSpark",
-        "--fuse ${final_stitching_json_inputs} --blending",
-        "stitching-final.log",
-        spark_conf,
-        spark_work_dir,
-        nworkers,
-        worker_cores,
-        memgb_per_core,
-        driver_cores,
-        driver_memory,
-        '',
-        driver_logconfig,
-        ''
-    )
+//     final_stitching_json_inputs = channels_json_inputs(data_dir, channels, '-decon-final')
+//     final_stitching_res = run_final_stitching(
+//         stitching_res,
+//         stitching_app,
+//         "org.janelia.stitching.StitchingSpark",
+//         "--fuse ${final_stitching_json_inputs} --blending",
+//         "stitching-final.log",
+//         spark_conf,
+//         spark_work_dir,
+//         nworkers,
+//         worker_cores,
+//         memgb_per_core,
+//         driver_cores,
+//         driver_memory,
+//         '',
+//         driver_logconfig,
+//         ''
+//     )
 
-    export_res = run_final_stitching(
-        final_stitching_res,
-        stitching_app,
-        "org.janelia.stitching.N5ToSliceTiffSpark",
-        "-i ${data_dir}/export.n5 --scaleLevel ${export_level}",
-        "export.log",
-        spark_conf,
-        spark_work_dir,
-        nworkers,
-        worker_cores,
-        memgb_per_core,
-        driver_cores,
-        driver_memory,
-        '',
-        driver_logconfig,
-        ''
-    )
+//     export_res = run_final_stitching(
+//         final_stitching_res,
+//         stitching_app,
+//         "org.janelia.stitching.N5ToSliceTiffSpark",
+//         "-i ${data_dir}/export.n5 --scaleLevel ${export_level}",
+//         "export.log",
+//         spark_conf,
+//         spark_work_dir,
+//         nworkers,
+//         worker_cores,
+//         memgb_per_core,
+//         driver_cores,
+//         driver_memory,
+//         '',
+//         driver_logconfig,
+//         ''
+//     )
 
-    export_res \
-    | map { spark_work_dir } \
-    | terminate_stitching \
-    | map { data_dir }
-    | set { done }
+//     export_res \
+//     | map { spark_work_dir } \
+//     | terminate_stitching \
+//     | map { data_dir }
+//     | set { done }
 
-    emit:
-    done
+//     emit:
+//     done
 
-}
+// }
 
 
 def prepare_app_args(app_name,
