@@ -16,7 +16,6 @@ workflow deconvolution {
     psf_z_step_um
     background
     iterations_per_channel
-    deconv_cores
 
     main:
     def deconv_input = prepare_deconv_dir(
