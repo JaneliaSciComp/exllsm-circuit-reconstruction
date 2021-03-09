@@ -115,7 +115,7 @@ workflow prepare_tiles_for_stitching {
         }
     )
 
-    parse_res = run_parse_tiles(
+    def parse_res = run_parse_tiles(
         parse_tiles_args.map { it[0] }, // spark uri
         stitching_app,
         parse_tiles_args.map { it[1] }, // main
