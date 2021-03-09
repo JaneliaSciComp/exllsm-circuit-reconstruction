@@ -75,7 +75,7 @@ workflow {
         stitching_data.map { it[2] },  // dataset input dir same as stitching_dir
         channels,
         final_params.resolution,
-        final_params.axis_mapping,
+        final_params.axis,
         final_params.block_size,
         spark_conf,
         stitching_data.map { it[3] },
