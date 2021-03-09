@@ -1,14 +1,14 @@
 process prepare_deconv_dir {
     container { params.deconvolution_container }
-    executor "Local"
+    executor "local"
 
     input:
-    val(dataset)
+    val(ds)
     val(data_dir)
     val(deconv_dir)
 
     output:
-    tuple val(dataset), val(data_dir), val(deconv_dir)
+    tuple val(ds), val(data_dir), val(deconv_dir)
 
     script:
     """
@@ -22,7 +22,7 @@ process deconvolution_job {
     cpus { params.deconv_cpus }
 
     input:
-    val(dataset)
+    val(ds)
     val(ch)
     val(tile_file)
     val(data_dir)
@@ -36,7 +36,7 @@ process deconvolution_job {
     val(iterations)
 
     output:
-    tuple val(dataset),
+    tuple val(ds),
           val(ch),
           val(data_dir),
           val(output_dir),

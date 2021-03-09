@@ -20,7 +20,7 @@ workflow deconvolution {
 
     main:
     def deconv_input = prepare_deconv_dir(
-        dataset
+        dataset,
         data_dir,
         data_dir.map { deconv_output_dir(it) }
     )
