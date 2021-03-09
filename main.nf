@@ -17,10 +17,16 @@ final_params = default_spark_params() + default_em_params() + params
 
 include {
     prepare_stitching_data;
+} from './processes/stitching' addParams(lsf_opts: final_params.lsf_opts, 
+                                         crepo: final_params.crepo,
+                                         spark_version: final_params.spark_version)
+
+include {
     prepare_tiles_for_stitching;
 } from './workflows/stitching' addParams(lsf_opts: final_params.lsf_opts, 
                                          crepo: final_params.crepo,
                                          spark_version: final_params.spark_version)
+
 
 // include {
 //     deconvolution
@@ -63,12 +69,12 @@ workflow {
         get_list_or_default(final_params, 'datasets', [])
     )
     def stitching_data = prepare_stitching_data(
-        datasets,
         data_dir,
         pipeline_output_dir,
+        datasets,
         final_params.stitching_output,
         spark_work_dir
-    )
+    ) // [ dataset, dataset_input_dir, stitching_dir, stitching_working_dir ]
 
     pre_stitching_res = prepare_tiles_for_stitching(
         stitching_app,

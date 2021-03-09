@@ -17,33 +17,8 @@ include {
                                                            spark_version: params.spark_version)
 
 include {
-    prepare_stitching_data;
-} from '../processes/stitching'
-
-include {
     entries_inputs_args
 } from './stitching_utils'
-
-workflow prepare_stitching_data {
-    take:
-    datasets // queue or value channel of dataset names
-    input_dir // queue or value channel of input dirs
-    output_dir // queue or value channel of output
-    stitching_output // value channel with relative path to stitching output
-    work_dir // value channel with work dir
-
-    main:
-    stitching_data = prepare_stitching_data(
-        input_dir,
-        output_dir,
-        datasets,
-        stitching_output,
-        work_dir
-    )
-
-    emit:
-    stitching_data
-} // [ dataset, dataset_input_dir, stitching_dir, stitching_working_dir ]
 
 workflow prepare_tiles_for_stitching {
     take:
