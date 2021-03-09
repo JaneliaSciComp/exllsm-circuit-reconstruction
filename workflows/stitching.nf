@@ -83,7 +83,7 @@ workflow prepare_tiles_for_stitching {
         indexed_spark_work_dir, //  here I only want a tuple that has the working dir as the 2nd element
         { dataset_name, dataset_stitching_dir ->
             def args_list = []
-            args_list << "-i ${dataset_stitching_dir}/ImageList_images.csv" +
+            args_list << "-i ${dataset_stitching_dir}/ImageList_images.csv"
             if (resolution) {
                 args_list << "-r '${resolution}'"
             }
