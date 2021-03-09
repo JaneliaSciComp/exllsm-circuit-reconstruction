@@ -100,6 +100,11 @@ workflow {
     // deconv_res | view
 }
 
+def create_output_dir(output_dirname) {
+    def output_dir = file(output_dirname)
+    output_dir.mkdirs()
+}
+
 def get_step_output_dir(output_parent_dir, step_output) {
     step_output
         ? new File(output_parent_dir)
