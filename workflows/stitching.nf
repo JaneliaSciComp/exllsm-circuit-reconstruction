@@ -20,6 +20,10 @@ include {
     entries_inputs_args
 } from './stitching_utils'
 
+include {
+    index_channel;
+} from '../utils/utils'
+
 workflow prepare_tiles_for_stitching {
     take:
     stitching_app
