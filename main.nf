@@ -79,7 +79,7 @@ workflow {
         final_params.axis,
         final_params.block_size,
         spark_conf,
-        stitching_data.map { it[3] }, // spark_working_dir
+        stitching_data.map { "${it[3]}/prestitch" }, // spark_working_dir
         spark_workers,
         spark_worker_cores,
         spark_gb_per_core,
@@ -126,7 +126,7 @@ workflow {
         final_params.blur_sigma,
         final_params.export_level,
         spark_conf,
-        stitching_input.map { it[6] }, // spark working dir
+        stitching_input.map { "${it[6]}/stitch" }, // spark working dir
         spark_workers,
         spark_worker_cores,
         spark_gb_per_core,
