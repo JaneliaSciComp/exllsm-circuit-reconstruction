@@ -1,9 +1,8 @@
 include {
-    spark_cluster as prestitch_spark_cluster;
+    spark_cluster;
     run_spark_app_on_existing_cluster as run_parse_tiles;
     run_spark_app_on_existing_cluster as run_tiff2n5;
     run_spark_app_on_existing_cluster as run_flatfield_correction;
-    spark_cluster as stitch_spark_cluster;
     run_spark_app_on_existing_cluster as run_stitching;
     run_spark_app_on_existing_cluster as run_fuse;
     run_spark_app_on_existing_cluster as run_export;
@@ -51,7 +50,7 @@ workflow prepare_tiles_for_stitching {
     def indexed_spark_work_dir = index_channel(spark_work_dir)
 
     // start a spark cluster
-    def spark_cluster_res = prestitch_spark_cluster(
+    def spark_cluster_res = spark_cluster(
         spark_conf,
         spark_work_dir,
         spark_workers,
@@ -268,7 +267,7 @@ workflow stitching {
     def indexed_spark_work_dir = index_channel(spark_work_dir)
 
     // start a spark cluster
-    def spark_cluster_res = stitch_spark_cluster(
+    def spark_cluster_res = spark_cluster(
         spark_conf,
         spark_work_dir,
         spark_workers,
@@ -395,7 +394,7 @@ workflow stitching {
             args_list.join(' ')
         }
     )
-    def export_res = run_fuse(
+    def export_res = run_export(
         fuse_args.map { it[0] }, // spark uri
         stitching_app,
         fuse_args.map { it[1] }, // main
