@@ -202,6 +202,48 @@ workflow prepare_tiles_for_stitching {
     done
 }
 
+workflow mock_prepare_tiles_for_stitching {
+    take:
+    stitching_app
+    dataset
+    stitching_dir
+    channels
+    resolution
+    axis_mapping
+    block_size
+    spark_conf
+    spark_work_dir
+    spark_workers
+    spark_worker_cores
+    spark_gbmem_per_core
+    spark_driver_cores
+    spark_driver_memory
+    spark_driver_stack
+    spark_driver_logconfig
+
+    main:
+    def spark_driver_deploy = ''
+    def terminate_app_name = 'terminate-pre-stitching'
+
+    // index inputs so that I can pair dataset name with the corresponding spark URI and/or spark working dir
+    def indexed_dataset = index_channel(dataset)
+    def indexed_stitching_dir = index_channel(stitching_dir)
+    def indexed_spark_work_dir = index_channel(spark_work_dir)
+
+    // create a channel of tuples:  [index, spark_uri, dataset, stitching_dir, spark_work_dir]
+    def indexed_data = indexed_spark_work_dir \
+        | join(indexed_spark_uri)
+        | join(indexed_stitching_dir)
+        | join(indexed_dataset) // [ idx, work_dir, uri, stitching_dir, dataset ]
+
+    done = indexed_dataset
+        | join(indexed_stitching_dir)
+        | map { [it[1], it[2]] }
+
+    emit:
+    done
+}
+
 workflow stitching {
     take:
     stitching_app
