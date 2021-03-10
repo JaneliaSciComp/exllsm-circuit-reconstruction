@@ -67,7 +67,7 @@ workflow prepare_tiles_for_stitching {
             return indexed_uri
         }
 
-    // create a channel of tuples:  [index, spark_uri, dataset, stitching_dir, spark_work_dir]
+    // create a channel of tuples:  [index, spark_uri, dataset, input_dir, stitching_dir, spark_work_dir]
     def indexed_data = indexed_spark_work_dir \
         | join(indexed_spark_uri)
         | join(indexed_input_dir)
@@ -193,8 +193,8 @@ workflow prepare_tiles_for_stitching {
     | join(indexed_data, by:1) | map { 
         // [ work_dir, <ignored from terminate>,  idx, uri, stitching_dir, dataset]
         log.info "Completed pre stitching for ${it}"
-        // dataset_name, stitching_dir
-        [ it[5], it[4] ]
+        // dataset_name, input_dir, stitching_dir
+        [ it[6], it[4], it[5] ]
     }
 
     emit:

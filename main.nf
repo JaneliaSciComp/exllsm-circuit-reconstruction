@@ -93,11 +93,11 @@ workflow {
         spark_driver_logconfig
     )
 
-    pre_stitching_res | view
+    pre_stitching_res.subscribe { log.debug "Pre stitch results: $it" }
 
     def deconv_res = deconvolution(
-        pre_stitching_res.map { it[0] },
-        pre_stitching_res.map { it[1] },
+        pre_stitching_res.map { it[0] }, // dataset
+        pre_stitching_res.map { it[2] }, // stitching_dir
         channels,
         channels_psfs,
         final_params.psf_z_step_um,
