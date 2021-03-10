@@ -44,16 +44,19 @@ process deconvolution_job {
           val(output_file)
 
     script:
+    def app_args_list = [
+        tile_file,
+        output_file,
+        psf_input,
+        flatfield_dir,
+        background,
+        z_resolution,
+        psf_z_step,
+        iterations
+    ]
+    def app_args = app_args_list.join(' ')
     """
     umask 0002
-    /app/entrypoint.sh \
-        ${tile_file} \
-        ${output_file} \
-        ${psf_input} \
-        ${flatfield_dir} \
-        ${background} \
-        ${z_resolution} \
-        ${psf_z_step} \
-        ${iterations}
+    /app/entrypoint.sh ${app_args}
     """
 }
