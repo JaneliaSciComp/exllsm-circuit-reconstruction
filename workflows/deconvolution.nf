@@ -139,7 +139,7 @@ workflow deconvolution {
         ]
         log.info "Deconvolution result for ${ds}:${ch} -> ${deconv_res}"
         deconv_res
-    }
+    } // [ dataset, channel, stitching_dir, deconv_json_file ]
 
     emit:
     done = deconv_results

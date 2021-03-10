@@ -22,6 +22,7 @@ include {
 
 include {
     prepare_tiles_for_stitching;
+    stitching;
 } from './workflows/stitching' addParams(final_params)
 
 deconv_params = final_params + [deconvolution_container: deconvolution_container_param(final_params)]
@@ -78,7 +79,7 @@ workflow {
         final_params.axis,
         final_params.block_size,
         spark_conf,
-        stitching_data.map { it[3] },
+        stitching_data.map { it[3] }, // spark_working_dir
         spark_workers,
         spark_worker_cores,
         spark_gb_per_core,
@@ -99,8 +100,44 @@ workflow {
         final_params.background,
         iterations_per_channel
     )
-    
+    | groupTuple(by: [0,2]) // groupBy [ dataset, input_dir ]
+    | map {
+        [
+            it[0], // dataset
+            it[2], // dataset_input_dir
+            it[1], // channels
+            it[3]  // deconv_res
+        ]
+    }
     deconv_res | view
+
+    def stitching_input = deconv_res
+    | join(stitching_data, by: 0)
+
+    stitching_input | view
+
+    def stitching_res = stitching(
+        final_params.stitching_app,
+        stitching_input.map { it[0] }, // dataset
+        stitching_input.map { it[1] }, // dataset input dir
+        stitching_input.map { it[2] }, // channels
+        final_params.stitching_mode,
+        final_params.stitching_padding,
+        final_params.blur_sigma,
+        final_params.export_level,
+        spark_conf,
+        stitching_input.map { it[6] }, // spark working dir
+        spark_workers,
+        spark_worker_cores,
+        spark_gb_per_core,
+        spark_driver_cores,
+        spark_driver_memory,
+        spark_driver_stack,
+        spark_driver_logconfig
+    )
+
+    stitching_res | view
+
 }
 
 def create_output_dir(output_dirname) {
