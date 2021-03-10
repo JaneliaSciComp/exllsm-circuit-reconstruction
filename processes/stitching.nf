@@ -13,7 +13,7 @@ process prepare_stitching_data {
           val(stitching_working_dir)
 
     script:
-    def dataset_input_dir = "${input_dir}/${dataset_name}/images"
+    dataset_input_dir = "${input_dir}/${dataset_name}/images"
     dataset_output_dir = "${output_dir}/${dataset_name}"
     stitching_dir = stitching_output
         ? "${dataset_output_dir}/${stitching_output}"
