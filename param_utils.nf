@@ -20,6 +20,7 @@ def default_em_params() {
         stitching_mode: 'incremental',
         stitching_padding: '0,0,0',
         blur_sigma: '2',
+        export_level: '0',
 
         deconv_cpus: 4,
         background: '',
