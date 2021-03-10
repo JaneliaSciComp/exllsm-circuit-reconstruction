@@ -13,7 +13,7 @@ process prepare_stitching_data {
           val(stitching_working_dir)
 
     script:
-    def input_images_dir = "${input_dir}/${dataset_name}/images"
+    def dataset_input_dir = "${input_dir}/${dataset_name}/images"
     dataset_output_dir = "${output_dir}/${dataset_name}"
     stitching_dir = stitching_output
         ? "${dataset_output_dir}/${stitching_output}"
@@ -21,11 +21,10 @@ process prepare_stitching_data {
     stitching_working_dir = working_dir
         ? "${working_dir}/${dataset_name}"
         : "${stitching_dir}/tmp"
-    dataset_input_dir = input_images_dir
     """
     umask 0002
     mkdir -p "${stitching_dir}"
     mkdir -p "${stitching_working_dir}"
-    cp "${input_images_dir}/ImageList_images.csv" "${stitching_dir}"
+    cp "${dataset_input_dir}/ImageList_images.csv" "${stitching_dir}"
     """
 }

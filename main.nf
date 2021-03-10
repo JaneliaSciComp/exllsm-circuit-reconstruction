@@ -22,6 +22,9 @@ include {
 
 include {
     prepare_tiles_for_stitching;
+} from './workflows/prestitching' addParams(final_params)
+
+include {
     stitching;
 } from './workflows/stitching' addParams(final_params)
 
