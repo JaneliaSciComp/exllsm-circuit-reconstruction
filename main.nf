@@ -108,7 +108,7 @@ workflow {
     | map {
         [
             it[0], // dataset
-            it[2], // dataset_input_dir
+            it[2], // stitching_dir
             it[1], // channels
             it[3]  // deconv_res
         ]
@@ -123,7 +123,7 @@ workflow {
     def stitching_res = stitching(
         final_params.stitching_app,
         stitching_input.map { it[0] }, // dataset
-        stitching_input.map { it[1] }, // dataset input dir
+        stitching_input.map { it[1] }, // stitching_dir
         channels, // channels
         final_params.stitching_mode,
         final_params.stitching_padding,
