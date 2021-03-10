@@ -395,14 +395,14 @@ workflow stitching {
         }
     )
     def export_res = run_export(
-        fuse_args.map { it[0] }, // spark uri
+        export_args.map { it[0] }, // spark uri
         stitching_app,
-        fuse_args.map { it[1] }, // main
-        fuse_args.map { it[2] }, // args
-        fuse_args.map { it[3] }, // log
+        export_args.map { it[1] }, // main
+        export_args.map { it[2] }, // args
+        export_args.map { it[3] }, // log
         terminate_app_name, // terminate name
         spark_conf,
-        fuse_args.map { it[4] }, // spark work dir
+        export_args.map { it[4] }, // spark work dir
         spark_workers,
         spark_worker_cores,
         spark_gbmem_per_core,
