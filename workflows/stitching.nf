@@ -228,13 +228,6 @@ workflow mock_prepare_tiles_for_stitching {
     // index inputs so that I can pair dataset name with the corresponding spark URI and/or spark working dir
     def indexed_dataset = index_channel(dataset)
     def indexed_stitching_dir = index_channel(stitching_dir)
-    def indexed_spark_work_dir = index_channel(spark_work_dir)
-
-    // create a channel of tuples:  [index, spark_uri, dataset, stitching_dir, spark_work_dir]
-    def indexed_data = indexed_spark_work_dir \
-        | join(indexed_spark_uri)
-        | join(indexed_stitching_dir)
-        | join(indexed_dataset) // [ idx, work_dir, uri, stitching_dir, dataset ]
 
     done = indexed_dataset
         | join(indexed_stitching_dir)
