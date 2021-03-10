@@ -21,7 +21,7 @@ include {
 } from './processes/stitching' addParams(final_params)
 
 include {
-    mock_prepare_tiles_for_stitching as prepare_tiles_for_stitching;
+    prepare_tiles_for_stitching;
     stitching;
 } from './workflows/stitching' addParams(final_params)
 
