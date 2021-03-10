@@ -120,7 +120,7 @@ workflow {
         final_params.stitching_app,
         stitching_input.map { it[0] }, // dataset
         stitching_input.map { it[1] }, // dataset input dir
-        stitching_input.map { it[2] }, // channels
+        channels, // channels
         final_params.stitching_mode,
         final_params.stitching_padding,
         final_params.blur_sigma,
