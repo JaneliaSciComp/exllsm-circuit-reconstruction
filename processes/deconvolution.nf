@@ -57,6 +57,6 @@ process deconvolution_job {
     def app_args = app_args_list.join(' ')
     """
     umask 0002
-    /app/entrypoint.sh ${app_args}
+    echo /app/entrypoint.sh ${app_args}
     """
 }
