@@ -27,6 +27,7 @@ workflow stitching {
     stitching_padding
     blur_sigma
     export_level
+    export_fusestage
     spark_conf
     spark_work_dir
     spark_workers
@@ -170,7 +171,9 @@ workflow stitching {
             args_list 
                 << '-i' << "${dataset_stitching_dir}/export.n5"
                 << '--scaleLevel' << "${export_level}"
-
+            if (export_fusestage) {
+                args_list << '--fusestage'
+            }
             args_list.join(' ')
         }
     )

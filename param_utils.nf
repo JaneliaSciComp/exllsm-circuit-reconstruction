@@ -21,6 +21,7 @@ def default_em_params() {
         stitching_padding: '0,0,0',
         blur_sigma: '2',
         export_level: '0',
+        export_fusestage: false,
 
         deconv_cpus: 4,
         background: '',
