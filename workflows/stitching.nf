@@ -210,7 +210,6 @@ workflow stitching {
 
     emit:
     done
-
 }
 
 def prepare_app_args(app_name,
@@ -239,4 +238,40 @@ def prepare_app_args(app_name,
         log.debug "${app_name} app input ${idx}: ${app_inputs}"
         return app_inputs
     }
+}
+
+workflow mock_stitching {
+    take:
+    stitching_app
+    dataset
+    stitching_dir
+    channels
+    stitching_mode
+    stitching_padding
+    blur_sigma
+    export_level
+    export_fusestage
+    spark_conf
+    spark_work_dir
+    spark_workers
+    spark_worker_cores
+    spark_gbmem_per_core
+    spark_driver_cores
+    spark_driver_memory
+    spark_driver_stack
+    spark_driver_logconfig
+
+    main:
+    def indexed_dataset = index_channel(dataset)
+    def indexed_stitching_dir = index_channel(stitching_dir)
+
+    done = indexed_dataset 
+    | join(indexed_stitching_dir)
+    | map {
+        // dataset_name, stitching_dir
+        [ it[1], it[2] ]
+    }
+
+    emit:
+    done
 }

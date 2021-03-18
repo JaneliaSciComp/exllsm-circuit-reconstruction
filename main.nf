@@ -27,6 +27,7 @@ include {
 
 include {
     stitching;
+    mock_stitching;
 } from './workflows/stitching' addParams(final_params)
 
 deconv_params = final_params + [
@@ -83,6 +84,7 @@ workflow {
 
     stitching_data.subscribe { log.debug "Stitching: $it" }
 
+/* !!!!!
     def pre_stitching_res = prepare_tiles_for_stitching(
         final_params.stitching_app,
         stitching_data.map { it[0] },  // dataset
@@ -142,6 +144,27 @@ workflow {
         final_params.export_fusestage,
         spark_conf,
         stitching_input.map { "${it[6]}/stitch" }, // spark working dir
+        spark_workers,
+        spark_worker_cores,
+        spark_gb_per_core,
+        spark_driver_cores,
+        spark_driver_memory,
+        spark_driver_stack,
+        spark_driver_logconfig
+    )
+!!!!!*/
+    def stitching_res = mock_stitching(
+        final_params.stitching_app,
+        stitching_data.map { it[0] }, // dataset
+        stitching_data.map { it[2] }, // stitching_dir
+        channels, // channels
+        final_params.stitching_mode,
+        final_params.stitching_padding,
+        final_params.blur_sigma,
+        final_params.export_level,
+        final_params.export_fusestage,
+        spark_conf,
+        stitching_data.map { "${it[3]}/stitch" }, // spark working dir
         spark_workers,
         spark_worker_cores,
         spark_gb_per_core,
