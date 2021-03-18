@@ -10,6 +10,7 @@ process prepare_stitching_data {
     tuple val(dataset_name),
           val(dataset_input_dir),
           val(stitching_dir),
+          val(dataset_output_dir),
           val(stitching_working_dir)
 
     script:

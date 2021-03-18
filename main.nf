@@ -80,7 +80,7 @@ workflow {
         datasets,
         final_params.stitching_output,
         spark_work_dir
-    ) // [ dataset, dataset_input_dir, stitching_dir, stitching_working_dir ]
+    ) // [ dataset, dataset_input_dir, stitching_dir, dataset_output_dir, stitching_working_dir ]
 
     stitching_data.subscribe { log.debug "Stitching: $it" }
 
@@ -95,7 +95,7 @@ workflow {
         final_params.axis,
         final_params.block_size,
         spark_conf,
-        stitching_data.map { "${it[3]}/prestitch" }, // spark_working_dir
+        stitching_data.map { "${it[4]}/prestitch" }, // spark_working_dir
         spark_workers,
         spark_worker_cores,
         spark_gb_per_core,
@@ -143,7 +143,7 @@ workflow {
         final_params.export_level,
         final_params.export_fusestage,
         spark_conf,
-        stitching_input.map { "${it[6]}/stitch" }, // spark working dir
+        stitching_input.map { "${it[7]}/stitch" }, // spark working dir
         spark_workers,
         spark_worker_cores,
         spark_gb_per_core,
@@ -152,6 +152,7 @@ workflow {
         spark_driver_stack,
         spark_driver_logconfig
     )
+    stitching_res | view
 !!!!!*/
     def stitching_res = mock_stitching(
         final_params.stitching_app,
@@ -164,7 +165,7 @@ workflow {
         final_params.export_level,
         final_params.export_fusestage,
         spark_conf,
-        stitching_data.map { "${it[3]}/stitch" }, // spark working dir
+        stitching_data.map { "${it[4]}/stitch" }, // spark working dir
         spark_workers,
         spark_worker_cores,
         spark_gb_per_core,
@@ -174,7 +175,21 @@ workflow {
         spark_driver_logconfig
     )
 
-    stitching_res | view
+    def synapse_input = stitching_data
+    | map {
+        // [ dataset, stitching_dir, data_dir, results_dir ]
+        [it[0], it[2], it[1], it[3]]
+    }
+    | join(stitching_res, by: [0,1])
+    | map {
+        [
+            it[0],
+            "${it[1]}/slice-tiff-s0/${final_params.synapse_channel}",
+            "${it[3]}/synapses",
+            "${it[3]}/h5_tmp",
+        ]
+    }
+    | view
 
 }
 

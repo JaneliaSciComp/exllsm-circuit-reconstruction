@@ -5,6 +5,7 @@ include {
 
 workflow find_synapses {
     take:
+    dataset
     input_dir
     output_dir
     working_dir
