@@ -186,7 +186,7 @@ workflow {
             it[0],
             "${it[1]}/slice-tiff-s0/${final_params.synapse_channel}",
             "${it[3]}/synapses",
-            "${it[3]}/h5_tmp",
+            "${it[3]}/h5_tmp"
         ]
     }
 
