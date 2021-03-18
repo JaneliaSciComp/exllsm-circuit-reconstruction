@@ -189,8 +189,15 @@ workflow {
             "${it[3]}/h5_tmp",
         ]
     }
-    | view
 
+    def synapses_res = find_synapses(
+        synapse_input.map { it[0] }
+        synapse_input.map { it[1] }
+        synapse_input.map { it[2] }
+        synapse_input.map { it[3] }
+    )
+
+    synapses_res | view
 }
 
 def create_output_dir(output_dirname) {
