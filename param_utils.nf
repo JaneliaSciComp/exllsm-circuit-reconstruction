@@ -1,6 +1,6 @@
 def default_em_params() {
     [
-        deconvrepo: 'registry.int.janelia.org/janeliascicomp',
+        exm_repo: 'registry.int.janelia.org/janeliascicomp',
 
         datasets: '',
         data_dir: '',
@@ -27,6 +27,9 @@ def default_em_params() {
         background: '',
         psf_z_step_um: '0.1',
         iterations_per_channel: '10,10,10',
+
+        // synapse detection params
+        exm_synapse_container: '/groups/dickson/home/lillvisj/model_DNN/singularity_build_test/singularity_for_2D_synapse2020_6.simg', // !!! THIS NEEDS FIXED
     ]
 }
 
@@ -51,7 +54,15 @@ def get_list_or_default(Map ps, String param, List default_list) {
 def deconvolution_container_param(Map ps) {
     def deconvolution_container = ps.deconvolution_container
     if (!deconvolution_container)
-        "${ps.deconvrepo}/matlab-deconv:1.0"
+        "${ps.exm_repo}/matlab-deconv:1.0"
     else
         deconvolution_container
+}
+
+def exm_synapse_container_param(Map ps) {
+    def exm_synapse_container = ps.exm_synapse_container
+    if (!exm_synapse_container)
+        "${ps.exm_repo}/exm_synapse:1.0"
+    else
+        exm_synapse_container
 }

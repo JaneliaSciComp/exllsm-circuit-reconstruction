@@ -11,6 +11,7 @@ include {
     get_value_or_default;
     get_list_or_default;
     deconvolution_container_param;
+    exm_synapse_container_param;
 } from './param_utils'
 
 // app parameters
@@ -28,10 +29,19 @@ include {
     stitching;
 } from './workflows/stitching' addParams(final_params)
 
-deconv_params = final_params + [deconvolution_container: deconvolution_container_param(final_params)]
+deconv_params = final_params + [
+    deconvolution_container: deconvolution_container_param(final_params),
+]
 include {
     deconvolution
 } from './workflows/deconvolution' addParams(deconv_params)
+
+synapse_params = final_params + [
+    exm_synapse_container: exm_synapse_container_param(final_params),
+]
+include {
+    find_synapses;
+} from './workflows/synapse_detection' addParams(synapse_params)
 
 data_dir = final_params.data_dir
 pipeline_output_dir = get_value_or_default(final_params, 'output_dir', data_dir)
