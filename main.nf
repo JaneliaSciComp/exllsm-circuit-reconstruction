@@ -135,7 +135,7 @@ workflow {
     def stitching_res = stitching(
         final_params.stitching_app,
         stitching_input.map { it[0] }, // dataset
-        stitching_input.map { it[1] }, // stitching_dir
+        stitching_input.map { it[2] }, // stitching_dir
         channels, // channels
         final_params.stitching_mode,
         final_params.stitching_padding,
