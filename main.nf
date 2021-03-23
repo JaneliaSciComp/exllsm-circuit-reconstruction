@@ -19,6 +19,7 @@ final_params = default_spark_params() + default_em_params() + params
 
 include {
     prepare_stitching_data;
+    get_stitched_volume_meta
 } from './processes/stitching' addParams(final_params)
 
 include {
@@ -197,9 +198,9 @@ workflow {
     }
 
     def synapses_res = find_synapses(
-        synapse_input.map { it[0] } //dataset
-        synapse_input.map { "${it[1]}/slice-tiff-s${it[5]}/ch${it[4]}" }
-        synapse_input.map { "${it[3]}/synapses" }
+        synapse_input.map { it[0] }, //dataset
+        synapse_input.map { "${it[1]}/slice-tiff-s${it[5]}/ch${it[4]}" },
+        synapse_input.map { "${it[3]}/synapses" },
         synapse_input.map { "${it[3]}/h5_tmp" },
         synapse_input.map { it[6] } // metadata
     )
