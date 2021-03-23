@@ -30,7 +30,7 @@ def default_em_params() {
 
         // synapse detection params
         exm_synapse_container: '/groups/dickson/home/lillvisj/model_DNN/singularity_build_test/singularity_for_2D_synapse2020_6.simg', // !!! THIS NEEDS FIXED
-        synapse_channel: 'ch0',
+        synapse_channel: '0',
         tiff2h5_cpus: 3
     ]
 }

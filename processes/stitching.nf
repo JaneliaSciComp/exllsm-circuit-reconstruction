@@ -1,3 +1,7 @@
+include {
+    read_json;
+} from '../utils/utils'
+
 process prepare_stitching_data {
     input:
     val(input_dir)
@@ -28,4 +32,25 @@ process prepare_stitching_data {
     mkdir -p "${stitching_working_dir}"
     cp "${dataset_input_dir}/ImageList_images.csv" "${stitching_dir}"
     """
+}
+
+process get_stitched_volume_meta {
+    executor "local"
+
+    input:
+    tuple val(dataset),
+          val(stitching_dir),
+          val(ch),
+          val(scale)
+
+    output:
+    tuple val(dataset),
+          val(stitching_dir),
+          val(ch),
+          val(scale),
+          val(metadata)
+
+    exec:
+    def attr_file = file("${stitching_dir}/c${ch}/s${scale}/attributes.json")
+    metadata = read_json(attr_file)
 }

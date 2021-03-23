@@ -9,6 +9,7 @@ workflow find_synapses {
     input_dir
     output_dir
     working_dir
+    metadata
 
     main:
     def hdf5_results = tiff_to_hdf5(input_dir, working_dir)
