@@ -37,7 +37,7 @@ process synapse_segmentation {
         '-l',
         "${volume_limits}"
     ]
-    def = args_list.join(' ')
+    def args = args_list.join(' ')
     """
     python /scripts/unet_gpu.py ${args}
     """
