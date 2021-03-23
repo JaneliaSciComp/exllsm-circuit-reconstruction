@@ -20,7 +20,7 @@ workflow find_synapses {
     def indexed_working_dir = index_channel(working_dir)
     def indexed_metadata = index_channel(metadata)
     def hdf5_results = tiff_to_hdf5(input_dir, working_dir)
-    def indexed_working_dir
+    def synapse_seg_results = indexed_working_dir
     | join(hdf5_results, by:1)
     | map {
         [
@@ -31,7 +31,7 @@ workflow find_synapses {
     | join(indexed_metadata)
     | flatMap {
         def wd = it[1] // working dir
-        def md = it[2]
+        def md = it[2] // metadata
         def width = md.dimensions[0]
         def height = md.dimensions[1]
         def depth = md.dimensions[2]
