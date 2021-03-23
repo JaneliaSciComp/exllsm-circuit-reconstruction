@@ -20,7 +20,7 @@ workflow find_synapses {
     def indexed_working_dir = index_channel(working_dir)
     def indexed_metadata = index_channel(metadata)
     def hdf5_results = tiff_to_hdf5(input_dir, working_dir)
-    def synapse_seg_results = indexed_working_dir
+    def synapse_seg_inputs = indexed_working_dir
     | join(hdf5_results, by:1)
     | map {
         [
@@ -58,12 +58,15 @@ workflow find_synapses {
                 }
                 [
                     wd,
-                    params.synapse_model,
-                    "${start_row},${start_col},${start_slice},${end_row},${end_col},${end_slice}"
+                    "${start_row},${start_col},${start_slice},${end_row},${end_col},${end_slice}",
                 ]
             }
     }
-    | synapse_segmentation
+    def synapse_seg_results = synapse_segmentation(
+        synapse_seg_inputs.map { it[0] }
+        params.synapse_model,
+        synapse_seg_inputs.map { it[1] }
+    )
 
     emit:
     done = synapse_seg_results
