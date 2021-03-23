@@ -203,9 +203,10 @@ workflow stitching {
     )
     | join(indexed_data, by:1) | map { 
         // [ work_dir, <ignored from terminate>,  idx, uri, stitching_dir, dataset]
-        log.info "Completed stitching for ${it}"
+        def r = [ it[5], it[4] ] // dataset_name, stitching_dir
+        log.info "Completed stitching for ${it} -> $r"
         // dataset_name, stitching_dir
-        [ it[5], it[4] ]
+        return r
     }
 
     emit:
