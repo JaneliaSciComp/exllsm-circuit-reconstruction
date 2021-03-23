@@ -63,7 +63,7 @@ workflow find_synapses {
             }
     }
     def synapse_seg_results = synapse_segmentation(
-        synapse_seg_inputs.map { it[0] }
+        synapse_seg_inputs.map { it[0] },
         params.synapse_model,
         synapse_seg_inputs.map { it[1] }
     )
