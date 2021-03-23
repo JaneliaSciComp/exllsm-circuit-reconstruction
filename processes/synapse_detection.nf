@@ -28,7 +28,7 @@ process synapse_segmentation {
     val(volume_limits)
 
     output:
-    tuple val(input_dir), val(output_dir)
+    tuple val(input_dir), val(volume_limits)
 
     script:
     def args_list = [
