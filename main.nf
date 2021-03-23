@@ -85,7 +85,6 @@ workflow {
 
     stitching_data.subscribe { log.debug "Stitching: $it" }
 
-/* !!!!!
     def pre_stitching_res = prepare_tiles_for_stitching(
         final_params.stitching_app,
         stitching_data.map { it[0] },  // dataset
@@ -154,7 +153,7 @@ workflow {
         spark_driver_logconfig
     )
     stitching_res | view
-!!!!!*/
+/*    
     def stitching_res = mock_stitching(
         final_params.stitching_app,
         stitching_data.map { it[0] }, // dataset
@@ -175,6 +174,7 @@ workflow {
         spark_driver_stack,
         spark_driver_logconfig
     )
+!!!!!*/
 
     def synapse_input =  stitching_data
     | map {
