@@ -63,6 +63,6 @@ workflow find_synapses {
     | synapse_segmentation
 
     emit:
-    done = subvols
+    done = synapse_seg_results
 }
 
