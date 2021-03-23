@@ -185,7 +185,6 @@ workflow {
     | get_stitched_volume_meta
     | join(stitching_data, by:0)
     | map {
-        println $it
         [ 
             it[0], // dataset
             it[1], // stitching_dir
