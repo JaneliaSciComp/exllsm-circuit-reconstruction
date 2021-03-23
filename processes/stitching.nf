@@ -51,6 +51,11 @@ process get_stitched_volume_meta {
           val(metadata)
 
     exec:
-    def attr_file = file("${stitching_dir}/c${ch}/s${scale}/attributes.json")
-    metadata = read_json(attr_file)
+    try {
+       def attr_file = file("${stitching_dir}/c${ch}/s${scale}/attributes.json")
+        metadata = read_json(attr_file)
+    } catch (Throwable e) {
+        e.printStackTrace()
+        throw e
+    }
 }
