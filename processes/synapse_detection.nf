@@ -12,7 +12,7 @@ process tiff_to_hdf5 {
     script:
     """
     mkdir -p ${output_dir}
-    /scripts/tif_to_h5.py -i ${input_dir} -o ${output_dir}
+    python /scripts/tif_to_h5.py -i ${input_dir} -o ${output_dir}
     """
 }
 
