@@ -38,27 +38,30 @@ workflow find_synapses {
         def ncols = (width % 1000) > 0 ? (width / 1000 + 1) : (width / 1000)
         def nrows =  (height % 1000) > 0 ? (height / 1000 + 1) : (height / 1000)
         def nslices = (depth % 1000) > 0 ? (depth / 1000 + 1) : (depth / 1000)
-        [0..nrows-1, 0..ncols-1, 0..nslices-1].combinations().collect {
-            def start_row = it[0] * 1000
-            def end_row = start_row + 1000
-            if (end_row > height) {
-                end_row = height
+        [0..nrows-1, 0..ncols-1, 0..nslices-1]
+            .combinations()
+            .collect {
+                def start_row = it[0] * 1000
+                def end_row = start_row + 1000
+                if (end_row > height) {
+                    end_row = height
+                }
+                def start_col = it[1] * 1000
+                def end_col = start_col + 1000
+                if (end_col > width) {
+                    end_col = width
+                }
+                def start_slice = it[2] * 1000
+                def end_slice = start_slice + 1000
+                if (end_slice > depth) {
+                    end_slice = depth
+                }
+                [
+                    wd,
+                    params.synapse_model,
+                    "${start_row},${start_col},${start_slice},${end_row},${end_col},${end_slice}"
+                ]
             }
-            def start_col = it[1] * 1000
-            def end_col = start_col + 1000
-            if (end_col > width) {
-                end_col = width
-            }
-            def start_slice = it[2] * 1000
-            def end_slice = start_slice + 1000
-            if (end_slice > depth) {
-                end_slice = depth
-            }
-            [
-                wd,
-                params.synapse_model,
-                "${start_row},${start_col},${start_slice},${end_row},${end_col},${end_slice}"
-            ]
     }
     | synapse_segmentation
 
