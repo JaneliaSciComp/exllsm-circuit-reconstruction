@@ -85,7 +85,7 @@ process synapse_segmentation {
         '-i',
         input_image,
         '-l',
-        volume_limits
+        volume_limits,
     ]
     def args = args_list.join(' ')
     """
@@ -105,17 +105,18 @@ process mask_synapses {
     val(percentage)
 
     output:
+    tuple val(input_image), val(volume_limits)
 
     script:
     def args_list = [
         '-i',
-        input_image,,
+        input_image,
         '-l',
         volume_limits,
         '-t',
         threshold,
         '-p',
-        percentage
+        percentage,
     ]
     if (mask_image) {
         args_list << '-m' << mask_image
