@@ -39,18 +39,30 @@ workflow {
         )
      ) // [ dataset, dataset_stitched_dir, dataset_output_dir ]
 
-    def synapse_ch_metadata = get_synapse_ch_metadata(
+    def synapse_input = get_synapse_ch_metadata(
         stitched_data.map { "${it[1]}/slice-tiff-s${final_params.export_level}/${final_params.synapse_channel_subfolder}" }
     )
     | map {
         def tiff_stack = file(it[0])
         [
-            it[0],
-            "${tiff_stack.parent.parent}",
-            it[1],
+            it[0], // tiff_stack_dir
+            "${tiff_stack.parent.parent}", // stitched_dir
+            it[1], // metadata
         ]
     }
-    synapse_ch_metadata | view
+    | join(stitched_data, by:1)
+    | map {
+        [
+            it[0], // stitched_dir
+            it[1], // synapse_channel_tiff_stack
+            it[2], // synapse_channnel_metadata
+            it[3], // dataset name
+            it[4], // output dir
+        ]
+    }
+
+
+    synapse_input | view
 
     def n1_ch_metadata = get_n1_ch_metadata(
         stitched_data.map { "${it[1]}/slice-tiff-s${final_params.export_level}/${final_params.n1_channel_subfolder}" }
