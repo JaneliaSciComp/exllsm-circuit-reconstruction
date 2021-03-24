@@ -38,12 +38,12 @@ workflow {
     ) // [ dataset, dataset_stitched_dir, dataset_output_dir ]
 
     def synapse_ch_metadata = get_synapse_ch_metadata(
-        stitching_res.map { "${it[1]}/slice-tiff-s${final_params.export_level}/${final_params.synapse_channel_subfolder}" }
+        stitched_data.map { "${it[1]}/slice-tiff-s${final_params.export_level}/${final_params.synapse_channel_subfolder}" }
     )
     synapse_ch_metadata | view
 
     def n1_ch_metadata = get_n1_ch_metadata(
-        stitching_res.map { "${it[1]}/slice-tiff-s${final_params.export_level}/${final_params.n1_channel_subfolder}" }
+        stitched_data.map { "${it[1]}/slice-tiff-s${final_params.export_level}/${final_params.n1_channel_subfolder}" }
     )
     n1_ch_metadata | view
 
@@ -83,10 +83,4 @@ workflow {
 def create_output_dir(output_dirname) {
     def output_dir = file(output_dirname)
     output_dir.mkdirs()
-}
-
-def get_step_output_dir(output_parent_dir, step_output) {
-    step_output
-        ? new File(output_parent_dir)
-        : new File(output_parent_dir, step_output)
 }
