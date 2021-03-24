@@ -31,11 +31,13 @@ create_output_dir(pipeline_output_dir)
 
 workflow {
     def datasets = get_list_or_default(final_params, 'datasets', [])
-    def stitched_data = get_stitched_data(
-        pipeline_output_dir,
-        datasets,
-        final_params.stitching_output
-    ) // [ dataset, dataset_stitched_dir, dataset_output_dir ]
+    def stitched_data = Channel.fromList(
+        get_stitched_data(
+            pipeline_output_dir,
+            datasets,
+            final_params.stitching_output
+        )
+     ) // [ dataset, dataset_stitched_dir, dataset_output_dir ]
 
     def synapse_ch_metadata = get_synapse_ch_metadata(
         stitched_data.map { "${it[1]}/slice-tiff-s${final_params.export_level}/${final_params.synapse_channel_subfolder}" }
