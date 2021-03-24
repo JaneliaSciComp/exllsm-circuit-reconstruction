@@ -3,16 +3,15 @@ process get_tiff_stack_metadata {
     val(tiff_stack_dir)
 
     output:
-    val(tiff_stack_dir)
-    env WIDTH
-    env HEIGHT
-    env DEPTH
+    tuple val(tiff_stack_dir), env(width), env(height), env(depth)
 
+    script:
     """
-    local A_IMG=`ls ${tiff_stack_dir}/*.tif | head -n 1`
-    WIDTH=`identify $A_IMG | cut -d ' ' -f 3 | cut -d 'x' -f 1`  
-    HEIGHT=`identify $A_IMG | cut -d ' ' -f 3 | cut -d 'x' -f 2`  
-    DEPTH=`ls ${tiff_stack_dir}/*.tif | wc -l`
+    a_tiff_img=`ls ${tiff_stack_dir}/*.tif | head -n 1`
+    echo "TIFF image selected for extracting metadata: \${a_tiff_img}"
+    width=`identify \$a_tiff_img | cut -d ' ' -f 3 | cut -d 'x' -f 1`  
+    height=`identify \$a_tiff_img | cut -d ' ' -f 3 | cut -d 'x' -f 2`  
+    depth=`ls ${tiff_stack_dir}/*.tif | wc -l`
     """
 }
 
