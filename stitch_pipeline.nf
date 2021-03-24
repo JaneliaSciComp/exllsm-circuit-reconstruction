@@ -11,7 +11,6 @@ include {
     get_value_or_default;
     get_list_or_default;
     deconvolution_container_param;
-    exm_synapse_container_param;
 } from './param_utils'
 
 // app parameters
@@ -19,7 +18,6 @@ final_params = default_spark_params() + default_em_params() + params
 
 include {
     prepare_stitching_data;
-    get_stitched_volume_meta
 } from './processes/stitching' addParams(final_params)
 
 include {
@@ -28,7 +26,6 @@ include {
 
 include {
     stitching;
-    mock_stitching;
 } from './workflows/stitching' addParams(final_params)
 
 deconv_params = final_params + [
@@ -151,10 +148,4 @@ workflow {
 def create_output_dir(output_dirname) {
     def output_dir = file(output_dirname)
     output_dir.mkdirs()
-}
-
-def get_step_output_dir(output_parent_dir, step_output) {
-    step_output
-        ? new File(output_parent_dir)
-        : new File(output_parent_dir, step_output)
 }

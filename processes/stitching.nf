@@ -2,6 +2,20 @@ include {
     read_json;
 } from '../utils/utils'
 
+def get_stitched_data(output_dir, datasets, stitching_output) {
+    datasets.collect { dataset_name ->
+        def dataset_output_dir = "${output_dir}/${dataset_name}"
+        def dataset_stitching_dir = stitching_output
+            ? "${dataset_output_dir}/${stitching_output}"
+            : dataset_output_dir
+        [
+            dataset_name,
+            dataset_stitching_dir,
+            dataset_output_dir,
+        ]
+    }
+}
+
 process prepare_stitching_data {
     input:
     val(input_dir)
@@ -13,24 +27,24 @@ process prepare_stitching_data {
     output:
     tuple val(dataset_name),
           val(dataset_input_dir),
-          val(stitching_dir),
+          val(dataset_stitching_dir),
           val(dataset_output_dir),
-          val(stitching_working_dir)
+          val(dataset_stitching_working_dir)
 
     script:
     dataset_input_dir = "${input_dir}/${dataset_name}/images"
     dataset_output_dir = "${output_dir}/${dataset_name}"
-    stitching_dir = stitching_output
+    dataset_stitching_dir = stitching_output
         ? "${dataset_output_dir}/${stitching_output}"
         : dataset_output_dir
-    stitching_working_dir = working_dir
+    dataset_stitching_working_dir = working_dir
         ? "${working_dir}/${dataset_name}"
-        : "${stitching_dir}/tmp"
+        : "${dataset_stitching_dir}/tmp"
     """
     umask 0002
-    mkdir -p "${stitching_dir}"
-    mkdir -p "${stitching_working_dir}"
-    cp "${dataset_input_dir}/ImageList_images.csv" "${stitching_dir}"
+    mkdir -p "${dataset_stitching_dir}"
+    mkdir -p "${dataset_stitching_working_dir}"
+    cp "${dataset_input_dir}/ImageList_images.csv" "${dataset_stitching_dir}"
     """
 }
 
