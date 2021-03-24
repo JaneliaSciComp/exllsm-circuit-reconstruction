@@ -1,5 +1,6 @@
 
 include {
+    extract_tiff_stack_metadata;
     tiff_to_hdf5;
     synapse_segmentation;
 } from '../processes/synapse_detection'
@@ -72,3 +73,23 @@ workflow find_synapses {
     done = synapse_seg_results
 }
 
+workflow get_tiff_stack_metadata {
+    take:
+    tiff_stack_dir
+
+    main:
+    stack_with_metadata = extract_tiff_stack_metadata(tiff_stack_dir)
+    | map {
+        [
+            it[0],
+            [
+                width: it[1] as int,
+                height: it[2] as int,
+                depth: it[3] as int,
+            ],
+        ]
+    }
+
+    emit:
+    stack_with_metadata
+}

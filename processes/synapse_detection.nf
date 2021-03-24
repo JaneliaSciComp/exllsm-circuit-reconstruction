@@ -1,4 +1,4 @@
-process get_tiff_stack_metadata {
+process extract_tiff_stack_metadata {
     input:
     val(tiff_stack_dir)
 
