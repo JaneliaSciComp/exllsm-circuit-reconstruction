@@ -180,6 +180,36 @@ workflow {
         spark_driver_logconfig
     )
 
+    def synapse_ch_metadata = get_tiff_stack_metadata(
+        stitching_res.map { "${it[1]}/slice-tiff-s${final_params.synapse_channel}/ch${final_params.synapse_channel_subfolder}" }
+    )
+    | map {
+        [
+            it[0],
+            [
+                width: it[1] as int,
+                height: it[2] as int,
+                depth: it[3] as int,
+            ],
+        ]
+    }
+    synapse_ch_metadata | view
+
+    def n1_ch_metadata = get_tiff_stack_metadata(
+        stitching_res.map { "${it[1]}/slice-tiff-s${final_params.synapse_channel}/ch${final_params.n1_channel_subfolder}" }
+    )
+    | map {
+        [
+            it[0],
+            [
+                width: it[1] as int,
+                height: it[2] as int,
+                depth: it[3] as int,
+            ],
+        ]
+    }
+    n1_ch_metadata | view
+
     def synapse_input =  stitching_data
     | map {
         // [ dataset, stitching_dir, synapse_channel, export_scale ]
@@ -199,11 +229,6 @@ workflow {
             it[4], // volume metadata
         ]
     }
-
-    def mm = get_tiff_stack_metadata(
-        synapse_input.map { "${it[1]}/slice-tiff-s${it[5]}/ch${it[4]}" }
-    )
-    mm | view
 
 /*
     def synapses_res = find_synapses(
