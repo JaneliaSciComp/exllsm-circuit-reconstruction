@@ -63,7 +63,7 @@ workflow find_synapses {
             }
     }
     def synapse_seg_results = synapse_segmentation(
-        synapse_seg_inputs.map { it[0] },
+        synapse_seg_inputs.map { "${it[0]}/slices_to_volume.h5" }, // tiff2h5 uses slices_to_volume.h5 name for output file
         params.synapse_model,
         synapse_seg_inputs.map { it[1] }
     )

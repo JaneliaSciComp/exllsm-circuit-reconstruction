@@ -84,7 +84,7 @@ workflow {
     ) // [ dataset, dataset_input_dir, stitching_dir, dataset_output_dir, stitching_working_dir ]
 
     stitching_data.subscribe { log.debug "Stitching: $it" }
-
+/*!!!!!!
     def pre_stitching_res = prepare_tiles_for_stitching(
         final_params.stitching_app,
         stitching_data.map { it[0] },  // dataset
@@ -153,7 +153,8 @@ workflow {
         spark_driver_logconfig
     )
     stitching_res | view
-/*    
+!!!!!*/
+
     def stitching_res = mock_stitching(
         final_params.stitching_app,
         stitching_data.map { it[0] }, // dataset
@@ -174,7 +175,6 @@ workflow {
         spark_driver_stack,
         spark_driver_logconfig
     )
-!!!!!*/
 
     def synapse_input =  stitching_data
     | map {
@@ -196,6 +196,12 @@ workflow {
         ]
     }
 
+    def mm = get_tiff_stack_metadata(
+        synapse_input.map { "${it[1]}/slice-tiff-s${it[5]}/ch${it[4]}" }
+    )
+    mm | view
+    
+/*
     def synapses_res = find_synapses(
         synapse_input.map { it[0] }, //dataset
         synapse_input.map { "${it[1]}/slice-tiff-s${it[5]}/ch${it[4]}" },
@@ -205,6 +211,7 @@ workflow {
     )
 
     synapses_res | view
+*/
 }
 
 def create_output_dir(output_dirname) {
