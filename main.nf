@@ -45,6 +45,10 @@ include {
     find_synapses;
 } from './workflows/synapse_detection' addParams(synapse_params)
 
+include {
+    get_tiff_stack_metadata;
+} from './processes/synapse_detection' addParams(synapse_params)
+
 data_dir = final_params.data_dir
 pipeline_output_dir = get_value_or_default(final_params, 'output_dir', data_dir)
 create_output_dir(pipeline_output_dir)
@@ -200,7 +204,7 @@ workflow {
         synapse_input.map { "${it[1]}/slice-tiff-s${it[5]}/ch${it[4]}" }
     )
     mm | view
-    
+
 /*
     def synapses_res = find_synapses(
         synapse_input.map { it[0] }, //dataset
