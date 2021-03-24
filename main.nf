@@ -188,6 +188,7 @@ workflow {
     )
     n1_ch_metadata | view
 
+/*
     def synapse_input =  stitching_data
     | map {
         // [ dataset, stitching_dir, synapse_channel, export_scale ]
@@ -208,7 +209,6 @@ workflow {
         ]
     }
 
-/*
     def synapses_res = find_synapses(
         synapse_input.map { it[0] }, //dataset
         synapse_input.map { "${it[1]}/slice-tiff-s${it[5]}/ch${it[4]}" },
