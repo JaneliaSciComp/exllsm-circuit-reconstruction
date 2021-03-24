@@ -42,11 +42,28 @@ workflow {
     def synapse_ch_metadata = get_synapse_ch_metadata(
         stitched_data.map { "${it[1]}/slice-tiff-s${final_params.export_level}/${final_params.synapse_channel_subfolder}" }
     )
+    | map {
+        def tiff_stack = file(it[0])
+        [
+            it[0],
+            "${tiff_stack.parent.parent}",
+            it[1],
+        ]
+    }
     synapse_ch_metadata | view
 
     def n1_ch_metadata = get_n1_ch_metadata(
         stitched_data.map { "${it[1]}/slice-tiff-s${final_params.export_level}/${final_params.n1_channel_subfolder}" }
     )
+    | map {
+        def tiff_stack = file(it[0])
+        [
+            it[0],
+            "${tiff_stack.parent.parent}",
+            it[1],
+        ]
+    }
+    
     n1_ch_metadata | view
 
 /*
