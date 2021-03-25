@@ -30,7 +30,6 @@ def default_em_params() {
         iterations_per_channel: '10,10,10',
 
         // synapse detection params
-        exm_synapse_container: '/groups/dickson/home/lillvisj/model_DNN/singularity_build_test/singularity_for_2D_synapse2020_6.simg', // !!! THIS NEEDS FIXED
         synapse_channel_subfolder: 'ch0',
         n1_channel_subfolder: 'ch1',
         n2_channel_subfolder: 'ch2',
