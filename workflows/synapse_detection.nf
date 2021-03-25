@@ -30,6 +30,12 @@ workflow find_synapses {
     def synapse_seg_inputs = synapse_hdf5_results
     | join(synapse_metadata)
 
+    def neuron_hdf5_results = tiff_to_hdf5(
+        neuron_stack_dir,
+        working_dir.map { "$it//neuron_mask.h5" }
+    )
+    def neuron_metadata = get_tiff_stack_metadata(neuron_stack_dir)
+
     // def synapse_seg_inputs = indexed_working_dir
     // | join(hdf5_results, by:1)
     // | map {
