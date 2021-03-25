@@ -21,20 +21,14 @@ workflow find_synapses {
     // def indexed_working_dir = index_channel(working_dir)
     // def indexed_metadata = index_channel(metadata)
 
-    def synapse_hdf5_results = tiff_to_hdf5(
+    def synapse_data = tiff_and_h5_with_metadata(
         synapse_stack_dir,
         working_dir.map { "$it//synapse.h5" }
     )
-    def synapse_metadata = get_tiff_stack_metadata(synapse_stack_dir)
-
-    def synapse_seg_inputs = synapse_hdf5_results
-    | join(synapse_metadata)
-
-    def neuron_hdf5_results = tiff_to_hdf5(
+    def neuron_mask_data = tiff_and_h5_with_metadata(
         neuron_stack_dir,
         working_dir.map { "$it//neuron_mask.h5" }
     )
-    def neuron_metadata = get_tiff_stack_metadata(neuron_stack_dir)
 
     // def synapse_seg_inputs = indexed_working_dir
     // | join(hdf5_results, by:1)
@@ -85,7 +79,26 @@ workflow find_synapses {
     // )
 
     emit:
-    done = synapse_seg_inputs
+    done = synapse_data.combine(neuron_mask_data)
+}
+
+workflow tiff_and_h5_with_metadata {
+    take:
+    tiff_stack_dir
+    h5_file
+
+    main:
+     def hdf5_results = tiff_to_hdf5(
+        tiff_stack_dir,
+        h5_file
+    )
+    def metadata = get_tiff_stack_metadata(tiff_stack_dir)
+
+    def stack_with_metadata = hdf5_results
+    | join(metadata)
+
+    emit:
+    done = stack_with_metadata
 }
 
 workflow get_tiff_stack_metadata {
