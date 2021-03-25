@@ -41,8 +41,8 @@ workflow {
         stitched_data.map { it[0] }, // dataset
         stitched_data.map { "${it[1]}/slice-tiff-s${final_params.export_level}/${final_params.synapse_channel_subfolder}" }, // synapse channel stack
         stitched_data.map { "${it[1]}/slice-tiff-s${final_params.export_level}/${final_params.n1_channel_subfolder}" }, // neuron channel stack
-        stitched_data.map { "${it[3]}/synapses" }, // output dir
-        stitched_data.map { "${it[3]}/synapses-work" } // work dir
+        stitched_data.map { "${it[2]}/synapses" }, // output dir
+        stitched_data.map { "${it[2]}/synapses-work" } // work dir
     )
 
     synapses_res | view
