@@ -26,15 +26,18 @@ ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=all
 
 RUN dnf install -y epel-release && \
-    dnf update -y && \
-    dnf install -y wget unzip
+    dnf update -y
+    
+RUN dnf install -y wget unzip
 
 RUN dnf install -y \
         atk \
         gsound \
         gdk-pixbuf2 \
         gtk2 \
-        libnsl \
+        libnsl
+
+RUN dnf install -y \
         libX11 \
         libX11-xcb \
         libXScrnSaver \
@@ -46,13 +49,14 @@ RUN dnf install -y \
 RUN dnf install -y \
         libXt libXtst libXext libXmu libXrandr libXrender libXcomposite
 
-RUN mkdir /tmp-install && \
-    cd /tmp-install && \
-    wget --quiet ${DOWNLOAD_MATLAB_URL} && \
+WORKDIR /tmp-install
+
+RUN wget --quiet ${DOWNLOAD_MATLAB_URL} && \
     unzip ${DOWNLOAD_FILENAME} && \
     rm -f ${DOWNLOAD_FILENAME} && \
-    ./install -mode silent -agreeToLicense yes && \
-    wget ${DOWNLOAD_CONDA_URL} -O miniconda-install.sh && \
+    ./install -mode silent -agreeToLicense yes
+
+RUN wget ${DOWNLOAD_CONDA_URL} -O miniconda-install.sh && \
     bash miniconda-install.sh -b -p /miniconda && \
     rm miniconda-install.sh
 
@@ -79,12 +83,14 @@ RUN conda install python=3.8
 
 RUN conda env update -n base -f /tmp-install/conda-requirements.yml
 
+WORKDIR /scripts
+
 RUN cd /usr/local/MATLAB/MATLAB_Runtime/${MATLAB_VERSION}/toolbox/compiler_sdk/pysdk_py && \
     python setup.py install && \
     cd /tmp-install/commpiled-watershed && \
     python setup.py install && \
     rm -rf /tmp-install
 
-COPY scripts/python /scripts
+RUN conda clean -a
 
-WORKDIR /scripts
+COPY scripts/python /scripts

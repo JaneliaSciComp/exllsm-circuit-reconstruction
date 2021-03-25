@@ -16,7 +16,7 @@ workflow tiff_and_h5_with_metadata {
     def metadata = get_tiff_stack_metadata(tiff_stack_dir)
 
     def stack_with_metadata = hdf5_results
-    | join(metadata)
+    | join(metadata) // [ tiff_stack, h5_file, metadata ]
 
     emit:
     done = stack_with_metadata

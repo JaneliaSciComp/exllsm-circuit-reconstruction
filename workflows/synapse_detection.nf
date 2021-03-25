@@ -21,66 +21,84 @@ workflow find_synapses {
     working_dir
 
     main:
-    // def indexed_working_dir = index_channel(working_dir)
-    // def indexed_metadata = index_channel(metadata)
+    def indexed_working_dir = index_channel(working_dir)
 
     def synapse_data = synapse_tiff_and_h5(
         synapse_stack_dir,
         working_dir.map { "$it//synapse.h5" }
+    ) // [ synapse_tiff_stack, synapse_h5_file, synapse_metadata ]
+
+    def synapse_seg_inputs = synapse_data
+    | flatMap {
+        println "Prepare synapse segmentation inputs for $it"
+        partition_volume(it[1], it[2], 1000)
+    }
+
+    def synapse_seg_results = synapse_segmentation(
+        synapse_seg_inputs.map { it[0] },
+        params.synapse_model,
+        synapse_seg_inputs.map { it[1] }
     )
+    | groupTuple(by: 1) // [ synapse_h5_file, list_of_volume_partitions ]
+    | map {
+        println "Synapse segmentation results: $it"
+        def synapse_h5_file = file(it[0])
+        [
+            "${synapse_h5_file.parent}", // working_dir
+            it[0], // synapse_h5_file
+        ]
+    }
+
     def neuron_mask_data = neuron_tiff_and_h5(
         neuron_stack_dir,
         working_dir.map { "$it//neuron_mask.h5" }
-    )
-
-    // def synapse_seg_inputs = indexed_working_dir
-    // | join(hdf5_results, by:1)
-    // | map {
-    //     [
-    //         it[1], // index
-    //         it[0], // working_dir
-    //     ]
-    // }
-    // | join(indexed_metadata)
-    // | flatMap {
-    //     def wd = it[1] // working dir
-    //     def md = it[2] // metadata
-    //     def width = md.dimensions[0]
-    //     def height = md.dimensions[1]
-    //     def depth = md.dimensions[2]
-    //     def ncols = (width % 1000) > 0 ? (width / 1000 + 1) : (width / 1000)
-    //     def nrows =  (height % 1000) > 0 ? (height / 1000 + 1) : (height / 1000)
-    //     def nslices = (depth % 1000) > 0 ? (depth / 1000 + 1) : (depth / 1000)
-    //     [0..nrows-1, 0..ncols-1, 0..nslices-1]
-    //         .combinations()
-    //         .collect {
-    //             def start_row = it[0] * 1000
-    //             def end_row = start_row + 1000
-    //             if (end_row > height) {
-    //                 end_row = height
-    //             }
-    //             def start_col = it[1] * 1000
-    //             def end_col = start_col + 1000
-    //             if (end_col > width) {
-    //                 end_col = width
-    //             }
-    //             def start_slice = it[2] * 1000
-    //             def end_slice = start_slice + 1000
-    //             if (end_slice > depth) {
-    //                 end_slice = depth
-    //             }
-    //             [
-    //                 wd,
-    //                 "${start_row},${start_col},${start_slice},${end_row},${end_col},${end_slice}",
-    //             ]
-    //         }
-    // }
-    // def synapse_seg_results = synapse_segmentation(
-    //     synapse_seg_inputs.map { "${it[0]}/slices_to_volume.h5" }, // tiff2h5 uses slices_to_volume.h5 name for output file
-    //     params.synapse_model,
-    //     synapse_seg_inputs.map { it[1] }
-    // )
+    ) // [ synapse_tiff_stack, synapse_h5_file, synapse_metadata ]
+    | map {
+        def neuron_h5_file = file(it[1])
+        [
+            "${neuron_h5_file.parent}", // working_dir
+            it[1],
+            it[2], // volume dims
+        ]
+    }
+    | join(synapse_seg_results, by:0)
+    | map {
+        println it
+        it
+    }
 
     emit:
-    done = synapse_data.combine(neuron_mask_data)
+    done = neuron_mask_data
+}
+
+def partition_volume(fn, volume, partition_size) {
+    def width = volume.width
+    def height = volume.height
+    def depth = volume.depth
+    def ncols = (width % partition_size) > 0 ? (width / partition_size + 1) : (width / partition_size)
+    def nrows =  (height % partition_size) > 0 ? (height / partition_size + 1) : (height / partition_size)
+    def nslices = (depth % partition_size) > 0 ? (depth / partition_size + 1) : (depth / partition_size)
+    [0..nrows-1, 0..ncols-1, 0..nslices-1]
+        .combinations()
+        .collect {
+            def start_row = it[0] * partition_size
+            def end_row = start_row + partition_size
+            if (end_row > height) {
+                end_row = height
+            }
+            def start_col = it[1] * partition_size
+            def end_col = start_col + partition_size
+            if (end_col > width) {
+                end_col = width
+            }
+            def start_slice = it[2] * partition_size
+            def end_slice = start_slice + partition_size
+            if (end_slice > depth) {
+                end_slice = depth
+            }
+            [
+                fn,
+                "${start_row},${start_col},${start_slice},${end_row},${end_col},${end_slice}",
+            ]
+        }
 }
