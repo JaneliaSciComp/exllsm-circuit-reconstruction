@@ -6,7 +6,7 @@ include {
 include {
     tiff_and_h5_with_metadata as synapse_tiff_and_h5;
     tiff_and_h5_with_metadata as neuron_tiff_and_h5;
-} from './tiff_tto_h5'
+} from './tiff_to_h5'
 
 include {
     index_channel;
