@@ -87,6 +87,8 @@ process synapse_segmentation {
     def args_list = [
         '-i',
         input_image,
+        '-m',
+        model_file,
         '-l',
         volume_limits,
     ]
