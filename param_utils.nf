@@ -1,6 +1,7 @@
 def default_em_params() {
     [
-        exm_repo: 'registry.int.janelia.org/janeliascicomp',
+        scicomp_repo: 'registry.int.janelia.org/janeliascicomp',
+        exm_repo: 'registry.int.janelia.org/exm-analysis',
 
         datasets: '',
         data_dir: '',
@@ -63,7 +64,7 @@ def get_list_or_default(Map ps, String param, List default_list) {
 def deconvolution_container_param(Map ps) {
     def deconvolution_container = ps.deconvolution_container
     if (!deconvolution_container)
-        "${ps.exm_repo}/matlab-deconv:1.0"
+        "${ps.scicomp_repo}/matlab-deconv:1.0"
     else
         deconvolution_container
 }
@@ -71,7 +72,7 @@ def deconvolution_container_param(Map ps) {
 def exm_synapse_container_param(Map ps) {
     def exm_synapse_container = ps.exm_synapse_container
     if (!exm_synapse_container)
-        "${ps.exm_repo}/exm_synapse:1.0"
+        "${ps.exm_repo}/synapse:1.0.0"
     else
         exm_synapse_container
 }

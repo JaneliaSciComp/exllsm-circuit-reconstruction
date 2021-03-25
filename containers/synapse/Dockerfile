@@ -19,7 +19,7 @@ ENV MATLAB_RELEASE=R2020b
 ENV MATLAB_VERSION=v99
 ENV DOWNLOAD_FILENAME=MATLAB_Runtime_R2020b_Update_3_glnxa64.zip
 
-ENV DOWNLOAD_MATLAB_URL=https://ssd.mathworks.com/supportfiles/downloads/${MATLAB_RELEASE}/Release/3/deployment_files/installer/complete/glnxa64/MATLAB_Runtime_R2020b_Update_3_glnxa64.zip
+ENV DOWNLOAD_MATLAB_URL=https://ssd.mathworks.com/supportfiles/downloads/${MATLAB_RELEASE}/Release/3/deployment_files/installer/complete/glnxa64/${DOWNLOAD_FILENAME}
 ENV DOWNLOAD_CONDA_URL=https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
 
 ENV NVIDIA_VISIBLE_DEVICES=all
@@ -54,8 +54,6 @@ RUN mkdir /tmp-install && \
     bash miniconda-install.sh -b -p /miniconda && \
     rm miniconda-install.sh
 
-WORKDIR /app
-
 ENV PATH=/miniconda/bin:${PATH}
 
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:\
@@ -82,10 +80,9 @@ RUN conda env update -n base -f /tmp-install/conda-requirements.yml
 RUN cd /usr/local/MATLAB/MATLAB_Runtime/${MATLAB_VERSION}/toolbox/compiler_sdk/pysdk_py && \
     python setup.py install && \
     cd /tmp-install/commpiled-watershed && \
-    python setup.py install
+    python setup.py install && \
+    rm -rf /tmp-install
 
-COPY scripts/python /app/synapse/scripts
+COPY scripts/python /scripts
 
-RUN rm -rf /tmp-install
-
-WORKDIR /app/synapse
+WORKDIR /scripts

@@ -20,18 +20,18 @@ process tiff_to_hdf5 {
     cpus { params.tiff2h5_cpus }
 
     input:
-    val(input_dir)
-    val(output_dir)
+    val(input_tiff_stack_dir)
+    val(output_h5_file)
 
     output:
-    tuple val(input_dir), val(output_dir)
+    tuple val(input_tiff_stack_dir), val(output_h5_file)
 
     script:
     def args_list = [
         '-i',
-        input_dir,
+        input_tiff_stack_dir,
         '-o',
-        output_dir,
+        output_h5_file,
     ]
     def args = args_list.join(' ')
     """

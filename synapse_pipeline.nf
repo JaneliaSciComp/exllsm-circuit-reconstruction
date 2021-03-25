@@ -21,8 +21,6 @@ synapse_params = final_params + [
 ]
 include {
     find_synapses;
-    get_tiff_stack_metadata as get_synapse_ch_metadata;
-    get_tiff_stack_metadata as get_n1_ch_metadata;
 } from './workflows/synapse_detection' addParams(synapse_params)
 
 data_dir = final_params.data_dir
@@ -37,37 +35,14 @@ workflow {
             datasets,
             final_params.stitching_output
         )
-     ) // [ dataset, dataset_stitched_dir, dataset_output_dir ]
-
-    def synapse_input = get_synapse_ch_metadata(
-        stitched_data.map { "${it[1]}/slice-tiff-s${final_params.export_level}/${final_params.synapse_channel_subfolder}" }
-    )
-    | map {
-        def tiff_stack = file(it[0])
-        [
-            it[0], // tiff_stack_dir
-            "${tiff_stack.parent.parent}", // stitched_dir
-            it[1], // metadata
-        ]
-    }
-    | join(stitched_data, by:1)
-    | map {
-        [
-            it[3], // dataset name
-            it[1], // synapse_channel_tiff_stack
-            it[2], // synapse_channnel_metadata
-            it[4], // output dir
-        ]
-    }
-
-    synapse_input | view
+    ) // [ dataset, dataset_stitched_dir, dataset_output_dir ]
 
     def synapses_res = find_synapses(
-        synapse_input.map { it[0] }, // dataset
-        synapse_input.map { it[1] }, // synapse_ch_stack
-        synapse_input.map { it[2] }, // metadata
-        synapse_input.map { "${it[3]}/synapses" }
-        synapse_input.map { "${it[3]}/tmp-synapses" }
+        stitched_data.map { it[0] }, // dataset
+        stitched_data.map { "${it[1]}/slice-tiff-s${final_params.export_level}/${final_params.synapse_channel_subfolder}" }, // synapse channel stack
+        stitched_data.map { "${it[1]}/slice-tiff-s${final_params.export_level}/${final_params.n1_channel_subfolder}" }, // neuron channel stack
+        stitched_data.map { "${it[3]}/synapses" }, // output dir
+        stitched_data.map { "${it[3]}/synapses-work" } // work dir
     )
 
     synapses_res | view
