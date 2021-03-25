@@ -51,8 +51,11 @@ def unet_classifier(img, model_h5_file, input_sz=(64, 64, 64), step=(24, 24, 24)
         assert mask.shape == img.shape, \
             "Mask and image shapes do not match!"
 
-    unet_model = load_model(model_file, custom_objects={'masked_binary_crossentropy': masked_binary_crossentropy,
-                                                        'masked_accuracy': masked_accuracy, 'masked_error_pos': masked_error_pos, 'masked_error_neg': masked_error_neg})
+    unet_model = load_model(model_h5_file,
+                            custom_objects={'masked_binary_crossentropy': masked_binary_crossentropy,
+                                            'masked_accuracy': masked_accuracy,
+                                            'masked_error_pos': masked_error_pos,
+                                            'masked_error_neg': masked_error_neg})
 
     gap = (int((input_sz[0]-step[0])/2),
            int((input_sz[1]-step[1])/2), int((input_sz[2]-step[2])/2))
