@@ -25,8 +25,9 @@ ENV DOWNLOAD_CONDA_URL=https://repo.continuum.io/miniconda/Miniconda3-latest-Lin
 ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=all
 
-RUN dnf install -y \
-        wget unzip
+RUN dnf install -y epel-release && \
+    dnf update -y && \
+    dnf install -y wget unzip
 
 RUN dnf install -y \
         atk \
@@ -39,7 +40,8 @@ RUN dnf install -y \
         libXScrnSaver \
         libXxf86vm \
         nss \
-        zlib
+        zlib \
+        GraphicsMagick
 
 RUN dnf install -y \
         libXt libXtst libXext libXmu libXrandr libXrender libXcomposite

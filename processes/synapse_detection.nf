@@ -1,4 +1,6 @@
 process extract_tiff_stack_metadata {
+    container { params.exm_synapse_container }
+
     input:
     val(tiff_stack_dir)
 
@@ -9,8 +11,8 @@ process extract_tiff_stack_metadata {
     """
     a_tiff_img=`ls ${tiff_stack_dir}/*.tif | head -n 1`
     echo "TIFF image selected for extracting metadata: \${a_tiff_img}"
-    width=`identify \${a_tiff_img} | cut -d ' ' -f 3 | cut -d 'x' -f 1`
-    height=`identify \${a_tiff_img} | cut -d ' ' -f 3 | cut -d 'x' -f 2`
+    width=`gm identify \${a_tiff_img} | cut -d ' ' -f 3 | cut -d 'x' -f 1`
+    height=`gm identify \${a_tiff_img} | cut -d ' ' -f 3 | cut -d 'x' -f 2`
     depth=`ls ${tiff_stack_dir}/*.tif | wc -l`
     """
 }
