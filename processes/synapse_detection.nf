@@ -14,6 +14,7 @@ process extract_tiff_stack_metadata {
     width=`gm identify \${a_tiff_img} | cut -d ' ' -f 3 | cut -d '+' -f 1 | cut -d 'x' -f 1`
     height=`gm identify \${a_tiff_img} | cut -d ' ' -f 3 | cut -d '+' -f 1 | cut -d 'x' -f 2`
     depth=`ls ${tiff_stack_dir}/*.tif | wc -l`
+    echo "Volume dimensions: \${width} x \${height} x \${depth}"
     """
 }
 
