@@ -53,16 +53,24 @@ workflow {
     | join(stitched_data, by:1)
     | map {
         [
-            it[0], // stitched_dir
+            it[3], // dataset name
             it[1], // synapse_channel_tiff_stack
             it[2], // synapse_channnel_metadata
-            it[3], // dataset name
             it[4], // output dir
         ]
     }
 
-
     synapse_input | view
+
+    def synapses_res = find_synapses(
+        synapse_input.map { it[0] }, // dataset
+        synapse_input.map { it[1] }, // synapse_ch_stack
+        synapse_input.map { it[2] }, // metadata
+        synapse_input.map { "${it[3]}/synapses" }
+        synapse_input.map { "${it[3]}/tmp-synapses" }
+    )
+
+    synapses_res | view
 
     def n1_ch_metadata = get_n1_ch_metadata(
         stitched_data.map { "${it[1]}/slice-tiff-s${final_params.export_level}/${final_params.n1_channel_subfolder}" }

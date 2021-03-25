@@ -13,9 +13,9 @@ workflow find_synapses {
     take:
     dataset
     input_dir
+    metadata
     output_dir
     working_dir
-    metadata
 
     main:
     def indexed_working_dir = index_channel(working_dir)

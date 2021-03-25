@@ -1,7 +1,7 @@
 import sys
 import getopt
 import numpy as np
-import matlab.engine
+import watershed
 import csv
 import os
 import time
@@ -147,9 +147,10 @@ def main(argv):
     out_img_name = img_path+'/r'+str(location[0])+'_'+str(location[3])+'_c'+str(
         location[1])+'_'+str(location[4])+'_v'+str(location[2])+'_'+str(location[5])+'.tif'
     tif_write(img, out_img_name)
-    eng = matlab.engine.start_matlab()
-    flag = eng.closing_watershed(out_img_name)
-    eng.quit()
+    watershed.initialize_runtime(['-nojvm', '-nodisplay'])
+    ws = watershed.initialize()
+    flag = ws.closing_watershed(out_img_name)
+    ws.quit()
     remove_small_piece(out_hdf5_file=hdf5_file, img_file_name=out_img_name,
                        location=location, mask=mask, threshold=threshold, percentage=percentage)
     if os.path.exists(out_img_name):
