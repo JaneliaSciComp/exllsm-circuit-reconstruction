@@ -18,8 +18,8 @@ workflow find_synapses {
     working_dir
 
     main:
-    def indexed_working_dir = index_channel(working_dir)
-    def indexed_metadata = index_channel(metadata)
+    // def indexed_working_dir = index_channel(working_dir)
+    // def indexed_metadata = index_channel(metadata)
 
     def synapse_hdf5_results = tiff_to_hdf5(synapse_stack_dir, "${working_dir}/synapse.h5")
     def synapse_metadata = get_tiff_stack_metadata(synapse_stack_dir)
