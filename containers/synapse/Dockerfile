@@ -25,29 +25,43 @@ ENV DOWNLOAD_CONDA_URL=https://repo.continuum.io/miniconda/Miniconda3-latest-Lin
 ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=all
 
-RUN dnf install -y epel-release && \
-    dnf update -y
-    
-RUN dnf install -y wget unzip
+RUN dnf update -y && \
+    dnf install -y dnf-utils
 
-RUN dnf install -y \
+RUN dnf -y install --nogpgcheck \
+        https://download.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm \
+        https://download1.rpmfusion.org/free/el/rpmfusion-free-release-8.noarch.rpm \
+        https://download1.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-8.noarch.rpm
+
+RUN dnf group install -y "Development Tools" && \
+    dnf install -y \
+        ca-certificates \
+        alsa-lib \
         atk \
-        gsound \
         gdk-pixbuf2 \
-        gtk2 \
-        libnsl
+        gtk3 \
+        dbus-libs \
+        fontconfig \
+        libnsl \
+        wget \
+        unzip \
+        which
 
 RUN dnf install -y \
         libX11 \
         libX11-xcb \
+        libxcb \
         libXScrnSaver \
         libXxf86vm \
         nss \
         zlib \
-        GraphicsMagick
+        GraphicsMagick \
+        procps-ng
 
 RUN dnf install -y \
-        libXt libXtst libXext libXmu libXrandr libXrender libXcomposite
+        libXt libXtst libXext libXmu libXrandr libXrender \
+        libXcomposite libXi \
+        libXcursor libXdamage
 
 WORKDIR /tmp-install
 
@@ -72,12 +86,12 @@ ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:\
 ENV XAPPLRESDIR=/usr/local/MATLAB/MATLAB_Runtime/${MATLAB_VERSION}/X11/app-defaults
 ENV MCR_CACHE_VERBOSE=true
 
-COPY conda-requirements.yml /tmp-install
-
 RUN conda config --set always_yes yes --set changeps1 no && \
     conda update -q conda
 
 RUN conda install python=3.8
+
+COPY conda-requirements.yml /tmp-install
 
 RUN conda env update -n base -f /tmp-install/conda-requirements.yml
 
@@ -92,6 +106,7 @@ RUN cd /tmp-install/commpiled-watershed && \
     python setup.py install && \
     rm -rf /tmp-install
 
-RUN conda clean -a
-
 COPY scripts/python /scripts
+COPY scripts/*.sh /scripts
+
+RUN chmod 555 /scripts/*.sh

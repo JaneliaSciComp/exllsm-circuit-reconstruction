@@ -128,6 +128,6 @@ process mask_synapses {
     }
     def args = args_list.join(' ')
     """
-    python /scripts/postprocess_cpu.py ${args}
+    /scripts/postprocess_cpu.sh ${args}
     """
 }

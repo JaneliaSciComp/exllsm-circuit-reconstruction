@@ -146,6 +146,7 @@ def main(argv):
     print('#############################')
     out_img_name = img_path+'/r'+str(location[0])+'_'+str(location[3])+'_c'+str(
         location[1])+'_'+str(location[4])+'_v'+str(location[2])+'_'+str(location[5])+'.tif'
+    print('Writing tiff image for watershed:', out_img_name)
     tif_write(img, out_img_name)
     watershed.initialize_runtime(['-nojvm', '-nodisplay'])
     ws = watershed.initialize()
