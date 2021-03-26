@@ -1,6 +1,7 @@
 
 include {
     synapse_segmentation;
+    mask_synapses;
 } from '../processes/synapse_detection'
 
 include {
@@ -39,7 +40,7 @@ workflow find_synapses {
         params.synapse_model,
         synapse_seg_inputs.map { it[1] }
     )
-    | groupTuple(by: 1) // [ synapse_h5_file, list_of_volume_partitions ]
+    | groupTuple(by: 0) // [ synapse_h5_file, list_of_volume_partitions ]
     | map {
         println "Synapse segmentation results: $it"
         def synapse_h5_file = file(it[0])
@@ -49,7 +50,7 @@ workflow find_synapses {
         ]
     }
 
-    def neuron_mask_data = neuron_tiff_and_h5(
+    def neuron_mask_inputs = neuron_tiff_and_h5(
         neuron_stack_dir,
         working_dir.map { "$it//neuron_mask.h5" }
     ) // [ synapse_tiff_stack, synapse_h5_file, synapse_metadata ]
@@ -57,14 +58,41 @@ workflow find_synapses {
         def neuron_h5_file = file(it[1])
         [
             "${neuron_h5_file.parent}", // working_dir
-            it[1],
+            it[1], // neuron_h5_file
             it[2], // volume dims
         ]
     }
     | join(synapse_seg_results, by:0)
-    | map {
+    | flatMap {
+        // [ working_dir, neuron_h5, neuron_vol_dims, synapse_h5 ]
         println it
-        it
+        def neuron_h5 = it[1]
+        def synapse_h5 = it[3]
+        def neuron_vol = it[2]
+        partition_volume(neuron_h5, neuron_vol, 1000)
+            .collect {
+                [
+                    it[0], // neuron_h5
+                    synapse_h5,
+                    it[1], // neuron_vol_partition
+                ]
+            }
+    }
+
+    def neuron_masked_synapses = mask_synapses(
+        neuron_mask_inputs.map { it[1] }, // synapse image
+        neuron_mask_inputs.map { it[0] }, // neuron mask image
+        neuron_mask_inputs.map { it[2] }, // neuron vol partition
+        params.synapse_mask_threshold,
+        params.synapse_mask_percentage
+    )
+    | groupTuple(by: [0,1])
+    | map {
+        println "Mask synapse results: $it"
+        [
+            it[0], // synapse_h5
+            it[1], // neuron_h5
+        ]
     }
 
     emit:

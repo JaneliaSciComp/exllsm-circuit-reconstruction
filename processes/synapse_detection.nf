@@ -110,7 +110,7 @@ process mask_synapses {
     val(percentage)
 
     output:
-    tuple val(input_image), val(volume_limits)
+    tuple val(input_image), val(mask_image), val(volume_limits)
 
     script:
     def args_list = [
