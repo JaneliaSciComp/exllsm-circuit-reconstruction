@@ -7,9 +7,9 @@ function flag = closing_watershed(img_name)
     flag = 1;
 end
 
-
 function img = read_tif(img_file)
     % Read tif image
+    disp(['Loading ', img_file]);
     im_info = imfinfo(img_file);
     rows = im_info(1).Height;
     cols = im_info(1).Width;
@@ -18,8 +18,8 @@ function img = read_tif(img_file)
     for slice = 1:slices
         img(:,:,slice)=imread(img_file, slice);
     end
+    disp(['Finished loading ', img_file]);
 end
-
 
 function write_tif(data, name)
     % Write data into tif image
@@ -41,7 +41,6 @@ function write_tif(data, name)
     close(t);
 end
 
-
 function seg_img = closing_img(img)
     % Image closing
     disp('Image closing...')
@@ -52,7 +51,6 @@ function seg_img = closing_img(img)
     % seg_img=imfill(seg_img,'holes');
     seg_img(seg_img~=0) = 255;
 end
-
 
 function seg_img = water_shed(bw)
     % Watershed segmentation

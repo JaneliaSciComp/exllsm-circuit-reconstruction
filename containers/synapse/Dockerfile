@@ -6,20 +6,21 @@ WORKDIR /tmp-compile
 COPY scripts/matlab /tmp-compile/matlab
 
 RUN mkdir /tmp-compile/dest && \
+    cd /tmp-compile/dest && \
     /usr/local/MATLAB/bin/mcc \
     -W python:watershed \
     -d /tmp-compile/dest \
     -v \
     -I /tmp-compile/matlab \
-    closing_watershed.m
+    /tmp-compile/matlab/closing_watershed.m
 
 FROM centos:8
 
 ENV MATLAB_RELEASE=R2020b
 ENV MATLAB_VERSION=v99
-ENV DOWNLOAD_FILENAME=MATLAB_Runtime_R2020b_Update_3_glnxa64.zip
+ENV DOWNLOAD_FILENAME=MATLAB_Runtime_R2020b_Update_5_glnxa64.zip
 
-ENV DOWNLOAD_MATLAB_URL=https://ssd.mathworks.com/supportfiles/downloads/${MATLAB_RELEASE}/Release/3/deployment_files/installer/complete/glnxa64/${DOWNLOAD_FILENAME}
+ENV DOWNLOAD_MATLAB_URL=https://ssd.mathworks.com/supportfiles/downloads/${MATLAB_RELEASE}/Release/5/deployment_files/installer/complete/glnxa64/${DOWNLOAD_FILENAME}
 ENV DOWNLOAD_CONDA_URL=https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
 
 ENV NVIDIA_VISIBLE_DEVICES=all
@@ -38,30 +39,33 @@ RUN dnf group install -y "Development Tools" && \
         ca-certificates \
         alsa-lib \
         atk \
+        fontconfig \
+        gsound \
         gdk-pixbuf2 \
         gtk3 \
-        dbus-libs \
-        fontconfig \
-        libnsl \
-        wget \
-        unzip \
-        which
-
-RUN dnf install -y \
+        libSM \
+        libsndfile \
         libX11 \
         libX11-xcb \
         libxcb \
-        libXScrnSaver \
+        libXcomposite \
+        libXcursor \
+        libXdamage \
+        libXext \
+        libXfixes \
+        libXft \
+        libXi \
+        libXinerama \
+        libXrandr \
+        libXrender \
+        libXt \
+        libXtst \
         libXxf86vm \
-        nss \
-        zlib \
-        GraphicsMagick \
-        procps-ng
+        procps-ng \
+        zlib
 
 RUN dnf install -y \
-        libXt libXtst libXext libXmu libXrandr libXrender \
-        libXcomposite libXi \
-        libXcursor libXdamage
+        wget unzip which GraphicsMagick
 
 WORKDIR /tmp-install
 
@@ -80,10 +84,8 @@ ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:\
 /usr/local/MATLAB/MATLAB_Runtime/${MATLAB_VERSION}/runtime/glnxa64:\
 /usr/local/MATLAB/MATLAB_Runtime/${MATLAB_VERSION}/bin/glnxa64:\
 /usr/local/MATLAB/MATLAB_Runtime/${MATLAB_VERSION}/sys/os/glnxa64:\
-/usr/local/MATLAB/MATLAB_Runtime/${MATLAB_VERSION}/sys/opengl/lib/glnxa64:\
-/usr/local/MATLAB/MATLAB_Runtime/${MATLAB_VERSION}/sys/java/jre/glnxa64/jre/lib/amd64/server:\
-/usr/local/MATLAB/MATLAB_Runtime/${MATLAB_VERSION}/sys/java/jre/glnxa64/jre/lib/amd64
-ENV XAPPLRESDIR=/usr/local/MATLAB/MATLAB_Runtime/${MATLAB_VERSION}/X11/app-defaults
+/usr/local/MATLAB/MATLAB_Runtime/${MATLAB_VERSION}/sys/opengl/lib/glnxa64
+
 ENV MCR_CACHE_VERBOSE=true
 
 RUN conda config --set always_yes yes --set changeps1 no && \
@@ -93,7 +95,9 @@ RUN conda install python=3.8
 
 COPY conda-requirements.yml /tmp-install
 
-RUN conda env update -n base -f /tmp-install/conda-requirements.yml
+# Remove libtiff because it conflicts with the one required by matlab
+RUN conda env update -n base -f /tmp-install/conda-requirements.yml --prune  && \
+    conda remove libtiff
 
 WORKDIR /scripts
 
