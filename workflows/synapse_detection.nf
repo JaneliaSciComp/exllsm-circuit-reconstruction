@@ -96,7 +96,7 @@ workflow find_synapses {
     }
 
     emit:
-    done = neuron_mask_data
+    done = neuron_masked_synapses
 }
 
 def partition_volume(fn, volume, partition_size) {
