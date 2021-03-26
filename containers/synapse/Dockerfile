@@ -72,8 +72,6 @@ ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:\
 ENV XAPPLRESDIR=/usr/local/MATLAB/MATLAB_Runtime/${MATLAB_VERSION}/X11/app-defaults
 ENV MCR_CACHE_VERBOSE=true
 
-COPY --from=builder /tmp-compile/dest /tmp-install/commpiled-watershed
-
 COPY conda-requirements.yml /tmp-install
 
 RUN conda config --set always_yes yes --set changeps1 no && \
@@ -86,8 +84,11 @@ RUN conda env update -n base -f /tmp-install/conda-requirements.yml
 WORKDIR /scripts
 
 RUN cd /usr/local/MATLAB/MATLAB_Runtime/${MATLAB_VERSION}/toolbox/compiler_sdk/pysdk_py && \
-    python setup.py install && \
-    cd /tmp-install/commpiled-watershed && \
+    python setup.py install
+
+COPY --from=builder /tmp-compile/dest /tmp-install/commpiled-watershed
+
+RUN cd /tmp-install/commpiled-watershed && \
     python setup.py install && \
     rm -rf /tmp-install
 
