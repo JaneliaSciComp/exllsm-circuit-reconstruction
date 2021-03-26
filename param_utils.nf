@@ -39,6 +39,7 @@ def default_em_params() {
         synapse_segmentation_cpus: 4,
         synapse_model: '/groups/dickson/dicksonlab/lillvis/ExM/Ding-Ackerman/crops-for-training_Oct2018/DING/model_DNN/saved_unet_model_2020/unet_model_synapse2020_6/unet_model_synapse2020_6.whole.h5',
         mask_synapses_cpus: 3,
+        volume_partition_size: 5000,
         synapse_mask_threshold: 200,
         synapse_mask_percentage: 0.001,
     ]

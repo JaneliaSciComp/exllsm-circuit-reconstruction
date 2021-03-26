@@ -32,7 +32,7 @@ workflow find_synapses {
     def synapse_seg_inputs = synapse_data
     | flatMap {
         println "Prepare synapse segmentation inputs for $it"
-        partition_volume(it[1], it[2], 1000)
+        partition_volume(it[1], it[2], params.volume_partition_size)
     }
 
     def synapse_seg_results = synapse_segmentation(
@@ -69,7 +69,7 @@ workflow find_synapses {
         def neuron_h5 = it[1]
         def synapse_h5 = it[3]
         def neuron_vol = it[2]
-        partition_volume(neuron_h5, neuron_vol, 1000)
+        partition_volume(neuron_h5, neuron_vol, params.volume_partition_size)
             .collect {
                 [
                     it[0], // neuron_h5
