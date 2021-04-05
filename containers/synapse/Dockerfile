@@ -97,7 +97,7 @@ COPY conda-requirements.yml /tmp-install
 
 # Remove libtiff because it conflicts with the one required by matlab
 RUN conda env update -n base -f /tmp-install/conda-requirements.yml --prune  && \
-    conda remove libtiff
+    conda remove libtiff --force
 
 WORKDIR /scripts
 
