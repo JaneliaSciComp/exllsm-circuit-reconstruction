@@ -74,10 +74,10 @@ process cp_file {
     cpus { params.h52tiff_cpus }
 
     input:
-    tuple input_f, output_f
+    tuple val(input_f), val(output_f)
 
     output:
-    tuple input_f, output_f
+    tuple val(input_f), val(output_f)
 
     script:
     def output_dir = file(output_f).parent
