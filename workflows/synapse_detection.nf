@@ -53,8 +53,8 @@ workflow find_synapses_without_neuron_info {
     | join(indexed_dirs, by:1) // [ working_dir, synapse_h5_file_name, synapse_vol_partitions, index, output_dir ]
 
     // copy synapse segmentation for post processing
-    def synapse_seg_copy = cp_file {
-        synapse_data.map { 
+    def synapse_seg_copy = cp_file (
+        synapse_seg_results.map {
             [
                 "${it[0]}/${it[1]}",
                 "${it[4]}/${it[1]}",
