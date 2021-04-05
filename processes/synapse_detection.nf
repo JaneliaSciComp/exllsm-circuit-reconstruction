@@ -69,6 +69,24 @@ process hdf5_to_tiff {
     """
 }
 
+process cp_file {
+    container { params.exm_synapse_container }
+    cpus { params.h52tiff_cpus }
+
+    input:
+    tuple input_f, output_f
+
+    output:
+    tuple input_f, output_f
+
+    script:
+    def output_dir = file(output_f).parent
+    """
+    mkdir -p ${output_dir}
+    """
+
+}
+
 process synapse_segmentation {
     container { params.exm_synapse_container }
     cpus { params.synapse_segmentation_cpus }

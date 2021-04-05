@@ -1,32 +1,33 @@
 
 include {
+    cp_file;
     synapse_segmentation;
     mask_synapses;
 } from '../processes/synapse_detection'
 
 include {
-    tiff_and_h5_with_metadata as synapse_tiff_and_h5;
-    tiff_and_h5_with_metadata as neuron_tiff_and_h5;
+    tiff_to_h5_with_metadata as synapse_tiff_to_h5;
+    tiff_to_h5_with_metadata as neuron_tiff_to_h5;
 } from './tiff_to_h5'
 
 include {
     index_channel;
 } from '../utils/utils'
 
-workflow find_synapses {
+workflow find_synapses_without_neuron_info {
     take:
     dataset
     synapse_stack_dir
-    neuron_stack_dir
-    output_dir
     working_dir
+    output_dir
 
     main:
-    def indexed_working_dir = index_channel(working_dir)
+    def indexed_dirs = index_channel(working_dir)
+    | join(index_channel(output_dir))
 
-    def synapse_data = synapse_tiff_and_h5(
+    def synapse_data = synapse_tiff_to_h5(
         synapse_stack_dir,
-        working_dir.map { "$it//synapse.h5" }
+        working_dir.map { "$it/synapse.h5" }
     ) // [ synapse_tiff_stack, synapse_h5_file, synapse_metadata ]
 
     def synapse_seg_inputs = synapse_data
@@ -42,62 +43,146 @@ workflow find_synapses {
     )
     | groupTuple(by: 0) // [ synapse_h5_file, list_of_volume_partitions ]
     | map {
-        println "Synapse segmentation results: $it"
+        def synapse_h5_file = file(it[0])
+        [
+            "${synapse_h5_file.name}", // synapse_h5_file_name
+            "${synapse_h5_file.parent}", // synapse_h5_working_dir
+            it[1], // list of synapse volume partitions
+        ]
+    }
+    | join(indexed_dirs, by:1) // [ working_dir, synapse_h5_file_name, synapse_vol_partitions, index, output_dir ]
+
+    // copy synapse segmentation for post processing
+    def synapse_seg_copy = cp_file {
+        synapse_data.map { 
+            [
+                "${it[0]}/${it[1]}",
+                "${it[4]}/${it[1]}",
+            ]
+        }
+    )
+    | map {
         def synapse_h5_file = file(it[0])
         [
             "${synapse_h5_file.parent}", // working_dir
-            it[0], // synapse_h5_file
+            it[1], // synapse_h5_file for postprocessing
         ]
     }
 
-    def neuron_mask_inputs = neuron_tiff_and_h5(
-        neuron_stack_dir,
-        working_dir.map { "$it//neuron_mask.h5" }
-    ) // [ synapse_tiff_stack, synapse_h5_file, synapse_metadata ]
-    | map {
-        def neuron_h5_file = file(it[1])
-        [
-            "${neuron_h5_file.parent}", // working_dir
-            it[1], // neuron_h5_file
-            it[2], // volume dims
-        ]
-    }
+    def synapse_mask_inputs = synapse_seg_copy
     | join(synapse_seg_results, by:0)
     | flatMap {
-        // [ working_dir, neuron_h5, neuron_vol_dims, synapse_h5 ]
-        println it
-        def neuron_h5 = it[1]
-        def synapse_h5 = it[3]
-        def neuron_vol = it[2]
-        partition_volume(neuron_h5, neuron_vol, params.volume_partition_size)
-            .collect {
-                [
-                    it[0], // neuron_h5
-                    synapse_h5,
-                    it[1], // neuron_vol_partition
-                ]
-            }
+        // [ working_dir, synapse_h5_file, synapse_h5_file_name, synapse_vol_partitions, index, output_dir ]
+        def synapse_h5_file = it[1]
+        it[3].collect {
+            [
+                synapse_h5_file,
+                it, // volume limits
+            ]
+        }
     }
 
-    def neuron_masked_synapses = mask_synapses(
-        neuron_mask_inputs.map { it[1] }, // synapse image
-        neuron_mask_inputs.map { it[0] }, // neuron mask image
-        neuron_mask_inputs.map { it[2] }, // neuron vol partition
+    def masked_synapses = mask_synapses(
+        synapse_mask_inputs.map { it[0] }, // synapse h5 image
+        '', // neuron mask image
+        synapse_mask_inputs.map { it[1] }, // synapse vol partition
         params.synapse_mask_threshold,
         params.synapse_mask_percentage
     )
-    | groupTuple(by: [0,1])
+    | groupTuple(by: 0)
     | map {
         println "Mask synapse results: $it"
-        [
-            it[0], // synapse_h5
-            it[1], // neuron_h5
-        ]
+        it[0] // synapse_h5
     }
 
     emit:
-    done = neuron_masked_synapses
+    done = masked_synapses
 }
+
+// workflow find_synapses_with_neuron_info {
+//     take:
+//     dataset
+//     synapse_stack_dir
+//     neuron1_stack_dir
+//     neuron2_stack_dir
+//     output_dir
+//     working_dir
+
+//     main:
+//     def synapse_data = synapse_tiff_to_h5(
+//         synapse_stack_dir,
+//         working_dir.map { "$it/synapse.h5" }
+//     ) // [ synapse_tiff_stack, synapse_h5_file, synapse_metadata ]
+
+//     def synapse_seg_inputs = synapse_data
+//     | flatMap {
+//         println "Prepare synapse segmentation inputs for $it"
+//         partition_volume(it[1], it[2], params.volume_partition_size)
+//     }
+
+//     def synapse_seg_results = synapse_segmentation(
+//         synapse_seg_inputs.map { it[0] },
+//         params.synapse_model,
+//         synapse_seg_inputs.map { it[1] }
+//     )
+//     | groupTuple(by: 0) // [ synapse_h5_file, list_of_volume_partitions ]
+//     | map {
+//         println "Synapse segmentation results: $it"
+//         def synapse_h5_file = file(it[0])
+//         [
+//             "${synapse_h5_file.parent}", // working_dir
+//             it[0], // synapse_h5_file
+//         ]
+//     }
+
+//     def neuron_mask_inputs = neuron1_tiff_to_h5(
+//         neuron1_stack_dir,
+//         working_dir.map { "$it/neuron1_mask.h5" }
+//     ) // [ synapse_tiff_stack, synapse_h5_file, synapse_metadata ]
+//     | map {
+//         def neuron_h5_file = file(it[1])
+//         [
+//             "${neuron_h5_file.parent}", // working_dir
+//             it[1], // neuron_h5_file
+//             it[2], // volume dims
+//         ]
+//     }
+//     | join(synapse_seg_results, by:0)
+//     | flatMap {
+//         // [ working_dir, neuron_h5, neuron_vol_dims, synapse_h5 ]
+//         println it
+//         def neuron_h5 = it[1]
+//         def synapse_h5 = it[3]
+//         def neuron_vol = it[2]
+//         partition_volume(neuron_h5, neuron_vol, params.volume_partition_size)
+//             .collect {
+//                 [
+//                     synapse_h5,
+//                     it[0], // neuron_h5
+//                     it[1], // neuron_vol_partition
+//                 ]
+//             }
+//     }
+
+//     def neuron_masked_synapses = mask_synapses(
+//         neuron_mask_inputs.map { it[0] }, // synapse h5 image
+//         neuron_mask_inputs.map { it[1] }, // neuron mask h5 image
+//         neuron_mask_inputs.map { it[2] }, // neuron vol partition
+//         params.synapse_mask_threshold,
+//         params.synapse_mask_percentage
+//     )
+//     | groupTuple(by: [0,1])
+//     | map {
+//         println "Mask synapse results: $it"
+//         [
+//             it[0], // synapse_h5
+//             it[1], // neuron_h5
+//         ]
+//     }
+
+//     emit:
+//     done = neuron_masked_synapses
+// }
 
 def partition_volume(fn, volume, partition_size) {
     def width = volume.width

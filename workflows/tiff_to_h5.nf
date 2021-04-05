@@ -3,7 +3,7 @@ include {
     tiff_to_hdf5;
 } from '../processes/synapse_detection'
 
-workflow tiff_and_h5_with_metadata {
+workflow tiff_to_h5_with_metadata {
     take:
     tiff_stack_dir
     h5_file
