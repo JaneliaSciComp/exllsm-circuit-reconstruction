@@ -13,8 +13,7 @@ def h5_volume_to_tif_slices(input_h5_file, output_dir):
     output_dir: output directory for tif slices
     '''
 
-    assert os.path.exists(input_h5_file), \
-        "Hdf5 file does not exist!!"
+    assert os.path.exists(input_h5_file), "Hdf5 file does not exist!!"
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
 

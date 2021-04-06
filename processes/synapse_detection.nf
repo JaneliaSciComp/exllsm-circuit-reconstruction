@@ -49,16 +49,16 @@ process hdf5_to_tiff {
     cpus { params.h52tiff_cpus }
 
     input:
-    val(input_dir)
+    val(input_h5_file)
     val(output_dir)
 
     output:
-    tuple val(input_dir), val(output_dir)
+    tuple val(input_h5_file), val(output_dir)
 
     script:
     def args_list = [
         '-i',
-        input_dir,
+        input_h5_file,
         '-o',
         output_dir,
     ]
