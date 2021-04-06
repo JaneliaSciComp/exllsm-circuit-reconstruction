@@ -6,12 +6,12 @@ import skimage.io
 
 
 def h5_volume_to_tif_slices(input_h5_file, output_dir):
-    '''
+    """
     Write hdf5 volume into tif 2D slices
     Args:
     input_h5_file: input hdf5 file name
     output_dir: output directory for tif slices
-    '''
+    """
 
     assert os.path.exists(input_h5_file), "Hdf5 file does not exist!!"
     if not os.path.exists(output_dir):
@@ -26,8 +26,9 @@ def h5_volume_to_tif_slices(input_h5_file, output_dir):
                 print('Write slice ', z, ' to ', file_name)
                 skimage.io.imsave(file_name, img)
         print("Whole volume has been processed!")
-    except ValueError as e:
-        print('Exception encountered while converting volume ' + input_h5_file + ' to tiff', e)
+    except:
+        print('Unexpected exception encountered while converting volume ',
+              input_h5_file, ' to tiff', sys.exc_info()[0])
         sys.exit(1)
 
     return None
