@@ -6,6 +6,7 @@ def default_em_params() {
         datasets: '',
         data_dir: '',
         output_dir: '',
+        stitched_data_dir: '',
 
         stitching_output: 'stitching',
 
@@ -77,6 +78,14 @@ def exm_synapse_container_param(Map ps) {
         "${ps.exm_repo}/synapse:1.0.0"
     else
         exm_synapse_container
+}
+
+def get_stitched_data_dir(Map ps) {
+    if (ps.stitched_data_dir) {
+        ps.stitched_data_dir
+    } else {
+        get_value_or_default(final_params, 'output_dir', ps.data_dir)
+    }
 }
 
 def default_synapse_ch_dir(Map ps, parent_dir) {

@@ -2,11 +2,11 @@ include {
     read_json;
 } from '../utils/utils'
 
-def get_stitched_data(output_dir, datasets, stitching_output) {
+def get_stitched_data(data_dir, output_dir, datasets, stitching_output) {
     datasets.collect { dataset_name ->
+        def dataset_input_dir = "${data_dir}/${dataset_name}"
+        def dataset_stitching_dir = get_dataset_stitching_dir(dataset_input_dir, stitching_output)
         def dataset_output_dir = "${output_dir}/${dataset_name}"
-        log.debug "Stitching output dir: $stitching_output"
-        def dataset_stitching_dir = get_dataset_stitching_dir(dataset_output_dir, stitching_output)
         def r = [
             dataset_name,
             dataset_stitching_dir,
