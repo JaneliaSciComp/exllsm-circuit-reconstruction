@@ -1,7 +1,7 @@
 
 include {
-    cp_file cp_synapse_seg;
-    cp_file cp_n1_masked_synapse_seg;
+    cp_file as cp_synapse_seg;
+    cp_file as cp_n1_masked_synapse_seg;
     hdf5_to_tiff;
     synapse_segmentation;
     mask_synapses;
@@ -11,7 +11,8 @@ include {
 
 include {
     tiff_to_h5_with_metadata as synapse_tiff_to_h5;
-    tiff_to_h5_with_metadata as neuron_tiff_to_h5;
+    tiff_to_h5_with_metadata as neuron1_tiff_to_h5;
+    tiff_to_h5_with_metadata as neuron2_tiff_to_h5;
 } from './tiff_to_h5'
 
 include {
@@ -25,7 +26,6 @@ workflow find_synapses {
     neuron1_stack_dir
     neuron2_stack_dir
     output_dir
-    working_dir
 
     main:
     def working_dir = output_dir.map { "${it}/tmp" }
@@ -100,7 +100,6 @@ workflow find_synapses {
     | map {
         println "Neuron1 mask synapse results: $it"
         def masked_n1_synapse_file = file(it[0])
-        def 
         [
             it[0], // synapse_n1_h5_file
             "${masked_n1_synapse_file.parent}", // working dir
@@ -150,7 +149,6 @@ workflow find_synapses {
     | map {
         println "Neuron2 mask synapse results: $it"
         def masked_n1_n2_synapse_file = file(it[0])
-        def 
         [
             it[0], // synapse_n1_n2_h5_file
             "${masked_n1_n2_synapse_file.parent}", // working dir
