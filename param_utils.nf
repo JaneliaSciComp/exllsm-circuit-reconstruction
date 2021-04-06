@@ -84,7 +84,7 @@ def get_stitched_data_dir(Map ps) {
     if (ps.stitched_data_dir) {
         ps.stitched_data_dir
     } else {
-        get_value_or_default(final_params, 'output_dir', ps.data_dir)
+        get_value_or_default(ps, 'output_dir', ps.data_dir)
     }
 }
 
