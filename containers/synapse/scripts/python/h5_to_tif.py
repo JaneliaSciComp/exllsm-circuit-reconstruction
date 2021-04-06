@@ -17,18 +17,18 @@ def h5_volume_to_tif_slices(input_h5_file, output_dir):
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
 
-    z = 0
-    while z >= 0:
-        try:
-            with h5py.File(input_h5_file, 'r', libver='latest', swmr=True) as f:
-                img = f['volume'][z, :, :]
-        except ValueError:
-            print("Whole volume has been processed!")
-            sys.exit(1)
-
-        file_name = output_dir+'/'+str(z)+'.tif'
-        skimage.io.imsave(file_name, img)
-        z += 1
+    try:
+        with h5py.File(input_h5_file, 'r', libver='latest', swmr=True) as f:
+            vol = f['volume']
+            for z in range(vol.shape[0]):
+                img = vol[z]
+                file_name = output_dir+'/'+str(z)+'.tif'
+                print('Write slice ', z, ' to ', file_name)
+                skimage.io.imsave(file_name, img)
+        print("Whole volume has been processed!")
+    except ValueError as e:
+        print('Exception encountered while converting volume ' + input_h5_file + ' to tiff', e)
+        sys.exit(1)
 
     return None
 
