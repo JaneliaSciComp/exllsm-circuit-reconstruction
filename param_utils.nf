@@ -78,3 +78,27 @@ def exm_synapse_container_param(Map ps) {
     else
         exm_synapse_container
 }
+
+def default_synapse_ch_dir(Map ps, parent_dir) {
+    if (ps.synapse_channel_subfolder) {
+        "${parent_dir}/${ps.synapse_channel_subfolder}"
+    } else {
+        "${parent_dir}/slice-tiff-s${ps.export_level}/ch0"
+    }
+}
+
+def default_n1_ch_dir(Map ps, parent_dir) {
+    if (ps.n1_channel_subfolder) {
+        "${parent_dir}/${ps.n1_channel_subfolder}"
+    } else {
+        "${parent_dir}/slice-tiff-s${ps.export_level}/ch1"
+    }
+}
+
+def default_n2_ch_dir(Map ps, parent_dir) {
+    if (ps.n2_channel_subfolder) {
+        "${parent_dir}/${ps.n2_channel_subfolder}"
+    } else {
+        "${parent_dir}/slice-tiff-s${ps.export_level}/ch2"
+    }
+}

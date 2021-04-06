@@ -6,9 +6,7 @@ def get_stitched_data(output_dir, datasets, stitching_output) {
     datasets.collect { dataset_name ->
         def dataset_output_dir = "${output_dir}/${dataset_name}"
         log.debug "Stitching output dir: $stitching_output"
-        def dataset_stitching_dir = stitching_output
-            ? "${dataset_output_dir}/${stitching_output}"
-            : dataset_output_dir
+        def dataset_stitching_dir = get_dataset_stitching_dir(dataset_output_dir, stitching_output)
         def r = [
             dataset_name,
             dataset_stitching_dir,
@@ -37,9 +35,7 @@ process prepare_stitching_data {
     script:
     dataset_input_dir = "${input_dir}/${dataset_name}/images"
     dataset_output_dir = "${output_dir}/${dataset_name}"
-    dataset_stitching_dir = stitching_output
-        ? "${dataset_output_dir}/${stitching_output}"
-        : dataset_output_dir
+    dataset_stitching_dir = get_dataset_stitching_dir(dataset_output_dir, stitching_output)
     dataset_stitching_working_dir = working_dir
         ? "${working_dir}/${dataset_name}"
         : "${dataset_stitching_dir}/tmp"
@@ -76,4 +72,10 @@ process get_stitched_volume_meta {
         e.printStackTrace()
         throw e
     }
+}
+
+def get_dataset_stitching_dir(dataset_output_dir, stitching_output) {
+    stitching_output instanceof String && stitching_output
+        ? "${dataset_output_dir}/${stitching_output}"
+        : dataset_output_dir
 }

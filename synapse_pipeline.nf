@@ -4,6 +4,9 @@ nextflow.enable.dsl=2
 
 include {
     default_em_params;
+    default_synapse_ch_dir;
+    default_n1_ch_dir;
+    default_n2_ch_dir;
     get_value_or_default;
     get_list_or_default;
     exm_synapse_container_param;
@@ -39,9 +42,9 @@ workflow {
 
     def synapses_res = find_synapses(
         stitched_data.map { it[0] }, // dataset
-        stitched_data.map { "${it[1]}/slice-tiff-s${final_params.export_level}/${final_params.synapse_channel_subfolder}" }, // synapse channel stack
-        stitched_data.map { final_params.n1_channel_subfolder ? "${it[1]}/slice-tiff-s${final_params.export_level}/${final_params.n1_channel_subfolder}" : '' }, // n1 channel stack
-        stitched_data.map { final_params.n2_channel_subfolder ? "${it[1]}/slice-tiff-s${final_params.export_level}/${final_params.n2_channel_subfolder}" : '' }, // n2 channel stack
+        stitched_data.map { default_synapse_ch_dir(final_params, it[1]) }, // synapse channel stack
+        stitched_data.map { default_n1_ch_dir(final_params, it[1]) }, // n1 channel stack
+        stitched_data.map { default_n2_ch_dir(final_params, it[1]) }, // n2 channel stack
         stitched_data.map { "${it[2]}/synapses" } // output dir
     )
 
