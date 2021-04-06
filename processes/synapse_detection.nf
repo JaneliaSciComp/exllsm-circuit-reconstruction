@@ -83,6 +83,7 @@ process cp_file {
     def output_dir = file(output_f).parent
     """
     mkdir -p ${output_dir}
+    cp ${input_f} ${output_f}
     """
 
 }
