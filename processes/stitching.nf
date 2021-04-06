@@ -5,6 +5,7 @@ include {
 def get_stitched_data(output_dir, datasets, stitching_output) {
     datasets.collect { dataset_name ->
         def dataset_output_dir = "${output_dir}/${dataset_name}"
+        log.debug "Stitching output dir: $stitching_output"
         def dataset_stitching_dir = stitching_output
             ? "${dataset_output_dir}/${stitching_output}"
             : dataset_output_dir
@@ -13,7 +14,7 @@ def get_stitched_data(output_dir, datasets, stitching_output) {
             dataset_stitching_dir,
             dataset_output_dir,
         ]
-        log.info "Stitched data: $r"
+        log.debug "Stitched data: $r"
         r
     }
 }
