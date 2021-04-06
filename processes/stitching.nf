@@ -8,11 +8,13 @@ def get_stitched_data(output_dir, datasets, stitching_output) {
         def dataset_stitching_dir = stitching_output
             ? "${dataset_output_dir}/${stitching_output}"
             : dataset_output_dir
-        [
+        def r = [
             dataset_name,
             dataset_stitching_dir,
             dataset_output_dir,
         ]
+        log.info "Stitched data: $r"
+        r
     }
 }
 
