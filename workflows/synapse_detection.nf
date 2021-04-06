@@ -1,6 +1,7 @@
 
 include {
-    cp_file;
+    cp_file cp_synapse_seg;
+    cp_file cp_n1_masked_synapse_seg;
     hdf5_to_tiff;
     synapse_segmentation;
     mask_synapses;
@@ -53,10 +54,8 @@ workflow find_synapses {
         [
             it[0], // synapse_h5_file
             "${synapse_h5_file.parent}", // synapse_h5_working_dir
-            it[1], // list of synapse volume partitions
         ]
     }
-    | join(indexed_dirs, by:1) // [ working_dir, synapse_h5_file, synapse_vol_partitions, index, output_dir ]
 
     def neuron1_data = neuron1_tiff_to_h5(
         neuron1_stack_dir,
@@ -64,13 +63,9 @@ workflow find_synapses {
     ) // [ neuron1_tiff_stack, neuron1_h5_file, neuron1_metadata ]
 
     // copy synapse segmentation for post processing
-    def synapse_seg_copy = cp_file (
-        synapse_seg_results.map {
-            [
-                it[1], // synapse_h5_file
-                "${it[0]}/synapse_n1.h5",
-            ]
-        }
+    def synapse_seg_copy = cp_synapse_seg (
+        synapse_seg_results.map { it[0] }, // synapse_h5_file
+        synapse_seg_results.map { "${it[1]}/synapse_n1.h5" }, // synapse_h5_file
     )
     | map {
         def dest_file = file(it[1])
@@ -118,13 +113,9 @@ workflow find_synapses {
     ) // [ neuron2_tiff_stack, neuron2_h5_file, neuron2_metadata ]
 
     // copy synapse masked with neuron1 for masking it next with neuron2 image
-    def masked_synapse_n1_copy = cp_file (
-        neuron1_masked_synapses.map {
-            [
-                it[0], // synapse_n1_h5_file
-                "${it[0]}/synapse_n1_n2.h5",
-            ]
-        }
+    def masked_synapse_n1_copy = cp_n1_masked_synapse_seg (
+        neuron1_masked_synapses.map { it[0] }, // synapse_n1_h5_file
+        neuron1_masked_synapses.map { "${it[1]}/synapse_n1_n2.h5" } // synapse_n1_n2_h5_file
     )
     | map {
         def dest_file = file(it[1])

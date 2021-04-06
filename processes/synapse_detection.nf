@@ -74,7 +74,8 @@ process cp_file {
     cpus { params.h52tiff_cpus }
 
     input:
-    tuple val(input_f), val(output_f)
+    val(input_f)
+    val(output_f)
 
     output:
     tuple val(input_f), val(output_f)
