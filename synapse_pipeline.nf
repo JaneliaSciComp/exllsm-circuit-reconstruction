@@ -20,7 +20,7 @@ synapse_params = final_params + [
     exm_synapse_container: exm_synapse_container_param(final_params),
 ]
 include {
-    find_synapses_without_neuron_info;
+    find_synapses;
 } from './workflows/synapse_detection' addParams(synapse_params)
 
 data_dir = final_params.data_dir
@@ -37,9 +37,11 @@ workflow {
         )
     ) // [ dataset, dataset_stitched_dir, dataset_output_dir ]
 
-    def synapses_res = find_synapses_without_neuron_info(
+    def synapses_res = find_synapses(
         stitched_data.map { it[0] }, // dataset
         stitched_data.map { "${it[1]}/slice-tiff-s${final_params.export_level}/${final_params.synapse_channel_subfolder}" }, // synapse channel stack
+        stitched_data.map { final_params.n1_channel_subfolder ? "${it[1]}/slice-tiff-s${final_params.export_level}/${final_params.n1_channel_subfolder}" : '' }, // n1 channel stack
+        stitched_data.map { final_params.n2_channel_subfolder ? "${it[1]}/slice-tiff-s${final_params.export_level}/${final_params.n2_channel_subfolder}" : '' }, // n2 channel stack
         stitched_data.map { "${it[2]}/synapses" } // output dir
     )
 
