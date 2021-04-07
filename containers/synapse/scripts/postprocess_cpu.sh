@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ -d /scratch ] ; then
+if [[ -d /scratch ]] ; then
     export MCR_CACHE_ROOT="/scratch/${USER}/mcr_cache_$$"
 else
     export MCR_CACHE_ROOT=`mktemp -u`
