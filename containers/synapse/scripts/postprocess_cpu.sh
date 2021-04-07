@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ -d /scratch ]] ; then
+if [[ -d /scratch ]]; then
     export MCR_CACHE_ROOT="/scratch/${USER}/mcr_cache_$$"
 else
     export MCR_CACHE_ROOT=`mktemp -u`
@@ -11,6 +11,6 @@ umask 0002
 [ -d ${MCR_CACHE_ROOT} ] || mkdir -p ${MCR_CACHE_ROOT}
 echo "Use MCR_CACHE_ROOT ${MCR_CACHE_ROOT}"
 
-python /scripts/postprocess_cpu.sh $*
+python /scripts/postprocess_cpu.py $*
 
 rm -rf ${MCR_CACHE_ROOT}
