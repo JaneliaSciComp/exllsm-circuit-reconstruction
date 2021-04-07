@@ -31,9 +31,9 @@ def default_em_params() {
         iterations_per_channel: '10,10,10',
 
         // synapse detection params
-        synapse_channel_subfolder: 'ch0',
-        n1_channel_subfolder: 'ch1',
-        n2_channel_subfolder: 'ch2',
+        synapse_channel_subfolder: '',
+        n1_channel_subfolder: '',
+        n2_channel_subfolder: '',
 
         tiff2h5_cpus: 3,
         h52tiff_cpus: 3,

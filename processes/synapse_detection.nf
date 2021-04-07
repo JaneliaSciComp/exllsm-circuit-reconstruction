@@ -8,14 +8,22 @@ process extract_tiff_stack_metadata {
     tuple val(tiff_stack_dir), env(width), env(height), env(depth)
 
     script:
-    """
-    a_tiff_img=`ls ${tiff_stack_dir}/*.tif | head -n 1`
-    echo "TIFF image selected for extracting metadata: \${a_tiff_img}"
-    width=`gm identify \${a_tiff_img} | cut -d ' ' -f 3 | cut -d '+' -f 1 | cut -d 'x' -f 1`
-    height=`gm identify \${a_tiff_img} | cut -d ' ' -f 3 | cut -d '+' -f 1 | cut -d 'x' -f 2`
-    depth=`ls ${tiff_stack_dir}/*.tif | wc -l`
-    echo "Volume dimensions: \${width} x \${height} x \${depth}"
-    """
+    if (tiff_stack_dir) {
+        """
+        a_tiff_img=`ls ${tiff_stack_dir}/*.tif | head -n 1`
+        echo "TIFF image selected for extracting metadata: \${a_tiff_img}"
+        width=`gm identify \${a_tiff_img} | cut -d ' ' -f 3 | cut -d '+' -f 1 | cut -d 'x' -f 1`
+        height=`gm identify \${a_tiff_img} | cut -d ' ' -f 3 | cut -d '+' -f 1 | cut -d 'x' -f 2`
+        depth=`ls ${tiff_stack_dir}/*.tif | wc -l`
+        echo "Volume dimensions: \${width} x \${height} x \${depth}"
+        """
+    } else {
+        """
+        width=0
+        height=0
+        depth=0
+        """
+    }
 }
 
 process tiff_to_hdf5 {
@@ -38,10 +46,16 @@ process tiff_to_hdf5 {
         output_h5_file,
     ]
     def args = args_list.join(' ')
-    """
-    mkdir -p ${output_h5_dir}
-    python /scripts/tif_to_h5.py ${args}
-    """
+    if (input_tiff_stack_dir) {
+        """
+        mkdir -p ${output_h5_dir}
+        python /scripts/tif_to_h5.py ${args}
+        """
+    } else {
+        // do nothing
+        """
+        """
+    }
 }
 
 process hdf5_to_tiff {
