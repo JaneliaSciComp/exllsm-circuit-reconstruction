@@ -23,13 +23,18 @@ def remove_small_piece(out_hdf5_file, img_file_name, location, mask=None, thresh
     percentage: threshold to remove the object if it falls in the mask less than a percentage. If percentage is 1, criteria will be whether the centroid falls within the mask
     """
 
-    print("Removing small blobs and save results to disk...")
+    print('Removing small blobs from ', img_file_name, ' and save results to ', out_hdf5_file, ' at location ', location)
     img = tif_read(img_file_name)
     img[img != 0] = 1
     label_img = label(img, neighbors=8)
     regionprop_img = regionprops(label_img)
     idx = 0
 
+    out_path = os.path.dirname(out_hdf5_file)
+    csv_name = 'stats_r'+str(location[0])+'_'+str(location[3]-1)+'_c'+str(
+        location[1])+'_'+str(location[4]-1)+'_v'+str(location[2])+'_'+str(location[5]-1)+'.csv'
+    csv_filepath = out_path+'/'+csv_name
+    print('CSV results file: ', csv_filepath)
     for props in regionprop_img:
         num_voxel = props.area
         curr_obj = np.zeros(img.shape, dtype=img.dtype)
@@ -56,11 +61,7 @@ def remove_small_piece(out_hdf5_file, img_file_name, location, mask=None, thresh
             img[label_img == props.label] = 0
         else:
             if idx == 0:
-                out_path = os.path.dirname(out_hdf5_file)
-                csv_name = 'stats_r'+str(location[0])+'_'+str(location[3]-1)+'_c'+str(
-                    location[1])+'_'+str(location[4]-1)+'_v'+str(location[2])+'_'+str(location[5]-1)+'.csv'
-                csv_filepath = out_path+'/'+csv_name
-                print('Write CSV file ', csv_filepath)
+                print('Write header to CSV file ', csv_filepath)
                 with open(csv_filepath, 'w') as csv_file:
                     writer = csv.writer(csv_file,
                                         delimiter=',',
@@ -84,7 +85,7 @@ def remove_small_piece(out_hdf5_file, img_file_name, location, mask=None, thresh
 
             csv_row = [str(idx), str(num_voxel), str(center),
                        str(bbox_row), str(bbox_col), str(bbox_vol)]
-            with open(out_path+'/'+csv_name, 'a') as csv_file:
+            with open(csv_filepath, 'a') as csv_file:
                 writer = csv.writer(csv_file, delimiter=',',
                                     quotechar='"', quoting=csv.QUOTE_MINIMAL)
                 writer.writerow(csv_row)
