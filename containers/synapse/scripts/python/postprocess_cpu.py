@@ -26,7 +26,7 @@ def remove_small_piece(out_hdf5_file, img_file_name, location, mask=None, thresh
     print('Removing small blobs from ', img_file_name, ' and save results to ', out_hdf5_file, ' at location ', location)
     img = tif_read(img_file_name)
     img[img != 0] = 1
-    label_img = label(img, neighbors=8)
+    label_img = label(img, connectivity=3)
     regionprop_img = regionprops(label_img)
     idx = 0
 
@@ -91,6 +91,7 @@ def remove_small_piece(out_hdf5_file, img_file_name, location, mask=None, thresh
                 writer.writerow(csv_row)
 
     img[img != 0] = 255
+    print('Write post processed image to ', out_hdf5_file, ' at location ', location)
     hdf5_write(img, out_hdf5_file, location)
     return None
 
