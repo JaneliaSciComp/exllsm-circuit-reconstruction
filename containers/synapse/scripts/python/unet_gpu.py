@@ -125,7 +125,7 @@ def main(argv):
 
     # Read part of the hdf5 image file based upon location
     if len(location):
-        print('Read ', hdf5_file, ' subbvolume: ', location)
+        print('Read ', hdf5_file, ' subvolume: ', location)
         img = hdf5_read(hdf5_file, location)
         img_path = os.path.dirname(hdf5_file)
     else:
