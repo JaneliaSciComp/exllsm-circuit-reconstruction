@@ -107,18 +107,19 @@ def partition_volume(fn, volume, partition_size, additional_fields) {
     def ncols = (width % partition_size) > 0 ? (width / partition_size + 1) : (width / partition_size)
     def nrows =  (height % partition_size) > 0 ? (height / partition_size + 1) : (height / partition_size)
     def nslices = (depth % partition_size) > 0 ? (depth / partition_size + 1) : (depth / partition_size)
-    [0..nrows-1, 0..ncols-1, 0..nslices-1]
+    log.info "Partition $fn of size $volume into $ncols x $nrows x $nslices subvolumes"
+    [0..ncols-1, 0..nrows-1, 0..nslices-1]
         .combinations()
         .collect {
-            def start_row = it[0] * partition_size
-            def end_row = start_row + partition_size
-            if (end_row > height) {
-                end_row = height
-            }
-            def start_col = it[1] * partition_size
+            def start_col = it[0] * partition_size
             def end_col = start_col + partition_size
             if (end_col > width) {
                 end_col = width
+            }
+            def start_row = it[1] * partition_size
+            def end_row = start_row + partition_size
+            if (end_row > height) {
+                end_row = height
             }
             def start_slice = it[2] * partition_size
             def end_slice = start_slice + partition_size
