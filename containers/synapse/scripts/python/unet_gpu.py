@@ -36,20 +36,20 @@ def masked_error_neg(y_true, y_pred):
     return score
 
 
-def unet_classifier(img, model_h5_file, input_sz=(64, 64, 64), step=(24, 24, 24), mask=None):
-    '''
+def unet_classifier(img, model_h5_file, input_sz=(64, 64, 64),
+                    step=(24, 24, 24), mask=None):
+    """
     Test 3D-Unet on an image data
     args:
     img: image data for testing
     input_sz: U-net input size
     step: number of voxels to move the sliding window in x-,y-,z- direction
     mask: (optional) a mask applied to the img 
-    '''
+    """
 
-    print("Doing prediction using 3D-Unet...")
+    print("Doing prediction using 3D-Unet model ", model_h5_file)
     if mask is not None:
-        assert mask.shape == img.shape, \
-            "Mask and image shapes do not match!"
+        assert mask.shape == img.shape, "Mask and image shapes do not match!"
 
     unet_model = load_model(model_h5_file,
                             custom_objects={'masked_binary_crossentropy': masked_binary_crossentropy,
@@ -66,7 +66,7 @@ def unet_classifier(img, model_h5_file, input_sz=(64, 64, 64), step=(24, 24, 24)
     new_img = np.zeros((img.shape[0]+gap[0]+input_sz[0],
                         img.shape[1]+gap[1]+input_sz[1],
                         img.shape[2]+gap[2]+input_sz[2]),
-                        dtype=img.dtype)
+                       dtype=img.dtype)
     new_img[gap[0]:new_img.shape[0]-input_sz[0], gap[1]:new_img.shape[1] -
             input_sz[1], gap[2]:new_img.shape[2]-input_sz[2]] = img
     img = new_img
@@ -88,8 +88,7 @@ def unet_classifier(img, model_h5_file, input_sz=(64, 64, 64), step=(24, 24, 24)
     predict_img[predict_img >= 0.5] = 255
     predict_img[predict_img < 0.5] = 0
     predict_img = np.uint8(predict_img)
-    predict_img = predict_img[gap[0]:predict_img.shape[0]-input_sz[0], gap[1]
-        :predict_img.shape[1]-input_sz[1], gap[2]:predict_img.shape[2]-input_sz[2]]
+    predict_img = predict_img[gap[0]:predict_img.shape[0]-input_sz[0], gap[1]                              :predict_img.shape[1]-input_sz[1], gap[2]:predict_img.shape[2]-input_sz[2]]
 
     if mask is not None:
         mask[mask != 0] = 1

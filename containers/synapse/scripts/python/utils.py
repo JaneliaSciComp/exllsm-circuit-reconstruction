@@ -46,6 +46,7 @@ def hdf5_read(file_name, location):
     read_img = True
     while read_img:
         try:
+            print('Read ', file_name, ' subvolume ', location)
             with h5py.File(file_name, 'r') as f:
                 im = f['volume'][location[2]:location[5], location[0]:location[3], location[1]:location[4]]
             read_img = False
