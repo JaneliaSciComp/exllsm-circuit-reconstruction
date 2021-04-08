@@ -138,6 +138,7 @@ def main(argv):
     start = time.time()
     print('#############################')
     img = unet_classifier(img, model_h5_file)
+    print('write classifier result to ', output_hdf5_file, ' at ', location)
     hdf5_write(img, output_hdf5_file, location)
     end = time.time()
     print("DONE! 3D U-Net running time is {} seconds".format(end-start))
