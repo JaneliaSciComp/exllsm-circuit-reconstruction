@@ -139,5 +139,5 @@ workflow find_synapses_from_n1_to_n2 {
     } // [ synapse, synapse_vol, n1, n1_vol, n2_vol, synapse_seg, synapse_n1, synapse_n1_n2, output_dir ]
 
     emit:
-    done = synapse_seg_inputs
+    done = synapse_n2_mask_results
 }
