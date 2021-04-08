@@ -19,7 +19,7 @@ workflow classify_regions_in_volume {
 
     main:
     def seg_data = merge_3_channels(input_image, volume, model)
-    | join(duplicate_h5_volume(input_image, volume, output_image, by: 0))
+    | join(duplicate_h5_volume(input_image, volume, output_image), by: 0)
     // [ input, volume, model, output]
 
     def seg_inputs = seg_data
@@ -65,7 +65,7 @@ workflow locate_regions_in_volume {
         def m_vol = mask_fn ? it[3] : it[2]
         it[0..2] + m_vol
     }
-    | join(duplicate_h5_volume(input_image_filename, image_volume, output_image_filename, by: 0))
+    | join(duplicate_h5_volume(input_image_filename, image_volume, output_image_filename), by: 0)
     // [ input_img, mask, image_volume, mask_volume, output_img]
 
     def mask_inputs = locate_data

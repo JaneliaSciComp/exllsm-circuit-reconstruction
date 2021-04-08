@@ -51,8 +51,9 @@ workflow presynaptic_n1_to_n2 {
         input_data.map { it[2] }, // n2
         input_data.map { "${it[4]}/n2_mask.h5" }
     ) // [ neuron2_tiff_stack, neuron2_h5_file, neuron2_volume ]
-/*
-    def synapse_inputs = input_data | join(synapse_data, by:0)
+
+    def synapse_inputs = input_data
+    | join(synapse_data, by:0)
     | map {
         // [synapse_tiff, n1_tiff, n2_tiff, output, working, synapse_h5, synapse_vol ]
         it[1..6] // drop synapse_tiff
@@ -61,7 +62,8 @@ workflow presynaptic_n1_to_n2 {
     | map {
         // [ n1_tiff, n2_tiff, output, working, synapse_h5, synapse_vol, n1_h5, n1_vol ]
         it[1..7]
-    } join(n2_data, by:0)
+    }
+    | join(n2_data, by:0)
     | map {
         // [ n2_tiff, output, working, synapse_h5, synapse_vol, n1_h5, n1_vol, n2_h5, n2_vol ]
         it[3..8] + [ it[2], it[1] ]
@@ -76,9 +78,9 @@ workflow presynaptic_n1_to_n2 {
         synapse_inputs.map { it[5] }, // n2_vol
         synapse_inputs.map { it[6] }  // working_dir
     )
-*/
+
     emit:
-    done = input_data
+    done = synapses_results
 }
 
 workflow find_synapses_from_n1_to_n2 {
@@ -131,7 +133,7 @@ workflow find_synapses_from_n1_to_n2 {
     | join(synapse_n1_mask_results.map {
         [ it[4], it[1], it[5], it[6], it[0], it[8], it[2], it[3], it[7] ]
         // [ synapse_n1, synapse_vol, n2, n2_vol, seg_synapse, synapse, n1, n1_vol, output_dir ]
-    }, by:[0:3]) // [ synapse_n1, synapse_vol, n2, n2_vol, synapse_n1_n2, seg_synapse, synapse, n1, n1_vol, output_dir ]
+    }, by:[0..3]) // [ synapse_n1, synapse_vol, n2, n2_vol, synapse_n1_n2, seg_synapse, synapse, n1, n1_vol, output_dir ]
     | map {
         [ it[6], it[1], it[7], it[8], it[2], it[3], it[5], it[0], it[4], it[9] ]
     } // [ synapse, synapse_vol, n1, n1_vol, n2_vol, synapse_seg, synapse_n1, synapse_n1_n2, output_dir ]
@@ -139,5 +141,3 @@ workflow find_synapses_from_n1_to_n2 {
     emit:
     done = synapse_seg_inputs
 }
-
-
