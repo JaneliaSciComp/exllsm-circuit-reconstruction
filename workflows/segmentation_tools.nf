@@ -127,7 +127,7 @@ def partition_volume(fn, volume, partition_size, additional_fields) {
             }
             def sub_vol = [
                 fn,
-                "${start_row},${start_col},${start_slice},${end_row},${end_col},${end_slice}",
+                "${start_col},${start_row},${start_slice},${end_col},${end_row},${end_slice}",
             ]
             if (additional_fields) {
                 sub_vol + additional_fields
