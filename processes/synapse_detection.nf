@@ -46,16 +46,10 @@ process tiff_to_hdf5 {
         output_h5_file,
     ]
     def args = args_list.join(' ')
-    if (input_tiff_stack_dir) {
-        """
-        mkdir -p ${output_h5_dir}
-        python /scripts/tif_to_h5.py ${args}
-        """
-    } else {
-        // do nothing
-        """
-        """
-    }
+    """
+    mkdir -p ${output_h5_dir}
+    python /scripts/tif_to_h5.py ${args}
+    """
 }
 
 process hdf5_to_tiff {
@@ -99,7 +93,7 @@ process unet_classifier {
     tuple val(input_image), val(output_image), val(volume_limits)
 
     script:
-    output_image = output_image_arg ? output_image_arg : input_image
+    def output_image = output_image_arg ? output_image_arg : input_image
     def args_list = [
         '-i',
         input_image,
@@ -132,7 +126,7 @@ process segmentation_postprocessing {
     tuple val(input_image), val(mask_image), val(output_image), val(volume_limits)
 
     script:
-    output_image = output_image_arg ? output_image_arg : input_image
+    def output_image = output_image_arg ? output_image_arg : input_image
     def args_list = [
         '-i',
         input_image,
