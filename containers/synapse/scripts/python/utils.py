@@ -30,6 +30,12 @@ def tif_write(im_array, file_name):
     return None
 
 
+def hdf5_create(file_name, volume_shape):
+    with h5py.File(file_name, 'w') as f:
+        dset = f.create_dataset(
+            'volume', shape=volume_shape, chunks=(100, 100, 100))
+
+
 def hdf5_read(file_name, location):
     """
     read part of the hdf5 image in (rows,cols,slices) shape

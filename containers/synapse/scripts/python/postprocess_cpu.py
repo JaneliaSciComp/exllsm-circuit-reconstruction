@@ -101,27 +101,33 @@ def main(argv):
     Main function
     """
     hdf5_file = None
-    location = []
     mask_file = None
+    output_hdf5_file = None
+    location = []
     threshold = 400
     percentage = 1.0
     try:
-        options, remainder = getopt.getopt(argv, "i:l:m:t:p:", [
-                                           "input_file=", "location=", "mask_file=", "threshold=", "percentage="])
+        options, remainder = getopt.getopt(argv, "i:l:m:o:t:p:", [
+                                           "input_file=", "location=", "mask_file=",
+                                           "output_file="
+                                            "threshold=", "percentage="])
     except:
         print("ERROR:", sys.exc_info()[0])
-        print("Usage: postprocess_cpu.py -i <input_hdf5_file> -l <location> -m <mask_file> -t <threshold> -p <percentage>")
+        print("Usage: postprocess_cpu.py -i <input_hdf5_file> " +
+              "-l <location> -m <mask_file> -o <output_file> " +
+              "-t <threshold> -p <percentage>")
         sys.exit(1)
 
     # Get input arguments
     for opt, arg in options:
         if opt in ('-i', '--input_file'):
             hdf5_file = arg
-        elif opt in ('-l', '--location'):
-            location.append(arg.split(","))
-            location = tuple(map(int, location[0]))
         elif opt in ('-m', '--mask_file'):
             mask_file = arg
+        elif opt in ('-o', '--output_file'):
+            output_hdf5_file = arg
+        elif opt in ('-l', '--location'):
+            location = tuple(map(int, arg.split(',')))
         elif opt in ('-t', '--threshold'):
             threshold = int(arg)
         elif opt in ('-p', '--percentage'):
@@ -146,6 +152,9 @@ def main(argv):
     else:
         mask = None
 
+    if output_hdf5_file is None:
+        output_hdf5_file = hdf5_file
+
     start = time.time()
     print('#############################')
     out_img_name = img_path+'/r'+str(location[0])+'_'+str(location[3])+'_c'+str(
@@ -156,7 +165,7 @@ def main(argv):
     ws = watershed.initialize()
     flag = ws.closing_watershed(out_img_name)
     ws.quit()
-    remove_small_piece(out_hdf5_file=hdf5_file, img_file_name=out_img_name,
+    remove_small_piece(out_hdf5_file=output_hdf5_file, img_file_name=out_img_name,
                        location=location, mask=mask, threshold=threshold, percentage=percentage)
     if os.path.exists(out_img_name):
         os.remove(out_img_name)

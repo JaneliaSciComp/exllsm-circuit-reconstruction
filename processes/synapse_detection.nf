@@ -83,27 +83,7 @@ process hdf5_to_tiff {
     """
 }
 
-process cp_file {
-    container { params.exm_synapse_container }
-    cpus { params.h52tiff_cpus }
-
-    input:
-    val(input_f)
-    val(output_f)
-
-    output:
-    tuple val(input_f), val(output_f)
-
-    script:
-    def output_dir = file(output_f).parent
-    """
-    mkdir -p ${output_dir}
-    cp ${input_f} ${output_f}
-    """
-
-}
-
-process synapse_segmentation {
+process unet_classifier {
     container { params.exm_synapse_container }
     cpus { params.synapse_segmentation_cpus }
     accelerator 1
@@ -113,11 +93,13 @@ process synapse_segmentation {
     val(input_image)
     val(model_file)
     val(volume_limits)
+    val(output_image_arg)
 
     output:
-    tuple val(input_image), val(volume_limits)
+    tuple val(input_image), val(output_image), val(volume_limits)
 
     script:
+    output_image = output_image_arg ? output_image_arg : input_image
     def args_list = [
         '-i',
         input_image,
@@ -125,6 +107,8 @@ process synapse_segmentation {
         model_file,
         '-l',
         volume_limits,
+        '-o',
+        output_image,
     ]
     def args = args_list.join(' ')
     """
@@ -132,7 +116,7 @@ process synapse_segmentation {
     """
 }
 
-process mask_synapses {
+process segmentation_postprocessing {
     container { params.exm_synapse_container }
     cpus { params.mask_synapses_cpus }
 
@@ -142,11 +126,13 @@ process mask_synapses {
     val(volume_limits)
     val(threshold)
     val(percentage)
+    val(output_image_arg)
 
     output:
-    tuple val(input_image), val(mask_image), val(volume_limits)
+    tuple val(input_image), val(mask_image), val(output_image), val(volume_limits)
 
     script:
+    output_image = output_image_arg ? output_image_arg : input_image
     def args_list = [
         '-i',
         input_image,
@@ -156,6 +142,8 @@ process mask_synapses {
         threshold,
         '-p',
         percentage,
+        '-o',
+        output_image,
     ]
     if (mask_image) {
         args_list << '-m' << mask_image

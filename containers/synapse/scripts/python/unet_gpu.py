@@ -104,22 +104,25 @@ def main(argv):
     """
     hdf5_file = None
     model_h5_file = None
+    output_hdf5_file = None
     location = []
     try:
         options, remainder = getopt.getopt(
-            argv, "i:l:m:", ["input_file=", "location=", "model_file="])
+            argv, "i:o:l:m:", ["input_file=", "output_file=", "location=", "model_file="])
     except:
         print("ERROR:", sys.exc_info()[0])
-        print("Usage: unet_gpu.py -i <input_hdf5_file> -l <location> -m <model_h5_file>")
+        print("Usage: unet_gpu.py -i <input_hdf5_file> " +
+              "-o <output_hdf5_file> -l <location> -m <model_h5_file>")
         sys.exit(1)
 
     # Get input arguments
     for opt, arg in options:
         if opt in ('-i', '--input_file'):
             hdf5_file = arg
+        elif opt in ('-o', '--output_file'):
+            output_hdf5_file = arg
         elif opt in ('-l', '--location'):
-            location.append(arg.split(","))
-            location = tuple(map(int, location[0]))
+            location = tuple(map(int, arg.split(',')))
         elif opt in ('-m', '--model_file'):
             model_h5_file = arg
 
@@ -135,7 +138,7 @@ def main(argv):
     start = time.time()
     print('#############################')
     img = unet_classifier(img, model_h5_file)
-    hdf5_write(img, hdf5_file, location)
+    hdf5_write(img, output_hdf5_file, location)
     end = time.time()
     print("DONE! 3D U-Net running time is {} seconds".format(end-start))
 
