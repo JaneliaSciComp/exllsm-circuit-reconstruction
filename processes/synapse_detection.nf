@@ -131,18 +131,12 @@ process segmentation_postprocessing {
     } else {
         output_image = input_image
     }
-    def args_list = [
-        '-i',
-        input_image,
-        '-l',
-        volume_limits,
-        '-t',
-        threshold,
-        '-p',
-        percentage,
-        '-o',
-        output_image,
-    ]
+    def args_list = []
+    args_list << '-i' << input_image <<
+            << '-o' << output_image <<
+            << '-l' << "${volume_limits}" <<
+            << '-p' << percentage <<
+            << '-t' << threshold
     if (mask_image) {
         args_list << '-m' << mask_image
     }
