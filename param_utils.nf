@@ -30,6 +30,7 @@ def default_em_params() {
         psf_z_step_um: '0.1',
         iterations_per_channel: '10,10,10',
 
+        pipeline: 'presynaptic_in_volume',
         // synapse detection params
         synapse_channel_subfolder: '',
         n1_channel_subfolder: '',
