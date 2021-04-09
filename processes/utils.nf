@@ -39,7 +39,7 @@ process merge_4_channels {
     """
 }
 
-process merge_6_channels {
+process merge_7_channels {
     executor 'local'
 
     input:
@@ -49,6 +49,7 @@ process merge_6_channels {
     val(v4)
     val(v5)
     val(v6)
+    val(v6)
 
     output:
     tuple val(v1),
@@ -56,7 +57,9 @@ process merge_6_channels {
           val(v3),
           val(v4),
           val(v5),
-          val(v6)
+          val(v6),
+          val(v7)
+
 
     script:
     // nothing to do

@@ -11,7 +11,7 @@ include {
 
 include {
     merge_4_channels;
-    merge_6_channels;
+    merge_7_channels;
 } from '../processes/utils'
 
 include {
@@ -69,6 +69,8 @@ workflow presynaptic_n1_to_n2 {
         it[3..8] + [ it[2], it[1] ]
     } // [ synapse_h5, synapse_vol, n1_h5, n1_vol, n2_h5, n2_vol, working, output ]
 
+    synapse_inputs.subscribe { log.debug "N1 to N2 synapse inputs: $it"}
+
     def synapses_results = find_synapses_from_n1_to_n2(
         synapse_inputs.map { it[0] }, // synapse_file
         synapse_inputs.map { it[1] }, // synapse_vol
@@ -94,7 +96,7 @@ workflow find_synapses_from_n1_to_n2 {
     output_dir
 
     main:
-    def synapse_seg_inputs = merge_6_channels(
+    def synapse_seg_inputs = merge_7_channels(
         synapse_filename,
         synapse_vol,
         n1_filename,
@@ -104,11 +106,13 @@ workflow find_synapses_from_n1_to_n2 {
         output_dir
     )
 
+    synapse_seg_inputs.subscribe { log.debug "Synapse classifier input: $it" }
+
     def synapse_seg_results = classify_synapses(
         synapse_seg_inputs.map { it[0] },
         synapse_seg_inputs.map { it[1] },
         params.synapse_model,
-        synapse_seg_inputs.map { "${it[5]}/synapse_seg.h5" }
+        synapse_seg_inputs.map { "${it[6]}/synapse_seg.h5" }
     ) // [ synapse_h5, synapse_vol, seg_synapse_h5 ]
     | join(synapse_seg_inputs, by:[0,1]) // [ synapse, synapse_vol, seg_synapse, n1_h5, n1_vol, n2_h5, n2_vol, output_dir ]
 
