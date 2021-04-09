@@ -126,7 +126,11 @@ process segmentation_postprocessing {
     tuple val(input_image), val(mask_image), val(output_image), val(volume_limits)
 
     script:
-    output_image = output_image_arg ? output_image_arg : input_image
+    if (output_image_arg) {
+        output_image = output_image_arg
+    } else {
+        output_image = input_image
+    }
     def args_list = [
         '-i',
         input_image,
@@ -137,7 +141,7 @@ process segmentation_postprocessing {
         '-p',
         percentage,
         '-o',
-        output_image
+        output_image,
     ]
     if (mask_image) {
         args_list << '-m' << mask_image
