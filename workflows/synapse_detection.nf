@@ -10,8 +10,8 @@ include {
 } from './segmentation_tools'
 
 include {
-    merge_4_channels;
-    merge_7_channels;
+    merge_up_to_10_channels as merge_4_channels;
+    merge_up_to_10_channels as merge_6_channels;
 } from '../processes/utils'
 
 include {
@@ -94,7 +94,7 @@ workflow find_synapses_from_n1_to_n2 {
     output_dir
 
     main:
-    def synapse_seg_inputs = merge_7_channels(
+    def synapse_seg_inputs = merge_6_channels(
         synapse_filename,
         synapse_vol,
         n1_filename,
@@ -108,7 +108,7 @@ workflow find_synapses_from_n1_to_n2 {
         synapse_seg_inputs.map { it[0] },
         synapse_seg_inputs.map { it[1] },
         params.synapse_model,
-        synapse_seg_inputs.map { "${it[6]}/synapse_seg.h5" }
+        synapse_seg_inputs.map { "${it[5]}/synapse_seg.h5" }
     ) // [ synapse_h5, synapse_vol, seg_synapse_h5 ]
     | join(synapse_seg_inputs, by:[0,1]) // [ synapse, synapse_vol, seg_synapse, n1_h5, n1_vol, n2_h5, n2_vol, output_dir ]
 
