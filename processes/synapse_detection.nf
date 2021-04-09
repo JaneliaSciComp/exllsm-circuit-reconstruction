@@ -94,16 +94,11 @@ process unet_classifier {
 
     script:
     output_image = output_image_arg ? output_image_arg : input_image
-    def args_list = [
-        '-i',
-        input_image,
-        '-m',
-        model_file,
-        '-l',
-        volume_limits,
-        '-o',
-        output_image,
-    ]
+    def args_list = []
+    args_list << '-i' << input_image
+    args_list << '-m' << model_file,
+    args_list << '-l' << "${volume_limits}"
+    args_list << '-o' << output_image
     def args = args_list.join(' ')
     """
     python /scripts/unet_gpu.py ${args}
