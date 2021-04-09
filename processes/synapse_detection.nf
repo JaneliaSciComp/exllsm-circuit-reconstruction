@@ -137,7 +137,7 @@ process segmentation_postprocessing {
         '-p',
         percentage,
         '-o',
-        output_image,
+        output_image
     ]
     if (mask_image) {
         args_list << '-m' << mask_image
