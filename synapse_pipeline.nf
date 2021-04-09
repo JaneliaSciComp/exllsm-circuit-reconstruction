@@ -24,6 +24,7 @@ synapse_params = final_params + [
     exm_synapse_container: exm_synapse_container_param(final_params),
 ]
 include {
+    presynaptic_in_volume;
     presynaptic_n1_to_n2;
 } from './workflows/synapse_detection' addParams(synapse_params)
 
