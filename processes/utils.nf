@@ -49,7 +49,7 @@ process merge_7_channels {
     val(v4)
     val(v5)
     val(v6)
-    val(v6)
+    val(v7)
 
     output:
     tuple val(v1),
