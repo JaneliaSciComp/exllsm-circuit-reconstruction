@@ -11,6 +11,7 @@ include {
 } from './segmentation_tools'
 
 include {
+    merge_2_channels;
     merge_4_channels;
     merge_7_channels;
 } from '../processes/utils'
@@ -31,7 +32,7 @@ workflow presynaptic_in_volume {
     output_dir
 
     main:
-    def input_data = merge_4_channels(synapse_stack_dir, output_dir)
+    def input_data = merge_2_channels(synapse_stack_dir, output_dir)
     | map {
         it + "${it[1]}/tmp"
     } // [ synapse_tiff_stack, output_dir, working_dir ]
