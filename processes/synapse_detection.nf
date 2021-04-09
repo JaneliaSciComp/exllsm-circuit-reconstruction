@@ -39,12 +39,9 @@ process tiff_to_hdf5 {
 
     script:
     def output_h5_dir = file(output_h5_file).parent
-    def args_list = [
-        '-i',
-        input_tiff_stack_dir,
-        '-o',
-        output_h5_file,
-    ]
+    def args_list = []
+    args_list << '-i' << input_tiff_stack_dir
+    args_list << '-o' << output_h5_file
     def args = args_list.join(' ')
     """
     mkdir -p ${output_h5_dir}
@@ -64,12 +61,9 @@ process hdf5_to_tiff {
     tuple val(input_h5_file), val(output_dir)
 
     script:
-    def args_list = [
-        '-i',
-        input_h5_file,
-        '-o',
-        output_dir,
-    ]
+    def args_list = []
+    args_list << '-i' << input_h5_file
+    args_list << '-o' << output_dir
     def args = args_list.join(' ')
     """
     mkdir -p ${output_dir}
