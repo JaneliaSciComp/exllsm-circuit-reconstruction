@@ -106,7 +106,7 @@ process unet_classifier {
     ]
     def args = args_list.join(' ')
     """
-    python /scripts/unet_gpu.py ${args} 2>&1
+    python /scripts/unet_gpu.py ${args}
     """
 }
 
@@ -126,7 +126,7 @@ process segmentation_postprocessing {
     tuple val(input_image), val(mask_image), val(output_image), val(volume_limits)
 
     script:
-    def output_image = output_image_arg ? output_image_arg : input_image
+    output_image = output_image_arg ? output_image_arg : input_image
     def args_list = [
         '-i',
         input_image,
