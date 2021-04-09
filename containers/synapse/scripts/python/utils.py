@@ -52,8 +52,8 @@ def hdf5_read(file_name, location):
             read_img = False
         except OSError:  # If other process is accessing the image, wait 5 seconds to try again
             time.sleep(randint(1, 5))
-    im_array = np.zeros(
-        (im.shape[1], im.shape[2], im.shape[0]), dtype=im.dtype)
+    im_array = np.zeros((im.shape[1], im.shape[2], im.shape[0]),
+                        dtype=im.dtype)
     for i in range(im.shape[0]):
         im_array[:, :, i] = im[i]
     return im_array
@@ -68,8 +68,8 @@ def hdf5_write(im_array, file_name, location):
     location: a tuple of (min_row, min_col, min_vol, max_row, max_col, max_vol) indicating what area to write
     """
     assert os.path.exists(file_name), print("ERROR: hdf5 file does not exist!")
-    im = np.zeros((im_array.shape[2], im_array.shape[0],
-                   im_array.shape[1]), dtype=im_array.dtype)
+    im = np.zeros((im_array.shape[2], im_array.shape[0], im_array.shape[1]),
+                  dtype=im_array.dtype)
     for i in range(im_array.shape[2]):
         im[i] = im_array[:, :, i]
     write_img = True

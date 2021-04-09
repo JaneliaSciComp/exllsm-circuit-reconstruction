@@ -67,8 +67,9 @@ def unet_classifier(img, model_h5_file, input_sz=(64, 64, 64),
                         img.shape[1]+gap[1]+input_sz[1],
                         img.shape[2]+gap[2]+input_sz[2]),
                        dtype=img.dtype)
-    new_img[gap[0]:new_img.shape[0]-input_sz[0], gap[1]:new_img.shape[1] -
-            input_sz[1], gap[2]:new_img.shape[2]-input_sz[2]] = img
+    new_img[gap[0]:new_img.shape[0]-input_sz[0], 
+            gap[1]:new_img.shape[1]-input_sz[1],
+            gap[2]:new_img.shape[2]-input_sz[2]] = img
     img = new_img
     del new_img
     predict_img = np.zeros(img.shape, dtype=img.dtype)
