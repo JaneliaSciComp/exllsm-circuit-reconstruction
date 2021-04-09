@@ -3,7 +3,7 @@ import h5py
 import skimage.io
 import time
 import os
-from random import randint
+from random import random
 
 
 def tif_read(file_name):
@@ -51,7 +51,7 @@ def hdf5_read(file_name, location):
                 im = f['volume'][location[2]:location[5], location[0]:location[3], location[1]:location[4]]
             read_img = False
         except OSError:  # If other process is accessing the image, wait 5 seconds to try again
-            time.sleep(randint(1, 5))
+            time.sleep(random()*3)
     im_array = np.zeros((im.shape[1], im.shape[2], im.shape[0]),
                         dtype=im.dtype)
     for i in range(im.shape[0]):
@@ -79,5 +79,5 @@ def hdf5_write(im_array, file_name, location):
                 f['volume'][location[2]:location[5], location[0]:location[3], location[1]:location[4]] = im
             write_img = False
         except OSError:  # If other process is accessing the image, wait 5 seconds to try again
-            time.sleep(randint(1, 5))
+            time.sleep(random()*3)
     return None
