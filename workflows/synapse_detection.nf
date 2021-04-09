@@ -5,6 +5,7 @@ include {
 
 include {
     classify_regions_in_volume as classify_synapses;
+    locate_regions_in_volume as mask_synapses;
     locate_regions_in_volume as mask_synapses_with_n1;
     locate_regions_in_volume as mask_synapses_witth_n2;
 } from './segmentation_tools'
@@ -23,6 +24,59 @@ include {
 include {
     index_channel;
 } from '../utils/utils'
+
+workflow presynaptic_in_volume {
+    take:
+    synapse_stack_dir
+    output_dir
+
+    main:
+    def input_data = merge_4_channels(synapse_stack_dir, output_dir)
+    | map {
+        it + "${it[1]}/tmp"
+    } // [ synapse_tiff_stack, output_dir, working_dir ]
+
+    def synapse_data = synapse_tiff_to_h5(
+        input_data.map { it[0] }, // synapse
+        input_data.map { "${it[2]}/synapse.h5" }
+    ) // [ synapse_tiff_stack, synapse_h5_file, synapse_volume ]
+
+    def synapse_inputs = input_data
+    | join(synapse_data, by:0)
+    | map {
+        // [ synapse_tiff, output, working, synapse_h5, synapse_vol ]
+        it[3..4] +  [ it[2], it[1] ]
+    } // [ synapse_h5, synapse_vol, working, output ]
+
+    synapse_inputs.subscribe { log.debug "Synapse classifier inputs: $it"}
+
+    def synapse_seg_results = classify_synapses(
+        synapse_inputs.map { it[0] },
+        synapse_inputs.map { it[1] },
+        params.synapse_model,
+        synapse_inputs.map { "${it[2]}/synapse_seg.h5" }
+    ) // [ synapse_h5, synapse_vol, seg_synapse_h5 ]
+    | join(synapse_inputs, by:[0,1]) // [ synapse, synapse_vol, seg_synapse, working_dir, output_dir ]
+
+    synapse_seg_results.subscribe { log.debug "Synapse classifier results: $it" }
+
+    def post_synapse_seg_results = mask_synapses(
+        synapse_seg_results.map { it[2] }, // seg_synapse
+        synapse_seg_results.map { it[1] }, // synapse vol
+        '', // no neuron mask
+        [width:0, height:0, depth:0], // 0 volume
+        synapse_seg_results.map { "${it[3]}/post_synapse_seg.h5" }
+    ) // [ seg_synapse, synapse_vol, <empty neuron mask>, <empty neuron vol>, post_seg_synapse ]
+    | join(synapse_seg_results.map {
+        [ it[2], it[1] ] + it[3..4] + it[0] // [ seg_synapse, synapse_vol, working_dir, output_dir, synapse ]
+    }, by:[0..2]) // [ seg_synapse, synapse_vol, <empty neuron>, <empty neuron vol>, post_synapse, working_dir, output_dir, synapse ]
+    | map {
+        [ it[7], it[1], it[0], it[4], it[6] ]
+    } // [ synapse, synapse_vol, synapse_seg, post_seg_synapse_n1, output_dir ]
+
+    emit:
+    done = post_synapse_seg_results
+}
 
 workflow presynaptic_n1_to_n2 {
     take:
@@ -55,7 +109,7 @@ workflow presynaptic_n1_to_n2 {
     def synapse_inputs = input_data
     | join(synapse_data, by:0)
     | map {
-        // [synapse_tiff, n1_tiff, n2_tiff, output, working, synapse_h5, synapse_vol ]
+        // [ synapse_tiff, n1_tiff, n2_tiff, output, working, synapse_h5, synapse_vol ]
         it[1..6] // drop synapse_tiff
     }
     | join(n1_data, by:0)
@@ -106,7 +160,7 @@ workflow find_synapses_from_n1_to_n2 {
         output_dir
     )
 
-    synapse_seg_inputs.subscribe { log.debug "Synapse classifier input: $it" }
+    synapse_seg_inputs.subscribe { log.debug "Synapse classifier inputs: $it" }
 
     def synapse_seg_results = classify_synapses(
         synapse_seg_inputs.map { it[0] },

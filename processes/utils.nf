@@ -1,3 +1,20 @@
+process merge_2_channels {
+    executor 'local'
+
+    input:
+    val(v1)
+    val(v2)
+
+    output:
+    tuple val(v1),
+          val(v2)
+
+    script:
+    // nothing to do
+    """
+    """
+}
+
 process merge_3_channels {
     executor 'local'
 
@@ -15,7 +32,6 @@ process merge_3_channels {
     // nothing to do
     """
     """
-
 }
 
 process merge_4_channels {
