@@ -106,7 +106,7 @@ process unet_classifier {
     ]
     def args = args_list.join(' ')
     """
-    python /scripts/unet_gpu.py ${args}
+    python /scripts/unet_gpu.py ${args} 2>&1
     """
 }
 

@@ -137,6 +137,9 @@ def main(argv):
         print("ERROR: location need to be provided!")
         sys.exit(1)
 
+    if output_hdf5_file is None:
+        output_hdf5_file = hdf5_file
+
     start = time.time()
     print('#############################')
     img = unet_classifier(img, model_h5_file)

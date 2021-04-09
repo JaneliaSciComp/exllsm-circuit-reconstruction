@@ -104,9 +104,9 @@ def partition_volume(fn, volume, partition_size, additional_fields) {
     def width = volume.width
     def height = volume.height
     def depth = volume.depth
-    def ncols = (width % partition_size) > 0 ? (width / partition_size + 1) : (width / partition_size)
-    def nrows =  (height % partition_size) > 0 ? (height / partition_size + 1) : (height / partition_size)
-    def nslices = (depth % partition_size) > 0 ? (depth / partition_size + 1) : (depth / partition_size)
+    def ncols = ((width % partition_size) > 0 ? (width / partition_size + 1) : (width / partition_size)) as int
+    def nrows =  ((height % partition_size) > 0 ? (height / partition_size + 1) : (height / partition_size)) as int
+    def nslices = ((depth % partition_size) > 0 ? (depth / partition_size + 1) : (depth / partition_size)) as int
     log.info "Partition $fn of size $volume into $ncols x $nrows x $nslices subvolumes"
     [0..ncols-1, 0..nrows-1, 0..nslices-1]
         .combinations()
