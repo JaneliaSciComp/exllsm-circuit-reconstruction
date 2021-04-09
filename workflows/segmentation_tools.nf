@@ -18,11 +18,11 @@ workflow classify_regions_in_volume {
     output_image // output image filename
 
     main:
-    def seg_data = merge_3_channels(input_image, volume, model)
+    def classifier_data = merge_3_channels(input_image, volume, model)
     | join(duplicate_h5_volume(input_image, volume, output_image), by: 0)
     // [ input, volume, model, output]
 
-    def seg_inputs = seg_data
+    def unet_inputs = classifier_data
     | flatMap {
         def img_fn = it[0] // image file name
         def img_vol = it[1] // image volume
@@ -32,19 +32,21 @@ workflow classify_regions_in_volume {
     } // [ img_file, img_subvol, model, out_img_file ]
 
     def seg_results = unet_classifier(
-        seg_inputs.map { it[0] },
-        seg_inputs.map { it[2] },
-        seg_inputs.map { it[1] },
-        seg_inputs.map { it[3] }
+        unet_inputs.map { it[0] },
+        unet_inputs.map { it[2] },
+        unet_inputs.map { it[1] },
+        unet_inputs.map { it[3] }
     )
     | groupTuple(by: [0,1])
     | map {
         [ it[0], it[1] ] // [ input_img, output_img ]
     }
-    | join(seg_data)
+    | join(classifier_data, by:0)
     | map {
+        // [ input_image, output_image, volume, model, output_image]
         [ it[0], it[2], it[1] ] 
     } // [ input_image_file, image_volume, output_image_file ]
+
 
     emit:
     done = seg_results

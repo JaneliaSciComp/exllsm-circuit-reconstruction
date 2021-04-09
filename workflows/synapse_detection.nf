@@ -116,6 +116,8 @@ workflow find_synapses_from_n1_to_n2 {
     ) // [ synapse_h5, synapse_vol, seg_synapse_h5 ]
     | join(synapse_seg_inputs, by:[0,1]) // [ synapse, synapse_vol, seg_synapse, n1_h5, n1_vol, n2_h5, n2_vol, output_dir ]
 
+    synapse_seg_results.subscribe { log.debug "Synapse classifier results: $it" }
+
     def synapse_n1_mask_results = mask_synapses_with_n1(
         synapse_seg_results.map { it[2] }, // seg_synapse
         synapse_seg_results.map { it[1] }, // synapse vol
