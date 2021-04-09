@@ -10,8 +10,8 @@ include {
 } from './segmentation_tools'
 
 include {
-    merge_up_to_10_channels as merge_4_channels;
-    merge_up_to_10_channels as merge_6_channels;
+    merge_4_channels;
+    merge_6_channels;
 } from '../processes/utils'
 
 include {

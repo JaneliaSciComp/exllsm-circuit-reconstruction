@@ -5,8 +5,8 @@ include {
 } from '../processes/synapse_detection'
 
 include {
-    merge_up_to_10_channels as merge_3_channels;
-    merge_up_to_10_channels as merge_4_channels;
+    merge_3_channels;
+    merge_4_channels;
     duplicate_h5_volume;
 } from '../processes/utils'
 

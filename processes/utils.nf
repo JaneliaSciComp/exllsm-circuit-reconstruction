@@ -1,4 +1,45 @@
-process merge_up_to_10_channels {
+process merge_3_channels {
+    executor 'local'
+
+    input:
+    val(v1)
+    val(v2)
+    val(v3)
+
+    output:
+    tuple val(v1),
+          val(v2),
+          val(v3)
+
+    script:
+    // nothing to do
+    """
+    """
+
+}
+
+process merge_4_channels {
+    executor 'local'
+
+    input:
+    val(v1)
+    val(v2)
+    val(v3)
+    val(v4)
+
+    output:
+    tuple val(v1),
+          val(v2),
+          val(v3),
+          val(v4)
+
+    script:
+    // nothing to do
+    """
+    """
+}
+
+process merge_6_channels {
     executor 'local'
 
     input:
@@ -8,10 +49,6 @@ process merge_up_to_10_channels {
     val(v4)
     val(v5)
     val(v6)
-    val(v7)
-    val(v8)
-    val(v9)
-    val(v10)
 
     output:
     tuple val(v1),
@@ -19,11 +56,7 @@ process merge_up_to_10_channels {
           val(v3),
           val(v4),
           val(v5),
-          val(v6),
-          val(v7),
-          val(v8),
-          val(v9),
-          val(v10)
+          val(v6)
 
     script:
     // nothing to do
