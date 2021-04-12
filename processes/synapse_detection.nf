@@ -80,18 +80,18 @@ process unet_classifier {
     input:
     val(input_image)
     val(model_file)
-    val(volume_limits)
+    val(subvolume)
     val(output_image_arg)
 
     output:
-    tuple val(input_image), val(output_image), val(volume_limits)
+    tuple val(input_image), val(output_image), val(subvolume)
 
     script:
     output_image = output_image_arg ? output_image_arg : input_image
     def args_list = []
     args_list << '-i' << input_image
     args_list << '-m' << model_file
-    args_list << '-l' << "${volume_limits}"
+    args_list << '-l' << "${subvolume}"
     args_list << '-o' << output_image
     def args = args_list.join(' ')
     """
@@ -106,13 +106,13 @@ process segmentation_postprocessing {
     input:
     val(input_image)
     val(mask_image)
-    val(volume_limits)
+    val(subvolume)
     val(threshold)
     val(percentage)
     val(output_image_arg)
 
     output:
-    tuple val(input_image), val(mask_image), val(output_image), val(volume_limits)
+    tuple val(input_image), val(mask_image), val(output_image), val(subvolume)
 
     script:
     output_image = output_image_arg ? output_image_arg : input_image
@@ -121,7 +121,7 @@ process segmentation_postprocessing {
     args_list << '-i' << input_image
     args_list << '-o' << output_image
     args_list << '-o' << output_image
-    args_list << '-l' << "${volume_limits}"
+    args_list << '-l' << "${subvolume}"
     args_list << '-p' << percentage
     args_list << '-t' << threshold
     if (mask_image) {
