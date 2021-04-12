@@ -6,6 +6,7 @@ include {
 include {
     classify_and_connect_regions as classify_and_connect_presynaptic_n1_regions;
     classify_and_connect_regions as classify_and_connect_presynaptic_regions
+    classify_and_connect_regions as classify_and_connect_postsynaptic_to_presynaptic_n1_regions;
     connect_regions_in_volume as mask_with_n2;
 } from './segmentation_tools'
 
@@ -163,13 +164,39 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
         [ "${h5_file.parent}" ] + it
     } // [ working_dir, tiff_stack, h5_file, volume ]
 
-    def synapse_inputs = pre_synapse_data
+    def pre_synaptic_n1_inputs = pre_synapse_data
     | join(n1_data, by:0)
     | join(post_synapse_data, by:0) 
     // [ working_dir, pre_synapse_tiff, pre_synapse_h5, pre_synapse_vol, n1_tiff, n1_h5, n1_vol, post_synapse_tiff, post_synapse_h5, post_synapse_vol ]
 
+    def presynaptic_n1_regions = classify_and_connect_presynaptic_n1_regions(
+        pre_synaptic_n1_inputs.map { it[1] }, // pre_synapse
+        pre_synaptic_n1_inputs.map { it[2] }, // pre_synapse_vol
+        params.synapse_model,
+        pre_synaptic_n1_inputs.map { it[5] }, // n1
+        pre_synaptic_n1_inputs.map { it[6] }, // n1_vol
+        pre_synaptic_n1_inputs.map { "${it[0]}/pre_synapse_seg.h5" },
+        pre_synaptic_n1_inputs.map { "${it[0]}/pre_synapse_seg_n1.h5" },
+    ) // [ pre_synapse, pre_synapse_vol, n1, n1_vol, pre_synapse_seg, pre_synapse_seg_n1 ]
+    | map {
+        def h5_file = it[2]
+        [ "${h5_file.parent}" ] + it
+    } // [ working_dir, pre_synapse, pre_synapse_vol, n1, n1_vol, pre_synapse_seg, pre_synapse_seg_n1 ]
+
+    def post_to_pre_synaptic_inputs = pre_synaptic_n1_inputs
+     | join(presynaptic_n1_regions, by:0)
+
+    def post_to_pre_synaptic_results = classify_and_connect_postsynaptic_to_presynaptic_n1_regions(
+        pre_synaptic_n1_inputs.map { it[8] }, // post_synapse
+        pre_synaptic_n1_inputs.map { it[9] }, // post_synapse_vol
+        params.synapse_model,
+        pre_synaptic_n1_inputs.map { it[15] }, // pre_synapse_seg_n1
+        pre_synaptic_n1_inputs.map { it[3] }, // pre_synapse_vol
+        pre_synaptic_n1_inputs.map { "${it[0]}/post_synapse_seg.h5" },
+        pre_synaptic_n1_inputs.map { "${it[0]}/post_synapse_seg_pre_synapse_seg_n1.h5" }
+    )
     emit:
-    done = synapse_inputs
+    done = post_to_pre_synaptic_results
 }
 
 
