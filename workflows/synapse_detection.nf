@@ -110,6 +110,8 @@ workflow presynaptic_n1_to_n2 {
     | join(n2_data, by:0) 
     // [ working_dir, synapse_tiff, synapse_h5, synapse_vol, n1_tiff, n1_h5, n1_vol, n2_tiff, n2_h5, n2_vol ]
 
+    synapse_inputs | view
+
     def synapses_results = find_synapses_from_n1_to_n2(
         synapse_inputs.map { it[2] }, // synapse_file
         synapse_inputs.map { it[3] }, // synapse_vol
