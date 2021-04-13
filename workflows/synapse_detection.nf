@@ -226,7 +226,7 @@ workflow find_synapses_from_n1_to_n2 {
         n1_filename,
         n1_vol,
         output_dir.map { "${it}/synapse_seg.h5" },
-        output_dir.map { "${it}/synapse_seg_n1.h5" },
+        output_dir.map { "${it}/synapse_seg_n1.h5" }
     ) // [ synapse, synapse_vol, n1, n1_vol, seg_synapse, n1_seg_synapse ]
 
     presynaptic_n1_regions.subscribe { log.debug "Pre-synaptic n1 results: $it" }
@@ -251,7 +251,7 @@ workflow find_synapses_from_n1_to_n2 {
         // [ synapse_seg_n1, synapse_vol, n2, n2_vol, synapse_seg_n1_n2, synapse, synapse_seg, n1, n1_vol, output_dir ]
         // rearrange the final results
         [ 
-            it[5], it[1],// synapse, synapse_vol
+            it[5], it[1], // synapse, synapse_vol
             it[7], it[8], // n1, n1_vol
             it[2], it[3], // n2, n2_vol
             it[6], // synapse_seg
