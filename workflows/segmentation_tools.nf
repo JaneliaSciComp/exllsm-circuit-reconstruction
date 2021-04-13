@@ -133,7 +133,7 @@ workflow classify_and_connect_regions {
     ) // [ input_image, input_image_vol, classifier_output ]
 
     def mask_data = merge_4_channels(
-        input_image,
+        input_image_filename,
         mask_filename,
         mask_volume,
         post_classifier_output_filename
