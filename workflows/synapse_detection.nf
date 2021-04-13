@@ -108,20 +108,51 @@ workflow presynaptic_n1_to_n2 {
     | join(n2_data, by:0) 
     // [ working_dir, synapse_tiff, synapse_h5, synapse_vol, n1_tiff, n1_h5, n1_vol, n2_tiff, n2_h5, n2_vol ]
 
-    synapse_inputs | view
-
-    def synapses_results = find_synapses_from_n1_to_n2(
+    def presynaptic_n1_regions = classify_and_connect_presynaptic_n1_regions(
         synapse_inputs.map { it[2] }, // synapse_file
         synapse_inputs.map { it[3] }, // synapse_vol
+        params.model,
         synapse_inputs.map { it[5] }, // n1
         synapse_inputs.map { it[6] }, // n1_vol
-        synapse_inputs.map { it[8] }, // n2
-        synapse_inputs.map { it[9] }, // n2_vol
-        synapse_inputs.map { it[0] }  // working_dir
+        synapse_inputs.map { "${it[0]}/synapse_seg.h5" },
+        synapse_inputs.map { "${it[0]}/synapse_seg_n1.h5" },
+    ) // [ synapse, synapse_vol, n1, n1_vol, seg_synapse, n1_seg_synapse ]
+    | map {
+        def h5_file = file(it[1])
+        [ "${h5_file.parent}" ] + it
+    }
+
+    def mask_n2_inputs = synapse_inputs
+    | join(presynaptic_n1_regions)
+
+    def synapse_n1_n2_results = mask_with_n2(
+        mask_n2_inputs.map { "${it[0]}/synapse_seg_n1.h5" }, // synapse_seg_n1
+        mask_n2_inputs.map { it[3] }, // synapse vol
+        mask_n2_inputs.map { it[8] }, // n2
+        mask_n2_inputs.map { it[9] }, // n2_vol
+        mask_n2_inputs.map { "${it[0]}/synapse_seg_n1_n2.h5" }
     )
+    | map {
+        def h5_file = file(it[1])
+        [ "${h5_file.parent}" ] + it
+    }
+
+    def res = synapse_inputs
+    | join(synapse_n1_n2_results, by:0)
+    | map {
+        [
+            it[2], it[3], // synapse_file, synapse_vol
+            it[5], it[6], // n1, n1_vol
+            it[8], it[9], // n2, n2_vol
+            "${it[0]}/synapse_seg.h5", // synapse_seg
+            "${it[0]}/synapse_seg_n1.h5", // synapse_seg_n1
+            "${it[0]}/synapse_seg_n1_n2.h5", // synapse_seg_n1_n2
+            it[0], // output_dir
+        ]
+    } // [ synapse, synapse_vol, n1, n1_vol, n2, n2_vol, synapse_seg, synapse_seg_n1, synapse_seg_n1_n2, output_dir ]
 
     emit:
-    done = synapses_results
+    done = res
 }
 
 // Workflow C - Neuron 1 presynaptic to Neuron 2 restricted post synaptic
@@ -195,72 +226,4 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
     )
     emit:
     done = post_to_pre_synaptic_results
-}
-
-
-workflow find_synapses_from_n1_to_n2 {
-    take:
-    synapse_filename
-    synapse_vol
-    n1_filename
-    n1_vol
-    n2_filename
-    n2_vol
-    output_dir
-
-    main:
-    def synapse_seg_inputs = merge_7_channels(
-        synapse_filename,
-        synapse_vol,
-        n1_filename,
-        n1_vol,
-        n2_filename,
-        n2_vol,
-        output_dir
-    )
-
-    def presynaptic_n1_regions = classify_and_connect_presynaptic_n1_regions(
-        synapse_filename,
-        synapse_vol,
-        params.synapse_model,
-        n1_filename,
-        n1_vol,
-        output_dir.map { "${it}/synapse_seg.h5" },
-        output_dir.map { "${it}/synapse_seg_n1.h5" }
-    ) // [ synapse, synapse_vol, n1, n1_vol, seg_synapse, n1_seg_synapse ]
-
-    presynaptic_n1_regions.subscribe { log.debug "Pre-synaptic n1 results: $it" }
-
-    def mask_n2_inputs = presynaptic_n1_regions
-    | join(synapse_seg_inputs, by:[0..3])
-    | map {
-        // [ synapse, synapse_vol, n1, n1_vol, synapse_seg, synapse_seg_n1, n2, n2_vol, output_dir ]
-        // rearrange them to be able to join these with the results
-        [ it[5], it[1], it[6], it[7], it[0], it[4], it[2], it[3], it[8] ]
-    } // [ synapse_seg_n1, synapse_vol, n2, n2_vol, synapse, synapse_seg, n1, n1_vol, output_dir ]
-    
-    def synapse_n1_n2_results = mask_with_n2(
-        mask_n2_inputs.map { it[0] }, // synapse_seg_n1
-        mask_n2_inputs.map { it[1] }, // synapse vol
-        mask_n2_inputs.map { it[2] }, // n2
-        mask_n2_inputs.map { it[3] }, // n2_vol
-        mask_n2_inputs.map { "${it[8]}/synapse_seg_n1_n2.h5" }
-    ) // [ synapse_seg_n1, synapse_vol, n2, n2_vol, synapse_seg_n1_n2 ]
-    join(mask_n2_inputs, by:[0..3])
-    | map {
-        // [ synapse_seg_n1, synapse_vol, n2, n2_vol, synapse_seg_n1_n2, synapse, synapse_seg, n1, n1_vol, output_dir ]
-        // rearrange the final results
-        [ 
-            it[5], it[1], // synapse, synapse_vol
-            it[7], it[8], // n1, n1_vol
-            it[2], it[3], // n2, n2_vol
-            it[6], // synapse_seg
-            it[0], // synapse_seg_n1
-            it[4], // synapse_seg_n1_n2
-            it[9], // output_dir
-        ]
-    } // [ synapse, synapse_vol, n1, n1_vol, n2, n2_vol, synapse_seg, synapse_seg_n1, synapse_seg_n1_n2, output_dir ]
-
-    emit:
-    done = synapse_n1_n2_results
 }
