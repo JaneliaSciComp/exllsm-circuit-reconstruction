@@ -234,7 +234,7 @@ workflow find_synapses_from_n1_to_n2 {
     presynaptic_n1_regions.subscribe { log.debug "Pre-synaptic n1 results: $it" }
 
     def mask_n2_inputs = presynaptic_n1_regions
-    | join(synapse_seg_inputs, by:[0:3])
+    | join(synapse_seg_inputs, by:[0..3])
     | map {
         // [ synapse, synapse_vol, n1, n1_vol, synapse_seg, synapse_seg_n1, n2, n2_vol, output_dir ]
         // rearrange them to be able to join these with the results
