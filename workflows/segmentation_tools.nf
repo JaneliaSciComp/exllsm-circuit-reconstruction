@@ -5,6 +5,7 @@ include {
 } from '../processes/synapse_detection'
 
 include {
+    merge_2_channels;
     merge_3_channels;
     merge_4_channels;
     duplicate_h5_volume;
