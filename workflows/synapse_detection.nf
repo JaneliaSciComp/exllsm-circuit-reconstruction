@@ -111,7 +111,7 @@ workflow presynaptic_n1_to_n2 {
     def presynaptic_n1_regions = classify_and_connect_presynaptic_n1_regions(
         synapse_inputs.map { it[2] }, // synapse_file
         synapse_inputs.map { it[3] }, // synapse_vol
-        params.model,
+        params.synapse_model,
         synapse_inputs.map { it[5] }, // n1
         synapse_inputs.map { it[6] }, // n1_vol
         synapse_inputs.map { "${it[0]}/synapse_seg.h5" },
