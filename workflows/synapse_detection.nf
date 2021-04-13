@@ -12,8 +12,6 @@ include {
 
 include {
     merge_2_channels;
-    merge_4_channels;
-    merge_7_channels;
 } from '../processes/utils'
 
 include {
