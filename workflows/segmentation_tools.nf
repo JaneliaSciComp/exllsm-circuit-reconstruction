@@ -99,7 +99,7 @@ workflow connect_regions_in_volume {
         params.synapse_mask_percentage,
         postprocessing_inputs.map { it[4] } // output image file
     )
-    | groupTuple(by: [0:2])
+    | groupTuple(by: [0..2])
     | map {
         // drop subvolume
         it[0..2] // [ input_image_file, mask_file, output_image_file ]
