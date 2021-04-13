@@ -104,7 +104,7 @@ workflow connect_regions_in_volume {
         // drop subvolume
         it[0..2] // [ input_image_file, mask_file, output_image_file ]
     }
-    | join(locate_data, by:[0,1])
+    | join(mask_data, by:[0,1])
     | map {
         // [ input_image, mask, output_image, image_vol, mask_vol, output_image ]
         [ it[0], it[3], it[1], it[4], it[2] ]
