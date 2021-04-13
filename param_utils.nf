@@ -32,9 +32,10 @@ def default_em_params() {
 
         pipeline: 'presynaptic_in_volume',
         // synapse detection params
-        synapse_channel_subfolder: '',
+        pre_synapse_channel_subfolder: '',
         n1_channel_subfolder: '',
         n2_channel_subfolder: '',
+        post_synapse_channel_subfolder: '',
 
         tiff2h5_cpus: 3,
         h52tiff_cpus: 3,
@@ -89,9 +90,9 @@ def get_stitched_data_dir(Map ps) {
     }
 }
 
-def default_synapse_ch_dir(Map ps, parent_dir) {
-    if (ps.synapse_channel_subfolder) {
-        "${parent_dir}/${ps.synapse_channel_subfolder}"
+def default_presynapse_ch_dir(Map ps, parent_dir) {
+    if (ps.pre_synapse_channel_subfolder) {
+        "${parent_dir}/${ps.pre_synapse_channel_subfolder}"
     } else {
         "${parent_dir}/slice-tiff-s${ps.export_level}/ch0"
     }
@@ -108,6 +109,14 @@ def default_n1_ch_dir(Map ps, parent_dir) {
 def default_n2_ch_dir(Map ps, parent_dir) {
     if (ps.n2_channel_subfolder) {
         "${parent_dir}/${ps.n2_channel_subfolder}"
+    } else {
+        "${parent_dir}/slice-tiff-s${ps.export_level}/ch2"
+    }
+}
+
+def default_postsynapse_ch_dir(Map ps, parent_dir) {
+    if (ps.postsynapse_channel_subfolder) {
+        "${parent_dir}/${ps.postsynapse_channel_subfolder}"
     } else {
         "${parent_dir}/slice-tiff-s${ps.export_level}/ch2"
     }

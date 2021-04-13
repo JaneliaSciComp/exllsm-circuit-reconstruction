@@ -75,15 +75,13 @@ workflow presynaptic_n1_to_n2 {
 
     main:
     def tmp_volumes_subfolder = 'tmp'
-    def input_data = merge_4_channels(synapse_stack_dir, neuron1_stack_dir, neuron2_stack_dir, output_dir)
-    // [ synapse_tiff_stack, n1_tiff_stack, n2_tiff_stack, output_dir ]
 
     def synapse_data = synapse_tiff_to_h5(
         synapse_stack_dir, // synapse
         output_dir.map { "${it}/${tmp_volumes_subfolder}/synapse.h5" }
     ) // [ synapse_tiff_stack, synapse_h5_file, synapse_volume ]
     | map {
-        def h5_file = it[2]
+        def h5_file = file(it[1])
         [ "${h5_file.parent}" ] + it
     } // [ working_dir, tiff_stack, h5_file, volume ]
 
@@ -92,7 +90,7 @@ workflow presynaptic_n1_to_n2 {
         output_dir.map { "${it}/${tmp_volumes_subfolder}/n1_mask.h5" }
     ) // [ neuron1_tiff_stack, neuron1_h5_file, neuron1_volume ]
     | map {
-        def h5_file = it[2]
+        def h5_file = file(it[1])
         [ "${h5_file.parent}" ] + it
     } // [ working_dir, tiff_stack, h5_file, volume ]
 
@@ -101,7 +99,7 @@ workflow presynaptic_n1_to_n2 {
         output_dir.map { "${it}/${tmp_volumes_subfolder}/n2_mask.h5" }
     ) // [ neuron2_tiff_stack, neuron2_h5_file, neuron2_volume ]
     | map {
-        def h5_file = it[2]
+        def h5_file = file(it[1])
         [ "${h5_file.parent}" ] + it
     } // [ working_dir, tiff_stack, h5_file, volume ]
 
@@ -136,15 +134,13 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
 
     main:
     def tmp_volumes_subfolder = 'tmp'
-    def input_data = merge_4_channels(pre_synapse_stack_dir, neuron1_stack_dir, post_synapse_stack_dir, output_dir)
-    // [ synapse_tiff_stack, n1_tiff_stack, n2_tiff_stack, output_dir ]
 
     def pre_synapse_data = pre_synapse_tiff_to_h5(
         pre_synapse_stack_dir, // pre_synapse
         output_dir.map { "${it}/${tmp_volumes_subfolder}/pre_synapse.h5" }
     ) // [ pre_synapse_tiff_stack, pre_synapse_h5_file, pre_synapse_volume ]
     | map {
-        def h5_file = it[2]
+        def h5_file = file(it[1])
         [ "${h5_file.parent}" ] + it
     } // [ working_dir, tiff_stack, h5_file, volume ]
 
@@ -153,7 +149,7 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
         output_dir.map { "${it}/${tmp_volumes_subfolder}/n1_mask.h5" }
     ) // [ neuron1_tiff_stack, neuron1_h5_file, neuron1_volume ]
     | map {
-        def h5_file = it[2]
+        def h5_file = file(it[1])
         [ "${h5_file.parent}" ] + it
     } // [ working_dir, tiff_stack, h5_file, volume ]
 
@@ -162,7 +158,7 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
         output_dir.map { "${it}/${tmp_volumes_subfolder}/post_synapse.h5" }
     ) // [ post_synapse_tiff_stack, post_synapse_h5_file, post_synapse_volume ]
     | map {
-        def h5_file = it[2]
+        def h5_file = file(it[1])
         [ "${h5_file.parent}" ] + it
     } // [ working_dir, tiff_stack, h5_file, volume ]
 
@@ -181,7 +177,7 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
         pre_synaptic_n1_inputs.map { "${it[0]}/pre_synapse_seg_n1.h5" },
     ) // [ pre_synapse, pre_synapse_vol, n1, n1_vol, pre_synapse_seg, pre_synapse_seg_n1 ]
     | map {
-        def h5_file = it[2]
+        def h5_file = file(it[1])
         [ "${h5_file.parent}" ] + it
     } // [ working_dir, pre_synapse, pre_synapse_vol, n1, n1_vol, pre_synapse_seg, pre_synapse_seg_n1 ]
 

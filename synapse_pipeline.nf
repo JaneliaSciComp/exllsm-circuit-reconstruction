@@ -4,7 +4,8 @@ nextflow.enable.dsl=2
 
 include {
     default_em_params;
-    default_synapse_ch_dir;
+    default_presynapse_ch_dir;
+    default_postsynapse_ch_dir;
     default_n1_ch_dir;
     default_n2_ch_dir;
     get_value_or_default;
@@ -26,6 +27,7 @@ synapse_params = final_params + [
 include {
     presynaptic_in_volume;
     presynaptic_n1_to_n2;
+    presynaptic_n1_to_postsynaptic_n2;
 } from './workflows/synapse_detection' addParams(synapse_params)
 
 stitched_data_dir = get_stitched_data_dir(final_params)
@@ -47,16 +49,23 @@ workflow {
     switch(final_params.pipeline) {
         case 'presynaptic_n1_to_n2':
             synapses_res = presynaptic_n1_to_n2(
-                stitched_data.map { default_synapse_ch_dir(final_params, it[1]) }, // synapse channel stack
+                stitched_data.map { default_presynapse_ch_dir(final_params, it[1]) }, // synapse channel stack
                 stitched_data.map { default_n1_ch_dir(final_params, it[1]) }, // n1 channel stack
                 stitched_data.map { default_n2_ch_dir(final_params, it[1]) }, // n2 channel stack
                 stitched_data.map { "${it[2]}/synapses" } // output dir
             )
             break;
+        case 'presynaptic_n1_to_postsynaptic_n2':
+            synapses_res = presynaptic_n1_to_postsynaptic_n2(
+                stitched_data.map { default_presynapse_ch_dir(final_params, it[1]) }, // synapse channel stack
+                stitched_data.map { default_n1_ch_dir(final_params, it[1]) }, // n1 channel stack
+                stitched_data.map { default_postsynapse_ch_dir(final_params, it[1]) }, // n2 channel stack
+                stitched_data.map { "${it[2]}/synapses" } // output dir
+            )
         case 'presynaptic_in_volume':
         default:
             synapses_res = presynaptic_in_volume(
-                stitched_data.map { default_synapse_ch_dir(final_params, it[1]) }, // synapse channel stack
+                stitched_data.map { default_presynapse_ch_dir(final_params, it[1]) }, // synapse channel stack
                 stitched_data.map { "${it[2]}/synapses" } // output dir
             )
             break;
