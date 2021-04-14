@@ -85,11 +85,11 @@ workflow connect_regions_in_volume {
     // prepare the final result
     done = mask_data.map {
         def (in_image, in_image_size, out_image, mask, mask_size) = it
-        [ in_image, mask, out_image, in_img_size, mask_size ]
+        [ in_image, mask, out_image, in_image_size, mask_size ]
     }
     | join(post_processing_results, by:[0..2])
     | map {
-        def (in_image, mask, out_image, in_img_size, mask_size) = it
+        def (in_image, mask, out_image, in_image_size, mask_size) = it
         [ in_image, in_image_size, mask, mask_size, out_image ]
     }
 
