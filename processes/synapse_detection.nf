@@ -1,3 +1,27 @@
+process duplicate_h5_volume {
+    container { params.exm_synapse_container }
+
+    input:
+    tuple val(in_fn), val(vol_size), val(out_fn)
+
+    output:
+    tuple val(in_fn), val(vol_size), val(out_fn)
+
+    script:
+    def out_file = file(out_fn)
+    def (width, height, depth) = [vol_size.width, vol_size.height, vol_size.depth]
+    def out_dir = "${out_file.parent}"
+
+    def args_list = []
+    args_list << '-f' << out_fn
+    args_list << '-s' << "${depth},${width},${height}"
+    def args = args_list.join(' ')
+    """
+    mkdir -p ${out_dir}
+    python /scripts/create_h5.py ${args}
+    """
+}
+
 process extract_tiff_stack_metadata {
     container { params.exm_synapse_container }
 
@@ -5,7 +29,7 @@ process extract_tiff_stack_metadata {
     val(tiff_stack_dir)
 
     output:
-    tuple val(tiff_stack_dir), env(width), env(height), env(depth)
+    tuple val(tiff_stack_dir), [width: env(width), height: env(height), depth: env(depth)]
 
     script:
     if (tiff_stack_dir) {
@@ -31,8 +55,7 @@ process tiff_to_hdf5 {
     cpus { params.tiff2h5_cpus }
 
     input:
-    val(input_tiff_stack_dir)
-    val(output_h5_file)
+    tuple val(input_tiff_stack_dir), val(output_h5_file)
 
     output:
     tuple val(input_tiff_stack_dir), val(output_h5_file)
@@ -54,8 +77,7 @@ process hdf5_to_tiff {
     cpus { params.h52tiff_cpus }
 
     input:
-    val(input_h5_file)
-    val(output_dir)
+    tuple val(input_h5_file), val(output_dir)
 
     output:
     tuple val(input_h5_file), val(output_dir)
@@ -78,19 +100,16 @@ process unet_classifier {
     label 'withGPU'
 
     input:
-    val(input_image)
-    val(model_file)
-    val(subvolume)
-    val(output_image_arg)
+    tuple val(input_image), val(subvolume), val(output_image_arg)
 
     output:
-    tuple val(input_image), val(output_image), val(subvolume)
+    tuple val(input_image), val(subvolume), val(output_image)
 
     script:
     output_image = output_image_arg ? output_image_arg : input_image
     def args_list = []
     args_list << '-i' << input_image
-    args_list << '-m' << model_file
+    args_list << '-m' << params.synapse_model
     args_list << '-l' << "${subvolume}"
     args_list << '-o' << output_image
     def args = args_list.join(' ')
@@ -104,12 +123,7 @@ process segmentation_postprocessing {
     cpus { params.mask_synapses_cpus }
 
     input:
-    val(input_image)
-    val(mask_image)
-    val(subvolume)
-    val(threshold)
-    val(percentage)
-    val(output_image_arg)
+    tuple val(input_image), val(mask_image), val(subvolume), val(output_image_arg)
 
     output:
     tuple val(input_image), val(mask_image), val(output_image), val(subvolume)
@@ -122,8 +136,8 @@ process segmentation_postprocessing {
     args_list << '-o' << output_image
     args_list << '-o' << output_image
     args_list << '-l' << "${subvolume}"
-    args_list << '-p' << percentage
-    args_list << '-t' << threshold
+    args_list << '-p' << params.synapse_mask_percentage
+    args_list << '-t' << params.synapse_mask_threshold
     if (mask_image) {
         args_list << '-m' << mask_image
     }

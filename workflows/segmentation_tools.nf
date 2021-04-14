@@ -1,5 +1,6 @@
 
 include {
+    duplicate_h5_volume;
     unet_classifier;
     segmentation_postprocessing;
 } from '../processes/synapse_detection'
@@ -8,176 +9,133 @@ include {
     merge_2_channels;
     merge_3_channels;
     merge_4_channels;
-    duplicate_h5_volume;
 } from '../processes/utils'
 
-// Call the UNet classifier if the model is defined or simply return the input if no model
+// Partition the input volume and call the UNet classifier for each subvolume
+// The input_data contains a tuple with 
 workflow classify_regions_in_volume {
     take:
-    input_image // input image filename
-    volume // image volume as a map [width: <val>, height: <val>, depth: <val>]
-    model // classifier's model
-    output_image // output image filename
+    input_data // channel of [input_image, image_size, output_immage ]
 
     main:
-    def classifier_data = merge_3_channels(input_image, volume, model)
-    | join(duplicate_h5_volume(input_image, volume, output_image), by: 0)
-    // [ input, volume, model, output]
+    def classifier_data = duplicate_h5_volume(input_data)
 
     def unet_inputs = classifier_data
-    | filter { it[2] } // filter based on the model
     | flatMap {
-        def img_fn = it[0] // image file name
-        def img_vol = it[1] // image volume
-        def classifier = it[2] // classifier's model
-        def out_img_fn = it[3] // output image file name
-        partition_volume(img_fn, img_vol, params.volume_partition_size, [classifier, out_img_fn])
-    } // [ img_file, img_subvol, model, out_img_file ]
+        def (in_img_fn, img_size, out_img_fn) = it
+        partition_volume(in_img_fn, img_size, params.volume_partition_size, out_img_fn)
+    } // [ in_img_fn, img_subvol, out_img_fn ]
 
-    def unet_classifier_results = unet_classifier(
-        unet_inputs.map { it[0] }, // input image
-        unet_inputs.map { it[2] }, // model
-        unet_inputs.map { it[1] }, // subvolume
-        unet_inputs.map { it[3] } // output image
-    )
-    | groupTuple(by: [0,1])
-    | map {
-        [ it[0], it[1] ] // [ input_img, output_img ]
-    }
-    | join(classifier_data, by:0)
-    | map {
-        // [ input_image, output_image, volume, model, output_image]
-        [ it[0], it[2], it[1] ] 
-    } // [ input_image_file, image_volume, output_image_file ]
+    def unet_classifier_results = unet_classifier(unet_inputs)
+    | groupTuple(by: [0,2]) // wait for all subvolumes to be done
 
-    def non_classified_results = classifier_data
-    | filter { !it[2] }
+    // prepare the final result
+    done = input_data
+    | join(unet_classifier_results, by:[0,2])
     | map {
-        def img_fn = it[0] // image file name
-        def img_vol = it[1] // image volume
-        [ img_fn, img_vol, img_fn ]
+        def (in_img_fn, out_img_fn, img_size) = it
+        [ in_img_fn, img_size, out_img_fn ]
     }
 
     emit:
-    done = unet_classifier_results | mix(non_classified_results)
+    done
 }
 
 // connect and select regions from input image that are above a threshold
-// if a mask is defined only select the regions that match the mask
+// if a mask is defined only select the regions that match the mask (mask can be empty - '')
+// this is done as a post-process of the UNet classifier
 workflow connect_regions_in_volume {
     take:
-    input_image_filename
-    image_volume
-    mask_filename
-    mask_volume
-    output_image_filename
+    input_data // channel of [ input_image, input_image_size, mask, mask_size, output_image ]
 
     main:
-    def mask_data = merge_4_channels(input_image_filename, mask_filename, image_volume, mask_volume)
+    def output_data = input_data
     | map {
-        def mask_fn = it[1]
-        def m_vol = mask_fn ? it[3] : it[2]
-        it[0..2] + m_vol
+        def (in_image, in_image_size, _, _, out_image) = it
+        [ in_image, in_image_size, out_image]
     }
-    | join(duplicate_h5_volume(input_image_filename, image_volume, output_image_filename), by: 0)
-    // [ input_img, mask, image_volume, mask_volume, output_img]
+    | duplicate_h5_volume
 
-    def postprocessing_inputs = mask_data
+    def mask_data = input_data
+    | map {
+        // re-arrange the data for the join
+        def (in_image, in_image_size, mask, mask_size, out_image) = it
+        // if there's no mask defined, use the input image size to partition the work
+        if (!mask) {
+            mask_size = in_image_size
+        }
+        [ in_image, in_image_size, out_image, mask, mask_size ]
+    }
+
+    def post_processing_inputs = mask_data
+    | join(output_data, by:[0..2])
     | flatMap {
-        def img_fn = it[0]
-        def img_vol = it[2]
-        def mask_fn = it[1]
-        def mask_vol = it[3]
-        def out_img_fn = it[4]
-        partition_volume(mask_fn, mask_vol, params.volume_partition_size, [img_fn, img_vol, out_img_fn])
-    } // [ mask_file, subvol, in_img_file, img_vol, out_img_file]
-
-    def postprocessing_results = segmentation_postprocessing(
-        postprocessing_inputs.map { it[2] }, // input image file,
-        postprocessing_inputs.map { it[0] }, // mask file
-        postprocessing_inputs.map { it[1] }, // subvol
-        params.synapse_mask_threshold,
-        params.synapse_mask_percentage,
-        postprocessing_inputs.map { it[4] } // output image file
-    )
-    | groupTuple(by: [0..2])
+        def (in_image, in_image_size, out_image, mask, mask_size) = it
+        partition_volume(mask, mask_size, params.volume_partition_size,
+                         [in_image, in_image_size, out_image])
+    } // [ mask, mask_subvol, in_img_file, in_img_size, out_img_file]
     | map {
-        // drop subvolume
-        it[0..2] // [ input_image_file, mask_file, output_image_file ]
+        def (mask, mask_subvol, in_image, in_image_size, out_image) = it
+        [ in_image, mask, mask_subvol, out_image ]
     }
-    | join(mask_data, by:[0,1])
+
+    def post_processing_results = segmentation_postprocessing(post_processing_inputs)
+    | groupTuple(by: [0..2]) // wait for all subvolumes to be done
+    
+    // prepare the final result
+    done = mask_data.map {
+        def (in_image, in_image_size, out_image, mask, mask_size) = it
+        [ in_image, mask, out_image, in_img_size, mask_size ]
+    }
+    | join(post_processing_results, by:[0..2])
     | map {
-        // [ input_image, mask, output_image, image_vol, mask_vol, output_image ]
-        [ it[0], it[3], it[1], it[4], it[2] ]
-    } // [ input_image, image_volume, mask_image, mask_volume, output_image ]
+        def (in_image, mask, out_image, in_img_size, mask_size) = it
+        [ in_image, in_image_size, mask, mask_size, out_image ]
+    }
 
     emit:
     done = postprocessing_results
 }
 
-workflow classify_and_connect_regions {
+// This workflow applies the UNet classifier and 
+// then it connects the regions found by UNet and applies the given mask if a mask is provided
+workflow classify_and_connect_regions_in_volume {
     take:
-    input_image_filename
-    image_volume
-    model_filename
-    mask_filename
-    mask_volume
-    classifier_output_filename
-    post_classifier_output_filename
+    input_data // channel of tuples [ in_image, in_image_size, mask, mask_size, unet_output, post_unet_output ]
 
     main:
     def classifier_results = classify_regions_in_volume(
-        input_image_filename,
-        image_volume,
-        model_filename,
-        classifier_output_filename
-    ) // [ input_image, input_image_vol, classifier_output ]
+        input_data.map {
+            def (in_image, in_image_size, _, _, unet_out_image, _) = it
+            [ in_image, in_image_size, unet_out_image ]
+        }
+    ) // [ input_image, input_image_size, unet_image ]
 
-    def mask_data = merge_4_channels(
-        input_image_filename,
-        mask_filename,
-        mask_volume,
-        post_classifier_output_filename
-    )
-
-    def post_classifier_inputs = classifier_results
-    | join(mask_data, by:0)
-    // [ input_image, input_image_vol, classifier_output, mask, mask_vol, post_classifier_output ]
+    def post_classifier_inputs = input_data
+    | map {
+        // re-arrange the data for the join
+        def (in_image, in_image_size, mask, mask_size, unet_out_image, post_unet_out_image) = it
+        [ in_image, in_image_size, unet_out_image, mask, mask_size, post_unet_out_image ]
+    }
+    | join(classifier_results, by:[0..2])
 
     def post_classifier_results = connect_regions_in_volume(
-        post_classifier_inputs.map { it[2] }, // classifier_output
-        post_classifier_inputs.map { it[1] }, // image vol
-        post_classifier_inputs.map { it[3] }, // mask
-        post_classifier_inputs.map { it[4] }, // mask_vol
-        post_classifier_inputs.map { it[5] } // post_classifier_output
-    ) // [ classifier_output, image_vol, mask, mask_vol, post_classifier_output ]
-    | map {
-        def classifier_output = it[0]
-        def image_vol = it[1]
-        def mask = it[2]
-        def mask_vol = it[3]
-        def post_classifier_output = it[4]
-        [
-            post_classifier_output, classifier_output, mask, image_vol, mask_vol
-        ]
-    } // [ post_classifier_output, classifier_output, mask, image_vol, mask_vol ]
+        post_classifier_inputs.map {
+            def (in_image, in_image_size, unet_out_image, mask, mask_size, post_unet_out_image) = it
+            [ unet_out_image, in_image_size, mask, mask_size, post_unet_out_image ]
+        }
+    ) // [ unet_image, input_image_size, mask, mask_size, post_unet_image ]
 
-    done = merge_2_channels(
-        post_classifier_output_filename,
-        input_image_filename
-    ) // [ post_classifier_output, input_image ]
-    | join(post_classifier_results, by:0)
+    // prepare the final result
+    done = input_data
     | map {
-        // [ post_classifier_output, input_image, classifier_output, mask, image_vol, mask_vol ]
-        def input_image = it[1]
-        def classifier_output = it[2]
-        def post_classifier_output = it[0]
-        def mask = it[3]
-        def image_vol = it[4]
-        def mask_vol = it[5]
-        [
-            input_image, image_vol, mask, mask_vol, classifier_output, post_classifier_output
-        ]
+        def (in_image, in_image_size, mask, mask_size, unet_out_image, post_unet_out_image) = it
+        [ unet_out_image, in_image_size, mask, mask_size, post_unet_out_image, in_image ]
+    }
+    | join(post_classifier_results, by: [0,2,4])
+    | map {
+        def (unet_out_image, in_image_size, mask, mask_size, post_unet_out_image, in_image) = it
+        [ in_image, in_image_size, mask, mask_size, unet_out_image, post_unet_out_image ]
     }
 
     emit:
