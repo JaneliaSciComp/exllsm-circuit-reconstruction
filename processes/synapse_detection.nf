@@ -35,7 +35,7 @@ process extract_tiff_stack_metadata {
     if (tiff_stack_dir) {
         """
         a_tiff_img=`ls ${tiff_stack_dir}/*.tif | head -n 1`
-        echo "TIFF image selected for extracting metadata: \${a_tiff_img}"
+        echo "TIFF image selected from ${tiff_stack_dir} for extracting metadata: \${a_tiff_img}"
         height=`gm identify \${a_tiff_img} | cut -d ' ' -f 3 | cut -d '+' -f 1 | cut -d 'x' -f 1`
         width=`gm identify \${a_tiff_img} | cut -d ' ' -f 3 | cut -d '+' -f 1 | cut -d 'x' -f 2`
         depth=`ls ${tiff_stack_dir}/*.tif | wc -l`
