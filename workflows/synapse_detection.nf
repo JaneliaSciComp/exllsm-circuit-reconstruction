@@ -122,12 +122,12 @@ workflow presynaptic_n1_to_n2 {
     }
     | classify_and_connect_presynaptic_n1_regions
     | map {
-        def h5_file = file(it[1])
+        def h5_file = file(it[0])
         [ "${h5_file.parent}" ] + it
     } // [ working_dir, synapse, synapse_size, n1, n1_size, synapse_seg, synapse_seg_n1 ]
 
     def mask_n2_inputs = synapse_inputs
-    | join(presynaptic_n1_regions)
+    | join(presynaptic_n1_regions, by:0)
 
     def synapse_n1_n2_results = mask_n2_inputs
     | map {
@@ -138,13 +138,13 @@ workflow presynaptic_n1_to_n2 {
     }
     | mask_with_n2
     | map {
-        def h5_file = file(it[1])
+        def h5_file = file(it[0])
         [ "${h5_file.parent}" ] + it
     }  // [ working_dir, synapse_seg_n1, synapse_size, n2, n2_size, synapse_seg_n1_n2 ]
 
     // prepare the final result
     done = synapse_inputs
-    | join(synapse_n1_n2_results, by: 0)
+    | join(synapse_n1_n2_results, by:0)
     | map {
         def (working_path, synapse_tiff, synapse, synapse_size, n1_tiff, n1, n1_size, n2_tiff, n2, n2_size) = it
         def working_dir = file(working_path)
