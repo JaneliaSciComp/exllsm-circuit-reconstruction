@@ -2,15 +2,15 @@ process duplicate_h5_volume {
     container { params.exm_synapse_container }
 
     input:
-    val(data) // [ input_image, image_size, output_image, ... ]
+    val(input_tuple) // [ input_image, image_size, output_image, ... ]
 
     output:
-    val(data)
+    val(input_tuple)
 
     script:
-    // the method expects the first 3 elements of the 'data' tuple
+    // the method expects the first 3 elements of the 'input_tuple' tuple
     // to be input_image, image_size and output_image
-    def (input_image, image_size, output_image) = data
+    def (input_image, image_size, output_image) = input_tuple
     """
     mkdir -p ${file(output_image).parent}
     python /scripts/create_h5.py \
