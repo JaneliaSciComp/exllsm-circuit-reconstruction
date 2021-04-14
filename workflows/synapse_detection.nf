@@ -26,47 +26,51 @@ include {
     index_channel;
 } from '../utils/utils'
 
-// workflow presynaptic_in_volume {
-//     take:
-//     synapse_stack_dir
-//     output_dir
+workflow presynaptic_in_volume {
+    take:
+    input_data // [ presynaptic_stack, output_dir ]
 
-//     main:
-//     def tmp_volumes_subfolder = 'tmp'
-//     def synapse_data = synapse_tiff_to_h5(
-//         synapse_stack_dir, // synapse
-//         output_dir.map { "${it}/${tmp_volumes_subfolder}/synapse.h5" }
-//     ) // [ synapse_tiff_stack, synapse_h5_file, synapse_volume ]
-//     | join(merge_2_channels(synapse_stack_dir, output_dir), by:0)
-//     // [ synapse_tiff_stack, synapse_h5_file, synapse_volume, output_dir ]
+    main:
+    def tmp_volumes_subfolder = 'tmp'
 
-//     def presynaptic_vol_regions = classify_and_connect_presynaptic_regions(
-//         synapse_data.map { it[1] }, // synapse
-//         synapse_data.map { it[2] }, // synapse_vol
-//         params.synapse_model,
-//         '', // no neuron mask
-//         [width:0, height:0, depth:0], // 0 neuron volume
-//         synapse_data.map { "${it[3]}/${tmp_volumes_subfolder}/synapse_seg.h5" },
-//         synapse_data.map { "${it[3]}/${tmp_volumes_subfolder}/synapse_seg_post.h5" }
-//     ) // [ synapse, synapse_vol, mask, mask_vol, seg_synapse, post_seg_synapse ]
-//     | map {
-//         // drop mask and mask_vol as they don't contain any information
-//         def synapse_image = file(it[0])
-//         [
-//             it[0], it[1], // synapse, synapse_vol
-//             it[4], // seg_synapse
-//             it[5], // post_seg_synapse
-//             "${synapse_image.parent.parent}", // output_dir 
-//         ]
-//     } // [ synapse, synapse_vol, synapse_seg, post_synapse_seg, output_dir ]
+    def synapse_inputs = input_data
+    | map {
+        def (synapse_tiff, output_dir) = it
+        [ synapse_tiff, "${output_dir}/${tmp_volumes_subfolder}/synapse.h5" ]
+    }
+    | synapse_tiff_to_h5 // [ synapse_stack, synapse_h5, synapse_size ]
+    | map {
+        def h5_file = file(it[1])
+        [ "${h5_file.parent}" ] + it
+    } // [ working_dir, tiff_stack, h5_file, size ]
 
-//     emit:
-//     done = post_synapse_seg_results
-// }
+    def post_synapse_seg_results = synapse_inputs
+    | map {
+        def (working_dir, synapse_tiff, synapse, synapse_size) = it
+        def r = [
+            synapse, synapse_size,
+            '', [width:0, height:0, depth:0], // no neuron mask info
+            "${working_dir}/synapse_seg.h5", "${working_dir}/synapse_seg_post.h5"
+        ]
+        log.debug "Presynaptic inputs: $r"
+        r
+    }
+    | classify_and_connect_presynaptic_n1_regions
+    | map {
+        def (synapse, synapse_size, n_mask, n_mask_size, synapse_seg, synapse_seg_post) = it
+        def synapse_file = file(synapse)
+        def r = [ synapse, synapse_size, synapse_seg, synapse_seg_post, "${synapse_file.parent.parent}" ]
+        log.debug "Presynaptic in volume results: $r"
+        r
+    } // [ synapse, synapse_size, synapse_seg, synapse_seg_post, output_dir ]
+
+    emit:
+    done = post_synapse_seg_results
+}
 
 workflow presynaptic_n1_to_n2 {
     take:
-    input_data // channel of tuples [ presynapse_image, n1_mask, n2_mask, output_dir ]
+    input_data // [ presynapse_image, n1_mask, n2_mask, output_dir ]
 
     main:
     def tmp_volumes_subfolder = 'tmp'

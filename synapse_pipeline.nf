@@ -25,7 +25,7 @@ synapse_params = final_params + [
     exm_synapse_container: exm_synapse_container_param(final_params),
 ]
 include {
-    // presynaptic_in_volume;
+    presynaptic_in_volume;
     presynaptic_n1_to_n2;
     // presynaptic_n1_to_postsynaptic_n2;
 } from './workflows/synapse_detection' addParams(synapse_params)
@@ -48,7 +48,6 @@ workflow {
     def synapses_res;
     switch(final_params.pipeline) {
         case 'presynaptic_n1_to_n2':
-        default:
             synapses_res = stitched_data
             | map {
                 def (_, dataset_stitched_dir, dataset_output_dir) = it
@@ -56,7 +55,7 @@ workflow {
                     default_presynapse_ch_dir(final_params, dataset_stitched_dir), // synapse_ch
                     default_n1_ch_dir(final_params, dataset_stitched_dir), // n1_mask
                     default_n2_ch_dir(final_params, dataset_stitched_dir), // n2_mask
-                    "${dataset_output_dir}/synapses", // output_dir
+                    "${dataset_output_dir}/presynaptic_n1_to_n2", // output_dir
                 ]
             }
             | presynaptic_n1_to_n2
@@ -69,13 +68,18 @@ workflow {
             //     stitched_data.map { "${it[2]}/synapses" } // output dir
             // )
             break;
-        // case 'presynaptic_in_volume':
-        // default:
-            // synapses_res = presynaptic_in_volume(
-            //     stitched_data.map { default_presynapse_ch_dir(final_params, it[1]) }, // synapse channel stack
-            //     stitched_data.map { "${it[2]}/synapses" } // output dir
-            // )
-            // break;
+        case 'presynaptic_in_volume':
+        default:
+            synapses_res = stitched_data
+            | map {
+                def (_, dataset_stitched_dir, dataset_output_dir) = it
+                [
+                    default_presynapse_ch_dir(final_params, dataset_stitched_dir), // synapse_ch
+                    "${dataset_output_dir}/presynaptic_in_volume", // output_dir
+                ]
+            }
+            | presynaptic_in_volume
+            break;
     }
 
     synapses_res | view
