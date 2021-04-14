@@ -158,18 +158,19 @@ def main(argv):
 
     start = time.time()
     print('#############################')
-    out_img_name = img_path+'/r'+str(location[0])+'_'+str(location[3])+'_c'+str(
+    out_img_name = os.path.splitext(os.path.split(out_hdf5_file)[1])[0]
+    out_img_path = img_path+'/'+out_img_name+'r'+str(location[0])+'_'+str(location[3])+'_c'+str(
         location[1])+'_'+str(location[4])+'_v'+str(location[2])+'_'+str(location[5])+'.tif'
-    print('Writing tiff image for watershed:', out_img_name)
-    tif_write(img, out_img_name)
+    print('Writing tiff image for watershed:', out_img_path)
+    tif_write(img, out_img_path)
     watershed.initialize_runtime(['-nojvm', '-nodisplay'])
     ws = watershed.initialize()
-    flag = ws.closing_watershed(out_img_name)
+    flag = ws.closing_watershed(out_img_path)
     ws.quit()
-    remove_small_piece(out_hdf5_file=output_hdf5_file, img_file_name=out_img_name,
+    remove_small_piece(out_hdf5_file=output_hdf5_file, img_file_name=out_img_path,
                        location=location, mask=mask, threshold=threshold, percentage=percentage)
-    if os.path.exists(out_img_name):
-        os.remove(out_img_name)
+    if os.path.exists(out_img_path):
+        os.remove(out_img_path)
     end = time.time()
     print("DONE! Running time is {} seconds".format(end-start))
 
