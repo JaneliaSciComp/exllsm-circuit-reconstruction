@@ -14,8 +14,8 @@ process duplicate_h5_volume {
     """
     mkdir -p ${file(output_image).parent}
     python /scripts/create_h5.py \
-        '-f' ${output_image} \
-        '-s' ${image_size.depth},${image_size.width},${image_size.height}
+        -f ${output_image} \
+        -s ${image_size.depth},${image_size.width},${image_size.height}
     """
 }
 
@@ -77,7 +77,7 @@ process hdf5_to_tiff {
     script:
     """
     mkdir -p ${output_dir}
-    python /scripts/h5_to_tif.py '-i' ${input_h5_file} '-o' ${output_dir}
+    python /scripts/h5_to_tif.py -i ${input_h5_file} -o ${output_dir}
     """
 }
 
@@ -98,10 +98,10 @@ process unet_classifier {
     output_image = output_image_arg ? output_image_arg : input_image
     """
     python /scripts/unet_gpu.py \
-        '-i' ${input_image} \
-        '-m' ${synapse_model} \
+        -i ${input_image} \
+        -m ${synapse_model} \
         -l ${start_subvolume},${end_subvolume} \
-        '-o' ${output_image}
+        -o ${output_image}
     """
 }
 
@@ -123,7 +123,6 @@ process segmentation_postprocessing {
     """
     /scripts/postprocess_cpu.sh \
         -i ${input_image} \
-        -o ${output_image} \
         -o ${output_image} \
         -l ${start_subvolume},${end_subvolume} \
         -p ${percentage} \

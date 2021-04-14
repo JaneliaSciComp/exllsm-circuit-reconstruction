@@ -58,8 +58,8 @@ workflow presynaptic_in_volume {
     def post_synapse_seg_results = classify_and_connect_presynaptic_n1_regions(
         synapse_inputs,
         params.synapse_model,
-        params.presynaptic_stage2_threshold,
         params.presynaptic_stage2_percentage,
+        params.presynaptic_stage2_threshold,
     )
     | map {
         def (synapse, mask, synapse_size, synapse_seg, synapse_seg_post) = it
@@ -129,8 +129,8 @@ workflow presynaptic_n1_to_n2 {
     def presynaptic_n1_regions = classify_and_connect_presynaptic_n1_regions(
         presynaptic_n1_inputs,
         params.synapse_model,
-        params.presynaptic_stage2_threshold,
         params.presynaptic_stage2_percentage,
+        params.presynaptic_stage2_threshold,
     )
     | map {
         def h5_file = file(it[0])
@@ -148,8 +148,8 @@ workflow presynaptic_n1_to_n2 {
     
     def synapse_n1_n2_results = mask_with_n2(
         mask_n2_inputs,
-        params.postsynaptic_stage2_threshold,
         params.postsynaptic_stage2_percentage,
+        params.postsynaptic_stage2_threshold,
     )
     | map {
         def h5_file = file(it[0])
