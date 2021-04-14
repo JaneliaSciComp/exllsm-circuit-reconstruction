@@ -25,12 +25,13 @@ workflow get_tiff_stack_metadata {
     main:
     stack_with_metadata = extract_tiff_stack_metadata(tiff_stack_dir)
     | map {
+        def (tiff_stack, width, height, depth) = it
         [
-            it[0],
+            tiff_stack,
             [
-                width: it[1] as int,
-                height: it[2] as int,
-                depth: it[3] as int,
+                width: width as int,
+                height: height as int,
+                depth: depth as int,
             ],
         ]
     }

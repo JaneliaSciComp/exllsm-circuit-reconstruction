@@ -73,8 +73,8 @@ workflow presynaptic_n1_to_n2 {
 
     def synapse_data = input_data
     | map {
-        def (synapse_tiff, _, _, output_dir) = it
-        [ synapse_tiff, "${it}/${tmp_volumes_subfolder}/synapse.h5" ]
+        def (synapse_tiff, n1_mask_tiff, n2_mask_tiff, output_dir) = it
+        [ synapse_tiff, "${output_dir}/${tmp_volumes_subfolder}/synapse.h5" ]
     }
     | synapse_tiff_to_h5 // [ synapse_stack, synapse_h5, synapse_size ]
     | map {
@@ -84,8 +84,8 @@ workflow presynaptic_n1_to_n2 {
 
     def n1_data = input_data
     | map {
-        def (_, n1_mask_tiff, _, output_dir) = it
-        [ n1_mask_tiff, "${it}/${tmp_volumes_subfolder}/n1_mask.h5" ]
+        def (synapse_tiff, n1_mask_tiff, n2_mask_tiff, output_dir) = it
+        [ n1_mask_tiff, "${output_dir}/${tmp_volumes_subfolder}/n1_mask.h5" ]
     }
     | neuron1_tiff_to_h5 // [ n1_mask_stack, n1_mask_h5, n1_size ]
     | map {
@@ -95,8 +95,8 @@ workflow presynaptic_n1_to_n2 {
 
     def n2_data = input_data
     | map {
-        def (_, _, n2_mask_tiff, output_dir) = it
-        [ n2_mask_tiff, "${it}/${tmp_volumes_subfolder}/n2_mask.h5" ]
+        def (synapse_tiff, n1_mask_tiff, n2_mask_tiff, output_dir) = it
+        [ n2_mask_tiff, "${output_dir}/${tmp_volumes_subfolder}/n2_mask.h5" ]
     }
     | neuron2_tiff_to_h5 // [ n2_mask_stack, n2_mask_h5, n2_size ]
     | map {
@@ -109,36 +109,36 @@ workflow presynaptic_n1_to_n2 {
     | join(n2_data, by:0) 
     // [ working_dir, synapse_tiff, synapse_h5, synapse_size, n1_tiff, n1_h5, n1_size, n2_tiff, n2_h5, n2_size ]
 
-    def presynaptic_n1_regions = classify_and_connect_presynaptic_n1_regions(
-        synaps_inputs.map {
-            def (working_dir, _, synapse, synapse_size, _, n1, n1_size, _, _, _) = it
-            [ synapse_h5, synapse_size, n1, n1_size, "${working_dir}/synapse_seg.h5", "${working_dir}/synapse_seg_n1.h5" ]
-        }
-    ) // [ synapse, synapse_size, n1, n1_size, synapse_seg, synapse_seg_n1 ]
+    def presynaptic_n1_regions = synapse_inputs
+    | map {
+        def (working_dir, synapse_tiff, synapse, synapse_size, n1_tiff, n1, n1_size) = it
+        [ synapse_h5, synapse_size, n1, n1_size, "${working_dir}/synapse_seg.h5", "${working_dir}/synapse_seg_n1.h5" ]
+    }
+    | classify_and_connect_presynaptic_n1_regions
     | map {
         def h5_file = file(it[1])
         [ "${h5_file.parent}" ] + it
-    }
+    } // [ working_dir, synapse, synapse_size, n1, n1_size, synapse_seg, synapse_seg_n1 ]
 
     def mask_n2_inputs = synapse_inputs
     | join(presynaptic_n1_regions)
 
-    def synapse_n1_n2_results = mask_with_n2(
-        mask_n2_inputs.map {
-            def (working_dir, _, synapse, synapse_size, _, _, _, _, n2, n2_size) = it
-            [ "${working_dir}/synapse_seg_n1.h5", synapse_size, n2, n2_size, "${working_dir}/synapse_seg_n1_n2.h5" ]
-        }
-    ) // [ synapse_seg_n1, synapse_size, n2, n2_size, synapse_seg_n1_n2 ]
+    def synapse_n1_n2_results = mask_n2_inputs
+    | map {
+        def (working_dir, synapse_tiff, synapse, synapse_size, n1_tiff, n1, n1_size, n2_tiff, n2, n2_size) = it
+        [ "${working_dir}/synapse_seg_n1.h5", synapse_size, n2, n2_size, "${working_dir}/synapse_seg_n1_n2.h5" ]
+    }
+    | mask_with_n2
     | map {
         def h5_file = file(it[1])
         [ "${h5_file.parent}" ] + it
-    }
+    }  // [ working_dir, synapse_seg_n1, synapse_size, n2, n2_size, synapse_seg_n1_n2 ]
 
     // prepare the final result
     done = synapse_inputs
     | join(synapse_n1_n2_results, by: 0)
     | map {
-        def (working_path, _, synapse, synapse_size, _, n1, n1_size, _, n2, n2_size) = it
+        def (working_path, synapse_tiff, synapse, synapse_size, n1_tiff, n1, n1_size, n2_tiff, n2, n2_size) = it
         def working_dir = file(working_path)
         [ 
             synapse, synapse_size, n1, n1_size, n2, n2_size, 

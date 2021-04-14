@@ -29,7 +29,7 @@ process extract_tiff_stack_metadata {
     val(tiff_stack_dir)
 
     output:
-    tuple val(tiff_stack_dir), [width: env(width), height: env(height), depth: env(depth)]
+    tuple val(tiff_stack_dir), env(width), env(height), env(depth)
 
     script:
     if (tiff_stack_dir) {

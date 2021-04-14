@@ -51,7 +51,7 @@ workflow connect_regions_in_volume {
     main:
     def output_data = input_data
     | map {
-        def (in_image, in_image_size, _, _, out_image) = it
+        def (in_image, in_image_size, mask, mask_size, out_image) = it
         [ in_image, in_image_size, out_image]
     }
     | duplicate_h5_volume
@@ -94,7 +94,7 @@ workflow connect_regions_in_volume {
     }
 
     emit:
-    done = postprocessing_results
+    done
 }
 
 // This workflow applies the UNet classifier and 
@@ -106,7 +106,7 @@ workflow classify_and_connect_regions_in_volume {
     main:
     def classifier_results = classify_regions_in_volume(
         input_data.map {
-            def (in_image, in_image_size, _, _, unet_out_image, _) = it
+            def (in_image, in_image_size, mask, mask_size, unet_out_image) = it
             [ in_image, in_image_size, unet_out_image ]
         }
     ) // [ input_image, input_image_size, unet_image ]

@@ -48,6 +48,7 @@ workflow {
     def synapses_res;
     switch(final_params.pipeline) {
         case 'presynaptic_n1_to_n2':
+        default:
             synapses_res = stitched_data
             | map {
                 def (_, dataset_stitched_dir, dataset_output_dir) = it
@@ -60,7 +61,7 @@ workflow {
             }
             | presynaptic_n1_to_n2
             break;
-        case 'presynaptic_n1_to_postsynaptic_n2':
+        // case 'presynaptic_n1_to_postsynaptic_n2':
             // synapses_res = presynaptic_n1_to_postsynaptic_n2(
             //     stitched_data.map { default_presynapse_ch_dir(final_params, it[1]) }, // synapse channel stack
             //     stitched_data.map { default_n1_ch_dir(final_params, it[1]) }, // n1 channel stack
@@ -68,13 +69,13 @@ workflow {
             //     stitched_data.map { "${it[2]}/synapses" } // output dir
             // )
             break;
-        case 'presynaptic_in_volume':
-        default:
+        // case 'presynaptic_in_volume':
+        // default:
             // synapses_res = presynaptic_in_volume(
             //     stitched_data.map { default_presynapse_ch_dir(final_params, it[1]) }, // synapse channel stack
             //     stitched_data.map { "${it[2]}/synapses" } // output dir
             // )
-            break;
+            // break;
     }
 
     synapses_res | view
