@@ -112,7 +112,7 @@ workflow classify_and_connect_regions_in_volume {
     def post_classifier_results = connect_regions_in_volume(
         post_classifier_inputs.map {
             def (in_image, image_size, unet_out_image, mask, post_unet_out_image) = it
-            [ unet_out_image, mask, in_image_size, post_unet_out_image ]
+            [ unet_out_image, mask, image_size, post_unet_out_image ]
         },
         percentage,
         threshold
