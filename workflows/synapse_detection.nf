@@ -112,7 +112,7 @@ workflow presynaptic_n1_to_n2 {
     def presynaptic_n1_regions = synapse_inputs
     | map {
         def (working_dir, synapse_tiff, synapse, synapse_size, n1_tiff, n1, n1_size) = it
-        [ synapse_h5, synapse_size, n1, n1_size, "${working_dir}/synapse_seg.h5", "${working_dir}/synapse_seg_n1.h5" ]
+        [ synapse, synapse_size, n1, n1_size, "${working_dir}/synapse_seg.h5", "${working_dir}/synapse_seg_n1.h5" ]
     }
     | classify_and_connect_presynaptic_n1_regions
     | map {
