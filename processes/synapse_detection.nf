@@ -2,23 +2,20 @@ process duplicate_h5_volume {
     container { params.exm_synapse_container }
 
     input:
-    tuple val(in_fn), val(vol_size), val(out_fn)
+    val(data) // [ input_image, image_size, output_image, ... ]
 
     output:
-    tuple val(in_fn), val(vol_size), val(out_fn)
+    val(data)
 
     script:
-    def out_file = file(out_fn)
-    def (width, height, depth) = [vol_size.width, vol_size.height, vol_size.depth]
-    def out_dir = "${out_file.parent}"
-
-    def args_list = []
-    args_list << '-f' << out_fn
-    args_list << '-s' << "${depth},${width},${height}"
-    def args = args_list.join(' ')
+    // the method expects the first 3 elements of the 'data' tuple
+    // to be input_image, image_size and output_image
+    def (input_image, image_size, output_image) = data
     """
-    mkdir -p ${out_dir}
-    python /scripts/create_h5.py ${args}
+    mkdir -p ${file(output_image).parent}
+    python /scripts/create_h5.py \
+        '-f' ${output_image} \
+        '-s' ${image_size.depth},${image_size.width},${image_size.height}
     """
 }
 
@@ -61,14 +58,9 @@ process tiff_to_hdf5 {
     tuple val(input_tiff_stack_dir), val(output_h5_file)
 
     script:
-    def output_h5_dir = file(output_h5_file).parent
-    def args_list = []
-    args_list << '-i' << input_tiff_stack_dir
-    args_list << '-o' << output_h5_file
-    def args = args_list.join(' ')
     """
-    mkdir -p ${output_h5_dir}
-    python /scripts/tif_to_h5.py ${args}
+    mkdir -p ${file(output_h5_file).parent}
+    python /scripts/tif_to_h5.py '-i' ${input_tiff_stack_dir} '-o' ${output_h5_file}
     """
 }
 
@@ -83,13 +75,9 @@ process hdf5_to_tiff {
     tuple val(input_h5_file), val(output_dir)
 
     script:
-    def args_list = []
-    args_list << '-i' << input_h5_file
-    args_list << '-o' << output_dir
-    def args = args_list.join(' ')
     """
     mkdir -p ${output_dir}
-    python /scripts/h5_to_tif.py ${args}
+    python /scripts/h5_to_tif.py '-i' ${input_h5_file} '-o' ${output_dir}
     """
 }
 
@@ -100,21 +88,20 @@ process unet_classifier {
     label 'withGPU'
 
     input:
-    tuple val(input_image), val(subvolume), val(output_image_arg)
+    tuple val(input_image), val(start_subvolume), val(end_subvolume), val(output_image_arg), val(vol_size)
+    val(synapse_model)
 
     output:
-    tuple val(input_image), val(subvolume), val(output_image)
+    tuple val(input_image), val(start_subvolume), val(end_subvolume), val(output_image), val(vol_size)
 
     script:
     output_image = output_image_arg ? output_image_arg : input_image
-    def args_list = []
-    args_list << '-i' << input_image
-    args_list << '-m' << params.synapse_model
-    args_list << '-l' << "${subvolume}"
-    args_list << '-o' << output_image
-    def args = args_list.join(' ')
     """
-    python /scripts/unet_gpu.py ${args}
+    python /scripts/unet_gpu.py \
+        '-i' ${input_image} \
+        '-m' ${synapse_model} \
+        -l ${start_subvolume},${end_subvolume} \
+        '-o' ${output_image}
     """
 }
 
@@ -123,26 +110,24 @@ process segmentation_postprocessing {
     cpus { params.mask_synapses_cpus }
 
     input:
-    tuple val(input_image), val(mask_image), val(subvolume), val(output_image_arg)
+    tuple val(input_image), val(mask_image), val(start_subvolume), val(end_subvolume), val(output_image_arg), val(vol_size)
+    val(percentage)
+    val(threshold)
 
     output:
-    tuple val(input_image), val(mask_image), val(output_image), val(subvolume)
+    tuple val(input_image), val(mask_image), val(start_subvolume), val(end_subvolume), val(output_image), val(vol_size)
 
     script:
     output_image = output_image_arg ? output_image_arg : input_image
-
-    def args_list = []
-    args_list << '-i' << input_image
-    args_list << '-o' << output_image
-    args_list << '-o' << output_image
-    args_list << '-l' << "${subvolume}"
-    args_list << '-p' << params.synapse_mask_percentage
-    args_list << '-t' << params.synapse_mask_threshold
-    if (mask_image) {
-        args_list << '-m' << mask_image
-    }
-    def args = args_list.join(' ')
+    def mask_arg = mask_image ? "-m ${mask_image}" : ''
     """
-    /scripts/postprocess_cpu.sh ${args}
+    /scripts/postprocess_cpu.sh \
+        -i ${input_image} \
+        -o ${output_image} \
+        -o ${output_image} \
+        -l ${start_subvolume},${end_subvolume} \
+        -p ${percentage} \
+        -t ${threshold} \
+        ${mask_arg}
     """
 }
