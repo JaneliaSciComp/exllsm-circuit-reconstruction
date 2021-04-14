@@ -112,7 +112,9 @@ workflow presynaptic_n1_to_n2 {
     def presynaptic_n1_regions = synapse_inputs
     | map {
         def (working_dir, synapse_tiff, synapse, synapse_size, n1_tiff, n1, n1_size) = it
-        [ synapse, synapse_size, n1, n1_size, "${working_dir}/synapse_seg.h5", "${working_dir}/synapse_seg_n1.h5" ]
+        def r = [ synapse, synapse_size, n1, n1_size, "${working_dir}/synapse_seg.h5", "${working_dir}/synapse_seg_n1.h5" ]
+        log.debug "Presynaptic n1 inputs: $r"
+        r
     }
     | classify_and_connect_presynaptic_n1_regions
     | map {
@@ -126,7 +128,9 @@ workflow presynaptic_n1_to_n2 {
     def synapse_n1_n2_results = mask_n2_inputs
     | map {
         def (working_dir, synapse_tiff, synapse, synapse_size, n1_tiff, n1, n1_size, n2_tiff, n2, n2_size) = it
-        [ "${working_dir}/synapse_seg_n1.h5", synapse_size, n2, n2_size, "${working_dir}/synapse_seg_n1_n2.h5" ]
+        def r = [ "${working_dir}/synapse_seg_n1.h5", synapse_size, n2, n2_size, "${working_dir}/synapse_seg_n1_n2.h5" ]
+        log.debug "Presynaptic n1 to mask with n2 inputs: $r"
+        r
     }
     | mask_with_n2
     | map {
@@ -140,11 +144,13 @@ workflow presynaptic_n1_to_n2 {
     | map {
         def (working_path, synapse_tiff, synapse, synapse_size, n1_tiff, n1, n1_size, n2_tiff, n2, n2_size) = it
         def working_dir = file(working_path)
-        [ 
+        def r = [
             synapse, synapse_size, n1, n1_size, n2, n2_size, 
             "${working_dir}/synapse_seg.h5", "${working_dir}/synapse_seg_n1.h5", "${working_dir}/synapse_seg_n1_n2.h5",
             "${working_dir.parent}",
         ]
+        log.debug "Presynaptic n1 to n2 results:  $r"
+        r
     }  // [ synapse, synapse_vol, n1, n1_vol, n2, n2_vol, synapse_seg, synapse_seg_n1, synapse_seg_n1_n2, output_dir ]
     
     emit:
