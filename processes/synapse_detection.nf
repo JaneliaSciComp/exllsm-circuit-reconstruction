@@ -83,7 +83,7 @@ process hdf5_to_tiff {
 
 process unet_classifier {
     container { params.exm_synapse_container }
-    cpus { params.synapse_segmentation_cpus }
+    cpus { params.unet_cpus }
     accelerator 1
     label 'withGPU'
 
@@ -107,7 +107,7 @@ process unet_classifier {
 
 process segmentation_postprocessing {
     container { params.exm_synapse_container }
-    cpus { params.mask_synapses_cpus }
+    cpus { params.postprocessing_cpus }
 
     input:
     tuple val(input_image), val(mask_image), val(start_subvolume), val(end_subvolume), val(output_image_arg), val(vol_size)

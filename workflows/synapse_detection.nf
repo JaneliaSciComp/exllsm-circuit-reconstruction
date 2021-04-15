@@ -73,6 +73,7 @@ workflow presynaptic_in_volume {
     done = post_synapse_seg_results
 }
 
+// Workflow A - Neuron 1 presynaptic to Neuron 2
 workflow presynaptic_n1_to_n2 {
     take:
     input_data // [ presynapse_image, n1_mask, n2_mask, output_dir ]
@@ -179,74 +180,110 @@ workflow presynaptic_n1_to_n2 {
 }
 
 // Workflow C - Neuron 1 presynaptic to Neuron 2 restricted post synaptic
-// workflow presynaptic_n1_to_postsynaptic_n2 {
-//     take:
-//     pre_synapse_stack_dir
-//     neuron1_stack_dir
-//     post_synapse_stack_dir
-//     output_dir
+workflow presynaptic_n1_to_postsynaptic_n2 {
+    take:
+    input_data // [ pre_synapse_stack, neuron1_stack, post_synapse_stack, output_dir ]
 
-//     main:
-//     def tmp_volumes_subfolder = 'tmp'
+    main:
+    def tmp_volumes_subfolder = 'tmp'
 
-//     def pre_synapse_data = pre_synapse_tiff_to_h5(
-//         pre_synapse_stack_dir, // pre_synapse
-//         output_dir.map { "${it}/${tmp_volumes_subfolder}/pre_synapse.h5" }
-//     ) // [ pre_synapse_tiff_stack, pre_synapse_h5_file, pre_synapse_volume ]
-//     | map {
-//         def h5_file = file(it[1])
-//         [ "${h5_file.parent}" ] + it
-//     } // [ working_dir, tiff_stack, h5_file, volume ]
+    def pre_synapse_data = input_data
+    | map {
+        def (pre_synapse_tiff, n1_mask_tiff, post_synapse_tiff, output_dir) = it
+        [ pre_synapse_tiff, "${output_dir}/${tmp_volumes_subfolder}/pre_synapse.h5" ]
+    }
+    | synapse_tiff_to_h5 // [ pre_synapse_stack, pre_synapse_h5, pre_synapse_size ]
+    | map {
+        def h5_file = file(it[1])
+        [ "${h5_file.parent}" ] + it
+    } // [ working_dir, tiff_stack, h5_file, size ]
 
-//     def n1_data = neuron1_tiff_to_h5(
-//         neuron1_stack_dir, // n1
-//         output_dir.map { "${it}/${tmp_volumes_subfolder}/n1_mask.h5" }
-//     ) // [ neuron1_tiff_stack, neuron1_h5_file, neuron1_volume ]
-//     | map {
-//         def h5_file = file(it[1])
-//         [ "${h5_file.parent}" ] + it
-//     } // [ working_dir, tiff_stack, h5_file, volume ]
+    def n1_data = input_data
+    | map {
+        def (pre_synapse_tiff, n1_mask_tiff, post_synapse_tiff, output_dir) = it
+        [ n1_mask_tiff, "${output_dir}/${tmp_volumes_subfolder}/n1_mask.h5" ]
+    }
+    | neuron1_tiff_to_h5 // [ n1_mask_stack, n1_mask_h5, n1_size ]
+    | map {
+        def h5_file = file(it[1])
+        [ "${h5_file.parent}" ] + it
+    } // [ working_dir, tiff_stack, h5_file, size ]
 
-//     def post_synapse_data = post_synapse_tiff_to_h5(
-//         post_synapse_stack_dir, // post_synapse
-//         output_dir.map { "${it}/${tmp_volumes_subfolder}/post_synapse.h5" }
-//     ) // [ post_synapse_tiff_stack, post_synapse_h5_file, post_synapse_volume ]
-//     | map {
-//         def h5_file = file(it[1])
-//         [ "${h5_file.parent}" ] + it
-//     } // [ working_dir, tiff_stack, h5_file, volume ]
+    def post_synapse_data = input_data
+    | map {
+        def (pre_synapse_tiff, n1_mask_tiff, post_synapse_tiff, output_dir) = it
+        [ pre_synapse_tiff, "${output_dir}/${tmp_volumes_subfolder}/post_synapse.h5" ]
+    }
+    | post_synapse_tiff_to_h5 // [ post_synapse_stack, post_synapse_h5, poost_synapse_size ]
+    | map {
+        def h5_file = file(it[1])
+        [ "${h5_file.parent}" ] + it
+    } // [ working_dir, tiff_stack, h5_file, size ]
 
-//     def pre_synaptic_n1_inputs = pre_synapse_data
-//     | join(n1_data, by:0)
-//     | join(post_synapse_data, by:0) 
-//     // [ working_dir, pre_synapse_tiff, pre_synapse_h5, pre_synapse_vol, n1_tiff, n1_h5, n1_vol, post_synapse_tiff, post_synapse_h5, post_synapse_vol ]
 
-//     def presynaptic_n1_regions = classify_and_connect_presynaptic_n1_regions(
-//         pre_synaptic_n1_inputs.map { it[1] }, // pre_synapse
-//         pre_synaptic_n1_inputs.map { it[2] }, // pre_synapse_vol
-//         params.synapse_model,
-//         pre_synaptic_n1_inputs.map { it[5] }, // n1
-//         pre_synaptic_n1_inputs.map { it[6] }, // n1_vol
-//         pre_synaptic_n1_inputs.map { "${it[0]}/pre_synapse_seg.h5" },
-//         pre_synaptic_n1_inputs.map { "${it[0]}/pre_synapse_seg_n1.h5" },
-//     ) // [ pre_synapse, pre_synapse_vol, n1, n1_vol, pre_synapse_seg, pre_synapse_seg_n1 ]
-//     | map {
-//         def h5_file = file(it[1])
-//         [ "${h5_file.parent}" ] + it
-//     } // [ working_dir, pre_synapse, pre_synapse_vol, n1, n1_vol, pre_synapse_seg, pre_synapse_seg_n1 ]
+    def pre_and_post_synaptic_data = pre_synapse_data
+    | join(n1_data, by:0)
+    | join(post_synapse_data, by:0) 
+    // [ working_dir, pre_synapse_tiff, pre_synapse_h5, pre_synapse_vol, n1_tiff, n1_h5, n1_vol, post_synapse_tiff, post_synapse_h5, post_synapse_vol ]
 
-//     def post_to_pre_synaptic_inputs = pre_synaptic_n1_inputs
-//      | join(presynaptic_n1_regions, by:0)
+    def presynaptic_n1_inputs = pre_and_post_synaptic_data
+    | map {
+        def (working_dir, pre_synapse_tiff, pre_synapse, pre_synapse_size, n1_tiff, n1, n1_size) = it
+        def r = [ pre_synapse, n1, pre_synapse_size, "${working_dir}/pre_synapse_seg.h5", "${working_dir}/pre_synapse_seg_n1.h5" ]
+        log.debug "Presynaptic n1 inputs: $r"
+        r
+    }
 
-//     def post_to_pre_synaptic_results = classify_and_connect_postsynaptic_to_presynaptic_n1_regions(
-//         pre_synaptic_n1_inputs.map { it[8] }, // post_synapse
-//         pre_synaptic_n1_inputs.map { it[9] }, // post_synapse_vol
-//         params.synapse_model,
-//         pre_synaptic_n1_inputs.map { it[15] }, // pre_synapse_seg_n1
-//         pre_synaptic_n1_inputs.map { it[3] }, // pre_synapse_vol
-//         pre_synaptic_n1_inputs.map { "${it[0]}/post_synapse_seg.h5" },
-//         pre_synaptic_n1_inputs.map { "${it[0]}/post_synapse_seg_pre_synapse_seg_n1.h5" }
-//     )
-//     emit:
-//     done = post_to_pre_synaptic_results
-// }
+    def presynaptic_n1_regions = classify_and_connect_presynaptic_n1_regions(
+        presynaptic_n1_inputs,
+        params.synapse_model,
+        params.presynaptic_stage2_percentage,
+        params.presynaptic_stage2_threshold,
+    )
+    | map {
+        def h5_file = file(it[0])
+        [ "${h5_file.parent}" ] + it
+    } // [ working_dir, pre_synapse, n1, synapse_size, synapse_seg, synapse_seg_n1 ]
+
+    def post_to_pre_synaptic_inputs = pre_and_post_synaptic_data
+    | join(presynaptic_n1_regions, by:0)
+    | map {
+        def (working_dir, pre_synapse_tiff, pre_synapse, pre_synapse_size, n1_tiff, n1, n1_size, post_synapse_tiff, post_synapse, post_synapse_size) = it
+        def d = [ post_synapse, "${working_dir}/pre_synapse_seg_n1.h5", post_synapse_size, "${working_dir}/post_synapse_seg.h5", "${working_dir}/post_synapse_seg_pre_synapse_seg_n1.h5" ]
+        log.debug "Pre-synaptic n1 to n2 restricted post-synaptic inputs: $d"
+        d
+    }
+
+    def post_to_pre_synaptic_results = classify_and_connect_postsynaptic_to_presynaptic_n1_regions(
+        post_to_pre_synaptic_inputs,
+        params.synapse_model,
+        params.postsynaptic_stage2_percentage,
+        params.postsynaptic_stage2_threshold,
+    )
+    | map {
+        def h5_file = file(it[0])
+        [ "${h5_file.parent}" ] + it
+    } // [ working_dir, post_synapse, pre_synapse_seg_n1, post_synapse_size, post_synapse_seg, post_synapse_seg_pre_synapse_seg_n1 ]
+
+    // prepare the final result
+    done = pre_and_post_synaptic_data
+    | join(post_to_pre_synaptic_results, by:0)
+    | map {
+        def (working_path, pre_synapse_tiff, pre_synapse, pre_synapse_size, n1_tiff, n1, n1_size, post_synapse_tiff, post_synapse, post_synapse_size) = it
+        def working_dir = file(working_path)
+        def r = [
+            pre_synapse, n1, post_synapse,
+            synapse_size,
+            "${working_dir}/pre_synapse_seg.h5",
+            "${working_dir}/pre_synapse_seg_n1.h5",
+            "${working_dir}/post_synapse_seg.h5",
+            "${working_dir}/post_synapse_seg_pre_synapse_seg_n1.h5",
+            "${working_dir.parent}",
+        ]
+        log.debug "Pre-synaptic n1 to restricted post-synaptic n2 results:  $r"
+        r
+    }
+
+    emit:
+    done
+}
