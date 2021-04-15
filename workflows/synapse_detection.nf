@@ -51,7 +51,7 @@ workflow presynaptic_in_volume {
             "${working_dir}/synapse_seg.h5",
             "${working_dir}/synapse_seg_post.h5"
         ]
-        log.debug "Presynaptic regions inputs: $d"
+        log.debug "Pre-synaptic regions inputs: $d"
         d
     }
     
@@ -65,7 +65,7 @@ workflow presynaptic_in_volume {
         def (synapse, mask, synapse_size, synapse_seg, synapse_seg_post) = it
         def synapse_file = file(synapse)
         def r = [ synapse, synapse_size, synapse_seg, synapse_seg_post, "${synapse_file.parent.parent}" ]
-        log.debug "Presynaptic in volume results: $r"
+        log.debug "Pre-synaptic in volume results: $r"
         r
     } // [ synapse, synapse_size, synapse_seg, synapse_seg_post, output_dir ]
 
@@ -123,7 +123,7 @@ workflow presynaptic_n1_to_n2 {
     | map {
         def (working_dir, synapse_tiff, synapse, synapse_size, n1_tiff, n1, n1_size) = it
         def r = [ synapse, n1, synapse_size, "${working_dir}/synapse_seg.h5", "${working_dir}/synapse_seg_n1.h5" ]
-        log.debug "Presynaptic n1 inputs: $r"
+        log.debug "Pre-synaptic n1 inputs: $r"
         r
     }
 
@@ -143,7 +143,7 @@ workflow presynaptic_n1_to_n2 {
     | map {
         def (working_dir, synapse_tiff, synapse, synapse_size, n1_tiff, n1, n1_size, n2_tiff, n2, n2_size) = it
         def d = [ "${working_dir}/synapse_seg_n1.h5", n2, synapse_size, "${working_dir}/synapse_seg_n1_n2.h5" ]
-        log.debug "Presynaptic n1 to mask with n2 inputs: $d"
+        log.debug "Pre-synaptic n1 to mask with n2 inputs: $d"
         d
     }
     
@@ -171,7 +171,7 @@ workflow presynaptic_n1_to_n2 {
             "${working_dir}/synapse_seg_n1_n2.h5",
             "${working_dir.parent}",
         ]
-        log.debug "Presynaptic n1 to n2 results:  $r"
+        log.debug "Pre-synaptic n1 to n2 results:  $r"
         r
     }  // [ synapse, n1, n2, size, synapse_seg, synapse_seg_n1, synapse_seg_n1_n2, output_dir ]
     
@@ -230,7 +230,7 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
     | map {
         def (working_dir, pre_synapse_tiff, pre_synapse, pre_synapse_size, n1_tiff, n1, n1_size) = it
         def r = [ pre_synapse, n1, pre_synapse_size, "${working_dir}/pre_synapse_seg.h5", "${working_dir}/pre_synapse_seg_n1.h5" ]
-        log.debug "Presynaptic n1 inputs: $r"
+        log.debug "Pre-synaptic n1 inputs: $r"
         r
     }
 
