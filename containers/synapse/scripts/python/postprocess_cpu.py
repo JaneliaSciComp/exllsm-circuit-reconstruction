@@ -159,7 +159,7 @@ def main(argv):
     start = time.time()
     print('#############################')
     out_img_name = os.path.splitext(os.path.split(output_hdf5_file)[1])[0]
-    out_img_path = img_path+'/'+out_img_name+'r'+str(location[0])+'_'+str(location[3])+'_c'+str(
+    out_img_path = img_path+'/'+out_img_name+'_r'+str(location[0])+'_'+str(location[3])+'_c'+str(
         location[1])+'_'+str(location[4])+'_v'+str(location[2])+'_'+str(location[5])+'.tif'
     print('Writing tiff image for watershed:', out_img_path)
     tif_write(img, out_img_path)
