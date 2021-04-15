@@ -5,12 +5,6 @@ include {
     segmentation_postprocessing;
 } from '../processes/synapse_detection'
 
-include {
-    merge_2_channels;
-    merge_3_channels;
-    merge_4_channels;
-} from '../processes/utils'
-
 // Partition the input volume and call the UNet classifier for each subvolume
 // The input_data contains a tuple with 
 workflow classify_regions_in_volume {

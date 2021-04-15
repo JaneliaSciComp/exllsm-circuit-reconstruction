@@ -32,8 +32,11 @@ def remove_small_piece(out_hdf5_file, img_file_name, location, mask=None, thresh
 
     out_path = os.path.dirname(out_hdf5_file)
     out_img_name = os.path.splitext(os.path.split(out_hdf5_file)[1])[0]
-    csv_name = out_img_name +'_stats_r'+str(location[0])+'_'+str(location[3]-1)+'_c'+str(
-        location[1])+'_'+str(location[4]-1)+'_v'+str(location[2])+'_'+str(location[5]-1)+'.csv'
+    csv_name = out_img_name+\
+                '_stats_r'+str(location[0])+'_'+str(location[3])+\
+                '_c'+str(location[1])+'_'+str(location[4])+\
+                '_v'+str(location[2])+'_'+str(location[5]-1)+\
+                '.csv'
     csv_filepath = out_path+'/'+csv_name
     print('CSV results file: ', csv_filepath)
     for props in regionprop_img:

@@ -12,7 +12,8 @@ RUN mkdir /tmp-compile/dest && \
     -d /tmp-compile/dest \
     -v \
     -I /tmp-compile/matlab \
-    /tmp-compile/matlab/closing_watershed.m
+    /tmp-compile/matlab/closing_watershed.m \
+    /tmp-compile/matlab/close_and_watershed_transform.m
 
 FROM centos:8
 

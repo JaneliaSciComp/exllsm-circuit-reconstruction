@@ -11,10 +11,6 @@ include {
 } from './segmentation_tools'
 
 include {
-    merge_2_channels;
-} from '../processes/utils'
-
-include {
     tiff_to_h5_with_metadata as synapse_tiff_to_h5;
     tiff_to_h5_with_metadata as neuron1_tiff_to_h5;
     tiff_to_h5_with_metadata as neuron2_tiff_to_h5;
