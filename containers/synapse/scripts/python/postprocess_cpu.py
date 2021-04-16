@@ -226,11 +226,10 @@ def main(argv):
     matlab_img_data = as_matlab(img_data)
     matlab_segmented_img_data = ws.close_and_watershed_transform(matlab_img_data)
     segmented_img_data = np.array(matlab_segmented_img_data._data).reshape(matlab_segmented_img_data.size, order='F')
-    segmented_img  = np.moveaxis(segmented_img_data, (0, 2), (2, 0))
     ws.quit()
 
     remove_small_piece(out_hdf5_file=output_hdf5_file,
-                      img=segmented_img,
+                      img=segmented_img_data,
                       location=location,
                       mask=mask,
                       threshold=threshold,
