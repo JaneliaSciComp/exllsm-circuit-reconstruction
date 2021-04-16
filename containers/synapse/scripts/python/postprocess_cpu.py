@@ -12,6 +12,7 @@ from utils import hdf5_read, hdf5_write
 
 from _internal.mlarray_utils import _get_strides, _get_mlsize
 
+
 # BEGIN:
 # copied from SO:
 # https://stackoverflow.com/questions/10997254/converting-numpy-arrays-to-matlab-and-vice-versa
@@ -220,20 +221,22 @@ def main(argv):
     out_img_name = os.path.splitext(os.path.split(output_hdf5_file)[1])[0]
     print('Processing image for watershed:', out_img_name)
 
-    img_data  = np.moveaxis(img, (0, 2), (2, 0))
+    img_data = np.moveaxis(img, (0, 2), (2, 0))
     watershed.initialize_runtime(['-nojvm', '-nodisplay'])
     ws = watershed.initialize()
     matlab_img_data = as_matlab(img_data)
-    matlab_segmented_img_data = ws.close_and_watershed_transform(matlab_img_data)
-    segmented_img_data = np.array(matlab_segmented_img_data._data).reshape(matlab_segmented_img_data.size, order='F')
+    matlab_segmented_img_data = ws.close_and_watershed_transform(
+        matlab_img_data)
+    segmented_img_data = np.array(matlab_segmented_img_data._data).reshape(
+        matlab_segmented_img_data.size, order='F')
     ws.quit()
 
     remove_small_piece(out_hdf5_file=output_hdf5_file,
-                      img=segmented_img_data,
-                      location=location,
-                      mask=mask,
-                      threshold=threshold,
-                      percentage=percentage)
+                       img=segmented_img_data,
+                       location=location,
+                       mask=mask,
+                       threshold=threshold,
+                       percentage=percentage)
     end = time.time()
     print("DONE! Running time is {} seconds".format(end-start))
 
