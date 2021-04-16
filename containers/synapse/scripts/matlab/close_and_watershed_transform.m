@@ -10,7 +10,7 @@ function seg_img = closing_img(img)
     img(img~=0)=1;
     SE=strel('sphere',3);
     seg_img=imclose(img,SE);
-    % % image filling
+    % image filling
     % seg_img=imfill(seg_img,'holes');
     seg_img(seg_img~=0) = 255;
 end

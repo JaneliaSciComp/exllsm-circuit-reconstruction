@@ -2,29 +2,84 @@ import sys
 import getopt
 import numpy as np
 import watershed
+import matlab
 import csv
 import os
 import time
 
 from skimage.measure import label, regionprops
-from utils import hdf5_read, hdf5_write, tif_read, tif_write
+from utils import hdf5_read, hdf5_write
+
+from _internal.mlarray_utils import _get_strides, _get_mlsize
+
+# BEGIN:
+# copied from SO:
+# https://stackoverflow.com/questions/10997254/converting-numpy-arrays-to-matlab-and-vice-versa
+def _wrapper__init__(self, arr):
+    assert arr.dtype == type(self)._numpy_type
+    self._python_type = type(arr.dtype.type().item())
+    self._is_complex = np.issubdtype(arr.dtype, np.complexfloating)
+    self._size = _get_mlsize(arr.shape)
+    self._strides = _get_strides(self._size)[:-1]
+    self._start = 0
+
+    if self._is_complex:
+        self._real = arr.real.ravel(order='F')
+        self._imag = arr.imag.ravel(order='F')
+    else:
+        self._data = arr.ravel(order='F')
 
 
-def remove_small_piece(out_hdf5_file, img_file_name, location, mask=None, threshold=10, percentage=1.0):
+_wrappers = {}
+
+
+def _define_wrapper(matlab_type, numpy_type):
+    t = type(matlab_type.__name__, (matlab_type,), dict(
+        __init__=_wrapper__init__,
+        _numpy_type=numpy_type
+    ))
+    # this tricks matlab into accepting our new type
+    t.__module__ = matlab_type.__module__
+    _wrappers[numpy_type] = t
+
+
+_define_wrapper(matlab.double, np.double)
+_define_wrapper(matlab.single, np.single)
+_define_wrapper(matlab.uint8, np.uint8)
+_define_wrapper(matlab.int8, np.int8)
+_define_wrapper(matlab.uint16, np.uint16)
+_define_wrapper(matlab.int16, np.int16)
+_define_wrapper(matlab.uint32, np.uint32)
+_define_wrapper(matlab.int32, np.int32)
+_define_wrapper(matlab.uint64, np.uint64)
+_define_wrapper(matlab.int64, np.int64)
+_define_wrapper(matlab.logical, np.bool_)
+
+
+def as_matlab(arr):
+    try:
+        cls = _wrappers[arr.dtype.type]
+    except KeyError:
+        raise TypeError("Unsupported data type")
+    return cls(arr)
+# END: SO copy
+
+
+def remove_small_piece(out_hdf5_file, img, location, mask=None, threshold=10, percentage=1.0):
     """
     remove blobs that have less than N voxels
     write final result to output hdf5 file, output a .csv file indicating the location and size of each synapses
     Args:
     out_hdf5_file: output hdf5 file
-    img_file_name: tif image file for processing
+    img: image to process
     mask: mask image
     location: a tuple of (min_row, min_col, min_vol, max_row, max_col, max_vol) indicating img location on the hdf5 file
     threshold: threshold to remove small blobs (default=10)
     percentage: threshold to remove the object if it falls in the mask less than a percentage. If percentage is 1, criteria will be whether the centroid falls within the mask
     """
 
-    print('Removing small blobs from ', img_file_name, ' and save results to ', out_hdf5_file, ' at location ', location)
-    img = tif_read(img_file_name)
+    print('Removing small blobs from source image of size ', img.shape,
+          ' and save results to ', out_hdf5_file, ' at location ', location)
     img[img != 0] = 1
     label_img = label(img, connectivity=3)
     regionprop_img = regionprops(label_img)
@@ -32,11 +87,11 @@ def remove_small_piece(out_hdf5_file, img_file_name, location, mask=None, thresh
 
     out_path = os.path.dirname(out_hdf5_file)
     out_img_name = os.path.splitext(os.path.split(out_hdf5_file)[1])[0]
-    csv_name = out_img_name+\
-                '_stats_r'+str(location[0])+'_'+str(location[3])+\
-                '_c'+str(location[1])+'_'+str(location[4])+\
-                '_v'+str(location[2])+'_'+str(location[5]-1)+\
-                '.csv'
+    csv_name = out_img_name +\
+        '_stats_r'+str(location[0])+'_'+str(location[3]) +\
+        '_c'+str(location[1])+'_'+str(location[4]) +\
+        '_v'+str(location[2])+'_'+str(location[5]-1) +\
+        '.csv'
     csv_filepath = out_path+'/'+csv_name
     print('CSV results file: ', csv_filepath)
     for props in regionprop_img:
@@ -95,7 +150,8 @@ def remove_small_piece(out_hdf5_file, img_file_name, location, mask=None, thresh
                 writer.writerow(csv_row)
 
     img[img != 0] = 255
-    print('Write post processed image to ', out_hdf5_file, ' at location ', location)
+    print('Write post processed image to ',
+          out_hdf5_file, ' at location ', location)
     hdf5_write(img, out_hdf5_file, location)
     return None
 
@@ -114,7 +170,7 @@ def main(argv):
         options, remainder = getopt.getopt(argv, "i:l:m:o:t:p:", [
                                            "input_file=", "location=", "mask_file=",
                                            "output_file="
-                                            "threshold=", "percentage="])
+                                           "threshold=", "percentage="])
     except:
         print("ERROR:", sys.exc_info()[0])
         print("Usage: postprocess_cpu.py -i <input_hdf5_file> " +
@@ -162,18 +218,23 @@ def main(argv):
     start = time.time()
     print('#############################')
     out_img_name = os.path.splitext(os.path.split(output_hdf5_file)[1])[0]
-    out_img_path = img_path+'/'+out_img_name+'_r'+str(location[0])+'_'+str(location[3])+'_c'+str(
-        location[1])+'_'+str(location[4])+'_v'+str(location[2])+'_'+str(location[5])+'.tif'
-    print('Writing tiff image for watershed:', out_img_path)
-    tif_write(img, out_img_path)
+    print('Processing image for watershed:', out_img_name)
+
+    img_data  = np.moveaxis(img, (0, 2), (2, 0))
     watershed.initialize_runtime(['-nojvm', '-nodisplay'])
     ws = watershed.initialize()
-    flag = ws.closing_watershed(out_img_path)
+    matlab_img_data = as_matlab(img_data)
+    matlab_segmented_img_data = ws.close_and_watershed_transform(matlab_img_data)
+    segmented_img_data = np.array(matlab_segmented_img_data._data).reshape(matlab_segmented_img_data.size, order='F')
+    segmented_img  = np.moveaxis(segmented_img_data, (0, 2), (2, 0))
     ws.quit()
-    remove_small_piece(out_hdf5_file=output_hdf5_file, img_file_name=out_img_path,
-                       location=location, mask=mask, threshold=threshold, percentage=percentage)
-    if os.path.exists(out_img_path):
-        os.remove(out_img_path)
+
+    remove_small_piece(out_hdf5_file=output_hdf5_file,
+                      img=segmented_img,
+                      location=location,
+                      mask=mask,
+                      threshold=threshold,
+                      percentage=percentage)
     end = time.time()
     print("DONE! Running time is {} seconds".format(end-start))
 
