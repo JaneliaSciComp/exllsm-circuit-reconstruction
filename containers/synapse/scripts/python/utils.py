@@ -3,7 +3,7 @@ import h5py
 import skimage.io
 import time
 import os
-from random import random
+import random
 
 
 def tif_read(file_name):
@@ -43,16 +43,19 @@ def hdf5_read(file_name, location):
     file_name: hdf5 file name
     location: a tuple of (min_row, min_col, min_vol, max_row, max_col, max_vol) indicating what area to read
     """
+    print('Read ', file_name, ' subvolume ', location)
     read_img = True
-    while read_img:
-        try:
-            print('Read ', file_name, ' subvolume ', location)
-            with h5py.File(file_name, 'r') as f:
+    retry = 0
+    with h5py.File(file_name, 'r') as f:
+        while read_img:
+            try:
                 im = f['volume'][location[2]:location[5], location[0]:location[3], location[1]:location[4]]
                 print('Image ', file_name, ' shape: ', im.shape)
-            read_img = False
-        except OSError:  # If other process is accessing the image, wait 5 seconds to try again
-            time.sleep(random()*5)
+                read_img = False
+            except OSError:  # If other process is accessing the image, wait 5 seconds to try again
+                time.sleep(random.randint(1, 10 * (retry / 1000 + 1)))
+                if retry % 1000 == 0:
+                    print('Tried to read ', file_name, ' at ', location, retry, ' times')
     im_array = np.moveaxis(im, 0, -1)
     print('Image ', file_name, ' shape after axis changed: ', im_array.shape)
     return im_array
@@ -71,12 +74,17 @@ def hdf5_write(im_array, file_name, location):
                   dtype=im_array.dtype)
     for i in range(im_array.shape[2]):
         im[i] = im_array[:, :, i]
+    print('Write ', file_name, ' subvolume ', location)
     write_img = True
-    while write_img:
-        try:
-            with h5py.File(file_name, 'r+') as f:
+    retry = 0
+    with h5py.File(file_name, 'r+') as f:
+        while write_img:
+            retry = retry + 1
+            try:
                 f['volume'][location[2]:location[5], location[0]:location[3], location[1]:location[4]] = im
-            write_img = False
-        except OSError:  # If other process is accessing the image, wait 5 seconds to try again
-            time.sleep(random()*5)
+                write_img = False
+            except OSError:  # If other process is accessing the image, wait 5 seconds to try again
+                time.sleep(random.randint(1, 10 * (retry / 1000 + 1)))
+                if retry % 1000 == 0:
+                    print('Tried to write ', file_name, ' at ', location, retry, ' times')
     return None
