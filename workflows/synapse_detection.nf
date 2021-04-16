@@ -4,9 +4,8 @@ include {
 } from '../processes/synapse_detection'
 
 include {
-    classify_and_connect_regions_in_volume as classify_and_connect_presynaptic_n1_regions;
-    classify_and_connect_regions_in_volume as classify_and_connect_presynaptic_regions
-    classify_and_connect_regions_in_volume as classify_and_connect_postsynaptic_n2_regions;
+    classify_and_connect_regions_in_volume as classify_and_connect_presynaptic_regions;
+    classify_and_connect_regions_in_volume as classify_and_connect_postsynaptic_regions;
     connect_regions_in_volume as mask_with_n2;
 } from './segmentation_tools'
 
@@ -51,7 +50,7 @@ workflow presynaptic_in_volume {
         d
     }
     
-    def post_synapse_seg_results = classify_and_connect_presynaptic_n1_regions(
+    def post_synapse_seg_results = classify_and_connect_presynaptic_regions(
         synapse_inputs,
         params.synapse_model,
         params.presynaptic_stage2_percentage,
@@ -123,7 +122,7 @@ workflow presynaptic_n1_to_n2 {
         r
     }
 
-    def presynaptic_n1_regions = classify_and_connect_presynaptic_n1_regions(
+    def presynaptic_n1_regions = classify_and_connect_presynaptic_regions(
         presynaptic_n1_inputs,
         params.synapse_model,
         params.presynaptic_stage2_percentage,
@@ -230,7 +229,7 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
         r
     }
 
-    def presynaptic_n1_regions = classify_and_connect_presynaptic_n1_regions(
+    def presynaptic_n1_regions = classify_and_connect_presynaptic_regions(
         presynaptic_n1_inputs,
         params.synapse_model,
         params.presynaptic_stage2_percentage,
@@ -250,7 +249,7 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
         d
     }
 
-    def post_to_pre_synaptic_results = classify_and_connect_postsynaptic_to_presynaptic_n1_regions(
+    def post_to_pre_synaptic_results = classify_and_connect_postsynaptic_regions(
         post_to_pre_synaptic_inputs,
         params.synapse_model,
         params.postsynaptic_stage2_percentage,
