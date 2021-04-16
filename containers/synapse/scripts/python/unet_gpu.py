@@ -133,7 +133,6 @@ def main(argv):
     if len(location):
         print('Read ', hdf5_file, ' subvolume: ', location)
         img = hdf5_read(hdf5_file, location)
-        img_path = os.path.dirname(hdf5_file)
     else:
         print("ERROR: location need to be provided!")
         sys.exit(1)
