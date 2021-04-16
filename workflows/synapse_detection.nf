@@ -268,7 +268,7 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
         def working_dir = file(working_path)
         def r = [
             pre_synapse, n1, post_synapse,
-            synapse_size,
+            pre_synapse_size,
             "${working_dir}/pre_synapse_seg.h5",
             "${working_dir}/pre_synapse_seg_n1.h5",
             "${working_dir}/post_synapse_seg.h5",
