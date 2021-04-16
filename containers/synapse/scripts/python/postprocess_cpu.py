@@ -219,16 +219,16 @@ def main(argv):
     start = time.time()
     print('#############################')
     out_img_name = os.path.splitext(os.path.split(output_hdf5_file)[1])[0]
-    print('Processing image for watershed:', out_img_name)
-
-    img_data = np.moveaxis(img, (0, 2), (2, 0))
+    print('Processing image for watershed:', img.shape, out_img_name)
     watershed.initialize_runtime(['-nojvm', '-nodisplay'])
     ws = watershed.initialize()
-    matlab_img_data = as_matlab(img_data)
-    matlab_segmented_img_data = ws.close_and_watershed_transform(
-        matlab_img_data)
-    segmented_img_data = np.array(matlab_segmented_img_data._data).reshape(
-        matlab_segmented_img_data.size, order='F')
+    matlab_img = as_matlab(img)
+    matlab_segmented_img = ws.close_and_watershed_transform(
+        matlab_img)
+    print('Completed watershed segmentation ', matlab_segmented_img.size)
+    segmented_img_data = np.array(matlab_segmented_img._data).reshape(
+        matlab_segmented_img.size, order='F')
+    print('Segmented image shape: ', segmented_img_data.shape)
     ws.quit()
 
     remove_small_piece(out_hdf5_file=output_hdf5_file,

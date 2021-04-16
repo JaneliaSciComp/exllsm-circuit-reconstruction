@@ -49,13 +49,12 @@ def hdf5_read(file_name, location):
             print('Read ', file_name, ' subvolume ', location)
             with h5py.File(file_name, 'r') as f:
                 im = f['volume'][location[2]:location[5], location[0]:location[3], location[1]:location[4]]
+                print('Image ', file_name, ' shape: ', im.shape)
             read_img = False
         except OSError:  # If other process is accessing the image, wait 5 seconds to try again
             time.sleep(random()*5)
-    im_array = np.zeros((im.shape[1], im.shape[2], im.shape[0]),
-                        dtype=im.dtype)
-    for i in range(im.shape[0]):
-        im_array[:, :, i] = im[i]
+    im_array = np.moveaxis(im, 0, -1)
+    print('Image ', file_name, ' shape after axis changed: ', im_array.shape)
     return im_array
 
 
