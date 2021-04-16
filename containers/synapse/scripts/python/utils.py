@@ -46,16 +46,20 @@ def hdf5_read(file_name, location):
     print('Read ', file_name, ' subvolume ', location)
     read_img = True
     retry = 0
-    with h5py.File(file_name, 'r') as f:
-        while read_img:
-            try:
+    while read_img and retry >= 0:
+        retry = retry + 1
+        try:
+            with h5py.File(file_name, 'r') as f:
                 im = f['volume'][location[2]:location[5], location[0]:location[3], location[1]:location[4]]
                 print('Image ', file_name, ' shape: ', im.shape)
                 read_img = False
-            except OSError:  # If other process is accessing the image, wait 5 seconds to try again
-                time.sleep(random.randint(1, 10 * (retry / 1000 + 1)))
-                if retry % 1000 == 0:
-                    print('Tried to read ', file_name, ' at ', location, retry, ' times')
+        except OSError:  # If other process is accessing the image, wait 5 seconds to try again
+            time.sleep(random.randint(1, 10 * (retry / 1000 + 1)))
+            if retry % 1000 == 0:
+                print('Tried to read ', file_name, ' at ', location, retry, ' times')
+    if read_img:
+        print('Error reading ', file_name, ' subvolume ', location)
+        raise ValueError
     im_array = np.moveaxis(im, 0, -1)
     print('Image ', file_name, ' shape after axis changed: ', im_array.shape)
     return im_array
@@ -77,14 +81,17 @@ def hdf5_write(im_array, file_name, location):
     print('Write ', file_name, ' subvolume ', location)
     write_img = True
     retry = 0
-    with h5py.File(file_name, 'r+') as f:
-        while write_img:
-            retry = retry + 1
-            try:
+    while write_img and retry >= 0:
+        retry = retry + 1
+        try:
+            with h5py.File(file_name, 'r+') as f:
                 f['volume'][location[2]:location[5], location[0]:location[3], location[1]:location[4]] = im
                 write_img = False
-            except OSError:  # If other process is accessing the image, wait 5 seconds to try again
-                time.sleep(random.randint(1, 10 * (retry / 1000 + 1)))
-                if retry % 1000 == 0:
-                    print('Tried to write ', file_name, ' at ', location, retry, ' times')
+        except OSError:  # If other process is accessing the image, wait 5 seconds to try again
+            time.sleep(random.randint(1, 10 * (retry / 1000 + 1)))
+            if retry % 1000 == 0:
+                print('Tried to write ', file_name, ' at ', location, retry, ' times')
+    if write_img:
+        print('Error writing ', file_name, ' subvolume ', location)
+        raise ValueError
     return None
