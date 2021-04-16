@@ -51,10 +51,16 @@ def hdf5_read(file_name, location):
         try:
             with h5py.File(file_name, 'r') as f:
                 im = f['volume'][location[2]:location[5], location[0]:location[3], location[1]:location[4]]
-                print('Image ', file_name, ' shape: ', im.shape)
-                read_img = False
+            print('Image ', file_name, ' shape: ', im.shape)
+            read_img = False
         except OSError:  # If other process is accessing the image, wait 5 seconds to try again
-            time.sleep(random.randint(1, 10 * (retry / 1000 + 1)))
+            if retry < 1000:
+                max_sleep = 10
+            elif retry < 10000:
+                max_sleep = 20
+            else:
+                max_sleep = 30
+            time.sleep(random.randint(1, max_sleep))
             if retry % 1000 == 0:
                 print('Tried to read ', file_name, ' at ', location, retry, ' times')
     if read_img:
@@ -86,9 +92,15 @@ def hdf5_write(im_array, file_name, location):
         try:
             with h5py.File(file_name, 'r+') as f:
                 f['volume'][location[2]:location[5], location[0]:location[3], location[1]:location[4]] = im
-                write_img = False
+            write_img = False
         except OSError:  # If other process is accessing the image, wait 5 seconds to try again
-            time.sleep(random.randint(1, 10 * (retry / 1000 + 1)))
+            if retry < 1000:
+                max_sleep = 10
+            elif retry < 10000:
+                max_sleep = 20
+            else:
+                max_sleep = 30
+            time.sleep(random.randint(1, max_sleep))
             if retry % 1000 == 0:
                 print('Tried to write ', file_name, ' at ', location, retry, ' times')
     if write_img:
