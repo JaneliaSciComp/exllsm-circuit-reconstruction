@@ -89,9 +89,9 @@ def remove_small_piece(out_hdf5_file, img, location, mask=None, threshold=10, pe
     out_path = os.path.dirname(out_hdf5_file)
     out_img_name = os.path.splitext(os.path.split(out_hdf5_file)[1])[0]
     csv_name = out_img_name +\
-        '_stats_r'+str(location[0])+'_'+str(location[3]) +\
-        '_c'+str(location[1])+'_'+str(location[4]) +\
-        '_v'+str(location[2])+'_'+str(location[5]-1) +\
+        '_stats_x'+str(location[0])+'_'+str(location[3]) +\
+        '_y'+str(location[1])+'_'+str(location[4]) +\
+        '_z'+str(location[2])+'_'+str(location[5]-1) +\
         '.csv'
     csv_filepath = out_path+'/'+csv_name
     print('CSV results file: ', csv_filepath)
