@@ -48,7 +48,7 @@ def hdf5_read(file_name, location):
     print('Read ', file_name, ' subvolume ', location)
     read_img = True
     retry = 0
-    while read_img and retry >= 0:
+    while read_img and retry < 10:
         retry = retry + 1
         try:
             lock = FileLock(file_name + '.lock')
@@ -68,9 +68,9 @@ def hdf5_read(file_name, location):
                 max_sleep = 120
             time.sleep(random.randint(max_sleep-10, max_sleep))
             if retry % 100 == 0:
-                print('Tried to read ', file_name, ' at ', location, retry, ' times')
+                print('Tried to read ', file_name, ' at ', location, retry, ' times', file=sys.stderr)
     if read_img:
-        print('Error reading ', file_name, ' subvolume ', location)
+        print('Error reading ', file_name, ' subvolume ', location, file=sys.stderr)
         raise ValueError
     im_array = np.moveaxis(im, 0, -1)
     print('Image ', file_name, ' shape after axis changed: ', im_array.shape)
@@ -93,11 +93,11 @@ def hdf5_write(im_array, file_name, location):
     print('Write ', file_name, ' subvolume ', location)
     write_img = True
     retry = 0
-    while write_img and retry >= 0:
+    while write_img and retry < 10:
         retry = retry + 1
         try:
             lock = FileLock(file_name + '.lock')
-            with lock:
+            with lock.acquire(timeout=120):
                 with h5py.File(file_name, 'r+') as f:
                     f['volume'][location[2]:location[5], location[0]:location[3], location[1]:location[4]] = im
                 write_img = False
@@ -112,8 +112,10 @@ def hdf5_write(im_array, file_name, location):
                 max_sleep = 120
             time.sleep(random.randint(max_sleep-10, max_sleep))
             if retry % 100 == 0:
-                print('Tried to write ', file_name, ' at ', location, retry, ' times')
+                print('Tried to write ', file_name, ' at ', location, retry, ' times', file=sys.stderr)
+        except Timeout:
+            print('Lock timeout ', file_name, ' retry ', retry, file=sys.stderr)
     if write_img:
-        print('Error writing ', file_name, ' subvolume ', location)
+        print('Error writing ', file_name, ' subvolume ', location, file=sys.stderr)
         raise ValueError
     return None
