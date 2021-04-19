@@ -1,4 +1,4 @@
-function im_info = read_tif(img_file)
+function img = read_tif(img_file)
     % Read tif image
     im_info = imfinfo(img_file);
     rows = im_info(1).Height;

@@ -5,6 +5,8 @@ import time
 import os
 import random
 
+from filelock import FileLock
+
 
 def tif_read(file_name):
     """
@@ -49,19 +51,23 @@ def hdf5_read(file_name, location):
     while read_img and retry >= 0:
         retry = retry + 1
         try:
-            with h5py.File(file_name, 'r') as f:
-                im = f['volume'][location[2]:location[5], location[0]:location[3], location[1]:location[4]]
-            print('Image ', file_name, ' shape: ', im.shape)
-            read_img = False
+            lock = FileLock(file_name + '.lock')
+            with lock:
+                with h5py.File(file_name, 'r') as f:
+                    im = f['volume'][location[2]:location[5], location[0]:location[3], location[1]:location[4]]
+                print('Image ', file_name, ' shape: ', im.shape)
+                read_img = False
         except OSError:  # If other process is accessing the image, wait 5 seconds to try again
-            if retry < 1000:
+            if retry < 500:
                 max_sleep = 10
-            elif retry < 10000:
-                max_sleep = 20
-            else:
+            elif retry < 1000:
                 max_sleep = 30
-            time.sleep(random.randint(1, max_sleep))
-            if retry % 1000 == 0:
+            elif retry < 10000:
+                max_sleep = 60
+            else:
+                max_sleep = 120
+            time.sleep(random.randint(max_sleep-10, max_sleep))
+            if retry % 100 == 0:
                 print('Tried to read ', file_name, ' at ', location, retry, ' times')
     if read_img:
         print('Error reading ', file_name, ' subvolume ', location)
@@ -90,18 +96,22 @@ def hdf5_write(im_array, file_name, location):
     while write_img and retry >= 0:
         retry = retry + 1
         try:
-            with h5py.File(file_name, 'r+') as f:
-                f['volume'][location[2]:location[5], location[0]:location[3], location[1]:location[4]] = im
-            write_img = False
+            lock = FileLock(file_name + '.lock')
+            with lock:
+                with h5py.File(file_name, 'r+') as f:
+                    f['volume'][location[2]:location[5], location[0]:location[3], location[1]:location[4]] = im
+                write_img = False
         except OSError:  # If other process is accessing the image, wait 5 seconds to try again
-            if retry < 1000:
+            if retry < 500:
                 max_sleep = 10
-            elif retry < 10000:
-                max_sleep = 20
-            else:
+            elif retry < 1000:
                 max_sleep = 30
-            time.sleep(random.randint(1, max_sleep))
-            if retry % 1000 == 0:
+            elif retry < 10000:
+                max_sleep = 60
+            else:
+                max_sleep = 120
+            time.sleep(random.randint(max_sleep-10, max_sleep))
+            if retry % 100 == 0:
                 print('Tried to write ', file_name, ' at ', location, retry, ' times')
     if write_img:
         print('Error writing ', file_name, ' subvolume ', location)

@@ -1,6 +1,7 @@
 function write_tif(data, name)
     % Write data into tif image
     slices = size(data, 3);
+    disp(['Write image info ', name, ' (', string(slices), ' slices) ', string(size(data))])
     for slice = 1:slices
         if slice == 1
             imwrite(data(:,:,slice), name);
