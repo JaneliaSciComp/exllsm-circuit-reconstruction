@@ -4,6 +4,7 @@ import skimage.io
 import time
 import os
 import random
+import sys
 
 from filelock import FileLock
 
