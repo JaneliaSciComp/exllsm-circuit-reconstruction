@@ -95,7 +95,7 @@ def hdf5_write(im_array, file_name, location):
     print('Write ', file_name, ' subvolume ', location)
     write_img = True
     retry = 0
-    while write_img and retry < 10:
+    while write_img and retry < 100:
         retry = retry + 1
         try:
             lock = FileLock(file_name + '.lock')
