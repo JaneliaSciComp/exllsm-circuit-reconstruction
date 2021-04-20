@@ -60,6 +60,27 @@ workflow {
             }
             | presynaptic_n1_to_n2
             break;
+        case 'presynaptic_n1_to_n2_and_n2_to_n1':
+            synapses_res = stitched_data
+            | flatMap {
+                def (_, dataset_stitched_dir, dataset_output_dir) = it
+                [
+                    [
+                        default_presynapse_ch_dir(final_params, dataset_stitched_dir), // synapse_ch
+                        default_n1_ch_dir(final_params, dataset_stitched_dir), // n1_mask
+                        default_n2_ch_dir(final_params, dataset_stitched_dir), // n2_mask
+                        "${dataset_output_dir}/presynaptic_n1_to_n2", // output_dir
+                    ],
+                    [
+                        default_presynapse_ch_dir(final_params, dataset_stitched_dir), // synapse_ch
+                        default_n2_ch_dir(final_params, dataset_stitched_dir), // n2_mask
+                        default_n1_ch_dir(final_params, dataset_stitched_dir), // n1_mask
+                        "${dataset_output_dir}/presynaptic_n2_to_n1", // output_dir
+                    ],
+                ]
+            }
+            | presynaptic_n1_to_n2
+            break;
         case 'presynaptic_n1_to_postsynaptic_n2':
             synapses_res = stitched_data
             | map {
