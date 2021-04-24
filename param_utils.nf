@@ -11,7 +11,11 @@ def default_em_params() {
         stitching_output: 'stitching',
 
         // stitching params
-        stitching_app: 'external-modules/stitching-spark/target/stitching-spark-1.8.2-SNAPSHOT.jar',
+        spark_container_repo: 'registry.int.janelia.org/exm-analysis',
+        spark_container_name: 'stitching',
+        spark_container_version: '1.8.1',
+        spark_local_dir: "/tmp",
+        stitching_app: '/app/app.jar',
         driver_stack: '128m',
         stitching_output: 'stitching',
         resolution: '0.104,0.104,0.18',
