@@ -113,5 +113,4 @@ RUN cd /tmp-install/commpiled-watershed && \
 
 COPY scripts/python /scripts
 COPY scripts/*.sh /scripts
-
 RUN chmod 555 /scripts/*.sh

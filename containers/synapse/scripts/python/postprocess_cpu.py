@@ -1,68 +1,81 @@
+#!/usr/bin/env python
+
 import sys
-import getopt
-import numpy as np
-import watershed
+import argparse
 import csv
 import os
 import time
+import watershed
+import numpy as np
+
+
 
 from skimage.measure import label, regionprops
-from utils import hdf5_read, hdf5_write, tif_write, tif_read
+import skimage.io
+from n5_utils import read_n5_block, write_n5_block
 
 
-def remove_small_piece(out_hdf5_file, img, location, mask=None, threshold=10, percentage=1.0):
+def tif_read(file_name):
+    """
+    read tif image in (rows,cols,slices) shape
+    """
+    im = skimage.io.imread(file_name)
+    im_array = np.zeros((im.shape[1],im.shape[2],im.shape[0]), dtype=np.uint16)
+    for i in range(im.shape[0]):
+        im_array[:,:,i] = im[i]
+    return im_array
+
+
+def tif_write(im_array, file_name):
+    """
+    write an array with (rows,cols,slices) shape into a tif image
+    """
+    im = np.zeros((im_array.shape[2],im_array.shape[0],im_array.shape[1]), dtype=im_array.dtype)
+    for i in range(im_array.shape[2]):
+        im[i] = im_array[:,:,i]
+    skimage.io.imsave(file_name,im)
+    return None
+
+
+def remove_small_piece(out_path, img, start, end, mask=None, threshold=10, percentage=1.0):
     """
     remove blobs that have less than N voxels
     write final result to output hdf5 file, output a .csv file indicating the location and size of each synapses
     Args:
-    out_hdf5_file: output hdf5 file
-    img: image to process
+    out_path: location to write CSV files
+    img: image to operate on
     mask: mask image
     location: a tuple of (min_row, min_col, min_vol, max_row, max_col, max_vol) indicating img location on the hdf5 file
     threshold: threshold to remove small blobs (default=10)
     percentage: threshold to remove the object if it falls in the mask less than a percentage. If percentage is 1, criteria will be whether the centroid falls within the mask
     """
 
-    print('Removing small blobs from source image of size ', img.shape,
-          ' and save results to ', out_hdf5_file, ' at location ', location)
+    print("Removing small blobs and save results to disk...")
     img[img != 0] = 1
     label_img = label(img, connectivity=3)
     regionprop_img = regionprops(label_img)
     idx = 0
 
-    out_path = os.path.dirname(out_hdf5_file)
-    out_img_name = os.path.splitext(os.path.split(out_hdf5_file)[1])[0]
-
-    csv_name = out_img_name +\
-        '_stats_x'+str(location[0])+'_'+str(location[3]) +\
-        '_y'+str(location[1])+'_'+str(location[4]) +\
-        '_z'+str(location[2])+'_'+str(location[5]-1) +\
+    csv_filepath = out_path + '/' + 'stats' + \
+        '_x' + str(start[0]) + '_' + str(end[0]) + \
+        '_y' + str(start[1]) + '_' + str(end[1]) + \
+        '_z' + str(start[2]) + '_' + str(end[2]) + \
         '.csv'
-    csv_filepath = out_path+'/'+csv_name
-    print('Write header to CSV results file: ', csv_filepath)
-    with open(csv_filepath, 'w') as csv_file:
-        writer = csv.writer(csv_file,
-                            delimiter=',',
-                            quotechar='"',
-                            quoting=csv.QUOTE_MINIMAL)
-        writer.writerow([' ID ',
-                         ' Num vxl ',
-                         ' centroid ',
-                         ' bbox row ',
-                         ' bbox col ',
-                         ' bbox vol '])
-
     for props in regionprop_img:
         num_voxel = props.area
+        print("num voxels: ", num_voxel)
         curr_obj = np.zeros(img.shape, dtype=img.dtype)
         curr_obj[label_img == props.label] = 1
         center_row, center_col, center_vol = props.centroid
 
+        print("  Non zero: ", np.count_nonzero(curr_obj))
+        
         if mask is not None:
             assert mask.shape == img.shape, "Mask and image shapes do not match!"
         else:
             mask = np.ones(img.shape, dtype=img.dtype)
         curr_obj = curr_obj * mask
+        print("  Non zero after masking: ", np.count_nonzero(curr_obj))
 
         exclude = False
         if num_voxel < threshold:
@@ -75,123 +88,127 @@ def remove_small_piece(out_hdf5_file, img, location, mask=None, threshold=10, pe
                 exclude = True
 
         if exclude:
+            print("  Excluding label", props.centroid)
             img[label_img == props.label] = 0
         else:
+            print("  Including label ", props.centroid)
+            if idx == 0:
+                with open(csv_filepath, 'w') as csv_file:
+                    print("Writing to", csv_filepath)
+                    writer = csv.writer(csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+                    writer.writerow([' ID ', ' Num vxl ', ' centroid ', ' bbox row ', ' bbox col ', ' bbox vol '])
+
             idx += 1
             min_row, min_col, min_vol, max_row, max_col, max_vol = props.bbox
-            bbox_row = (int(min_row+location[0]), int(max_row+location[0]))
-            bbox_col = (int(min_col+location[1]), int(max_col+location[1]))
-            bbox_vol = (int(min_vol+location[2]), int(max_vol+location[2]))
-
-            center = (int(center_row+location[0]),
-                      int(center_col+location[1]),
-                      int(center_vol+location[2]))
-
-            csv_row = [str(idx), str(num_voxel), str(center),
+            bbox_row = (int(min_row+start[0]), int(max_row+start[0]))
+            bbox_col = (int(min_col+start[1]), int(max_col+start[1]))
+            bbox_vol = (int(min_vol+start[2]), int(max_vol+start[2]))
+            
+            center = (int(center_row+start[0]), 
+                      int(center_col+start[1]), 
+                      int(center_vol+start[2]))
+            
+            csv_row = [str(idx), str(num_voxel), str(center), 
                        str(bbox_row), str(bbox_col), str(bbox_vol)]
             with open(csv_filepath, 'a') as csv_file:
-                writer = csv.writer(csv_file, delimiter=',',
+                writer = csv.writer(csv_file, delimiter=',', 
                                     quotechar='"', quoting=csv.QUOTE_MINIMAL)
-                writer.writerow(csv_row)
-
+                writer.writerow(csv_row) 
+        
     img[img != 0] = 255
-    print('Write post processed image to ',out_hdf5_file,
-          ' at location ', location)
-    hdf5_write(img, out_hdf5_file, location)
-    return None
+    print("Non-zero pixels:", np.count_nonzero(img))
+    return img
 
 
-def main(argv):
-    """
-    Main function
-    """
-    hdf5_file = None
-    mask_file = None
-    output_hdf5_file = None
-    location = []
-    threshold = 400
-    percentage = 1.0
-    try:
-        options, remainder = getopt.getopt(argv, "i:l:m:o:t:p:", [
-                                           "input_file=", "location=", "mask_file=",
-                                           "output_file="
-                                           "threshold=", "percentage="])
-    except:
-        print("ERROR:", sys.exc_info()[0])
-        print("Usage: postprocess_cpu.py -i <input_hdf5_file> " +
-              "-l <location> -m <mask_file> -o <output_file> " +
-              "-t <threshold> -p <percentage>")
-        sys.exit(1)
+def main():
 
-    # Get input arguments
-    for opt, arg in options:
-        if opt in ('-i', '--input_file'):
-            hdf5_file = arg
-        elif opt in ('-m', '--mask_file'):
-            mask_file = arg
-        elif opt in ('-o', '--output_file'):
-            output_hdf5_file = arg
-        elif opt in ('-l', '--location'):
-            location = tuple(map(int, arg.split(',')))
-        elif opt in ('-t', '--threshold'):
-            threshold = int(arg)
-        elif opt in ('-p', '--percentage'):
-            percentage = float(arg)
+    parser = argparse.ArgumentParser(description='Apply U-NET')
 
-    # Read part of the hdf5 image file based upon location
-    if len(location):
-        img = hdf5_read(hdf5_file, location)
-        img_path = os.path.dirname(hdf5_file)
-    else:
-        print("ERROR: location need to be provided!")
-        sys.exit(1)
+    parser.add_argument('-i', '--input', dest='input_path', type=str, required=True, \
+        help='Path to the input n5')
 
-    # Read part of the hdf5 mask image based upon location
-    if mask_file is not None:
-        mask = hdf5_read(mask_file, location)
-        # if the mask has all 0s, write out the result directly
-        if np.count_nonzero(mask) == 0:
-            hdf5_write(mask, hdf5_file, location)
+    parser.add_argument('--data_set', dest='data_set', type=str, default="/s0", \
+        help='Path to data set (default "/s0")')
+
+    parser.add_argument('-o', '--output', dest='output_path', type=str, required=True, \
+        help='Path to the (already existing) output n5')
+
+    parser.add_argument('--start', dest='start_coord', type=str, required=True, metavar='x1,y1,z1', \
+        help='Starting coordinate (x,y,z) of block to process')
+
+    parser.add_argument('--end', dest='end_coord', type=str, required=True, metavar='x2,y2,z2', \
+        help='Ending coordinate (x,y,z) of block to process')
+
+    parser.add_argument('-m', '--mask', dest='mask_path', type=str, required=True, \
+        help='Path to the U-Net model n5')
+
+    parser.add_argument('--mask_data_set', dest='mask_data_set', type=str, default="/s0", \
+        help='Path to mask data set (default "/s0")')
+
+    parser.add_argument('-t', '--threshold', dest='threshold', type=int, default=400, \
+        help='Threshold to remove small blobs (default 400)')
+
+    parser.add_argument('-p', '--percentage', dest='percentage', type=float, default=1.0, \
+        help='threshold to remove the object if it falls in the mask less than a percentage. If percentage is 1, criteria will be whether the centroid falls within the mask.')
+
+    args = parser.parse_args()
+    start = tuple([int(d) for d in args.start_coord.split(',')])
+    end = tuple([int(d) for d in args.end_coord.split(',')])
+    out_path = os.path.dirname(args.output_path)
+
+    # Read part of the mask image based upon location
+    if args.mask_path is not None:
+        mask = read_n5_block(args.mask_path, args.mask_data_set, start, end)
+        if np.count_nonzero(mask) == 0:  # if the mask has all 0s, write out the result directly
+            write_n5_block(args.output_path, args.data_set, args.start, args.stop, mask)
             print("DONE! Location of the mask has all 0s.")
             sys.exit(0)
     else:
         mask = None
 
-    if output_hdf5_file is None:
-        output_hdf5_file = hdf5_file
+    # Read part of the n5 image file based upon location
+    img = read_n5_block(args.input_path, args.data_set, start, end)
 
-    start = time.time()
+    start_time = time.time()
     print('#############################')
-    out_img_name = os.path.splitext(os.path.split(output_hdf5_file)[1])[0]
-    out_img_path = img_path + '/' + out_img_name + \
-        '_x' + str(location[0]) + '_' + str(location[3]) + '_' + \
-        '_y' + str(location[1]) + '_' + str(location[4]) + '_' + \
-        '_z' + str(location[2]) + '_' + str(location[5]) + '_' + \
-        '.tif'
+    out_img_name = 'closed'
+    out_img_path = out_path + '/' + out_img_name + \
+            '_x' + str(start[0]) + '_' + str(end[0]) + \
+            '_y' + str(start[1]) + '_' + str(end[1]) + \
+            '_z' + str(start[2]) + '_' + str(end[2]) + \
+            '.tif'
+
     print('Writing tiff image for watershed:', out_img_path)
     tif_write(img, out_img_path)
+
+    print("Applying closing/watershed algorithms in MATLAB")
     watershed.initialize_runtime(['-nojvm', '-nodisplay'])
     ws = watershed.initialize()
     ws.closing_watershed(out_img_path)
-    elapsed_time = time.time() - start
-    print('Completed watershed segmentation for ', out_img_path, f" elapsed time: {elapsed_time:0.4f} seconds")
+    elapsed_time = time.time() - start_time
+    print(f"Completed watershed segmentation in {elapsed_time:0.4f} seconds")
     ws.quit()
+
     segmented_img_data = tif_read(out_img_path)
     print('Segmented image shape: ', segmented_img_data.shape)
 
-    remove_small_piece(out_hdf5_file=output_hdf5_file,
-                       img=segmented_img_data,
-                       location=location,
-                       mask=mask,
-                       threshold=threshold,
-                       percentage=percentage)
+    print("Removing small pieces (and writing CSV outputs)")
+    img = remove_small_piece(out_path,
+                             segmented_img_data,
+                             start,
+                             end,
+                             mask=mask,
+                             threshold=args.threshold,
+                             percentage=args.percentage)
+
+    write_n5_block(args.output_path, args.data_set, start, end, img)
 
     if os.path.exists(out_img_path):
         os.remove(out_img_path)
-
-    end = time.time()
-    print("DONE! Running time is {} seconds".format(end-start))
-
+    
+    elapsed_time = time.time() - start_time
+    print(f"DONE! Total running time was {elapsed_time:0.4f} seconds")
+    
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    main()
