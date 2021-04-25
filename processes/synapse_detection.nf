@@ -1,5 +1,5 @@
-process duplicate_h5_volume {
-    container { params.exm_synapse_container }
+process duplicate_n5_volume {
+    container { params.exm_synapse_dask_container }
 
     input:
     val(input_tuple) // [ input_image, image_size, output_image, ... ]
@@ -13,71 +13,69 @@ process duplicate_h5_volume {
     def (input_image, image_size, output_image) = input_tuple
     """
     mkdir -p ${file(output_image).parent}
-    python /scripts/create_h5.py \
-        -f ${output_image} \
-        -s ${image_size.depth},${image_size.width},${image_size.height}
+    /entrypoint.sh create_n5 -o ${output_image} -t ${input_image}
     """
 }
 
-process extract_tiff_stack_metadata {
-    container { params.exm_synapse_container }
+import groovy.json.JsonSlurper
 
-    input:
-    val(tiff_stack_dir)
-
-    output:
-    tuple val(tiff_stack_dir), env(width), env(height), env(depth)
-
-    script:
-    if (tiff_stack_dir) {
-        """
-        a_tiff_img=`ls ${tiff_stack_dir}/*.tif | head -n 1`
-        echo "TIFF image selected from ${tiff_stack_dir} for extracting metadata: \${a_tiff_img}"
-        height=`gm identify \${a_tiff_img} | cut -d ' ' -f 3 | cut -d '+' -f 1 | cut -d 'x' -f 1`
-        width=`gm identify \${a_tiff_img} | cut -d ' ' -f 3 | cut -d '+' -f 1 | cut -d 'x' -f 2`
-        depth=`ls ${tiff_stack_dir}/*.tif | wc -l`
-        echo "Volume dimensions: \${width} x \${height} x \${depth}"
-        """
-    } else {
-        """
-        width=0
-        height=0
-        depth=0
-        """
+def readJson(n5Path) {
+    def jsonSlurper = new JsonSlurper()
+    def attributes
+    def attributesFile = new File("${n5Path}/s0/attributes.json")
+    if (attributesFile.exists()) {
+        String attributesJSON = attributesFile.text
+        return jsonSlurper.parseText(attributesJSON)
     }
+    return null
 }
 
-process tiff_to_hdf5 {
+process read_n5_metadata {
     container { params.exm_synapse_container }
-    cpus { params.tiff2h5_cpus }
+    executor 'local'
 
     input:
-    tuple val(input_tiff_stack_dir), val(output_h5_file)
+    tuple val(tiff_stack_dir), val(n5_file)
 
     output:
-    tuple val(input_tiff_stack_dir), val(output_h5_file)
+    tuple val(tiff_stack_dir), val(dimensions)
+
+    exec:
+    dimensions = readJson(n5_file).dimensions
+}
+
+process tiff_to_n5 {
+    container { params.exm_synapse_dask_container }
+    cpus { params.tiff2n5_cpus }
+
+    input:
+    tuple val(input_tiff_stack_dir), val(output_n5_file)
+
+    output:
+    tuple val(input_tiff_stack_dir), val(output_n5_file)
 
     script:
+    def chunk_size = params.volume_partition_size
     """
-    mkdir -p ${file(output_h5_file).parent}
-    python /scripts/tif_to_h5.py '-i' ${input_tiff_stack_dir} '-o' ${output_h5_file}
+    mkdir -p ${file(output_n5_file).parent}
+    /entrypoint.sh tif_to_n5 -i ${input_tiff_stack_dir} -o ${output_n5_file} -c ${chunk_size},${chunk_size},${chunk_size}
     """
 }
 
-process hdf5_to_tiff {
-    container { params.exm_synapse_container }
-    cpus { params.h52tiff_cpus }
+process n5_to_tiff {
+    container { params.exm_synapse_dask_container }
+    cpus { params.n52tiff_cpus }
 
     input:
-    tuple val(input_h5_file), val(output_dir)
+    tuple val(input_n5_file), val(output_dir)
 
     output:
-    tuple val(input_h5_file), val(output_dir)
+    tuple val(input_n5_file), val(output_dir)
 
     script:
     """
     mkdir -p ${output_dir}
-    python /scripts/h5_to_tif.py -i ${input_h5_file} -o ${output_dir}
+    /entrypoint.sh n5_to_tif.py -i ${input_n5_file} -o ${output_dir}
     """
 }
 
@@ -100,7 +98,8 @@ process unet_classifier {
     python /scripts/unet_gpu.py \
         -i ${input_image} \
         -m ${synapse_model} \
-        -l ${start_subvolume},${end_subvolume} \
+        --start ${start_subvolume} \
+        --end ${end_subvolume} \
         -o ${output_image}
     """
 }
@@ -124,7 +123,8 @@ process segmentation_postprocessing {
     /scripts/postprocess_cpu.sh \
         -i ${input_image} \
         -o ${output_image} \
-        -l ${start_subvolume},${end_subvolume} \
+        --start ${start_subvolume} \
+        --end ${end_subvolume} \
         -p ${percentage} \
         -t ${threshold} \
         ${mask_arg}

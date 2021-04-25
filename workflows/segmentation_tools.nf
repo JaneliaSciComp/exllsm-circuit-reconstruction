@@ -1,6 +1,6 @@
 
 include {
-    duplicate_h5_volume;
+    duplicate_n5_volume;
     unet_classifier;
     segmentation_postprocessing;
 } from '../processes/synapse_detection'
@@ -13,7 +13,7 @@ workflow classify_regions_in_volume {
     unet_model
 
     main:
-    def unet_inputs = duplicate_h5_volume(input_data)
+    def unet_inputs = duplicate_n5_volume(input_data)
     | flatMap {
         def (in_image, image_size, out_image) = it
         partition_volume(image_size).collect {
@@ -46,12 +46,12 @@ workflow connect_regions_in_volume {
     def mask_data = input_data
     | map {
         // re-arrange the parameters so that the first 3 elements
-        // are the ones expected by duplicate_h5_volume, i.e.
+        // are the ones expected by duplicate_n5_volume, i.e.
         // [input_image, size, output_image]
         def (in_image, mask, size, out_image) = it
         [ in_image, size, out_image, mask ]
     }
-    | duplicate_h5_volume
+    | duplicate_n5_volume
 
     def post_processing_inputs = mask_data
     | flatMap {
@@ -130,9 +130,9 @@ workflow classify_and_connect_regions_in_volume {
 
 def partition_volume(volume) {
     partition_size = params.volume_partition_size
-    def width = volume.width
-    def height = volume.height
-    def depth = volume.depth
+    def width = volume[0]
+    def height = volume[1]
+    def depth = volume[2]
     def ncols = ((width % partition_size) > 0 ? (width / partition_size + 1) : (width / partition_size)) as int
     def nrows =  ((height % partition_size) > 0 ? (height / partition_size + 1) : (height / partition_size)) as int
     def nslices = ((depth % partition_size) > 0 ? (depth / partition_size + 1) : (depth / partition_size)) as int

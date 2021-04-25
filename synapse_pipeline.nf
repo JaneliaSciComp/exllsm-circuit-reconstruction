@@ -12,6 +12,7 @@ include {
     get_list_or_default;
     get_stitched_data_dir;
     exm_synapse_container_param;
+    exm_synapse_dask_container_param;
 } from './param_utils'
 
 // app parameters
@@ -23,6 +24,7 @@ include {
 
 synapse_params = final_params + [
     exm_synapse_container: exm_synapse_container_param(final_params),
+    exm_synapse_dask_container: exm_synapse_dask_container_param(final_params),
 ]
 include {
     presynaptic_in_volume;
@@ -55,7 +57,7 @@ workflow {
                     default_presynapse_ch_dir(final_params, dataset_stitched_dir), // synapse_ch
                     default_n1_ch_dir(final_params, dataset_stitched_dir), // n1_mask
                     default_n2_ch_dir(final_params, dataset_stitched_dir), // n2_mask
-                    "${dataset_output_dir}/presynaptic_n1_to_n2", // output_dir
+                    "${dataset_output_dir}/presynaptic_n1_to_n2_n5", // output_dir
                 ]
             }
             | presynaptic_n1_to_n2

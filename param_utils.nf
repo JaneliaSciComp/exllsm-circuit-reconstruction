@@ -21,7 +21,7 @@ def default_em_params() {
         resolution: '0.104,0.104,0.18',
         axis: '-y,-x,z',
         channels: '488nm,560nm,642nm',
-        block_size: '128,128,64',
+        block_size: '512,512,512',
         retile_z_size: '64',
         stitching_mode: 'incremental',
         stitching_padding: '0,0,0',
@@ -41,8 +41,8 @@ def default_em_params() {
         n2_channel_subfolder: '',
         post_synapse_channel_subfolder: '',
 
-        tiff2h5_cpus: 3,
-        h52tiff_cpus: 3,
+        tiff2n5_cpus: 3,
+        n52tiff_cpus: 3,
         unet_cpus: 4,
         synapse_model: '/groups/dickson/dicksonlab/lillvis/ExM/Ding-Ackerman/crops-for-training_Oct2018/DING/model_DNN/saved_unet_model_2020/unet_model_synapse2020_6/unet_model_synapse2020_6.whole.h5',
         postprocessing_cpus: 3,
@@ -83,9 +83,17 @@ def deconvolution_container_param(Map ps) {
 def exm_synapse_container_param(Map ps) {
     def exm_synapse_container = ps.exm_synapse_container
     if (!exm_synapse_container)
-        "${ps.exm_repo}/synapse:1.0.0"
+        "${ps.exm_repo}/synapse:1.1.0"
     else
         exm_synapse_container
+}
+
+def exm_synapse_dask_container_param(Map ps) {
+    def exm_synapse_dask_container = ps.exm_synapse_dask_container
+    if (!exm_synapse_dask_container)
+        "${ps.exm_repo}/synapse-dask:1.0.0"
+    else
+        exm_synapse_dask_container
 }
 
 def get_stitched_data_dir(Map ps) {
