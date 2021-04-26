@@ -1,6 +1,6 @@
 
 include {
-    duplicate_n5_volume;
+    create_n5_volume;
     unet_classifier;
     segmentation_postprocessing;
 } from '../processes/synapse_detection'
@@ -13,7 +13,7 @@ workflow classify_regions_in_volume {
     unet_model
 
     main:
-    def unet_inputs = duplicate_n5_volume(input_data)
+    def unet_inputs = create_n5_volume(input_data)
     | flatMap {
         def (in_image, image_size, out_image) = it
         partition_volume(image_size).collect {
@@ -46,12 +46,12 @@ workflow connect_regions_in_volume {
     def mask_data = input_data
     | map {
         // re-arrange the parameters so that the first 3 elements
-        // are the ones expected by duplicate_n5_volume, i.e.
+        // are the ones expected by create_n5_volume, i.e.
         // [input_image, size, output_image]
         def (in_image, mask, size, out_image) = it
         [ in_image, size, out_image, mask ]
     }
-    | duplicate_n5_volume
+    | create_n5_volume
 
     def post_processing_inputs = mask_data
     | flatMap {

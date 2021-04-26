@@ -9,10 +9,7 @@ workflow tiff_to_n5_with_metadata {
 
     main:
     def n5_results = tiff_to_n5(input_data)
-    def n5_metadata = read_n5_metadata(input_data)
-
-    def stack_with_metadata = n5_results
-    | join(n5_metadata) // [ tiff_stack, n5_file, metadata ]
+    def stack_with_metadata = read_n5_metadata(n5_results)
 
     emit:
     done = stack_with_metadata

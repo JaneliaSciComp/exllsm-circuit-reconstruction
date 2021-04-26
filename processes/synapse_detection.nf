@@ -1,4 +1,4 @@
-process duplicate_n5_volume {
+process create_n5_volume {
     container { params.exm_synapse_dask_container }
 
     input:
@@ -18,30 +18,27 @@ process duplicate_n5_volume {
 }
 
 import groovy.json.JsonSlurper
-
-def readJson(n5Path) {
-    def jsonSlurper = new JsonSlurper()
-    def attributes
-    def attributesFile = new File("${n5Path}/s0/attributes.json")
+def readN5Attributes(n5Path) {
+    def attributesFilepath = "${n5Path}/s0/attributes.json"
+    def attributesFile = new File(attributesFilepath)
     if (attributesFile.exists()) {
-        String attributesJSON = attributesFile.text
-        return jsonSlurper.parseText(attributesJSON)
+        def jsonSlurper = new JsonSlurper()
+        return jsonSlurper.parseText(attributesFile.text)
     }
     return null
 }
 
 process read_n5_metadata {
-    container { params.exm_synapse_container }
     executor 'local'
 
     input:
     tuple val(tiff_stack_dir), val(n5_file)
 
     output:
-    tuple val(tiff_stack_dir), val(dimensions)
+    tuple val(tiff_stack_dir), val(n5_file), val(dimensions)
 
     exec:
-    dimensions = readJson(n5_file).dimensions
+    dimensions = readN5Attributes(n5_file).dimensions
 }
 
 process tiff_to_n5 {
@@ -55,10 +52,10 @@ process tiff_to_n5 {
     tuple val(input_tiff_stack_dir), val(output_n5_file)
 
     script:
-    def chunk_size = params.volume_partition_size
+    def chunk_size = params.block_size
     """
     mkdir -p ${file(output_n5_file).parent}
-    /entrypoint.sh tif_to_n5 -i ${input_tiff_stack_dir} -o ${output_n5_file} -c ${chunk_size},${chunk_size},${chunk_size}
+    /entrypoint.sh tif_to_n5 -i ${input_tiff_stack_dir} -o ${output_n5_file} -c ${chunk_size}
     """
 }
 
