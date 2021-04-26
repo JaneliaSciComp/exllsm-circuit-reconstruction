@@ -37,15 +37,17 @@ def tif_write(im_array, file_name):
     return None
 
 
-def remove_small_piece(out_path, img, start, end, mask=None, threshold=10, percentage=1.0):
+def remove_small_piece(out_path, prefix, img, start, end, mask=None, threshold=10, percentage=1.0):
     """
-    remove blobs that have less than N voxels
-    write final result to output hdf5 file, output a .csv file indicating the location and size of each synapses
+    Remove blobs that have less than N voxels.
+    Write final result to output hdf5 file, output a .csv file indicating the location and size of each synapses.
     Args:
     out_path: location to write CSV files
+    prefix: prefix for CSV filenames
     img: image to operate on
-    mask: mask image
-    location: a tuple of (min_row, min_col, min_vol, max_row, max_col, max_vol) indicating img location on the hdf5 file
+    start: (x,y,z) tuple indicating starting corner
+    end: (x,y,z) tuple indicating ending corner
+    mask: optional mask image
     threshold: threshold to remove small blobs (default=10)
     percentage: threshold to remove the object if it falls in the mask less than a percentage. If percentage is 1, criteria will be whether the centroid falls within the mask
     """
@@ -56,11 +58,12 @@ def remove_small_piece(out_path, img, start, end, mask=None, threshold=10, perce
     regionprop_img = regionprops(label_img)
     idx = 0
 
-    csv_filepath = out_path + '/' + 'stats' + \
+    csv_filepath = out_path + '/' + prefix + '_stats' + \
         '_x' + str(start[0]) + '_' + str(end[0]) + \
         '_y' + str(start[1]) + '_' + str(end[1]) + \
         '_z' + str(start[2]) + '_' + str(end[2]) + \
         '.csv'
+
     for props in regionprop_img:
         num_voxel = props.area
         print("num voxels: ", num_voxel)
@@ -124,14 +127,17 @@ def main():
 
     parser = argparse.ArgumentParser(description='Apply U-NET')
 
-    parser.add_argument('-i', '--input', dest='input_path', type=str, required=True, \
+    parser.add_argument('-i', '--input_path', dest='input_path', type=str, required=True, \
         help='Path to the input n5')
 
     parser.add_argument('--data_set', dest='data_set', type=str, default="/s0", \
         help='Path to data set (default "/s0")')
 
-    parser.add_argument('-o', '--output', dest='output_path', type=str, required=True, \
+    parser.add_argument('-o', '--output_path', dest='output_path', type=str, required=True, \
         help='Path to the (already existing) output n5')
+
+    parser.add_argument('--csv_output_path', dest='csv_output_path', type=str, required=False, \
+        help='Path to an existing folder where CSV output should be written. Defaults to the parent of --output.')
 
     parser.add_argument('--start', dest='start_coord', type=str, required=True, metavar='x1,y1,z1', \
         help='Starting coordinate (x,y,z) of block to process')
@@ -172,7 +178,10 @@ def main():
     start_time = time.time()
     print('#############################')
     out_img_name = 'closed'
-    out_img_path = out_path + '/' + out_img_name + \
+
+    prefix = os.path.splitext(os.path.split(args.output_path)[1])[0]
+
+    out_img_path = out_path + '/' + prefix+ "_" + out_img_name + \
             '_x' + str(start[0]) + '_' + str(end[0]) + \
             '_y' + str(start[1]) + '_' + str(end[1]) + \
             '_z' + str(start[2]) + '_' + str(end[2]) + \
@@ -192,8 +201,11 @@ def main():
     segmented_img_data = tif_read(out_img_path)
     print('Segmented image shape: ', segmented_img_data.shape)
 
+    csv_out_path = args.csv_output_path or out_path
+
     print("Removing small pieces (and writing CSV outputs)")
-    img = remove_small_piece(out_path,
+    img = remove_small_piece(csv_out_path,
+                             prefix,
                              segmented_img_data,
                              start,
                              end,
