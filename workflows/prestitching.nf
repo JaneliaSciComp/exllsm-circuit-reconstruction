@@ -1,5 +1,5 @@
 include {
-    spark_cluster;
+    spark_cluster_start;
     run_spark_app_on_existing_cluster as run_parse_tiles;
     run_spark_app_on_existing_cluster as run_tiff2n5;
     run_spark_app_on_existing_cluster as run_flatfield_correction;
@@ -20,7 +20,6 @@ include {
 workflow prepare_tiles_for_stitching {
     take:
     stitching_app
-    dataset
     input_dir
     stitching_dir
     channels
@@ -41,19 +40,18 @@ workflow prepare_tiles_for_stitching {
     def spark_driver_deploy = ''
     def terminate_app_name = 'terminate-pre-stitching'
 
-    // index inputs so that I can pair dataset name with the corresponding spark URI and/or spark working dir
-    def indexed_dataset = index_channel(dataset)
+    // index inputs so that I can pair inputs with the corresponding spark URI and/or spark working dir
     def indexed_input_dir = index_channel(input_dir)
     def indexed_stitching_dir = index_channel(stitching_dir)
     def indexed_spark_work_dir = index_channel(spark_work_dir)
 
     // start a spark cluster
-    def spark_cluster_res = spark_cluster(
+    def spark_cluster_res = spark_cluster_start(
         spark_conf,
         spark_work_dir,
         spark_workers,
         spark_worker_cores,
-        spark_worker_cores * spark_gbmem_per_core,
+        spark_gbmem_per_core,
         terminate_app_name
     ) // [ spark_uri, spark_work_dir ]
     // print spark cluster result
@@ -67,12 +65,10 @@ workflow prepare_tiles_for_stitching {
             return indexed_uri
         }
 
-    // create a channel of tuples:  [index, spark_uri, dataset, input_dir, stitching_dir, spark_work_dir]
     def indexed_data = indexed_spark_work_dir \
         | join(indexed_spark_uri)
         | join(indexed_input_dir)
-        | join(indexed_stitching_dir)
-        | join(indexed_dataset) // [ idx, work_dir, uri, input_dir, stitching_dir, dataset ]
+        | join(indexed_stitching_dir) // [ idx, work_dir, uri, input_dir, stitching_dir ]
 
     // prepare parse tiles
     def parse_tiles_args = prepare_app_args(
@@ -80,16 +76,16 @@ workflow prepare_tiles_for_stitching {
         "org.janelia.stitching.ParseTilesImageList",
         indexed_data,
         indexed_spark_work_dir, //  here I only want a tuple that has the working dir as the 2nd element
-        { dataset_name, dataset_input_dir, dataset_stitching_dir ->
+        { current_input_dir, current_stitching_dir ->
             def args_list = []
-            args_list << "-i ${dataset_stitching_dir}/ImageList_images.csv"
+            args_list << "-i ${current_stitching_dir}/ImageList_images.csv"
             if (resolution) {
                 args_list << "-r '${resolution}'"
             }
             if (axis_mapping) {
                 args_list << "-a '${axis_mapping}'"
             }
-            args_list << "-b ${dataset_input_dir}"
+            args_list << "-b ${current_input_dir}"
             args_list << "--skipMissingTiles"
             args_list.join(' ')
         }
@@ -119,9 +115,9 @@ workflow prepare_tiles_for_stitching {
         "org.janelia.stitching.ConvertTIFFTilesToN5Spark",
         indexed_data,
         parse_res,
-        { dataset_name, dataset_input_dir, dataset_stitching_dir ->
+        { current_input_dir, current_stitching_dir ->
             def tile_json_inputs = entries_inputs_args(
-                dataset_stitching_dir,
+                current_stitching_dir,
                 channels,
                 '-i',
                 '',
@@ -155,9 +151,9 @@ workflow prepare_tiles_for_stitching {
         "org.janelia.flatfield.FlatfieldCorrection",
         indexed_data,
         tiff2n5_res,
-        { dataset_name, dataset_input_dir, dataset_stitching_dir ->
+        { current_input_dir, current_stitching_dir ->
             def n5_json_input = entries_inputs_args(
-                dataset_stitching_dir,
+                current_stitching_dir,
                 channels,
                 '-i',
                 '-n5',
@@ -191,10 +187,10 @@ workflow prepare_tiles_for_stitching {
         terminate_app_name
     )
     | join(indexed_data, by:1) | map { 
-        // [ work_dir, <ignored from terminate>,  idx, uri, stitching_dir, dataset]
+        // [ work_dir, <ignored from terminate>,  idx, uri, stitching_dir ]
         log.info "Completed pre stitching for ${it}"
-        // dataset_name, input_dir, stitching_dir
-        [ it[6], it[4], it[5] ]
+        // input_dir, stitching_dir
+        [ it[4], it[5] ]
     }
 
     emit:
@@ -209,15 +205,10 @@ def prepare_app_args(app_name,
     return indexed_data
     | join(previous_result_dir, by: 1)
     | map {
-        // [ work_dir, idx, uri, input_dir, stitching_dir, dataset, <ignored elem from prev res> ]
+        // [ work_dir, idx, uri, input_dir, stitching_dir, <ignored elem from prev res> ]
         log.debug "Create ${app_name} inputs from ${it}"
-        def idx = it[1]
-        def spark_work_dir = it[0] // spark work dir is the key
-        def dataset = it[5]
-        def spark_uri = it[2]
-        def input_dir = it[3]
-        def stitching_dir = it[4]
-        def app_args = app_args_closure.call(dataset, input_dir, stitching_dir)
+        def (spark_work_dir, idx, spark_uri, input_dir, stitching_dir) = it
+        def app_args = app_args_closure.call(input_dir, stitching_dir)
         def app_inputs = [
             spark_uri,
             app_main,

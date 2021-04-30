@@ -3,10 +3,8 @@ def default_em_params() {
         scicomp_repo: 'registry.int.janelia.org/janeliascicomp',
         exm_repo: 'registry.int.janelia.org/exm-analysis',
 
-        datasets: '',
         data_dir: '',
         output_dir: '',
-        stitched_data_dir: '',
 
         stitching_output: 'stitching',
 
@@ -72,6 +70,14 @@ def get_list_or_default(Map ps, String param, List default_list) {
         : default_list
 }
 
+def stitching_container_param(Map ps) {
+    def stitching_container = ps.stitching_container
+    if (!stitching_container)
+        "${ps.exm_repo}/stitching:1.8.1"
+    else
+        stitching_container
+}
+
 def deconvolution_container_param(Map ps) {
     def deconvolution_container = ps.deconvolution_container
     if (!deconvolution_container)
@@ -94,14 +100,6 @@ def exm_synapse_dask_container_param(Map ps) {
         "${ps.exm_repo}/synapse-dask:1.0.0"
     else
         exm_synapse_dask_container
-}
-
-def get_stitched_data_dir(Map ps) {
-    if (ps.stitched_data_dir) {
-        ps.stitched_data_dir
-    } else {
-        get_value_or_default(ps, 'output_dir', ps.data_dir)
-    }
 }
 
 def default_presynapse_ch_dir(Map ps, parent_dir) {

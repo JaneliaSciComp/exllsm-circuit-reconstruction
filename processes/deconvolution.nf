@@ -1,14 +1,12 @@
 process prepare_deconv_dir {
     container { params.deconvolution_container }
-    executor "local"
 
     input:
-    val(ds)
     val(data_dir)
     val(deconv_dir)
 
     output:
-    tuple val(ds), val(data_dir), val(deconv_dir)
+    tuple val(data_dir), val(deconv_dir)
 
     script:
     """
@@ -22,7 +20,6 @@ process deconvolution_job {
     cpus { params.deconv_cpus }
 
     input:
-    val(ds)
     val(ch)
     val(tile_file)
     val(data_dir)
@@ -36,8 +33,7 @@ process deconvolution_job {
     val(iterations)
 
     output:
-    tuple val(ds),
-          val(ch),
+    tuple val(ch),
           val(data_dir),
           val(output_dir),
           val(tile_file),
@@ -59,4 +55,12 @@ process deconvolution_job {
     umask 0002
     /app/entrypoint.sh ${app_args}
     """
+}
+
+def get_flatfield_file(input_dir, ch) {
+    ["-flatfield", "-n5-flatfield"]
+        .collect { flatfield_suffix ->
+            file("${input_dir}/${ch}${flatfield_suffix}/attributes.json")
+        }
+        .find { it.exists() }
 }

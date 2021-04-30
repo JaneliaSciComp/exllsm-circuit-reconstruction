@@ -5,9 +5,8 @@ import argparse
 import csv
 import os
 import time
-import watershed
 import numpy as np
-
+import watershed
 
 
 from skimage.measure import label, regionprops
@@ -20,9 +19,10 @@ def tif_read(file_name):
     read tif image in (rows,cols,slices) shape
     """
     im = skimage.io.imread(file_name)
-    im_array = np.zeros((im.shape[1],im.shape[2],im.shape[0]), dtype=np.uint16)
+    im_array = np.zeros(
+        (im.shape[1], im.shape[2], im.shape[0]), dtype=np.uint16)
     for i in range(im.shape[0]):
-        im_array[:,:,i] = im[i]
+        im_array[:, :, i] = im[i]
     return im_array
 
 
@@ -30,10 +30,11 @@ def tif_write(im_array, file_name):
     """
     write an array with (rows,cols,slices) shape into a tif image
     """
-    im = np.zeros((im_array.shape[2],im_array.shape[0],im_array.shape[1]), dtype=im_array.dtype)
+    im = np.zeros((im_array.shape[2], im_array.shape[0],
+                   im_array.shape[1]), dtype=im_array.dtype)
     for i in range(im_array.shape[2]):
-        im[i] = im_array[:,:,i]
-    skimage.io.imsave(file_name,im)
+        im[i] = im_array[:, :, i]
+    skimage.io.imsave(file_name, im)
     return None
 
 
@@ -72,7 +73,7 @@ def remove_small_piece(out_path, prefix, img, start, end, mask=None, threshold=1
         center_row, center_col, center_vol = props.centroid
 
         print("  Non zero: ", np.count_nonzero(curr_obj))
-        
+
         if mask is not None:
             assert mask.shape == img.shape, "Mask and image shapes do not match!"
         else:
@@ -98,26 +99,28 @@ def remove_small_piece(out_path, prefix, img, start, end, mask=None, threshold=1
             if idx == 0:
                 with open(csv_filepath, 'w') as csv_file:
                     print("Writing to", csv_filepath)
-                    writer = csv.writer(csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-                    writer.writerow([' ID ', ' Num vxl ', ' centroid ', ' bbox row ', ' bbox col ', ' bbox vol '])
+                    writer = csv.writer(
+                        csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+                    writer.writerow(
+                        [' ID ', ' Num vxl ', ' centroid ', ' bbox row ', ' bbox col ', ' bbox vol '])
 
             idx += 1
             min_row, min_col, min_vol, max_row, max_col, max_vol = props.bbox
             bbox_row = (int(min_row+start[0]), int(max_row+start[0]))
             bbox_col = (int(min_col+start[1]), int(max_col+start[1]))
             bbox_vol = (int(min_vol+start[2]), int(max_vol+start[2]))
-            
-            center = (int(center_row+start[0]), 
-                      int(center_col+start[1]), 
+
+            center = (int(center_row+start[0]),
+                      int(center_col+start[1]),
                       int(center_vol+start[2]))
-            
-            csv_row = [str(idx), str(num_voxel), str(center), 
+
+            csv_row = [str(idx), str(num_voxel), str(center),
                        str(bbox_row), str(bbox_col), str(bbox_vol)]
             with open(csv_filepath, 'a') as csv_file:
-                writer = csv.writer(csv_file, delimiter=',', 
+                writer = csv.writer(csv_file, delimiter=',',
                                     quotechar='"', quoting=csv.QUOTE_MINIMAL)
-                writer.writerow(csv_row) 
-        
+                writer.writerow(csv_row)
+
     img[img != 0] = 255
     print("Non-zero pixels:", np.count_nonzero(img))
     return img
@@ -127,35 +130,35 @@ def main():
 
     parser = argparse.ArgumentParser(description='Apply U-NET')
 
-    parser.add_argument('-i', '--input_path', dest='input_path', type=str, required=True, \
-        help='Path to the input n5')
+    parser.add_argument('-i', '--input_path', dest='input_path', type=str, required=True,
+                        help='Path to the input n5')
 
-    parser.add_argument('--data_set', dest='data_set', type=str, default="/s0", \
-        help='Path to data set (default "/s0")')
+    parser.add_argument('--data_set', dest='data_set', type=str, default="/s0",
+                        help='Path to data set (default "/s0")')
 
-    parser.add_argument('-o', '--output_path', dest='output_path', type=str, required=True, \
-        help='Path to the (already existing) output n5')
+    parser.add_argument('-o', '--output_path', dest='output_path', type=str, required=True,
+                        help='Path to the (already existing) output n5')
 
-    parser.add_argument('--csv_output_path', dest='csv_output_path', type=str, required=False, \
-        help='Path to an existing folder where CSV output should be written. Defaults to the parent of --output.')
+    parser.add_argument('--csv_output_path', dest='csv_output_path', type=str, required=False,
+                        help='Path to an existing folder where CSV output should be written. Defaults to the parent of --output.')
 
-    parser.add_argument('--start', dest='start_coord', type=str, required=True, metavar='x1,y1,z1', \
-        help='Starting coordinate (x,y,z) of block to process')
+    parser.add_argument('--start', dest='start_coord', type=str, required=True, metavar='x1,y1,z1',
+                        help='Starting coordinate (x,y,z) of block to process')
 
-    parser.add_argument('--end', dest='end_coord', type=str, required=True, metavar='x2,y2,z2', \
-        help='Ending coordinate (x,y,z) of block to process')
+    parser.add_argument('--end', dest='end_coord', type=str, required=True, metavar='x2,y2,z2',
+                        help='Ending coordinate (x,y,z) of block to process')
 
-    parser.add_argument('-m', '--mask', dest='mask_path', type=str, required=True, \
-        help='Path to the U-Net model n5')
+    parser.add_argument('-m', '--mask', dest='mask_path', type=str, required=True,
+                        help='Path to the U-Net model n5')
 
-    parser.add_argument('--mask_data_set', dest='mask_data_set', type=str, default="/s0", \
-        help='Path to mask data set (default "/s0")')
+    parser.add_argument('--mask_data_set', dest='mask_data_set', type=str, default="/s0",
+                        help='Path to mask data set (default "/s0")')
 
-    parser.add_argument('-t', '--threshold', dest='threshold', type=int, default=400, \
-        help='Threshold to remove small blobs (default 400)')
+    parser.add_argument('-t', '--threshold', dest='threshold', type=int, default=400,
+                        help='Threshold to remove small blobs (default 400)')
 
-    parser.add_argument('-p', '--percentage', dest='percentage', type=float, default=1.0, \
-        help='threshold to remove the object if it falls in the mask less than a percentage. If percentage is 1, criteria will be whether the centroid falls within the mask.')
+    parser.add_argument('-p', '--percentage', dest='percentage', type=float, default=1.0,
+                        help='threshold to remove the object if it falls in the mask less than a percentage. If percentage is 1, criteria will be whether the centroid falls within the mask.')
 
     args = parser.parse_args()
     start = tuple([int(d) for d in args.start_coord.split(',')])
@@ -165,8 +168,10 @@ def main():
     # Read part of the mask image based upon location
     if args.mask_path is not None:
         mask = read_n5_block(args.mask_path, args.mask_data_set, start, end)
-        if np.count_nonzero(mask) == 0:  # if the mask has all 0s, write out the result directly
-            write_n5_block(args.output_path, args.data_set, args.start, args.stop, mask)
+        # if the mask has all 0s, write out the result directly
+        if np.count_nonzero(mask) == 0:
+            write_n5_block(args.output_path, args.data_set,
+                           args.start, args.stop, mask)
             print("DONE! Location of the mask has all 0s.")
             sys.exit(0)
     else:
@@ -181,11 +186,11 @@ def main():
 
     prefix = os.path.splitext(os.path.split(args.output_path)[1])[0]
 
-    out_img_path = out_path + '/' + prefix+ "_" + out_img_name + \
-            '_x' + str(start[0]) + '_' + str(end[0]) + \
-            '_y' + str(start[1]) + '_' + str(end[1]) + \
-            '_z' + str(start[2]) + '_' + str(end[2]) + \
-            '.tif'
+    out_img_path = out_path + '/' + prefix + "_" + out_img_name + \
+        '_x' + str(start[0]) + '_' + str(end[0]) + \
+        '_y' + str(start[1]) + '_' + str(end[1]) + \
+        '_z' + str(start[2]) + '_' + str(end[2]) + \
+        '.tif'
 
     print('Writing tiff image for watershed:', out_img_path)
     tif_write(img, out_img_path)
@@ -217,10 +222,10 @@ def main():
 
     if os.path.exists(out_img_path):
         os.remove(out_img_path)
-    
+
     elapsed_time = time.time() - start_time
     print(f"DONE! Total running time was {elapsed_time:0.4f} seconds")
-    
+
 
 if __name__ == "__main__":
     main()

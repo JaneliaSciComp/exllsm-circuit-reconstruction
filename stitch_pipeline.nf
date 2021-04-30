@@ -11,18 +11,22 @@ include {
     get_value_or_default;
     get_list_or_default;
     deconvolution_container_param;
+    stitching_container_param;
 } from './param_utils'
 
 // app parameters
 final_params = default_spark_params() + default_em_params() + params
 
+stitch_params = final_params + [
+    stitching_container: stitching_container_param(final_params)
+]
 include {
     prepare_stitching_data;
-} from './processes/stitching' addParams(final_params)
+} from './processes/stitching' addParams(stitch_params)
 
 include {
     prepare_tiles_for_stitching;
-} from './workflows/prestitching' addParams(final_params)
+} from './workflows/prestitching' addParams(stitch_params)
 
 include {
     stitching;
@@ -37,7 +41,9 @@ include {
 
 data_dir = final_params.data_dir
 pipeline_output_dir = get_value_or_default(final_params, 'output_dir', data_dir)
-create_output_dir(pipeline_output_dir)
+stitching_dir = final_params.stitching_output 
+        ? "${pipeline_output_dir}/${final_params.stitching_output}"
+        : pipeline_output_dir
 
 channels = get_list_or_default(final_params, 'channels', [])
 
@@ -62,30 +68,24 @@ channels_psfs = channels.collect {
 }
 
 workflow {
-    def datasets = Channel.fromList(
-        get_list_or_default(final_params, 'datasets', [])
-    )
     def stitching_data = prepare_stitching_data(
         data_dir,
-        pipeline_output_dir,
-        datasets,
-        final_params.stitching_output,
+        stitching_dir,
         spark_work_dir
-    ) // [ dataset, dataset_input_dir, stitching_dir, dataset_output_dir, stitching_working_dir ]
+    ) // [ input_images_dir, stitching_dir, stitching_working_dir ]
 
     stitching_data.subscribe { log.debug "Stitching: $it" }
 
     def pre_stitching_res = prepare_tiles_for_stitching(
         final_params.stitching_app,
-        stitching_data.map { it[0] },  // dataset
-        stitching_data.map { it[1] },  // data input dir
-        stitching_data.map { it[2] },  // stitching dir
+        stitching_data.map { it[0] },  // data input dir
+        stitching_data.map { it[1] },  // stitching dir
         channels,
         final_params.resolution,
         final_params.axis,
         final_params.block_size,
         spark_conf,
-        stitching_data.map { "${it[4]}/prestitch" }, // spark_working_dir
+        stitching_data.map { "${it[2]}/prestitch" }, // spark_working_dir
         spark_workers,
         spark_worker_cores,
         spark_gb_per_core,
@@ -93,47 +93,47 @@ workflow {
         spark_driver_memory,
         spark_driver_stack,
         spark_driver_logconfig
-    )
+    ) // [ input_images_dir, stitching_dir ]
 
     pre_stitching_res.subscribe { log.debug "Pre stitch results: $it" }
 
     def deconv_res = deconvolution(
-        pre_stitching_res.map { it[0] }, // dataset
-        pre_stitching_res.map { it[2] }, // stitching_dir
+        pre_stitching_res.map { it[1] }, // stitching_dir
         channels,
         channels_psfs,
         final_params.psf_z_step_um,
         final_params.background,
         iterations_per_channel
     )
-    | groupTuple(by: [0,2]) // groupBy [ dataset, input_dir ]
+    | groupTuple(by: 1) // groupBy input_dir
     | map {
         [
-            it[0], // dataset
-            it[2], // stitching_dir
-            it[1], // channels
-            it[3]  // deconv_res
+            it[1], // stitching_dir
+            it[0], // channels
+            it[2]  // deconv_res
         ]
     }
     deconv_res | view
 
-    def stitching_input = deconv_res
-    | join(stitching_data, by: 0) // [ dataset, stitching_dir, channels, deconv_json_res, dataset_input_dir, stitching_dir, dataset_output_dir, dataset_working_dir ]
+    def stitching_input = stitching_data
+    | map {
+        it[1..2] // [ stitching_dir, stitching_work_dir ]
+    }
+    | join(deconv_res, by: 0) // [ stitching_dir, stitching_work_dir, channels, deconv_json_res ]
 
     stitching_input | view
 
     def stitching_res = stitching(
         final_params.stitching_app,
-        stitching_input.map { it[0] }, // dataset
-        stitching_input.map { it[1] }, // stitching_dir
-        channels, // channels
+        stitching_input.map { it[0] }, // stitching_dir
+        stitching_input.map { it[2] }, // channels
         final_params.stitching_mode,
         final_params.stitching_padding,
         final_params.blur_sigma,
         final_params.export_level,
         final_params.export_fusestage,
         spark_conf,
-        stitching_input.map { "${it[7]}/stitch" }, // spark working dir
+        stitching_input.map { "${it[1]}/stitch" }, // spark working dir
         spark_workers,
         spark_worker_cores,
         spark_gb_per_core,
@@ -143,9 +143,4 @@ workflow {
         spark_driver_logconfig
     )
     stitching_res | view
-}
-
-def create_output_dir(output_dirname) {
-    def output_dir = file(output_dirname)
-    output_dir.mkdirs()
 }
