@@ -69,9 +69,9 @@ channels_psfs = channels.collect {
 
 workflow {
     def stitching_data = prepare_stitching_data(
-        data_dir,
-        stitching_dir,
-        spark_work_dir
+        Channel.of(data_dir),
+        Channel.of(stitching_dir),
+        Channel.of(spark_work_dir)
     ) // [ input_images_dir, stitching_dir, stitching_working_dir ]
 
     stitching_data.subscribe { log.debug "Stitching: $it" }
@@ -126,7 +126,7 @@ workflow {
     def stitching_res = stitching(
         final_params.stitching_app,
         stitching_input.map { it[0] }, // stitching_dir
-        stitching_input.map { it[2] }, // channels
+        channels,
         final_params.stitching_mode,
         final_params.stitching_padding,
         final_params.blur_sigma,

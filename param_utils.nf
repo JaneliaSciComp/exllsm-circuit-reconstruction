@@ -27,6 +27,7 @@ def default_em_params() {
         export_level: '0',
         export_fusestage: false,
 
+        // deconvolution params
         deconv_cpus: 4,
         background: '',
         psf_z_step_um: '0.1',
@@ -34,10 +35,10 @@ def default_em_params() {
 
         pipeline: 'presynaptic_in_volume',
         // synapse detection params
-        pre_synapse_channel_subfolder: '',
-        n1_channel_subfolder: '',
-        n2_channel_subfolder: '',
-        post_synapse_channel_subfolder: '',
+        pre_synapse_stack_dir: '',
+        n1_stack_dir: '',
+        n2_stack_dir: '',
+        post_synapse_stack_dir: '',
 
         tiff2n5_cpus: 3,
         n52tiff_cpus: 3,
@@ -100,36 +101,4 @@ def exm_synapse_dask_container_param(Map ps) {
         "${ps.exm_repo}/synapse-dask:1.0.0"
     else
         exm_synapse_dask_container
-}
-
-def default_presynapse_ch_dir(Map ps, parent_dir) {
-    if (ps.pre_synapse_channel_subfolder) {
-        "${parent_dir}/${ps.pre_synapse_channel_subfolder}"
-    } else {
-        "${parent_dir}/slice-tiff-s${ps.export_level}/ch0"
-    }
-}
-
-def default_n1_ch_dir(Map ps, parent_dir) {
-    if (ps.n1_channel_subfolder) {
-        "${parent_dir}/${ps.n1_channel_subfolder}"
-    } else {
-        "${parent_dir}/slice-tiff-s${ps.export_level}/ch1"
-    }
-}
-
-def default_n2_ch_dir(Map ps, parent_dir) {
-    if (ps.n2_channel_subfolder) {
-        "${parent_dir}/${ps.n2_channel_subfolder}"
-    } else {
-        "${parent_dir}/slice-tiff-s${ps.export_level}/ch2"
-    }
-}
-
-def default_postsynapse_ch_dir(Map ps, parent_dir) {
-    if (ps.postsynapse_channel_subfolder) {
-        "${parent_dir}/${ps.postsynapse_channel_subfolder}"
-    } else {
-        "${parent_dir}/slice-tiff-s${ps.export_level}/ch2"
-    }
 }
