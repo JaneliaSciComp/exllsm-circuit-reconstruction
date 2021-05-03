@@ -60,7 +60,7 @@ workflow connect_regions_in_volume {
         def csv_folder_name = out_image_file.name - ~/\.\w+$/
         partition_volume(size).collect {
             def (start_subvol, end_subvol) = it
-            [ in_image, mask, start_subvol,  end_subvol, out_image, "${}/${csv_folder_name}_csv", size ]
+            [ in_image, mask, start_subvol,  end_subvol, out_image, "${out_image_file.parent}/${csv_folder_name}_csv", size ]
         }
     }
 
