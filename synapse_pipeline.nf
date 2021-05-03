@@ -12,10 +12,6 @@ include {
 // app parameters
 final_params = default_em_params() + params
 
-include {
-    get_stitched_data;
-} from './processes/stitching' addParams(final_params)
-
 synapse_params = final_params + [
     exm_synapse_container: exm_synapse_container_param(final_params),
     exm_synapse_dask_container: exm_synapse_dask_container_param(final_params),
