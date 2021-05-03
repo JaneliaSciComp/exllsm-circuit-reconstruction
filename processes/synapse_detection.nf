@@ -1,3 +1,7 @@
+include {
+    read_json;
+} from '../utils/utils'
+
 process create_n5_volume {
     container { params.exm_synapse_dask_container }
 
@@ -17,15 +21,13 @@ process create_n5_volume {
     """
 }
 
-import groovy.json.JsonSlurper
 def readN5Attributes(n5Path) {
     def attributesFilepath = "${n5Path}/s0/attributes.json"
     def attributesFile = new File(attributesFilepath)
     if (attributesFile.exists()) {
-        def jsonSlurper = new JsonSlurper()
-        return jsonSlurper.parseText(attributesFile.text)
-    }
-    return null
+        return read_json(attributesFile)
+    } else
+        return [:]
 }
 
 process read_n5_metadata {
@@ -106,25 +108,52 @@ process segmentation_postprocessing {
     cpus { params.postprocessing_cpus }
 
     input:
-    tuple val(input_image), val(mask_image), val(start_subvolume), val(end_subvolume), val(output_image_arg), val(output_data_dir), val(vol_size)
+    tuple val(input_image), val(mask_image), val(start_subvolume), val(end_subvolume), val(output_image_arg), val(output_csv_dir), val(vol_size)
     val(percentage)
     val(threshold)
 
     output:
-    tuple val(input_image), val(mask_image), val(start_subvolume), val(end_subvolume), val(output_image), val(output_data_dir), val(vol_size)
+    tuple val(input_image), val(mask_image), val(start_subvolume), val(end_subvolume), val(output_image), val(output_csv_dir), val(vol_size)
 
     script:
     output_image = output_image_arg ? output_image_arg : input_image
     def mask_arg = mask_image ? "-m ${mask_image}" : ''
     """
+    mkdir -p ${output_csv_dir}
+
     /scripts/postprocess_cpu.sh \
         -i ${input_image} \
         -o ${output_image} \
-        --csv_output_path ${output_data_dir} \
+        --csv_output_path ${output_csv_dir} \
         --start ${start_subvolume} \
         --end ${end_subvolume} \
         -p ${percentage} \
         -t ${threshold} \
         ${mask_arg}
+    """
+}
+
+process aggregate_csvs {
+    container { params.exm_synapse_container }
+    label 'small'
+
+    input:
+    tuple val(input_csvs_dir), val(output_csv)
+
+    output:
+    tuple val(input_csvs_dir), val(output_csv)
+
+    script:
+    """
+    i=0 # Reset a counter
+    for fn in ${input_csvs_dir}/*.csv; do 
+        if [ "\$fn"  != "${output_csv}" ] ; then 
+            if [[ \$i -eq 0 ]] ; then 
+                head -1  "\$fn" >   "${output_csv}" # Copy header if it is the first file
+            fi
+            tail -n +2  "$fn" >>  "${output_csv}" # Append from the 2nd line each file
+            i=$(( $i + 1 ))
+        fi
+    done
     """
 }

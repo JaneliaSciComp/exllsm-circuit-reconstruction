@@ -3,6 +3,7 @@ include {
     create_n5_volume;
     unet_classifier;
     segmentation_postprocessing;
+    aggregate_csvs;
 } from '../processes/synapse_detection'
 
 // Partition the input volume and call the UNet classifier for each subvolume
@@ -69,10 +70,20 @@ workflow connect_regions_in_volume {
         percentage,
         threshold
     )
-    | groupTuple(by: [0,1,4,5]) // wait for all subvolumes to be done
+    | groupTuple(by: [0,1,4,5, 6]) // wait for all subvolumes to be done
     | map {
-        def (in_image, mask, start_subvol_list, end_subvol_list, out_image, size) = it
-        [ in_image, mask, size, out_image ]
+        def (in_image, mask, start_subvol_list, end_subvol_list, out_image, out_csvs_dir, size) = it
+        def output_csv_file = out_csvs_dir.replace('_csv', '.csv')
+        [ out_csvs_dir, output_csv_file, in_image, mask, size, out_image ]
+    }
+
+    def final_post_processing_results = aggregate_csvs(
+        post_processing_results.map { it[0..1] }
+    )
+    | join(post_processing_results, by:[0,1])
+    | map {
+        def (out_csvs_dir, output_csv_file, in_image, mask, size, out_image) = it
+        [ in_image, mask, size, out_image, output_csv_file ]
     }
 
     emit:
@@ -112,7 +123,7 @@ workflow classify_and_connect_regions_in_volume {
         },
         percentage,
         threshold
-    ) // [ unet_image, mask, image_size, post_unet_image ]
+    ) // [ unet_image, mask, image_size, post_unet_image, post_unet_csv ]
 
     // prepare the final result
     done = input_data
