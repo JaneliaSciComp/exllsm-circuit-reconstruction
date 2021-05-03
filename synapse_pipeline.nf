@@ -26,8 +26,7 @@ include {
     presynaptic_n1_to_postsynaptic_n2;
 } from './workflows/synapse_detection' addParams(synapse_params)
 
-data_dir = final_params.data_dir
-pipeline_output_dir = get_value_or_default(final_params, 'output_dir', data_dir)
+pipeline_output_dir = final_params.output_dir
 
 workflow {
     def synapses_res;
