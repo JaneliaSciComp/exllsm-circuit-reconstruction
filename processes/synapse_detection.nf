@@ -151,7 +151,7 @@ process aggregate_csvs {
             if [[ \$i -eq 0 ]] ; then 
                 head -1  "\$fn" >   "${output_csv}" # Copy header if it is the first file
             fi
-            tail -n +2  "$fn" >>  "${output_csv}" # Append from the 2nd line each file
+            tail -n +2  "\$fn" >>  "${output_csv}" # Append from the 2nd line each file
             i=\$(( \$i + 1 ))
         fi
     done
