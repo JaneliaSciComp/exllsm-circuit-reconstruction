@@ -56,9 +56,11 @@ workflow connect_regions_in_volume {
     def post_processing_inputs = mask_data
     | flatMap {
         def (in_image, size, out_image, mask) = it
+        def out_image_file = file(out_image)
+        def csv_folder_name = out_image_file.name - ~/\.\w+$/
         partition_volume(size).collect {
             def (start_subvol, end_subvol) = it
-            [ in_image, mask, start_subvol,  end_subvol, out_image, size ]
+            [ in_image, mask, start_subvol,  end_subvol, out_image, "${}/${csv_folder_name}_csv", size ]
         }
     }
 

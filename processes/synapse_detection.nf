@@ -106,12 +106,12 @@ process segmentation_postprocessing {
     cpus { params.postprocessing_cpus }
 
     input:
-    tuple val(input_image), val(mask_image), val(start_subvolume), val(end_subvolume), val(output_image_arg), val(vol_size)
+    tuple val(input_image), val(mask_image), val(start_subvolume), val(end_subvolume), val(output_image_arg), val(output_data_dir), val(vol_size)
     val(percentage)
     val(threshold)
 
     output:
-    tuple val(input_image), val(mask_image), val(start_subvolume), val(end_subvolume), val(output_image), val(vol_size)
+    tuple val(input_image), val(mask_image), val(start_subvolume), val(end_subvolume), val(output_image), val(output_data_dir), val(vol_size)
 
     script:
     output_image = output_image_arg ? output_image_arg : input_image
@@ -120,6 +120,7 @@ process segmentation_postprocessing {
     /scripts/postprocess_cpu.sh \
         -i ${input_image} \
         -o ${output_image} \
+        --csv_output_path ${output_data_dir} \
         --start ${start_subvolume} \
         --end ${end_subvolume} \
         -p ${percentage} \
