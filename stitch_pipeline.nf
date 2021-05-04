@@ -39,8 +39,8 @@ include {
     deconvolution
 } from './workflows/deconvolution' addParams(deconv_params)
 
-data_dir = final_params.data_dir
-pipeline_output_dir = get_value_or_default(final_params, 'output_dir', data_dir)
+images_dir = final_params.images_dir
+pipeline_output_dir = get_value_or_default(final_params, 'output_dir', images_dir)
 stitching_dir = final_params.stitching_output 
         ? "${pipeline_output_dir}/${final_params.stitching_output}"
         : pipeline_output_dir
@@ -69,7 +69,7 @@ channels_psfs = channels.collect {
 
 workflow {
     def stitching_data = prepare_stitching_data(
-        Channel.of(data_dir),
+        Channel.of(images_dir),
         Channel.of(stitching_dir),
         Channel.of(spark_work_dir)
     ) // [ input_images_dir, stitching_dir, stitching_working_dir ]
@@ -78,7 +78,7 @@ workflow {
 
     def pre_stitching_res = prepare_tiles_for_stitching(
         final_params.stitching_app,
-        stitching_data.map { it[0] },  // data input dir
+        stitching_data.map { it[0] },  // images dir
         stitching_data.map { it[1] },  // stitching dir
         channels,
         final_params.resolution,

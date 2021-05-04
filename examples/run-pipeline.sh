@@ -10,7 +10,7 @@ PROJECT_CODE=$2
         --driver_memory 10g \
         --spark_work_dir "$PWD/local" \
         --stitching_app "$PWD/external-modules/stitching-spark/target/stitching-spark-1.8.2-SNAPSHOT.jar" \
-        --data_dir /nrs/scicompsoft/goinac/lillvis/DA1 \
+        --images_dir /nrs/scicompsoft/goinac/lillvis/DA1/images \
         --output_dir /nrs/scicompsoft/goinac/lillvis/results/DA1 \
         --psf_dir /groups/dickson/dicksonlab/lillvis/ExM/lattice/PSFs/20200928/PSFs \
         --deconv_cores 4

@@ -3,7 +3,7 @@ def default_em_params() {
         scicomp_repo: 'registry.int.janelia.org/janeliascicomp',
         exm_repo: 'registry.int.janelia.org/exm-analysis',
 
-        data_dir: '',
+        images_dir: '',
         output_dir: '',
 
         stitching_output: 'stitching',
