@@ -76,7 +76,7 @@ workflow prepare_tiles_for_stitching {
         "org.janelia.stitching.ParseTilesImageList",
         indexed_data,
         indexed_spark_work_dir, //  here I only want a tuple that has the working dir as the 2nd element
-        { current_input_dir, current_stitching_dir ->
+        { current_images_dir, current_stitching_dir ->
             def args_list = []
             args_list << "-i ${current_stitching_dir}/ImageList_images.csv"
             if (resolution) {
@@ -85,7 +85,7 @@ workflow prepare_tiles_for_stitching {
             if (axis_mapping) {
                 args_list << "-a '${axis_mapping}'"
             }
-            args_list << "-b ${current_input_dir}"
+            args_list << "-b ${current_images_dir}"
             args_list << "--skipMissingTiles"
             args_list.join(' ')
         }
@@ -115,7 +115,7 @@ workflow prepare_tiles_for_stitching {
         "org.janelia.stitching.ConvertTIFFTilesToN5Spark",
         indexed_data,
         parse_res,
-        { current_input_dir, current_stitching_dir ->
+        { current_images_dir, current_stitching_dir ->
             def tile_json_inputs = entries_inputs_args(
                 current_stitching_dir,
                 channels,
@@ -151,7 +151,7 @@ workflow prepare_tiles_for_stitching {
         "org.janelia.flatfield.FlatfieldCorrection",
         indexed_data,
         tiff2n5_res,
-        { current_input_dir, current_stitching_dir ->
+        { current_images_dir, current_stitching_dir ->
             def n5_json_input = entries_inputs_args(
                 current_stitching_dir,
                 channels,
