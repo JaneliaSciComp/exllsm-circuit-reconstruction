@@ -25,7 +25,7 @@ include {
 } from './processes/stitching' addParams(stitch_params)
 
 include {
-    prepare_tiles_for_stitching;
+    prepare_tiles_for_stitching as prestitching;
 } from './workflows/prestitching' addParams(stitch_params)
 
 include {
@@ -76,7 +76,7 @@ workflow {
 
     stitching_data.subscribe { log.debug "Stitching: $it" }
 
-    def pre_stitching_res = prepare_tiles_for_stitching(
+    def pre_stitching_res = prestitching(
         final_params.stitching_app,
         stitching_data.map { it[0] },  // images dir
         stitching_data.map { it[1] },  // stitching dir

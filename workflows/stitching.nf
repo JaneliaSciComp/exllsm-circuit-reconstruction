@@ -24,7 +24,7 @@ workflow stitching {
     channels
     stitching_mode
     stitching_padding
-    blur_sigma
+    stitching_blur_sigma
     export_level
     export_fusestage
     spark_conf
@@ -91,7 +91,7 @@ workflow stitching {
                 << tile_json_inputs
                 << '--mode' << "'${stitching_mode}'"
                 << '--padding' << "'${stitching_padding}'"
-                << '--blurSigma' << "${blur_sigma}"
+                << '--blurSigma' << "${stitching_blur_sigma}"
 
             args_list.join(' ')
         }

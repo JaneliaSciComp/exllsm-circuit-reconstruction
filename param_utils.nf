@@ -1,12 +1,11 @@
 def default_em_params() {
     [
-        scicomp_repo: 'registry.int.janelia.org/janeliascicomp',
+        deconv_repo: 'registry.int.janelia.org/janeliascicomp',
         exm_repo: 'registry.int.janelia.org/exm-analysis',
 
         images_dir: '',
+        psf_dir: '',
         output_dir: '',
-
-        stitching_output: 'stitching',
 
         // stitching params
         spark_container_repo: 'registry.int.janelia.org/exm-analysis',
@@ -20,10 +19,9 @@ def default_em_params() {
         axis: '-y,-x,z',
         channels: '488nm,560nm,642nm',
         block_size: '512,512,512',
-        retile_z_size: '64',
         stitching_mode: 'incremental',
         stitching_padding: '0,0,0',
-        blur_sigma: '2',
+        stitching_blur_sigma: '2',
         export_level: '0',
         export_fusestage: false,
 
@@ -82,7 +80,7 @@ def stitching_container_param(Map ps) {
 def deconvolution_container_param(Map ps) {
     def deconvolution_container = ps.deconvolution_container
     if (!deconvolution_container)
-        "${ps.scicomp_repo}/matlab-deconv:1.0"
+        "${ps.deconv_repo}/matlab-deconv:1.0"
     else
         deconvolution_container
 }
