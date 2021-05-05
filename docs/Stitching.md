@@ -27,7 +27,12 @@ Deconvolution uses a MATLAB script (details TBD).
 | --spark_container_name | stitching | Name for the container in the spark_container_repo | 
 | --spark_container_version | <pinned> | Version for the container in the spark_container_repo |
 | --stitching_app | /app/app.jar | Path to the JAR file containing the stitching application. |
-| --stitching_output | stitching | Output directory for stitching (relative to --output_dir) |
+| --workers | 4 | Number of Spark workers to use for stitching |
+| --worker_cores | 4 | Number of cores allocated to each Spark worker |
+| --gb_per_core | 15 | Size of memory (in GB) that is allocated for each core of a Spark worker. The total memory usage for stitching will be workers * worker_cores * gb_per_core. | 
+| --driver_memory | 15g | Amount of memory to allocate for the Spark driver |
+| --driver_stack | 128m | Amount of stack space to allocate for the Spark driver |
+| --stitching_output | | Output directory for stitching (relative to --output_dir) |
 | --resolution | 0.104,0.104,0.18 | Resolution of the input imagery |
 | --axis | -y,-x,z | Axis mapping for objective to pixel coordinates conversion when parsing metadata. Minus sign flips the axis. |
 | --channels | 488nm,560nm,642nm | List of channels to stitch |
@@ -35,10 +40,9 @@ Deconvolution uses a MATLAB script (details TBD).
 | --stitching_mode | incremental | |
 | --stitching_padding | 0,0,0 | |
 | &#x2011;&#x2011;stitching_blur_sigma | 2 | |
+| --deconv_cpus | 4 | Number of CPUs to use for deconvolution |
+| --background | | TBD |
+| --psf_z_step_um | 0.1 | TBD |
+| --iterations_per_channel | 10,10,10 | TBD |
 | --export_level | 0 | Scale level to export after stitching |
 | --allow_fusestage | false | Allow fusing tiles using their stage coordinates |
-| --workers | 4 | Number of Spark workers to use for stitching |
-| --worker_cores | 4 | Number of cores allocated to each Spark worker |
-| --gb_per_core | 15 | Size of memory (in GB) that is allocated for each core of a Spark worker. The total memory usage for stitching will be workers * worker_cores * gb_per_core. | 
-| --driver_memory | 15g | Amount of memory to allocate for the Spark driver |
-| --driver_stack | 128m | AMount of stack space to allocate for the Spark driver |

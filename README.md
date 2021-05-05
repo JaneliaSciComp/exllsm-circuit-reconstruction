@@ -22,6 +22,10 @@ Clone the multifish repository with the following command:
 
     git clone https://github.com/JaneliaSciComp/expansion-microscopy-pipeline.git
 
+Before running the pipeline for the first time, run setup to pull in external dependencies:
+
+    ./setup.sh
+    
 You can now launch a pipeline, e.g.:
 
     ./stitch_pipeline.nf [arguments]
@@ -62,13 +66,9 @@ To run the pipeline locally, you can use the standard profile:
 
     ./main.nf [arguments]
 
-This is equivalent to specifying the localsingularity profile:
-
-    ./main.nf -profile localsingularity [arguments]
-
 ### Run the pipeline on IBM Platform LSF 
 
-This example also sets the project flag to demonstrate how to set LSF options.
+Edit `nextflow.config` to create a profile for your local environment. A profile for the Janelia Compute Cluster is provided and can be used like this:
 
     ./main.nf -profile lsf --lsf_opts "-P project_code" [arguments]
 
