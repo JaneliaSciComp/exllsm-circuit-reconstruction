@@ -1,6 +1,6 @@
 process prepare_stitching_data {
-    container { params.stitching_container }
-
+    executor 'local'
+    
     input:
     val(input_images_dir)
     val(stitching_output_dir)
