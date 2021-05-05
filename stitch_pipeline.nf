@@ -131,7 +131,7 @@ workflow {
         final_params.stitching_padding,
         final_params.blur_sigma,
         final_params.export_level,
-        final_params.export_fusestage,
+        final_params.allow_fusestage,
         spark_conf,
         stitching_input.map { "${it[1]}/stitch" }, // spark working dir
         spark_workers,

@@ -26,7 +26,7 @@ workflow stitching {
     stitching_padding
     blur_sigma
     export_level
-    export_fusestage
+    allow_fusestage
     spark_conf
     spark_work_dir
     spark_workers
@@ -134,6 +134,9 @@ workflow stitching {
                 << '--fuse'
                 << tile_json_inputs
                 << '--blending'
+            if (allow_fusestage) {
+                args_list << '--fusestage'
+            }
 
             args_list.join(' ')
         }
@@ -168,9 +171,6 @@ workflow stitching {
             args_list 
                 << '-i' << "${current_stitching_dir}/export.n5"
                 << '--scaleLevel' << "${export_level}"
-            if (export_fusestage) {
-                args_list << '--fusestage'
-            }
             args_list.join(' ')
         }
     )
