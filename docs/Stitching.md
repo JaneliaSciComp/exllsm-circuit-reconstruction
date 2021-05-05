@@ -36,7 +36,7 @@ Deconvolution uses a MATLAB script (details TBD).
 | --stitching_padding | 0,0,0 | |
 | &#x2011;&#x2011;stitching_blur_sigma | 2 | |
 | --export_level | 0 | Scale level to export after stitching |
-| --export_fusestage | false | Allow fusing tiles using their stage coordinates |
+| --allow_fusestage | false | Allow fusing tiles using their stage coordinates |
 | --workers | 4 | Number of Spark workers to use for stitching |
 | --worker_cores | 4 | Number of cores allocated to each Spark worker |
 | --gb_per_core | 15 | Size of memory (in GB) that is allocated for each core of a Spark worker. The total memory usage for stitching will be workers * worker_cores * gb_per_core. | 
