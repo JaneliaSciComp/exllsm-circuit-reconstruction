@@ -30,14 +30,14 @@ workflow presynaptic_in_volume {
 
     def synapse_inputs = input_data
     | map {
-        def (synapse_tiff, output_dir) = it
-        [ synapse_tiff, "${output_dir}/${tmp_volumes_subfolder}/synapse.n5" ]
+        def (synapse_stack, output_dir) = it
+        [ synapse_stack, "${output_dir}/${tmp_volumes_subfolder}/synapse.n5" ]
     }
     | synapse_to_n5 // [ synapse_stack, synapse_n5, synapse_size ]
     | map {
         // prepare the arguments for classifying and connecting presynapses
         // without any neuron information - neuron mask will be an empty string
-        def (synapse_tiff, synapse, synapse_size) = it
+        def (synapse_stack, synapse, synapse_size) = it
         def working_dir = file(synapse).parent
         def d = [
             synapse,
@@ -78,8 +78,8 @@ workflow presynaptic_n1_to_n2 {
 
     def synapse_data = input_data
     | map {
-        def (synapse_tiff, n1_mask_tiff, n2_mask_tiff, output_dir) = it
-        [ synapse_tiff, "${output_dir}/${tmp_volumes_subfolder}/synapse.n5" ]
+        def (synapse_stack, n1_mask_stack, n2_mask_stack, output_dir) = it
+        [ synapse_stack, "${output_dir}/${tmp_volumes_subfolder}/synapse.n5" ]
     }
     | synapse_to_n5 // [ synapse_stack, synapse_n5, synapse_size ]
     | map {
@@ -89,8 +89,8 @@ workflow presynaptic_n1_to_n2 {
 
     def n1_data = input_data
     | map {
-        def (synapse_tiff, n1_mask_tiff, n2_mask_tiff, output_dir) = it
-        [ n1_mask_tiff, "${output_dir}/${tmp_volumes_subfolder}/n1_mask.n5" ]
+        def (synapse_stack, n1_mask_stack, n2_mask_stack, output_dir) = it
+        [ n1_mask_stack, "${output_dir}/${tmp_volumes_subfolder}/n1_mask.n5" ]
     }
     | neuron1_to_n5 // [ n1_mask_stack, n1_mask_n5, n1_size ]
     | map {
@@ -100,8 +100,8 @@ workflow presynaptic_n1_to_n2 {
 
     def n2_data = input_data
     | map {
-        def (synapse_tiff, n1_mask_tiff, n2_mask_tiff, output_dir) = it
-        [ n2_mask_tiff, "${output_dir}/${tmp_volumes_subfolder}/n2_mask.n5" ]
+        def (synapse_stack, n1_mask_stack, n2_mask_stack, output_dir) = it
+        [ n2_mask_stack, "${output_dir}/${tmp_volumes_subfolder}/n2_mask.n5" ]
     }
     | neuron2_to_n5 // [ n2_mask_stack, n2_mask_n5, n2_size ]
     | map {
@@ -112,11 +112,11 @@ workflow presynaptic_n1_to_n2 {
     def synapse_inputs = synapse_data
     | join(n1_data, by:0)
     | join(n2_data, by:0) 
-    // [ working_dir, synapse_tiff, synapse_n5, synapse_size, n1_tiff, n1_n5, n1_size, n2_tiff, n2_n5, n2_size ]
+    // [ working_dir, synapse_stack, synapse_n5, synapse_size, n1_stack, n1_n5, n1_size, n2_stack, n2_n5, n2_size ]
 
     def presynaptic_n1_inputs = synapse_inputs
     | map {
-        def (working_dir, synapse_tiff, synapse, synapse_size, n1_tiff, n1, n1_size) = it
+        def (working_dir, synapse_stack, synapse, synapse_size, n1_tiff, n1, n1_size) = it
         def r = [ synapse, n1, synapse_size, "${working_dir}/synapse_seg.n5", "${working_dir}/synapse_seg_n1.n5" ]
         log.debug "Pre-synaptic n1 inputs: $r"
         r
@@ -136,7 +136,7 @@ workflow presynaptic_n1_to_n2 {
     def mask_n2_inputs = synapse_inputs
     | join(presynaptic_n1_regions, by:0)
     | map {
-        def (working_dir, synapse_tiff, synapse, synapse_size, n1_tiff, n1, n1_size, n2_tiff, n2, n2_size) = it
+        def (working_dir, synapse_stack, synapse, synapse_size, n1_tiff, n1, n1_size, n2_tiff, n2, n2_size) = it
         def d = [ "${working_dir}/synapse_seg_n1.n5", n2, synapse_size, "${working_dir}/synapse_seg_n1_n2.n5" ]
         log.debug "Pre-synaptic n1 to mask with n2 inputs: $d"
         d
@@ -156,7 +156,7 @@ workflow presynaptic_n1_to_n2 {
     done = synapse_inputs
     | join(synapse_n1_n2_results, by:0)
     | map {
-        def (working_path, synapse_tiff, synapse, synapse_size, n1_tiff, n1, n1_size, n2_tiff, n2, n2_size) = it
+        def (working_path, synapse_stack, synapse, synapse_size, n1_tiff, n1, n1_size, n2_tiff, n2, n2_size) = it
         def working_dir = file(working_path)
         def r = [
             synapse, n1, n2,
@@ -184,8 +184,8 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
 
     def pre_synapse_data = input_data
     | map {
-        def (pre_synapse_tiff, n1_mask_tiff, post_synapse_tiff, output_dir) = it
-        [ pre_synapse_tiff, "${output_dir}/${tmp_volumes_subfolder}/pre_synapse.n5" ]
+        def (pre_synapse_stack, n1_mask_tiff, post_synapse_stack, output_dir) = it
+        [ pre_synapse_stack, "${output_dir}/${tmp_volumes_subfolder}/pre_synapse.n5" ]
     }
     | synapse_to_n5 // [ pre_synapse_stack, pre_synapse_n5, pre_synapse_size ]
     | map {
@@ -195,7 +195,7 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
 
     def n1_data = input_data
     | map {
-        def (pre_synapse_tiff, n1_mask_tiff, post_synapse_tiff, output_dir) = it
+        def (pre_synapse_stack, n1_mask_tiff, post_synapse_stack, output_dir) = it
         [ n1_mask_tiff, "${output_dir}/${tmp_volumes_subfolder}/n1_mask.n5" ]
     }
     | neuron1_to_n5 // [ n1_mask_stack, n1_mask_n5, n1_size ]
@@ -206,8 +206,8 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
 
     def post_synapse_data = input_data
     | map {
-        def (pre_synapse_tiff, n1_mask_tiff, post_synapse_tiff, output_dir) = it
-        [ pre_synapse_tiff, "${output_dir}/${tmp_volumes_subfolder}/post_synapse.n5" ]
+        def (pre_synapse_stack, n1_mask_tiff, post_synapse_stack, output_dir) = it
+        [ pre_synapse_stack, "${output_dir}/${tmp_volumes_subfolder}/post_synapse.n5" ]
     }
     | post_synapse_to_n5 // [ post_synapse_stack, post_synapse_n5, poost_synapse_size ]
     | map {
@@ -219,11 +219,11 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
     def pre_and_post_synaptic_data = pre_synapse_data
     | join(n1_data, by:0)
     | join(post_synapse_data, by:0) 
-    // [ working_dir, pre_synapse_tiff, pre_synapse_n5, pre_synapse_vol, n1_tiff, n1_n5, n1_vol, post_synapse_tiff, post_synapse_n5, post_synapse_vol ]
+    // [ working_dir, pre_synapse_stack, pre_synapse_n5, pre_synapse_vol, n1_tiff, n1_n5, n1_vol, post_synapse_stack, post_synapse_n5, post_synapse_vol ]
 
     def presynaptic_n1_inputs = pre_and_post_synaptic_data
     | map {
-        def (working_dir, pre_synapse_tiff, pre_synapse, pre_synapse_size, n1_tiff, n1, n1_size) = it
+        def (working_dir, pre_synapse_stack, pre_synapse, pre_synapse_size, n1_tiff, n1, n1_size) = it
         def r = [ pre_synapse, n1, pre_synapse_size, "${working_dir}/pre_synapse_seg.n5", "${working_dir}/pre_synapse_seg_n1.n5" ]
         log.debug "Pre-synaptic n1 inputs: $r"
         r
@@ -243,7 +243,7 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
     def post_to_pre_synaptic_inputs = pre_and_post_synaptic_data
     | join(presynaptic_n1_regions, by:0)
     | map {
-        def (working_dir, pre_synapse_tiff, pre_synapse, pre_synapse_size, n1_tiff, n1, n1_size, post_synapse_tiff, post_synapse, post_synapse_size) = it
+        def (working_dir, pre_synapse_stack, pre_synapse, pre_synapse_size, n1_tiff, n1, n1_size, post_synapse_stack, post_synapse, post_synapse_size) = it
         def d = [ post_synapse, "${working_dir}/pre_synapse_seg_n1.n5", post_synapse_size, "${working_dir}/post_synapse_seg.n5", "${working_dir}/post_synapse_seg_pre_synapse_seg_n1.n5" ]
         log.debug "Pre-synaptic n1 to n2 restricted post-synaptic inputs: $d"
         d
@@ -264,7 +264,7 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
     done = pre_and_post_synaptic_data
     | join(post_to_pre_synaptic_results, by:0)
     | map {
-        def (working_path, pre_synapse_tiff, pre_synapse, pre_synapse_size, n1_tiff, n1, n1_size, post_synapse_tiff, post_synapse, post_synapse_size) = it
+        def (working_path, pre_synapse_stack, pre_synapse, pre_synapse_size, n1_tiff, n1, n1_size, post_synapse_stack, post_synapse, post_synapse_size) = it
         def working_dir = file(working_path)
         def r = [
             pre_synapse, n1, post_synapse,

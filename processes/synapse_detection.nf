@@ -48,16 +48,21 @@ process tiff_to_n5 {
     cpus { params.tiff2n5_cpus }
 
     input:
-    tuple val(input_tiff_stack_dir), val(output_n5_file)
+    tuple val(input_stack_dir), val(output_n5)
 
     output:
-    tuple val(input_tiff_stack_dir), val(output_n5_file)
+    tuple val(input_stack_dir), env(output_n5_stack)
 
     script:
     def chunk_size = params.block_size
     """
-    mkdir -p ${file(output_n5_file).parent}
-    /entrypoint.sh tif_to_n5 -i ${input_tiff_stack_dir} -o ${output_n5_file} -c ${chunk_size}
+    if [[ -f "${input_stack_dir}/attributes.json" ]]; then
+        output_n5_stack=${input_stack_dir}
+    else
+        mkdir -p ${file(output_n5).parent}
+        /entrypoint.sh tif_to_n5 -i ${input_stack_dir} -o ${output_n5} -c ${chunk_size}
+        output_n5_stack=${output_n5}
+    fi
     """
 }
 
