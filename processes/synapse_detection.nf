@@ -56,7 +56,7 @@ process tiff_to_n5 {
     script:
     def chunk_size = params.block_size
     """
-    if [[ -f "${input_stack_dir}/attributes.json" ]]; then
+    if [[ -f "${input_stack_dir}/s0/attributes.json" ]]; then
         output_n5_stack=${input_stack_dir}
     else
         mkdir -p ${file(output_n5).parent}
