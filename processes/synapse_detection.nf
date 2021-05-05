@@ -55,11 +55,14 @@ process tiff_to_n5 {
 
     script:
     def chunk_size = params.block_size
+    def empty_n5 = '{"n5":"2.2.0"}'
     """
     mkdir -p ${file(output_n5_stack).parent}
 
     if [[ -f "${input_stack_dir}/s0/attributes.json" ]]; then
-        ln -s ${input_stack_dir} ${output_n5_stack}
+        mkdir ${output_n5_stack}
+        ln -s "${input_stack_dir}/s0" "${output_n5_stack}/s0"
+        echo "${empty_n5}" > "${output_n5_stack}/attributes.json"
     else
         /entrypoint.sh tif_to_n5 -i ${input_stack_dir} -o ${output_n5_stack} -c ${chunk_size}
     fi
