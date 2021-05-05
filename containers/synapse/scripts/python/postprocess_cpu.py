@@ -171,7 +171,7 @@ def main():
         # if the mask has all 0s, write out the result directly
         if np.count_nonzero(mask) == 0:
             write_n5_block(args.output_path, args.data_set,
-                           args.start, args.stop, mask)
+                           start, stop, mask)
             print("DONE! Location of the mask has all 0s.")
             sys.exit(0)
     else:

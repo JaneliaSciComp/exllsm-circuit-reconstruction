@@ -6,7 +6,7 @@ include {
 include {
     classify_and_connect_regions_in_volume as classify_presynaptic_regions;
     classify_and_connect_regions_in_volume as classify_postsynaptic_regions;
-    connect_regions_in_volume as mask_with_n2;
+    connect_regions_in_volume;
 } from './segmentation_tools'
 
 include {
@@ -142,7 +142,7 @@ workflow presynaptic_n1_to_n2 {
         d
     }
     
-    def synapse_n1_n2_results = mask_with_n2(
+    def synapse_n1_n2_results = connect_regions_in_volume(
         mask_n2_inputs,
         params.postsynaptic_stage2_percentage,
         params.postsynaptic_stage2_threshold,
@@ -150,7 +150,7 @@ workflow presynaptic_n1_to_n2 {
     | map {
         def n5_file = file(it[0])
         [ "${n5_file.parent}" ] + it
-    }  // [ working_dir, synapse_seg_n1, synapse_size, n2, n2_size, synapse_seg_n1_n2 ]
+    }  // [ working_dir, synapse_seg_n1, n2, synapse_size, synapse_seg_n1_n2, synapse_seg_n1_n2_csv ]
 
     // prepare the final result
     done = synapse_inputs
@@ -260,9 +260,32 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
         [ "${n5_file.parent}" ] + it
     } // [ working_dir, post_synapse, pre_synapse_seg_n1, post_synapse_size, post_synapse_seg, post_synapse_seg_pre_synapse_seg_n1 ]
 
+    def pre_to_post_synaptic_inputs = presynaptic_n1_regions
+    | join(post_to_pre_synaptic_results)
+    | map {
+        def (
+            working_dir,
+            pre_synapse, n1, synapse_size, synapse_seg, synapse_seg_n1,
+            post_synapse, pre_synapse_seg_n1, post_synapse_size, post_synapse_seg, post_synapse_seg_pre_synapse_seg_n1
+        ) = it
+        def d = [ synapse_seg_n1, post_synapse_seg_pre_synapse_seg_n1, synapse_size, "${working_dir}/presynatic_seg_n1_postsynaptic_n2_from_n1.n5"]
+        println "!!!!!!!!!!!!! PRE TO POST: $it -> $d"
+        d
+    }
+
+    def pre_n1_to_post_synaptic_n2_results = connect_regions_in_volume(
+        pre_to_post_synaptic_inputs,
+        params.postsynaptic_stage3_percentage,
+        params.postsynaptic_stage3_threshold,
+    )
+    | map {
+        def n5_file = file(it[0])
+        [ "${n5_file.parent}" ] + it
+    } // [ working_dir, synapse_seg_n1, post_synapse_seg_pre_synapse_seg_n1, synapse_size, pre_synapse_seg_n1_postsynaptic_n2_from_n1, pre_synapse_seg_n1_postsynaptic_n2_from_n1_csv ]
+
     // prepare the final result
     done = pre_and_post_synaptic_data
-    | join(post_to_pre_synaptic_results, by:0)
+    | join(pre_n1_to_post_synaptic_n2_results, by:0)
     | map {
         def (working_path, pre_synapse_stack, pre_synapse, pre_synapse_size, n1_tiff, n1, n1_size, post_synapse_stack, post_synapse, post_synapse_size) = it
         def working_dir = file(working_path)
@@ -273,6 +296,7 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
             "${working_dir}/pre_synapse_seg_n1.n5",
             "${working_dir}/post_synapse_seg.n5",
             "${working_dir}/post_synapse_seg_pre_synapse_seg_n1.n5",
+            "${working_dir}/presynatic_seg_n1_postsynaptic_n2_from_n1.n5",
             "${working_dir.parent}",
         ]
         log.debug "Pre-synaptic n1 to restricted post-synaptic n2 results:  $r"
