@@ -23,8 +23,8 @@ PROJECT_CODE="dickson"
         --volume_partition_size "500" \
         --synapse_model "$MODEL" \
         --n1_stack_dir "$NEURON" \
-        --post_synapse_stack_dir "${RES_DIR}/stitching/slice-tiff-s0/ch1" \
-        --pre_synapse_stack_dir "${RES_DIR}/stitching/slice-tiff-s0/ch2" \
+        --post_synapse_stack_dir "/nrs/dickson/lillvis/temp/ExM/DA1/20201001/images/slice-tiff-s0/ch1_substack_crop" \
+        --pre_synapse_stack_dir "/nrs/dickson/lillvis/temp/ExM/DA1/20201001/images/slice-tiff-s0/ch2_substack_crop" \
         --output_dir "${RES_DIR}/presynaptic_n1_to_postsynaptic_n2" \
         --presynaptic_stage2_threshold "400" \
         --presynaptic_stage2_percentage "0.5" \
