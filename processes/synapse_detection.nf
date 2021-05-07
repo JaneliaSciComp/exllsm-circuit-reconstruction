@@ -158,15 +158,8 @@ process aggregate_csvs {
 
     script:
     """
-    i=0 # Reset a counter
-    for fn in ${input_csvs_dir}/*.csv; do 
-        if [ "\$fn"  != "${output_csv}" ] ; then 
-            if [[ \$i -eq 0 ]] ; then 
-                head -1  "\$fn" >   "${output_csv}" # Copy header if it is the first file
-            fi
-            tail -n +2  "\$fn" >>  "${output_csv}" # Append from the 2nd line each file
-            i=\$(( \$i + 1 ))
-        fi
-    done
+    python /scripts/aggregate_csvs.py \
+        -i ${input_csvs_dir} \
+        -o ${output_csv}
     """
 }

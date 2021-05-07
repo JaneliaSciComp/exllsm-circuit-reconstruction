@@ -128,7 +128,7 @@ def remove_small_piece(out_path, prefix, img, start, end, mask=None, threshold=1
 
 def main():
 
-    parser = argparse.ArgumentParser(description='Apply U-NET')
+    parser = argparse.ArgumentParser(description='Apply U-NET post-processing')
 
     parser.add_argument('-i', '--input_path', dest='input_path', type=str, required=True,
                         help='Path to the input n5')
