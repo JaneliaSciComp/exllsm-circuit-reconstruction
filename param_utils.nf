@@ -49,8 +49,8 @@ def default_em_params() {
         presynaptic_stage2_percentage: 0.5,
         postsynaptic_stage2_threshold: 200,
         postsynaptic_stage2_percentage: 0.001,
-        postsynaptic_stage3_percentage: 400,
-        postsynaptic_stage3_threshold: 0.001
+        postsynaptic_stage3_threshold: 400,
+        postsynaptic_stage3_percentage: 0.001,
     ]
 }
 
