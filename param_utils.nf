@@ -7,6 +7,10 @@ def default_em_params() {
         psf_dir: '',
         output_dir: '',
 
+        // global parameters
+        block_size: '512,512,512',
+        resolution: '0.104,0.104,0.18',
+
         // stitching params
         spark_container_repo: 'registry.int.janelia.org/exm-analysis',
         spark_container_name: 'stitching',
@@ -14,11 +18,9 @@ def default_em_params() {
         spark_local_dir: "/tmp",
         stitching_app: '/app/app.jar',
         driver_stack: '128m',
-        stitching_output: 'stitching',
-        resolution: '0.104,0.104,0.18',
+        stitching_output: '',
         axis: '-y,-x,z',
         channels: '488nm,560nm,642nm',
-        block_size: '512,512,512',
         stitching_mode: 'incremental',
         stitching_padding: '0,0,0',
         stitching_blur_sigma: '2',
@@ -31,25 +33,24 @@ def default_em_params() {
         psf_z_step_um: '0.1',
         iterations_per_channel: '10,10,10',
 
-        pipeline: 'presynaptic_in_volume',
         // synapse detection params
+        pipeline: 'presynaptic_in_volume',
+        synapse_model: '/groups/dickson/dicksonlab/lillvis/ExM/Ding-Ackerman/crops-for-training_Oct2018/DING/model_DNN/saved_unet_model_2020/unet_model_synapse2020_6/unet_model_synapse2020_6.whole.h5',
         pre_synapse_stack_dir: '',
         n1_stack_dir: '',
         n2_stack_dir: '',
         post_synapse_stack_dir: '',
-
         tiff2n5_cpus: 3,
         n52tiff_cpus: 3,
         unet_cpus: 4,
-        synapse_model: '/groups/dickson/dicksonlab/lillvis/ExM/Ding-Ackerman/crops-for-training_Oct2018/DING/model_DNN/saved_unet_model_2020/unet_model_synapse2020_6/unet_model_synapse2020_6.whole.h5',
         postprocessing_cpus: 3,
-        volume_partition_size: 1000,
-        presynaptic_stage2_threshold: 100,
-        presynaptic_stage2_percentage: 1,
-        postsynaptic_stage2_threshold: 100,
-        postsynaptic_stage2_percentage: 1,
-        postsynaptic_stage3_percentage: 100,
-        postsynaptic_stage3_threshold: 1,
+        volume_partition_size: 512,
+        presynaptic_stage2_threshold: 400,
+        presynaptic_stage2_percentage: 0.5,
+        postsynaptic_stage2_threshold: 200,
+        postsynaptic_stage2_percentage: 0.001,
+        postsynaptic_stage3_percentage: 400,
+        postsynaptic_stage3_threshold: 0.001
     ]
 }
 
@@ -90,7 +91,7 @@ def deconvolution_container_param(Map ps) {
 def exm_synapse_container_param(Map ps) {
     def exm_synapse_container = ps.exm_synapse_container
     if (!exm_synapse_container)
-        "${ps.exm_repo}/synapse:1.1.0"
+        "${ps.exm_repo}/synapse:1.1.1"
     else
         exm_synapse_container
 }
@@ -98,7 +99,7 @@ def exm_synapse_container_param(Map ps) {
 def exm_synapse_dask_container_param(Map ps) {
     def exm_synapse_dask_container = ps.exm_synapse_dask_container
     if (!exm_synapse_dask_container)
-        "${ps.exm_repo}/synapse-dask:1.0.0"
+        "${ps.exm_repo}/synapse-dask:1.0.2"
     else
         exm_synapse_dask_container
 }

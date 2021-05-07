@@ -40,7 +40,7 @@ workflow {
                         final_params.pre_synapse_stack_dir,
                         final_params.n1_stack_dir,
                         final_params.n2_stack_dir,
-                        "${pipeline_output_dir}/presynaptic_n1_to_n2_n5",
+                        pipeline_output_dir,
                     ]
                 )
             )
@@ -58,7 +58,7 @@ workflow {
                         final_params.pre_synapse_stack_dir,
                         final_params.n1_stack_dir,
                         final_params.post_synapse_stack_dir,
-                        "${pipeline_output_dir}/presynaptic_n1_to_restricted_post_n2_n5",
+                        pipeline_output_dir,
                     ]
                 )
             )
@@ -73,7 +73,7 @@ workflow {
                 Channel.of(
                     [
                         final_params.pre_synapse_stack_dir,
-                        "${pipeline_output_dir}/presynaptic_in_volume_n5",
+                        pipeline_output_dir,
                     ]
                 )
             )

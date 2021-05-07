@@ -1,14 +1,14 @@
 #!/usr/bin/env python
-#
-# 
 
 import argparse
 import zarr
+import numcodecs as codecs
 import dask_image.imread
 from dask.delayed import delayed
 
 
-def tif_series_to_n5_volume(input_path, output_path, data_set, chunk_size=(512,512,512), overwrite=True):
+def tif_series_to_n5_volume(input_path, output_path, data_set, compressor, \
+                            chunk_size=(512,512,512), overwrite=True):
     '''
     Convert TIFF slices into an n5 volume with given chunk size. 
     This method processes only one Z chunk at a time, to avoid overwhelming worker memory. 
@@ -21,16 +21,18 @@ def tif_series_to_n5_volume(input_path, output_path, data_set, chunk_size=(512,5
     ranges = [(c, c+chunk_z if c+chunk_z<num_slices else num_slices) for c in range(0,num_slices,chunk_z)]
 
     print("Saving volume")
-    print(f"  shape:    {volume.shape}")
-    print(f"  chunking: {chunk_size}")
-    print(f"  dtype:    {volume.dtype}")
-    print(f"  to path:  {output_path}{data_set}")
+    print(f"  compressor: {compressor}")
+    print(f"  shape:      {volume.shape}")
+    print(f"  chunking:   {chunk_size}")
+    print(f"  dtype:      {volume.dtype}")
+    print(f"  to path:    {output_path}{data_set}")
 
     # Create the array container
     zarr.create(
             shape=volume.shape,
             chunks=chunk_size,
             dtype=volume.dtype,
+            compressor=compressor,
             store=store,
             path=data_set,
             overwrite=overwrite
@@ -62,6 +64,9 @@ def main():
     parser.add_argument('-c', '--chunk_size', dest='chunk_size', type=str, \
         help='Comma-delimited list describing the chunk size. Default is 512,512,512.', default="512,512,512")
 
+    parser.add_argument('--compression', dest='compression', type=str, default='bz2', \
+        help='Set the compression. Valid values any codec id supported by numcodecs including: raw, lz4, gzip, bz2, blosc. Default is bz2.')
+
     parser.add_argument('--distributed', dest='distributed', action='store_true', \
         help='Run with distributed scheduler (default)')
     parser.set_defaults(distributed=False)
@@ -74,6 +79,11 @@ def main():
     parser.set_defaults(dashboard=False)
 
     args = parser.parse_args()
+
+    if args.compression=='raw':
+        compressor = None
+    else:
+        compressor = codecs.get_codec(dict(id=args.compression))
 
     if args.distributed:
         dashboard_address = None
@@ -90,7 +100,7 @@ def main():
         pbar = ProgressBar()
         pbar.register()
 
-    tif_series_to_n5_volume(args.input_path, args.output_path, args.data_set, \
+    tif_series_to_n5_volume(args.input_path, args.output_path, args.data_set, compressor, \
         chunk_size=[int(c) for c in args.chunk_size.split(',')])
 
 
