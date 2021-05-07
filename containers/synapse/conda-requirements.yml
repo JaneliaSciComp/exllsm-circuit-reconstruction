@@ -6,5 +6,5 @@ dependencies:
   - tensorflow=2.2
   - tensorflow-gpu=2.2
   - tqdm=4.48.2
-  - pandas=0.20.3
+  - pandas=0.25.3
 
