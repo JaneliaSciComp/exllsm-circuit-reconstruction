@@ -91,7 +91,7 @@ def deconvolution_container_param(Map ps) {
 def exm_synapse_container_param(Map ps) {
     def exm_synapse_container = ps.exm_synapse_container
     if (!exm_synapse_container)
-        "${ps.exm_repo}/synapse:1.1.1"
+        "${ps.exm_repo}/synapse:1.2.0"
     else
         exm_synapse_container
 }
