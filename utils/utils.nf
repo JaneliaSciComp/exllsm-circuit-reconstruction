@@ -26,3 +26,12 @@ def write_json(data, cf) {
     def json_beauty = groovy.json.JsonOutput.prettyPrint(json_str)
     cf.write(json_beauty)
 }
+
+def json_text_to_data(text) {
+    def jsonSlurper = new groovy.json.JsonSlurper()
+    jsonSlurper.parseText(text)
+}
+
+def data_to_json_text(data) {
+    groovy.json.JsonOutput.toJson(data)
+}
