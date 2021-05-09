@@ -14,18 +14,20 @@ Note that the demo scripts set all these directories relative to the TMPDIR by d
 |------------|---------|---------------------------------------------------------------------------------------|
 | TMPDIR | /tmp | Directory used for temporary files by certain processes like MATLAB's MCR Cache. |
 | SINGULARITY_TMPDIR | /tmp | Directory where Docker images are downlaoded and converted to Singularity Image Format. Needs to be large enough to accomodate several GB, so moving it out of /tmp is sometimes necessary. |
-| SINGULARITY_CACHEDIR | $HOME/.singularity_cache | Directory where Singularity images are cached. This needs to be accessible from all nodes. |
 | SPARK_LOCAL_DIR | /tmp | Directory used for temporary storage by Spark (in the stitching module). |
 
 ## Global Parameters
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
+| -profile | standard | Configuration profile to use (Valid values: standard, lsf, localdocker) |
+| -with-tower | | [Nextflow Tower](https://tower.nf) URL for monitoring |
 | --spark_work_dir | | Path to directory containing Spark working files and logs during stitching |
 | &#x2011;&#x2011;segmentation_model_dir | | Path to the directory containing the machine learning model for segmentation |
 | --runtime_opts | | Runtime options for Singularity must include mounts for any directory paths you are using. You can also pass the --nv flag here to make use of NVIDIA GPU resources. For example, `--nv -B /your/data/dir -B /your/output/dir` | 
 | --workdir | ./work | Nextflow working directory where all intermediate files are saved |
-| --mfrepo | janeliascicomp (on DockerHub) | Docker Registry and Repository to use for containers | 
-| -profile | localsingularity | Configuration profile to use (Valid values: localsingularity, lsf) |
-| -with-tower | | [Nextflow Tower](https://tower.nf) URL for monitoring |
+| --lsf_opts | | Any extra options to pass to bsub when running jobs on LSF |
+| --runtime_opts | | Runtime options for Singularity must include mounts for any directory paths you are using. You can also pass the --nv flag here to make use of NVIDIA GPU resources. For example, `--nv -B /your/data/dir -B /your/output/dir` | 
+| --singularity_cache_dir | | Path to directory used for caching Singularity container images. If running in distributed mode, this path must be accessible from all cluster nodes. |
+
 

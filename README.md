@@ -42,17 +42,6 @@ The pipeline includes the following workflows:
 * **VVD converter** - distributed pipeline for converting to VVD format
 
 
-## Global Parameters
-
-The following parameters are required to run the full pipeline. See the [parameter documentation](docs/Parameters.md) for a complete list of all possible options.
-
-| Argument   | Description                                                                           |
-|------------|---------------------------------------------------------------------------------------|
-| --runtime_opts | | Runtime options for Singularity must include mounts for any directory paths you are using. You can also pass the --nv flag here to make use of NVIDIA GPU resources. For example, `--nv -B /your/data/dir -B /your/output/dir` | 
-| --workdir | ./work | Nextflow working directory where all intermediate files are saved |
-| -profile | localsingularity | Configuration profile to use (Valid values: localsingularity, lsf) |
-| -with-tower | | [Nextflow Tower](https://tower.nf) URL for monitoring |
-
 ## Pipeline Execution
 
 Nextflow supports many different execution engines for portability across platforms and schedulers. We have tested the pipeline using local execution and using the cluster at Janelia Research Campus (running IBM Platform LSF). 
