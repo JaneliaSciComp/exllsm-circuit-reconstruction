@@ -205,7 +205,7 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
     def post_synapse_data = input_data
     | map {
         def (pre_synapse_stack, n1_mask_stack, post_synapse_stack, output_dir) = it
-        [ pre_synapse_stack, "${output_dir}/post_synapse.n5" ]
+        [ post_synapse_stack, "${output_dir}/post_synapse.n5" ]
     }
     | post_synapse_to_n5 // [ post_synapse_stack, post_synapse_n5, poost_synapse_size ]
     | map {
