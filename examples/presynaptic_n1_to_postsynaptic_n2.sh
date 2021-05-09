@@ -14,6 +14,7 @@ MODEL="/groups/dickson/dicksonlab/lillvis/ExM/Ding-Ackerman/crops-for-training_O
 BIND_FLAGS="-B $RES_DIR -B /scratch -B /nrs/scicompsoft/rokicki -B /groups/dickson/dicksonlab/lillvis -B /nrs/dickson/lillvis"
 PROJECT_CODE="dickson"
 
+
 ./synapse_pipeline.nf \
         -profile ${PROFILE} \
         --lsf_opts "-P $PROJECT_CODE" \
@@ -30,6 +31,8 @@ PROJECT_CODE="dickson"
         --presynaptic_stage2_percentage "0.5" \
         --postsynaptic_stage2_threshold "200" \
         --postsynaptic_stage2_percentage "0.001" \
+        --postsynaptic_stage3_threshold "400" \
+        --postsynaptic_stage3_percentage "0.001" \
         -with-tower http://nextflow.int.janelia.org/api "$@"
 
 popd
