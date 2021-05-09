@@ -129,7 +129,7 @@ workflow {
         channels,
         final_params.stitching_mode,
         final_params.stitching_padding,
-        final_params.blur_sigma,
+        final_params.stitching_blur_sigma,
         final_params.export_level,
         final_params.allow_fusestage,
         spark_conf,
