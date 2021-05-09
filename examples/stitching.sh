@@ -7,7 +7,6 @@ export TMPDIR="${TMPDIR:-/opt/tmp}"
 export SINGULARITY_TMPDIR="${SINGULARITY_TMPDIR:-$TMPDIR}"
 
 PROFILE=lsf
-CONTAINER_ENV_ARG="-e --env \"USER=$USER\""
 INPUT_DIR=/nrs/scicompsoft/goinac/lillvis/DA1/images
 BIND_FLAGS="-B /scratch -B /nrs/scicompsoft/rokicki -B $INPUT_DIR -B /groups/dickson/dicksonlab/lillvis/ExM/lattice/PSFs"
 PSF_DIR="/groups/dickson/dicksonlab/lillvis/ExM/lattice/PSFs/20200928/PSFs"
@@ -16,7 +15,7 @@ PROJECT_CODE="dickson"
 ./stitch_pipeline.nf \
         -profile $PROFILE \
         --lsf_opts "-P $PROJECT_CODE" \
-        --runtime_opts "-e ${BIND_FLAGS} ${CONTAINER_ENV_ARG}" \
+        --runtime_opts "${BIND_FLAGS}" \
         --workers 4 \
         --gb_per_core 15 \
         --worker_cores 16 \
