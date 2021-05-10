@@ -48,10 +48,15 @@ def add_multiscale(n5_path, data_set, downsampling_factors=(2,2,2), \
     '''
     print('Generating multiscale for', n5_path)
     store = zarr.N5Store(n5_path)
-    volume = da.from_zarr(store, component=f'{data_set}/s0')
-    print(volume)
+
+    # Find out what compression is used for s0, so we can use the same for the multiscale
+    fullscale = f'{data_set}/s0'
+    r = zarr.open(store=store, mode='r')
+    compressor = r[fullscale].compressor
+
+    volume = da.from_zarr(store, component=fullscale)
     chunk_size = volume.chunksize
-    if not thumbnail_size_yx: thumbnail_size_yx = chunk_size
+    thumbnail_size_yx = thumbnail_size_yx or chunk_size
     multi = multiscale(volume, downsampling_method, downsampling_factors, chunks=chunk_size)
     thumbnail_sized = [np.less_equal(m.shape, thumbnail_size_yx).all() for m in multi]
     cutoff = thumbnail_sized.index(True)
@@ -60,8 +65,14 @@ def add_multiscale(n5_path, data_set, downsampling_factors=(2,2,2), \
     for idx, m in enumerate(multi_to_save):
         if idx==0: continue
         print(f'Saving level {idx}')
-        m.data.to_zarr(store, component=f'{data_set}/s{idx}', overwrite=True)
-        z = zarr.open(store, path=f'{data_set}/s{idx}', mode='a')
+        component = f'{data_set}/s{idx}'
+
+        m.data.to_zarr(store, 
+                       component=component, 
+                       overwrite=True, 
+                       compressor=compressor)
+
+        z = zarr.open(store, path=component, mode='a')
         z.attrs["downsamplingFactors"] = tuple([int(math.pow(f,idx)) for f in downsampling_factors])
 
     print("Added multiscale imagery to", n5_path)
@@ -93,7 +104,7 @@ def main():
         help='If --distributed is set, this specifies the number of workers (default 20)')
 
     parser.add_argument('--dashboard', dest='dashboard', action='store_true', \
-        help='Run a web-based dashboard on port 8787')
+        help='If --distributed is set, this runs a web-based dashboard on port 8787')
     parser.set_defaults(dashboard=False)
 
     parser.add_argument('--metadata-only', dest='metadata_only', action='store_true', \
@@ -111,7 +122,6 @@ def main():
         from dask.distributed import Client
         client = Client(processes=True, n_workers=args.workers, \
             threads_per_worker=1, dashboard_address=dashboard_address)
-        client.cluster
         
     else:
         from dask.diagnostics import ProgressBar
