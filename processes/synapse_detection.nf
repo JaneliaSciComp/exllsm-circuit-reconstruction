@@ -23,7 +23,7 @@ process read_n5_metadata {
     container { params.exm_synapse_dask_container }
 
     input:
-    tuple val(n5_stack)
+    val(n5_stack)
 
     output:
     tuple val(n5_stack), env(n5_attributes)
