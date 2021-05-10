@@ -25,7 +25,7 @@ Deconvolution uses a MATLAB script (details TBD).
 |------------|---------|---------------------------------------------------------------------------------------|
 | --spark_container_repo | registry.int.janelia.org/exm-analysis | Docker registry and repository for the spark container |
 | --spark_container_name | stitching | Name for the container in the spark_container_repo | 
-| --spark_container_version | <pinned> | Version for the container in the spark_container_repo |
+| &#x2011;&#x2011;spark_container_version | `pinned` | Version for the container in the spark_container_repo |
 | --stitching_app | /app/app.jar | Path to the JAR file containing the stitching application. |
 | --workers | 4 | Number of Spark workers to use for stitching |
 | --worker_cores | 4 | Number of cores allocated to each Spark worker |
@@ -39,7 +39,7 @@ Deconvolution uses a MATLAB script (details TBD).
 | --block_size | 128,128,64 | Block size to use when converting to n5 before stitching |
 | --stitching_mode | incremental | |
 | --stitching_padding | 0,0,0 | |
-| &#x2011;&#x2011;stitching_blur_sigma | 2 | |
+| --stitching_blur_sigma | 2 | |
 | --deconv_cpus | 4 | Number of CPUs to use for deconvolution |
 | --background | | TBD |
 | --psf_z_step_um | 0.1 | TBD |

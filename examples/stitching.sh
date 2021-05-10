@@ -6,10 +6,12 @@ pushd $DIR/..
 export TMPDIR="${TMPDIR:-/opt/tmp}"
 export SINGULARITY_TMPDIR="${SINGULARITY_TMPDIR:-$TMPDIR}"
 
-PROFILE=lsf
-INPUT_DIR=/nrs/scicompsoft/goinac/lillvis/DA1/images
-BIND_FLAGS="-B /scratch -B /nrs/scicompsoft/rokicki -B $INPUT_DIR -B /groups/dickson/dicksonlab/lillvis/ExM/lattice/PSFs"
+INPUT_DIR="/nrs/scicompsoft/goinac/lillvis/DA1/images"
+OUTPUT_DIR="/nrs/scicompsoft/rokicki/exm/results/stitching"
 PSF_DIR="/groups/dickson/dicksonlab/lillvis/ExM/lattice/PSFs/20200928/PSFs"
+
+PROFILE=lsf
+BIND_FLAGS="-B /scratch -B $INPUT_DIR -B $OUTPUT_DIR -B $PDF_DIR"
 PROJECT_CODE="dickson"
 
 ./stitch_pipeline.nf \
@@ -22,10 +24,10 @@ PROJECT_CODE="dickson"
         --driver_memory 10g \
         --spark_work_dir "$PWD/local" \
         --wait_for_spark_timeout_seconds 300 \
-        --stitching_app "$PWD/external-modules/stitching-spark/target/stitching-spark-1.8.2-SNAPSHOT.jar" \
-        --images_dir $INPUT_DIR \
-        --output_dir /nrs/scicompsoft/rokicki/exm/results/stitching \
-        --psf_dir $PSF_DIR \
+        --images_dir "$INPUT_DIR" \
+        --output_dir "$OUTPUT_DIR" \
+        --psf_dir "$PSF_DIR" \
         --deconv_cores 4 \
         -with-tower http://nextflow.int.janelia.org/api "$@"
+
 popd
