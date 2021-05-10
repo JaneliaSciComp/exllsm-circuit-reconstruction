@@ -1,7 +1,3 @@
-include {
-    read_json;
-} from '../utils/utils'
-
 process create_n5_volume {
     container { params.exm_synapse_dask_container }
 
@@ -21,26 +17,26 @@ process create_n5_volume {
     """
 }
 
-def readN5Attributes(n5Path) {
-    def attributesFilepath = "${n5Path}/s0/attributes.json"
-    def attributesFile = new File(attributesFilepath)
-    if (attributesFile.exists()) {
-        return read_json(attributesFile)
-    } else
-        return [:]
-}
-
 process read_n5_metadata {
-    executor 'local'
+    label 'small'
+
+    container { params.exm_synapse_dask_container }
 
     input:
-    tuple val(tiff_stack_dir), val(n5_file)
+    tuple val(n5_stack)
 
     output:
-    tuple val(tiff_stack_dir), val(n5_file), val(dimensions)
+    tuple val(n5_stack), env(n5_attributes)
 
-    exec:
-    dimensions = readN5Attributes(n5_file).dimensions
+    script:
+    def n5_attributes_file = "${n5_stack}/s0/attributes.json"
+    """
+    if [[ -e ${n5_attributes_file} ]]; then
+        n5_attributes=`cat ${n5_attributes_file}`
+    else
+        n5_attributes=null
+    fi
+    """
 }
 
 process tiff_to_n5 {

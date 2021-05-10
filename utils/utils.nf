@@ -16,17 +16,6 @@ def index_channel(c) {
     } | flatMap { it[1] }
 }
 
-def read_json(cf) {
-    def jsonSlurper = new groovy.json.JsonSlurper()
-    return jsonSlurper.parse(cf)
-}
-
-def write_json(data, cf) {
-    def json_str = groovy.json.JsonOutput.toJson(data)
-    def json_beauty = groovy.json.JsonOutput.prettyPrint(json_str)
-    cf.write(json_beauty)
-}
-
 def json_text_to_data(text) {
     def jsonSlurper = new groovy.json.JsonSlurper()
     jsonSlurper.parseText(text)
