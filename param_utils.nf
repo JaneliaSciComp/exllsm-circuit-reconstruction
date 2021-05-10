@@ -3,15 +3,15 @@ def default_em_params() {
         deconv_repo: 'registry.int.janelia.org/janeliascicomp',
         exm_repo: 'registry.int.janelia.org/exm-analysis',
 
-        images_dir: '',
-        psf_dir: '',
-        output_dir: '',
-
         // global parameters
         block_size: '512,512,512',
         resolution: '0.104,0.104,0.18',
+        n5_compression: 'gzip',
 
         // stitching params
+        images_dir: '',
+        psf_dir: '',
+        output_dir: '',
         spark_container_repo: 'registry.int.janelia.org/exm-analysis',
         spark_container_name: 'stitching',
         spark_container_version: '1.8.1',
@@ -99,7 +99,7 @@ def exm_synapse_container_param(Map ps) {
 def exm_synapse_dask_container_param(Map ps) {
     def exm_synapse_dask_container = ps.exm_synapse_dask_container
     if (!exm_synapse_dask_container)
-        "${ps.exm_repo}/synapse-dask:1.0.2"
+        "${ps.exm_repo}/synapse-dask:1.0.3"
     else
         exm_synapse_dask_container
 }
