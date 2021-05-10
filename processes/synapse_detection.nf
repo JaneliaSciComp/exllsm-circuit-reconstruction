@@ -17,7 +17,7 @@ process create_n5_volume {
     def (input_image, image_size, output_image) = input_tuple
     """
     mkdir -p ${file(output_image).parent}
-    /entrypoint.sh create_n5 -o ${output_image} -t ${input_image}
+    /entrypoint.sh create_n5 -o ${output_image} -t ${input_image} --compression ${params.n5_compression}
     """
 }
 
@@ -69,7 +69,7 @@ process tiff_to_n5 {
         ln -s "${input_stack_dir}/s0" "${output_n5_stack}/s0" || true
         ${create_empty_n5}
     else
-        /entrypoint.sh tif_to_n5 -i ${input_stack_dir} -o ${output_n5_stack} -c ${chunk_size}
+        /entrypoint.sh tif_to_n5 -i ${input_stack_dir} -o ${output_n5_stack} -c ${chunk_size} --compression ${params.n5_compression}
     fi
     """
 }
