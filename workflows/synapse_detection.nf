@@ -177,6 +177,7 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
 
     main:
 
+    // Convert presynaptic channel to n5
     def pre_synapse_data = input_data
     | map {
         def (pre_synapse_stack, n1_mask_stack, post_synapse_stack, output_dir) = it
@@ -188,6 +189,7 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
         [ "${n5_file.parent}" ] + it
     } // [ working_dir, tiff_stack, n5_file, size ]
 
+    // Convert neuron channel to n5
     def n1_data = input_data
     | map {
         def (pre_synapse_stack, n1_mask_stack, post_synapse_stack, output_dir) = it
@@ -199,10 +201,11 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
         [ "${n5_file.parent}" ] + it
     } // [ working_dir, tiff_stack, n5_file, size ]
 
+    // Convert postsynaptic channel to n5
     def post_synapse_data = input_data
     | map {
         def (pre_synapse_stack, n1_mask_stack, post_synapse_stack, output_dir) = it
-        [ pre_synapse_stack, "${output_dir}/post_synapse.n5" ]
+        [ post_synapse_stack, "${output_dir}/post_synapse.n5" ]
     }
     | post_synapse_to_n5 // [ post_synapse_stack, post_synapse_n5, poost_synapse_size ]
     | map {
@@ -223,6 +226,7 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
         r
     }
 
+    // Segment presynaptic channel and identify presynaptic that colocalizes with neuron1 mask
     def presynaptic_n1_regions = classify_presynaptic_regions(
         presynaptic_n1_inputs,
         params.synapse_model,
@@ -243,6 +247,8 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
         d
     }
 
+    // Segment postsynaptic channel and identify postsynaptic that colocalizes with neuron1 presynaptic 
+    // (this infers restricted neuron2 presynaptic)
     def post_to_pre_synaptic_results = classify_postsynaptic_regions(
         post_to_pre_synaptic_inputs,
         params.synapse_model,
@@ -266,6 +272,7 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
         d
     }
 
+    // Identify neuron1 presynaptic that colocalize with neuron2 presynaptic
     def pre_n1_to_post_synaptic_n2_results = connect_regions_in_volume(
         pre_to_post_synaptic_inputs,
         params.postsynaptic_stage3_percentage,

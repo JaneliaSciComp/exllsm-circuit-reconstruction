@@ -15,4 +15,4 @@ If you do this, make sure to mount this directory into the containers using the 
 
 ### Cached SIF Files
 
-By default, all Singularity images (SIF-format .img files) are cached by the pipeline in ~/.singularity_cache. This directory must be accessible from all cluster nodes. You can customize this directory by setting `singularity.cacheDir` in the `nextflow.config` file.
+By default, all Singularity images (SIF-format .img files) are cached by the pipeline in ~/.singularity_cache. This directory must be accessible from all cluster nodes. You can customize this directory with the `--singularity_cache_dir` parameter.
