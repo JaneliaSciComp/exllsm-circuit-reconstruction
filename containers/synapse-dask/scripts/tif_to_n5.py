@@ -8,13 +8,19 @@ from dask.delayed import delayed
 
 
 def tif_series_to_n5_volume(input_path, output_path, data_set, compressor, \
-                            chunk_size=(512,512,512), overwrite=True):
+                            chunk_size=(512,512,512), dtype='same', overwrite=True):
     '''
     Convert TIFF slices into an n5 volume with given chunk size. 
     This method processes only one Z chunk at a time, to avoid overwhelming worker memory. 
     '''
     images = dask_image.imread.imread(input_path+'/*.tif')
     volume = images.rechunk(chunk_size)
+
+    if dtype=='same':
+        dtype = volume.dtype
+    else:
+        volume = volume.astype(dtype)
+
     store = zarr.N5Store(output_path)
     num_slices = volume.shape[0]
     chunk_z = chunk_size[2]
@@ -24,14 +30,14 @@ def tif_series_to_n5_volume(input_path, output_path, data_set, compressor, \
     print(f"  compressor: {compressor}")
     print(f"  shape:      {volume.shape}")
     print(f"  chunking:   {chunk_size}")
-    print(f"  dtype:      {volume.dtype}")
+    print(f"  dtype:      {dtype}")
     print(f"  to path:    {output_path}{data_set}")
 
     # Create the array container
     zarr.create(
             shape=volume.shape,
             chunks=chunk_size,
-            dtype=volume.dtype,
+            dtype=dtype,
             compressor=compressor,
             store=store,
             path=data_set,
@@ -63,6 +69,9 @@ def main():
 
     parser.add_argument('-c', '--chunk_size', dest='chunk_size', type=str, \
         help='Comma-delimited list describing the chunk size. Default is 512,512,512.', default="512,512,512")
+
+    parser.add_argument('--dtype', dest='dtype', type=str, default='same', \
+        help='Set the output dtype. Default is the same dtype as the template.')
 
     parser.add_argument('--compression', dest='compression', type=str, default='bz2', \
         help='Set the compression. Valid values any codec id supported by numcodecs including: raw, lz4, gzip, bz2, blosc. Default is bz2.')
@@ -101,7 +110,7 @@ def main():
         pbar.register()
 
     tif_series_to_n5_volume(args.input_path, args.output_path, args.data_set, compressor, \
-        chunk_size=[int(c) for c in args.chunk_size.split(',')])
+        chunk_size=[int(c) for c in args.chunk_size.split(',')], dtype=args.dtype)
 
 
 if __name__ == "__main__":
