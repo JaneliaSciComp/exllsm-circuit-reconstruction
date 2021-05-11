@@ -139,7 +139,7 @@ workflow classify_and_connect_regions_in_volume {
     | map {
         def (unet_out_image, mask, image_size, post_unet_out_image, in_image) = it
         def r = [ in_image, mask, image_size, unet_out_image, post_unet_out_image ]
-        log.input "Post U-Net results: $it -> $r"
+        log.debug "Post U-Net results: $it -> $r"
         r
     }
 
