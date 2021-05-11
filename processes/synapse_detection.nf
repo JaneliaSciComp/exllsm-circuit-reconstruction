@@ -138,7 +138,6 @@ process segmentation_postprocessing {
         --end ${end_subvolume} \
         -p ${percentage} \
         -t ${threshold} \
-        --keep_ws_tiff \
         ${mask_arg}
     """
 }

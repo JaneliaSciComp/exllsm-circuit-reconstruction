@@ -99,7 +99,7 @@ def exm_synapse_container_param(Map ps) {
 def exm_synapse_dask_container_param(Map ps) {
     def exm_synapse_dask_container = ps.exm_synapse_dask_container
     if (!exm_synapse_dask_container)
-        "${ps.exm_repo}/synapse-dask:1.0.3"
+        "${ps.exm_repo}/synapse-dask:1.1.0"
     else
         exm_synapse_dask_container
 }

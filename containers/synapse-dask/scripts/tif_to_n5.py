@@ -109,8 +109,11 @@ def main():
         pbar = ProgressBar()
         pbar.register()
 
-    tif_series_to_n5_volume(args.input_path, args.output_path, args.data_set, compressor, \
-        chunk_size=[int(c) for c in args.chunk_size.split(',')], dtype=args.dtype)
+    tif_series_to_n5_volume(args.input_path, args.output_path, args.data_set,
+                            compressor,
+                            chunk_size=[int(c)
+                                        for c in args.chunk_size.split(',')],
+                            dtype=args.dtype)
 
 
 if __name__ == "__main__":
