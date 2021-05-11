@@ -1,7 +1,7 @@
 dependencies:
   - numpy
   - h5py=2.10
-  - scikit-image=0.17
+  - scikit-image=0.18.1
   - zarr=2.7
   - tensorflow=2.2
   - tensorflow-gpu=2.2

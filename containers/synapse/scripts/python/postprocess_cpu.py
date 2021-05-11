@@ -38,7 +38,7 @@ def tif_write(im_array, file_name):
     return None
 
 
-def remove_small_piece(out_path, prefix, img, start, end, mask=None, threshold=10, percentage=1.0, connectivity=2):
+def remove_small_piece(out_path, prefix, img, start, end, mask=None, threshold=10, percentage=1.0, connectivity=3):
     """
     Remove blobs that have less than N voxels.
     Write final result to output hdf5 file, output a .csv file indicating the location and size of each synapses.
@@ -160,7 +160,7 @@ def main():
     parser.add_argument('-p', '--percentage', dest='percentage', type=float, default=1.0,
                         help='threshold to remove the object if it falls in the mask less than a percentage. If percentage is 1, criteria will be whether the centroid falls within the mask.')
 
-    parser.add_argument('-c', '--connectivity', dest='connectivity', type=int, defautl=2,
+    parser.add_argument('-c', '--connectivity', dest='connectivity', type=int, default=3,
                         help='Specify region connectivity')
 
     args = parser.parse_args()
