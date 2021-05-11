@@ -241,9 +241,12 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
     def post_to_pre_synaptic_inputs = pre_and_post_synaptic_data
     | join(presynaptic_n1_regions, by:0)
     | map {
-        def (working_dir, pre_synapse_stack, pre_synapse, pre_synapse_size, n1_tiff, n1, n1_size, post_synapse_stack, post_synapse, post_synapse_size) = it
+        def (working_dir,
+            pre_synapse_stack, pre_synapse, pre_synapse_size,
+            n1_tiff, n1, n1_size,
+            post_synapse_stack, post_synapse, post_synapse_size) = it
         def d = [ post_synapse, "${working_dir}/pre_synapse_seg_n1.n5", post_synapse_size, "${working_dir}/post_synapse_seg.n5", "${working_dir}/post_synapse_seg_pre_synapse_seg_n1.n5" ]
-        log.debug "Pre-synaptic n1 to n2 restricted post-synaptic inputs: $d"
+        log.debug "Post-synaptic n2 to pre-synaptic n1 inputs: $it -> $d"
         d
     }
 
@@ -268,7 +271,8 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
             pre_synapse, n1, synapse_size, synapse_seg, synapse_seg_n1,
             post_synapse, pre_synapse_seg_n1, post_synapse_size, post_synapse_seg, post_synapse_seg_pre_synapse_seg_n1
         ) = it
-        def d = [ synapse_seg_n1, post_synapse_seg_pre_synapse_seg_n1, synapse_size, "${working_dir}/presynatic_seg_n1_postsynaptic_n2_from_n1.n5"]
+        def d = [ synapse_seg_n1, post_synapse_seg_pre_synapse_seg_n1, synapse_size, "${working_dir}/pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1.n5"]
+        log.debug "Connect pre-synaptic n1 to restricted post-synaptic n2 inputs: $it -> $d"
         d
     }
 
@@ -296,7 +300,7 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
             "${working_dir}/pre_synapse_seg_n1.n5",
             "${working_dir}/post_synapse_seg.n5",
             "${working_dir}/post_synapse_seg_pre_synapse_seg_n1.n5",
-            "${working_dir}/presynatic_seg_n1_postsynaptic_n2_from_n1.n5",
+            "${working_dir}/pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1.n5",
             "${working_dir.parent}",
         ]
         log.debug "Pre-synaptic n1 to restricted post-synaptic n2 results:  $r"

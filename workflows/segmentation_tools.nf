@@ -103,7 +103,9 @@ workflow classify_and_connect_regions_in_volume {
     def classifier_results = classify_regions_in_volume(
         input_data.map {
             def (in_image, mask, image_size, unet_out_image) = it
-            [ in_image, image_size, unet_out_image ]
+            def d = [ in_image, image_size, unet_out_image ]
+            log.debug "U-Net inputs: $it -> $d"
+            d
         },
         unet_model
     ) // [ input_image, image_size, unet_image ]
@@ -119,7 +121,9 @@ workflow classify_and_connect_regions_in_volume {
     def post_classifier_results = connect_regions_in_volume(
         post_classifier_inputs.map {
             def (in_image, image_size, unet_out_image, mask, post_unet_out_image) = it
-            [ unet_out_image, mask, image_size, post_unet_out_image ]
+            def d = [ unet_out_image, mask, image_size, post_unet_out_image ]
+            log.debug "Post U-Net inputs: $it -> $d"
+            d
         },
         percentage,
         threshold
@@ -134,7 +138,9 @@ workflow classify_and_connect_regions_in_volume {
     | join(post_classifier_results, by: [0..3])
     | map {
         def (unet_out_image, mask, image_size, post_unet_out_image, in_image) = it
-        [ in_image, mask, image_size, unet_out_image, post_unet_out_image ]
+        def r = [ in_image, mask, image_size, unet_out_image, post_unet_out_image ]
+        log.input "Post U-Net results: $it -> $r"
+        r
     }
 
     emit:
