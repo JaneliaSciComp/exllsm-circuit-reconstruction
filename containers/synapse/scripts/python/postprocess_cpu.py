@@ -16,24 +16,21 @@ from n5_utils import read_n5_block, write_n5_block
 
 def tif_read(file_name):
     """
-    read tif image in (rows,cols,slices) shape
+    read tif image as (slices, rows, cols) shape
+    and returns it as (cols, rows, slices
+    so the addressing of the in memory array will be [x, y, z]
     """
     im = skimage.io.imread(file_name)
-    im_array = np.zeros(
-        (im.shape[1], im.shape[2], im.shape[0]), dtype=np.uint16)
-    for i in range(im.shape[0]):
-        im_array[:, :, i] = im[i]
+    im_array = im.transpose(2, 1, 0)
     return im_array
 
 
 def tif_write(im_array, file_name):
     """
-    write an array with (rows,cols,slices) shape into a tif image
+    the input im_array has the shape (cols, rows, slices)
+    and it writes it as (slices, rows, cols)
     """
-    im = np.zeros((im_array.shape[2], im_array.shape[0],
-                   im_array.shape[1]), dtype=im_array.dtype)
-    for i in range(im_array.shape[2]):
-        im[i] = im_array[:, :, i]
+    im = im_array.transpose(2, 1, 0)
     skimage.io.imsave(file_name, im)
     return None
 
@@ -45,7 +42,7 @@ def remove_small_piece(out_path, prefix, img, start, end, mask=None, threshold=1
     Args:
     out_path: location to write CSV files
     prefix: prefix for CSV filenames
-    img: image to operate on
+    img: image to operate on in the shape (cols, rows, slices)
     start: (x,y,z) tuple indicating starting corner
     end: (x,y,z) tuple indicating ending corner
     mask: optional mask image
@@ -70,7 +67,10 @@ def remove_small_piece(out_path, prefix, img, start, end, mask=None, threshold=1
         print("num voxels: ", num_voxel)
         curr_obj = np.zeros(img.shape, dtype=img.dtype)
         curr_obj[label_img == props.label] = 1
-        center_row, center_col, center_vol = props.centroid
+        # because the image array has shape (cols, rows, slices)
+        # the coord comming from region properties will be
+        # in the form (x, y, z) instead of (slice, row, col)
+        center_x, center_y, center_z = props.centroid
 
         print("  Non zero: ", np.count_nonzero(curr_obj))
 
@@ -79,16 +79,17 @@ def remove_small_piece(out_path, prefix, img, start, end, mask=None, threshold=1
         else:
             mask = np.ones(img.shape, dtype=img.dtype)
         curr_obj = curr_obj * mask
-        print("  Non zero after masking: ", np.count_nonzero(curr_obj))
+        num_masked_voxels = np.count_nonzero(curr_obj)
+        print("  Non zero after masking: ", num_masked_voxels)
 
         exclude = False
-        if num_voxel < threshold:
+        if num_masked_voxels < threshold:
             exclude = True
         if percentage < 1:
-            if np.count_nonzero(curr_obj) < num_voxel*percentage:
+            if num_masked_voxels < num_voxel*percentage:
                 exclude = True
         else:
-            if mask[int(center_row), int(center_col), int(center_vol)] == 0:
+            if mask[int(center_x), int(center_y), int(center_z)] == 0:
                 exclude = True
 
         if exclude:
@@ -102,20 +103,20 @@ def remove_small_piece(out_path, prefix, img, start, end, mask=None, threshold=1
                     writer = csv.writer(
                         csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
                     writer.writerow(
-                        [' ID ', ' Num vxl ', ' centroid ', ' bbox row ', ' bbox col ', ' bbox vol '])
+                        [' ID ', ' Num vxl ', ' centroid ', ' bbox x ', ' bbox y ', ' bbox vol '])
 
             idx += 1
-            min_row, min_col, min_vol, max_row, max_col, max_vol = props.bbox
-            bbox_row = (int(min_row+start[0]), int(max_row+start[0]))
-            bbox_col = (int(min_col+start[1]), int(max_col+start[1]))
-            bbox_vol = (int(min_vol+start[2]), int(max_vol+start[2]))
+            min_x, min_y, min_z, max_x, max_y, max_z = props.bbox
+            bbox_x = (int(min_x+start[0]), int(max_x+start[0]))
+            bbox_y = (int(min_y+start[1]), int(max_y+start[1]))
+            bbox_z = (int(min_z+start[2]), int(max_z+start[2]))
 
-            center = (int(center_row+start[0]),
-                      int(center_col+start[1]),
-                      int(center_vol+start[2]))
+            center = (int(center_x+start[0]),
+                      int(center_y+start[1]),
+                      int(center_z+start[2]))
 
             csv_row = [str(idx), str(num_voxel), str(center),
-                       str(bbox_row), str(bbox_col), str(bbox_vol)]
+                       str(bbox_x), str(bbox_y), str(bbox_z)]
             with open(csv_filepath, 'a') as csv_file:
                 writer = csv.writer(csv_file, delimiter=',',
                                     quotechar='"', quoting=csv.QUOTE_MINIMAL)

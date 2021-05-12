@@ -4,10 +4,9 @@ FROM condaforge/mambaforge as builder
 # ps is needed by nextflow to collect task metrics
 RUN apt-get install -y procps
 
-RUN mkdir /tmp-install
-COPY conda-requirements.yml /tmp-install/
+COPY conda-requirements.yml /tmp/
 
-RUN mamba env create -n myenv -f /tmp-install/conda-requirements.yml
+RUN mamba env create -n myenv python=3.8 -f /tmp/conda-requirements.yml
 
 RUN conda clean --tarballs \
     && mkdir -p /opt/conda/envs/myenv/etc/conda/activate.d \

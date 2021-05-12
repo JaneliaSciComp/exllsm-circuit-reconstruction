@@ -1,7 +1,7 @@
-function seg_img = close_and_watershed_transform(img)
-    seg_img = closing_img(img);
-    seg_img = water_shed(seg_img);
-    disp(['Completed watershed segmentation...', string(size(seg_img))]);
+function img = close_and_watershed_transform(img)
+    img = closing_img(img);
+    img = water_shed(img);
+    disp(['Completed watershed segmentation...', string(size(img))]);
 end
 
 function seg_img = closing_img(img)

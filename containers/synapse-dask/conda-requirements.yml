@@ -2,16 +2,13 @@ channels:
   - defaults
   - conda-forge
 dependencies:
-  - python=3.8
   - pip
   - numpy=1.20
   - tqdm
   - scikit-image=0.18.1
   - zarr=2.7
   - dask=2021.4
-  - dask-image=0.5.0
-  - imageio-ffmpeg
+  - dask-image=0.6.0
   - pip:
     - xarray-multiscale
     - fibsem-tools
-    - imageio==2.9.0

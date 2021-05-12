@@ -52,7 +52,7 @@ def tif_series_to_n5_volume(input_path, output_path, data_set, compressor, \
         z = delayed(zarr.Array)(store, path=data_set)
         slices.store(z, regions=regions, lock=False, compute=True)
 
-    print("Saved n5 volume to", output_path)
+    print('Saved n5 volume', str(volume.shape), 'to', output_path)
 
 
 def main():
