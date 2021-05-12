@@ -29,5 +29,5 @@ def write_n5_block(path, data_set, start, end, data):
     n5_path = path+data_set
     img = zarr.open(store=zarr.N5Store(n5_path), mode='a')
     # zarr writes zyx order
-    data = data[...].transpose(2, 1, 0)
-    img[start[2]:end[2], start[1]:end[1], start[0]:end[0]] = data
+    zarr_data = data[...].transpose(2, 1, 0)
+    img[start[2]:end[2], start[1]:end[1], start[0]:end[0]] = zarr_data

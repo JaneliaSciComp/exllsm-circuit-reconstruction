@@ -1,16 +1,17 @@
 # Create final image
 FROM condaforge/mambaforge as builder
 
-RUN mamba create -n myenv -c conda-forge python=3.8 tqdm numpy=1.20 scikit-image=0.18 \
-        zarr=2.7 dask=2021.4 dask-image=0.5.0 -y \
-    && conda run -n myenv pip install xarray-multiscale fibsem-tools \
-    && conda clean --tarballs \
+# ps is needed by nextflow to collect task metrics
+RUN apt-get install -y procps
+
+COPY conda-requirements.yml /tmp/
+
+RUN mamba env create -n myenv python=3.8 -f /tmp/conda-requirements.yml
+
+RUN conda clean --tarballs \
     && mkdir -p /opt/conda/envs/myenv/etc/conda/activate.d \
     # It's necessary to set TMPDIR for running with Singularity, because /opt/conda will be read-only
     && echo "export TMPDIR=/tmp" > /opt/conda/envs/myenv/etc/conda/activate.d/env_vars.sh
-
-# ps is needed by nextflow to collect task metrics
-RUN apt-get install -y procps
 
 COPY scripts /app
 
