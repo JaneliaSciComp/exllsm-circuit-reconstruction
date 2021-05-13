@@ -1,0 +1,7 @@
+maru_version: 0.1.1
+name: exm-tools-fiji
+version: 1.0.1
+remotes:
+- registry.int.janelia.org/exm-analysis
+build_args:
+  GIT_TAG: main
