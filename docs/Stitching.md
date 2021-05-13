@@ -11,11 +11,9 @@ All steps besides deconvolution use the [stitching-spark](https://github.com/saa
 
 Deconvolution uses a MATLAB script (details TBD). 
 
-Usage:
+Usage ([example](../examples/stitching.sh)):
 
     ./stitching.nf [arguments]
-
-(See [example](examples/stitching.sh) invocation)
 
 ## Required Parameters
 

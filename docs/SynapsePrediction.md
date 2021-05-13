@@ -37,11 +37,9 @@ These parameters are required for all workflows:
 
 ## Workflow A: Neuron 1 Presynaptic to Neuron 2
 
-Usage:
+Usage ([example](../examples/presynaptic_n1_to_n2.sh)):
 
     ./synapse_pipeline.nf --pipeline=presynaptic_n1_to_n2 [arguments]
-
-(See [example](examples/presynaptic_n1_to_n2.sh) invocation)
 
 Assigns presynaptic sites to neurons based on site colocalization with neuron masks.
 
@@ -67,11 +65,9 @@ This is the same as Workflow A but you would also reverse `--n1_stack_dir` and `
 
 ## Workflow C: Neuron 1 Presynaptic to Neuron 2 Restricted Postsynaptic 
 
-Usage:
+Usage ([example](../examples/presynaptic_n1_to_postsynaptic_n2.sh)):
 
     ./synapse_pipeline.nf --pipeline presynaptic_n1_to_postsynaptic_n2 [arguments]
-
-(See [example](examples/presynaptic_n1_to_postsynaptic_n2.sh) invocation)
 
 When pre/postsynaptic sites are expressed in a neuron-specific manner, e.g. through the use of driver line, this workflow can:
 1) segment presynaptic and postsynaptic channels
