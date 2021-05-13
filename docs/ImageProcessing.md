@@ -17,6 +17,7 @@ These parameters are required for all workflows:
 ## 3D mask connection
 
 Usage: 
+
     ./connect_pipeline.nf --input_mask_dir INPUT_MASK_DIR --shared_temp_dir SHARED_TEMP_DIR --output_dir OUTPUT_DIR
 
 The 3D mask connection workflow consists of a thresholding step, followed by a conversion into a block-based format, then connection, and then conversion back to TIFF.
