@@ -33,6 +33,44 @@ def default_em_params() {
         psf_z_step_um: '0.1',
         iterations_per_channel: '10,10,10',
 
+        // image processing
+        fiji_macro_container: 'registry.int.janelia.org/exm-analysis/exm-tools-fiji:1.0.1',
+
+        // 3D mask connection params
+        threshold: 255,
+        mask_connection_vx: 20,
+        mask_connection_time: 4,
+        threshold_cpus: 4,
+        threshold_mem_gb: 8,
+        convert_mask_cpus: 3,
+        convert_mask_mem_gb: 45,
+        expand_mask_cpus: 32,
+        expand_mask_mem_gb: 192,
+
+        // crosstalk subtraction params
+        crosstalk_threshold: 255,
+        crosstalk_subtraction_cpus: 4,
+        crosstalk_subtraction_mem_gb: 8,
+
+        // ROI cropping params
+        crop_format: "TIFFPackBits_8bit", // "ZIP", "uncompressedTIFF", "TIFFPackBits_8bit", "LZW"
+        crop_start_slice: -1,
+        crop_end_slice: -1,
+        crop_cpus: 4
+        crop_mem_gb: 8,
+
+        // VVD conversion params
+        vvd_pyramid_level: 5,
+        vvd_final_ratio: 10,
+        vvd_min_threshold: 100,
+        vvd_max_threshold: 2100,
+        vvd_export_cpus: 32,
+        vvd_export_mem_gb: 192,
+        
+        // MIP creation params
+        create_mip_cpus: 4,
+        create_mip_mem_gb: 8,
+
         // synapse detection params
         pipeline: 'presynaptic_in_volume',
         synapse_model: '/groups/dickson/dicksonlab/lillvis/ExM/Ding-Ackerman/crops-for-training_Oct2018/DING/model_DNN/saved_unet_model_2020/unet_model_synapse2020_6/unet_model_synapse2020_6.whole.h5',
