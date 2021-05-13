@@ -50,7 +50,7 @@ def remove_small_piece(out_path, prefix, img, start, end, mask=None, threshold=1
     percentage: threshold to remove the object if it falls in the mask less than a percentage. If percentage is 1, criteria will be whether the centroid falls within the mask
     """
 
-    print("Removing small blobs and save results to disk...")
+    print('Removing small blobs - initially there are ', np.count_nonzero(img), 'voxels')
     img[img != 0] = 1
     label_img = label(img, connectivity=connectivity)
     regionprop_img = regionprops(label_img)
@@ -64,7 +64,7 @@ def remove_small_piece(out_path, prefix, img, start, end, mask=None, threshold=1
 
     for props in regionprop_img:
         num_voxel = props.area
-        print("num voxels: ", num_voxel)
+        print('num voxels: ', num_voxel)
         curr_obj = np.zeros(img.shape, dtype=img.dtype)
         curr_obj[label_img == props.label] = 1
         # because the image array has shape (cols, rows, slices)
@@ -72,18 +72,17 @@ def remove_small_piece(out_path, prefix, img, start, end, mask=None, threshold=1
         # in the form (x, y, z) instead of (slice, row, col)
         center_x, center_y, center_z = props.centroid
 
-        print("  Non zero: ", np.count_nonzero(curr_obj))
-
         if mask is not None:
-            assert mask.shape == img.shape, "Mask and image shapes do not match!"
+            assert mask.shape == img.shape, 'Mask and image shapes do not match!'
         else:
             mask = np.ones(img.shape, dtype=img.dtype)
+
         curr_obj = curr_obj * mask
         num_masked_voxels = np.count_nonzero(curr_obj)
-        print("  Non zero after masking: ", num_masked_voxels)
+        print('  Non zero after masking: ', num_masked_voxels)
 
         exclude = False
-        if num_masked_voxels < threshold:
+        if num_voxel < threshold:
             exclude = True
         if percentage < 1:
             if num_masked_voxels < num_voxel*percentage:
@@ -93,13 +92,13 @@ def remove_small_piece(out_path, prefix, img, start, end, mask=None, threshold=1
                 exclude = True
 
         if exclude:
-            print("  Excluding label", props.centroid)
+            print('  Excluding label', str(props.label), 'at', props.centroid)
             img[label_img == props.label] = 0
         else:
-            print("  Including label ", props.centroid)
+            print('  Including label ', str(props.label), 'at', props.centroid)
             if idx == 0:
                 with open(csv_filepath, 'w') as csv_file:
-                    print("Writing to", csv_filepath)
+                    print('Writing to', csv_filepath)
                     writer = csv.writer(
                         csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
                     writer.writerow(
@@ -123,7 +122,7 @@ def remove_small_piece(out_path, prefix, img, start, end, mask=None, threshold=1
                 writer.writerow(csv_row)
 
     img[img != 0] = 255
-    print("Non-zero pixels:", np.count_nonzero(img))
+    print('Non-zero voxels:', np.count_nonzero(img))
     return img
 
 
@@ -134,7 +133,7 @@ def main():
     parser.add_argument('-i', '--input_path', dest='input_path', type=str, required=True,
                         help='Path to the input n5')
 
-    parser.add_argument('--data_set', dest='data_set', type=str, default="/s0",
+    parser.add_argument('--data_set', dest='data_set', type=str, default='/s0',
                         help='Path to data set (default "/s0")')
 
     parser.add_argument('-o', '--output_path', dest='output_path', type=str, required=True,
@@ -152,7 +151,7 @@ def main():
     parser.add_argument('-m', '--mask', dest='mask_path', type=str, required=True,
                         help='Path to the U-Net model n5')
 
-    parser.add_argument('--mask_data_set', dest='mask_data_set', type=str, default="/s0",
+    parser.add_argument('--mask_data_set', dest='mask_data_set', type=str, default='/s0',
                         help='Path to mask data set (default "/s0")')
 
     parser.add_argument('-t', '--threshold', dest='threshold', type=int, default=400,
@@ -173,11 +172,12 @@ def main():
 
     # Read part of the mask image based upon location
     if args.mask_path is not None:
+        print('Read mask', args.mask_path)
         mask = read_n5_block(args.mask_path, args.mask_data_set, start, end)
         # if the mask has all 0s, write out the result directly
         if np.count_nonzero(mask) == 0:
             write_n5_block(args.output_path, args.data_set, start, end, mask)
-            print("DONE! Location of the mask has all 0s.")
+            print('DONE! Location of the mask has all 0s.')
             sys.exit(0)
     else:
         mask = None
@@ -191,7 +191,7 @@ def main():
 
     prefix = os.path.splitext(os.path.split(args.output_path)[1])[0]
 
-    out_img_path = out_path + '/' + prefix + "_" + out_img_name + \
+    out_img_path = out_path + '/' + prefix + '_' + out_img_name + \
         '_x' + str(start[0]) + '_' + str(end[0]) + \
         '_y' + str(start[1]) + '_' + str(end[1]) + \
         '_z' + str(start[2]) + '_' + str(end[2]) + \
@@ -200,12 +200,12 @@ def main():
     print('Writing tiff image for watershed:', out_img_path)
     tif_write(img, out_img_path)
 
-    print("Applying closing/watershed algorithms in MATLAB")
+    print('Applying closing/watershed algorithms in MATLAB')
     watershed.initialize_runtime(['-nojvm', '-nodisplay'])
     ws = watershed.initialize()
     ws.closing_watershed(out_img_path)
     elapsed_time = time.time() - start_time
-    print(f"Completed watershed segmentation in {elapsed_time:0.4f} seconds")
+    print(f'Completed watershed segmentation in {elapsed_time:0.4f} seconds')
     ws.quit()
 
     segmented_img_data = tif_read(out_img_path)
@@ -213,7 +213,7 @@ def main():
 
     csv_out_path = args.csv_output_path or out_path
 
-    print("Removing small pieces (and writing CSV outputs)")
+    print('Removing small pieces (and writing CSV outputs)')
     img = remove_small_piece(csv_out_path,
                              prefix,
                              segmented_img_data,
@@ -230,8 +230,8 @@ def main():
         os.remove(out_img_path)
 
     elapsed_time = time.time() - start_time
-    print(f"DONE! Total running time was {elapsed_time:0.4f} seconds")
+    print(f'DONE! Total running time was {elapsed_time:0.4f} seconds')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
