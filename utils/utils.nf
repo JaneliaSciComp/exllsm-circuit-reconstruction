@@ -24,3 +24,9 @@ def json_text_to_data(text) {
 def data_to_json_text(data) {
     groovy.json.JsonOutput.toJson(data)
 }
+
+def create_container_options(flag, dirs) {
+    dirs.inject('') {
+        arg, item -> "${arg} ${flag} ${item}:${item}"
+    }
+}
