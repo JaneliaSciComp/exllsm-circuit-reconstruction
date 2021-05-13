@@ -5,10 +5,9 @@ This set of workflows includes various image processing tasks:
 * ROI cropping
 * Cross-talk subtraction
 * MIP creation
+* VVD file creation
 
 ## Global Optional Parameters
-
-These parameters are required for all workflows:
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
@@ -54,5 +53,9 @@ TBD
 TBD
 
 ## MIP creation
+
+TBD
+
+## VVD file creation
 
 TBD
