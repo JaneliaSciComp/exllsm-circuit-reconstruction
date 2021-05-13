@@ -36,15 +36,13 @@ You can now launch a pipeline, e.g.:
 This pipeline is containerized and portable across the various platforms supported by [Nextflow](https://www.nextflow.io). So far it has been tested on a standalone Linux workstation and the LSF cluster at Janelia Research Campus. If you run it successfully on any other platform, please let us know so that we can update this documentation.
 
 The pipeline includes the following workflows:
-* **[stitching](docs/Stitching.md)** - distributed stitching pipeline including flatfield correction and deconvolution
-* **neuron segmentation** - semi-automated workflows for neuron segmentation
-* **[synapse prediction](docs/SynapsePrediction.md)** - workflows for synapse masking and prediction
-* **VVD converter** - distributed pipeline for converting to VVD format
+* **[Stitching](docs/Stitching.md)** - distributed stitching pipeline including flatfield correction and deconvolution
+* **[Image Processing](docs/ImageProcessing.md)** - Fiji macros for cropping, cross-talk subtraction, thresholding, etc.
+* **Neuron Segmentation** - semi-automated workflows for neuron segmentation
+* **[Synapse Prediction](docs/SynapsePrediction.md)** - workflows for synapse masking and prediction
 
 
 ## Pipeline Execution
-
-To run this pipeline in distributed mode on a cluster, all input and output paths must be mounted and accessible on all the cluster nodes. 
 
 ### Run the pipeline locally
 
@@ -54,19 +52,27 @@ To run the pipeline locally, you can use the standard profile:
 
 ### Run the pipeline on IBM Platform LSF 
 
+To run this pipeline in distributed mode on a cluster, all input and output paths must be mounted and accessible on all the cluster nodes. 
+
 Edit `nextflow.config` to create a profile for your local environment. A profile for the Janelia Compute Cluster is provided and can be used like this:
 
     ./main.nf -profile lsf --lsf_opts "-P project_code" [arguments]
 
 Usage examples are available in the [examples](examples) directory.
 
+
 ## User Manual
 
 Further detailed documentation is available here:
 
-* [Pipeline Parameters](docs/Parameters.md)
+* [General Parameters](docs/Parameters.md)
+* Workflows
+    * [Stitching](docs/Stitching.md) 
+    * [Image Processing](docs/ImageProcessing.md) 
+    * Neuron Segmentation
+    * [Synapse Prediction](docs/SynapsePrediction.md)
 * [Troubleshooting](docs/Troubleshooting.md)
-* [Development](docs/Development.md)
+* [Development Guide](docs/Development.md)
 
 ## Open Source License
 

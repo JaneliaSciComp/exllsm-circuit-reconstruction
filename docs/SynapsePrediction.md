@@ -8,7 +8,7 @@ See below for details about the workflows:
 * Workflow C: Neuron 1 Presynaptic to Neuron 2 Restricted Postsynaptic 
 * Workflow D: Presynaptic in Volume
 
-## Required Parameters
+## Global Required Parameters
 
 These parameters are required for all workflows:
 
@@ -17,7 +17,7 @@ These parameters are required for all workflows:
 | --pipeline | Pipeline to run (valid options: presynaptic_n1_to_n2, presynaptic_n1_to_postsynaptic_n2, presynaptic_in_volume) |
 | &#x2011;&#x2011;synapse_model | Path to trained synapse model in HDF5 format |
 
-## Optional Parameters
+## Global Optional Parameters
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
@@ -37,7 +37,9 @@ These parameters are required for all workflows:
 
 ## Workflow A: Neuron 1 Presynaptic to Neuron 2
 
-Run using `--pipeline=presynaptic_n1_to_n2`.
+Usage ([example](../examples/presynaptic_n1_to_n2.sh)):
+
+    ./synapse_pipeline.nf --pipeline=presynaptic_n1_to_n2 [arguments]
 
 Assigns presynaptic sites to neurons based on site colocalization with neuron masks.
 
@@ -54,14 +56,18 @@ This workflow depends on masked neuron channels obtained with one of the [Neuron
 
 ## Workflow B: Neuron 1 Presynaptic to Neuron 2 and Neuron 2 Presynaptic to Neuron 1
 
-Run using `--pipeline=presynaptic_n1_to_n2`.
+Usage:
+
+    ./synapse_pipeline.nf --pipeline presynaptic_n1_to_n2 [arguments]
 
 This is the same as Workflow A but you would also reverse `--n1_stack_dir` and `--n2_stack_dir`.
 
 
 ## Workflow C: Neuron 1 Presynaptic to Neuron 2 Restricted Postsynaptic 
 
-Run using `--pipeline=presynaptic_n1_to_postsynaptic_n2`.
+Usage ([example](../examples/presynaptic_n1_to_postsynaptic_n2.sh)):
+
+    ./synapse_pipeline.nf --pipeline presynaptic_n1_to_postsynaptic_n2 [arguments]
 
 When pre/postsynaptic sites are expressed in a neuron-specific manner, e.g. through the use of driver line, this workflow can:
 1) segment presynaptic and postsynaptic channels
@@ -82,7 +88,9 @@ This workflow depends on masked neuron channels obtained with one of the [Neuron
 
 ## Workflow D: Presynaptic in Volume
 
-Run using `--pipeline=presynaptic_in_volume`.
+Usage: 
+
+    ./synapse_pipeline.nf --pipeline presynaptic_in_volume [arguments]
 
 This workflow ignores neurons and identifies all presynaptic sites in the given volume.
 
