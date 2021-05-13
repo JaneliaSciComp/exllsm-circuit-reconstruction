@@ -56,6 +56,11 @@ def remove_small_piece(out_path, prefix, img, start, end, mask=None, threshold=1
     regionprop_img = regionprops(label_img)
     idx = 0
 
+    if mask is not None:
+        assert mask.shape == img.shape, 'Mask and image shapes do not match!'
+    else:
+        mask = np.ones(img.shape, dtype=img.dtype)
+
     csv_filepath = out_path + '/' + prefix + '_stats' + \
         '_x' + str(start[0]) + '_' + str(end[0]) + \
         '_y' + str(start[1]) + '_' + str(end[1]) + \
@@ -71,12 +76,6 @@ def remove_small_piece(out_path, prefix, img, start, end, mask=None, threshold=1
         # the coord comming from region properties will be
         # in the form (x, y, z) instead of (slice, row, col)
         center_x, center_y, center_z = props.centroid
-
-        if mask is not None:
-            assert mask.shape == img.shape, 'Mask and image shapes do not match!'
-        else:
-            mask = np.ones(img.shape, dtype=img.dtype)
-
         curr_obj = curr_obj * mask
         num_masked_voxels = np.count_nonzero(curr_obj)
         print('  Non zero after masking: ', num_masked_voxels)
@@ -102,7 +101,7 @@ def remove_small_piece(out_path, prefix, img, start, end, mask=None, threshold=1
                     writer = csv.writer(
                         csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
                     writer.writerow(
-                        [' ID ', ' Num vxl ', ' centroid ', ' bbox x ', ' bbox y ', ' bbox vol '])
+                        [' ID ', ' Num vxl ', ' centroid ', ' bbox x ', ' bbox y ', ' bbox z '])
 
             idx += 1
             min_x, min_y, min_z, max_x, max_y, max_z = props.bbox
@@ -172,10 +171,12 @@ def main():
 
     # Read part of the mask image based upon location
     if args.mask_path is not None:
-        print('Read mask', args.mask_path)
+        print('Read mask', args.mask_path, 'volume', start, end)
         mask = read_n5_block(args.mask_path, args.mask_data_set, start, end)
+        mask_voxels = np.count_nonzero(mask)
+        print('Mask', args.mask_path, 'at', start, end, 'has', mask_voxels, 'voxels')
         # if the mask has all 0s, write out the result directly
-        if np.count_nonzero(mask) == 0:
+        if mask_voxels == 0:
             write_n5_block(args.output_path, args.data_set, start, end, mask)
             print('DONE! Location of the mask has all 0s.')
             sys.exit(0)
