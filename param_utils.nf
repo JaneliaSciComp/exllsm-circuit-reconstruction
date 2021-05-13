@@ -56,7 +56,7 @@ def default_em_params() {
         crop_format: "TIFFPackBits_8bit", // "ZIP", "uncompressedTIFF", "TIFFPackBits_8bit", "LZW"
         crop_start_slice: -1,
         crop_end_slice: -1,
-        crop_cpus: 4
+        crop_cpus: 4,
         crop_mem_gb: 8,
 
         // VVD conversion params
