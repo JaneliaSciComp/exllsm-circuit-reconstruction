@@ -11,13 +11,19 @@ All steps besides deconvolution use the [stitching-spark](https://github.com/saa
 
 Deconvolution uses a MATLAB script (details TBD). 
 
+Usage:
+
+    ./stitching.nf [arguments]
+
+(See [example](examples/stitching.sh) invocation)
+
 ## Required Parameters
 
 | Argument   | Description                                                                           |
 |------------|---------------------------------------------------------------------------------------|
-| images_dir | Path to directory containing TIFF slices and the ImageList.csv file |
-| output_dir | Path to output directory | 
-| psf_dir | Path to a point-spread functions for your microscope (details TBD) |
+| --images_dir | Path to directory containing TIFF slices and the ImageList.csv file |
+| --output_dir | Path to output directory | 
+| --psf_dir | Path to a point-spread functions for your microscope (details TBD) |
 
 ## Optional Parameters
 
@@ -25,7 +31,7 @@ Deconvolution uses a MATLAB script (details TBD).
 |------------|---------|---------------------------------------------------------------------------------------|
 | --spark_container_repo | registry.int.janelia.org/exm-analysis | Docker registry and repository for the spark container |
 | --spark_container_name | stitching | Name for the container in the spark_container_repo | 
-| &#x2011;&#x2011;spark_container_version | `pinned` | Version for the container in the spark_container_repo |
+| &#x2011;&#x2011;spark_container_version | 1.8.1 | Version for the container in the spark_container_repo |
 | --stitching_app | /app/app.jar | Path to the JAR file containing the stitching application. |
 | --workers | 4 | Number of Spark workers to use for stitching |
 | --worker_cores | 4 | Number of cores allocated to each Spark worker |

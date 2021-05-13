@@ -36,10 +36,10 @@ You can now launch a pipeline, e.g.:
 This pipeline is containerized and portable across the various platforms supported by [Nextflow](https://www.nextflow.io). So far it has been tested on a standalone Linux workstation and the LSF cluster at Janelia Research Campus. If you run it successfully on any other platform, please let us know so that we can update this documentation.
 
 The pipeline includes the following workflows:
-* **[stitching](docs/Stitching.md)** - distributed stitching pipeline including flatfield correction and deconvolution
-* **[image processing](docs/ImageProcessing.md)** - Fiji macros for cropping, cross-talk subtraction, thresholding, etc.
-* **neuron segmentation** - semi-automated workflows for neuron segmentation
-* **[synapse prediction](docs/SynapsePrediction.md)** - workflows for synapse masking and prediction
+* **[Stitching](docs/Stitching.md)** - distributed stitching pipeline including flatfield correction and deconvolution
+* **[Image Processing](docs/ImageProcessing.md)** - Fiji macros for cropping, cross-talk subtraction, thresholding, etc.
+* **Neuron Segmentation** - semi-automated workflows for neuron segmentation
+* **[Synapse Prediction](docs/SynapsePrediction.md)** - workflows for synapse masking and prediction
 
 
 ## Pipeline Execution
@@ -67,10 +67,10 @@ Further detailed documentation is available here:
 
 * [General Parameters](docs/Parameters.md)
 * Workflows
-    * **[Stitching](docs/Stitching.md)** 
-    * **[Image Processing](docs/ImageProcessing.md)** 
-    * **Neuron Segmentation**
-    * **[Synapse Prediction](docs/SynapsePrediction.md)**
+    * [Stitching](docs/Stitching.md) 
+    * [Image Processing](docs/ImageProcessing.md) 
+    * Neuron Segmentation
+    * [Synapse Prediction](docs/SynapsePrediction.md)
 * [Troubleshooting](docs/Troubleshooting.md)
 * [Development Guide](docs/Development.md)
 
