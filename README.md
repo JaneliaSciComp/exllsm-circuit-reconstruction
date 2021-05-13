@@ -37,6 +37,7 @@ This pipeline is containerized and portable across the various platforms support
 
 The pipeline includes the following workflows:
 * **[stitching](docs/Stitching.md)** - distributed stitching pipeline including flatfield correction and deconvolution
+* **[image processing](docs/ImagingProcessing.md)** - Fiji macros for cropping, cross-talk subtraction, thresholding, etc.
 * **neuron segmentation** - semi-automated workflows for neuron segmentation
 * **[synapse prediction](docs/SynapsePrediction.md)** - workflows for synapse masking and prediction
 * **VVD converter** - distributed pipeline for converting to VVD format

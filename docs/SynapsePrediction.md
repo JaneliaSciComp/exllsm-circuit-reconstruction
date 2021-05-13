@@ -8,7 +8,7 @@ See below for details about the workflows:
 * Workflow C: Neuron 1 Presynaptic to Neuron 2 Restricted Postsynaptic 
 * Workflow D: Presynaptic in Volume
 
-## Required Parameters
+## Global Required Parameters
 
 These parameters are required for all workflows:
 
@@ -17,7 +17,7 @@ These parameters are required for all workflows:
 | --pipeline | Pipeline to run (valid options: presynaptic_n1_to_n2, presynaptic_n1_to_postsynaptic_n2, presynaptic_in_volume) |
 | &#x2011;&#x2011;synapse_model | Path to trained synapse model in HDF5 format |
 
-## Optional Parameters
+## Global Optional Parameters
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
