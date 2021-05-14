@@ -2,18 +2,15 @@ process create_n5_volume {
     container { params.exm_synapse_dask_container }
 
     input:
-    val(input_tuple) // [ input_image, image_size, output_image, ... ]
+    tuple val(template_image), val(output_image)
 
     output:
-    val(input_tuple)
+    tuple val(template_image), val(output_image)
 
     script:
-    // the method expects the first 3 elements of the 'input_tuple' tuple
-    // to be input_image, image_size and output_image
-    def (input_image, image_size, output_image) = input_tuple
     """
     mkdir -p ${file(output_image).parent}
-    /entrypoint.sh create_n5 -o ${output_image} -t ${input_image} --compression ${params.n5_compression}
+    /entrypoint.sh create_n5 -o ${output_image} -t ${template_image} --compression ${params.n5_compression}
     """
 }
 
@@ -94,11 +91,11 @@ process unet_classifier {
     label 'withGPU'
 
     input:
-    tuple val(input_image), val(start_subvolume), val(end_subvolume), val(output_image_arg), val(vol_size)
+    tuple val(input_image), val(output_image_arg), val(vol_size), val(start_subvolume), val(end_subvolume)
     val(synapse_model)
 
     output:
-    tuple val(input_image), val(start_subvolume), val(end_subvolume), val(output_image), val(vol_size)
+    tuple val(input_image), val(output_image), val(vol_size), val(start_subvolume), val(end_subvolume)
 
     script:
     output_image = output_image_arg ? output_image_arg : input_image
@@ -117,12 +114,12 @@ process segmentation_postprocessing {
     cpus { params.postprocessing_cpus }
 
     input:
-    tuple val(input_image), val(mask_image), val(start_subvolume), val(end_subvolume), val(output_image_arg), val(output_csv_dir), val(vol_size)
-    val(percentage)
+    tuple val(input_image), val(mask_image), val(output_image_arg), val(output_csv_dir), val(vol_size), val(start_subvolume), val(end_subvolume)
     val(threshold)
+    val(percentage)
 
     output:
-    tuple val(input_image), val(mask_image), val(start_subvolume), val(end_subvolume), val(output_image), val(output_csv_dir), val(vol_size)
+    tuple val(input_image), val(mask_image), val(output_image), val(output_csv_dir), val(vol_size), val(start_subvolume), val(end_subvolume)
 
     script:
     output_image = output_image_arg ? output_image_arg : input_image
@@ -136,8 +133,8 @@ process segmentation_postprocessing {
         --csv_output_path ${output_csv_dir} \
         --start ${start_subvolume} \
         --end ${end_subvolume} \
-        -p ${percentage} \
         -t ${threshold} \
+        -p ${percentage} \
         ${mask_arg}
     """
 }
