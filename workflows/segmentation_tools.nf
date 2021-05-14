@@ -120,9 +120,11 @@ workflow classify_and_connect_regions_in_volume {
     def input_data = index_channel(unet_input)
     | join(index_channel(post_input), by:0)
     | map {
-        def (idx, in_image, unet_output, image_size, mask, post_unet_output) = it
+        def (idx, unet_args, post_unet_args) = it
+        def (in_image, unet_output, image_size) = unet_args
+        def (mask, post_unet_output) = post_unet_args
         def d = [ in_image, unet_output, mask, post_unet_output, image_size ]
-        log.info "U-Net and Post U-Net input: $d"
+        log.info "U-Net and Post U-Net input: $it -> $d"
         d
     }
 

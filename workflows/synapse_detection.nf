@@ -44,7 +44,7 @@ workflow presynaptic_in_volume {
             def (output_dirname, n5_stacks) = it
             [
                 '',
-                create_post_output_name(output_dir,
+                create_post_output_name(output_dirname,
                                         'pre_synapse_seg_post',
                                         params.presynaptic_stage2_threshold,
                                         params.presynaptic_stage2_percentage),
@@ -109,7 +109,7 @@ workflow presynaptic_n1_to_n2 {
             def (output_dirname, n5_stacks) = it
             [
                 n5_stacks[n1_stack_name][0],
-                create_post_output_name(output_dir,
+                create_post_output_name(output_dirname,
                                         'pre_synapse_seg_n1',
                                         params.presynaptic_stage2_threshold,
                                         params.presynaptic_stage2_percentage),
@@ -147,7 +147,7 @@ workflow presynaptic_n1_to_n2 {
             [
                 n5_stacks["pre_synapse_seg_n1"][0],
                 n5_stacks[n2_stack_name][0],
-                create_post_output_name(output_dir,
+                create_post_output_name(output_dirname,
                                         'pre_synapse_seg_n1_n2',
                                         params.postsynaptic_stage3_threshold,
                                         params.postsynaptic_stage3_percentage),
@@ -215,7 +215,7 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
             def (output_dirname, n5_stacks) = it
             [
                 n5_stacks[neuron_stack_name][0],
-                create_post_output_name(output_dir,
+                create_post_output_name(output_dirname,
                                         'pre_synapse_seg_n1',
                                         params.presynaptic_stage2_threshold,
                                         params.presynaptic_stage2_percentage),
@@ -261,7 +261,7 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
             def (output_dirname, n5_stacks) = it
             [
                 n5_stacks["pre_synapse_seg_n1"][0],
-                create_post_output_name(output_dir,
+                create_post_output_name(output_dirname,
                                         'post_synapse_seg_pre_synapse_seg_n1',
                                         params.postsynaptic_stage2_threshold,
                                         params.postsynaptic_stage2_percentage),
@@ -299,7 +299,7 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
             [
                 n5_stacks["pre_synapse_seg_n1"][0],
                 n5_stacks["post_synapse_seg_pre_synapse_seg_n1"][0],
-                create_post_output_name(output_dir,
+                create_post_output_name(output_dirname,
                                         'pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1',
                                         params.postsynaptic_stage3_threshold,
                                         params.postsynaptic_stage3_percentage),
