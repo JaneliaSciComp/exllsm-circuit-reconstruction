@@ -22,102 +22,84 @@ include {
     index_channel;
 } from '../utils/utils'
 
+
 workflow presynaptic_in_volume {
     take:
-    input_data // [ presynaptic_stack, output_dir ]
+    input_data // [ presynaptic_stack ]
+    output_dir
 
     main:
-    def synapse_inputs = input_data
-    | map {
-        def (synapse_stack, output_dir) = it
-        [ synapse_stack, "${output_dir}/synapse.n5" ]
-    }
-    | synapse_to_n5 // [ synapse_stack, synapse_n5, synapse_size ]
-    | map {
-        // prepare the arguments for classifying and connecting presynapses
-        // without any neuron information - neuron mask will be an empty string
-        def (synapse_stack, synapse, synapse_size) = it
-        def working_dir = file(synapse).parent
-        def d = [
-            synapse,
-            '', // no neuron mask info
-            synapse_size,
-            "${working_dir}/synapse_seg.n5",
-            "${working_dir}/synapse_seg_post.n5"
-        ]
-        log.debug "Pre-synaptic regions inputs: $d"
-        d
-    }
-    
-    def post_synapse_seg_results = classify_presynaptic_regions(
-        synapse_inputs,
+    def presynaptic_stack_name = "pre_synapse"
+    def n5_input_stacks = prepare_n5_inputs(
+        input_data,
+        output_dir,
+        [ presynaptic_stack_name ]
+    )
+
+    def presynaptic_n1_results = classify_presynaptic_regions(
+        n5_input_stacks.map {
+            def (output_dirname, n5_stacks) = it
+            [ 
+                n5_stacks[presynaptic_stack_name][0],
+                "${output_dirname}/pre_synapse_seg.n5",
+                n5_stacks[presynaptic_stack_name][1],
+            ]
+        },
+        n5_input_stacks.map {
+            def (output_dirname, n5_stacks) = it
+            [ 
+                '',
+                create_post_output_name(output_dir,
+                                        'pre_synapse_seg_post',
+                                        params.presynaptic_stage2_threshold,
+                                        params.presynaptic_stage2_percentage),
+            ]
+        },
         params.synapse_model,
-        params.presynaptic_stage2_percentage,
         params.presynaptic_stage2_threshold,
+        params.presynaptic_stage2_percentage,
     )
     | map {
-        def (synapse, mask, synapse_size, synapse_seg, synapse_seg_post) = it
-        def synapse_file = file(synapse)
-        def r = [ synapse, synapse_size, synapse_seg, synapse_seg_post, "${synapse_file.parent.parent}" ]
-        log.debug "Pre-synaptic in volume results: $r"
-        r
-    } // [ synapse, synapse_size, synapse_seg, synapse_seg_post, output_dir ]
+        def n5_file = file(it[0])
+        [ "${n5_file.parent}" ] + it
+    } // [ output_dir, pre_synapse, '', pre_synapse_seg, pre_synapse_seg_post, size ]
+
+    def final_n5_stacks = n5_input_stacks
+    | join(presynaptic_n1_results, by:0)
+    | map {
+        def (output_dirname, n5_stacks,
+            presynaptic_stack, mask, presynaptic_seg_stack, presynaptic_seg_post_stack,
+            stack_size) = it
+        [
+            output_dirname,
+            n5_stacks + [
+                "pre_synapse_seg": [ presynaptic_seg_stack, stack_size ],
+                "pre_synapse_seg_post": [ presynaptic_seg_post_stack, stack_size ],
+            ]
+        ]
+    }
 
     emit:
-    done = post_synapse_seg_results
+    done = final_n5_stacks
 }
 
 // Workflow A - Neuron 1 presynaptic to Neuron 2
 workflow presynaptic_n1_to_n2 {
     take:
-    input_data // [ presynapse_image, n1_mask, n2_mask, output_dir ]
+    input_data // [ presynaptic_stack, n1_mask_stack, n2_mask_stack ]
+    output_dir
 
     main:
-    def synapse_data = input_data
-    | map {
-        def (synapse_stack, n1_mask_stack, n2_mask_stack, output_dir) = it
-        [ synapse_stack, "${output_dir}/synapse.n5" ]
-    }
-    | synapse_to_n5 // [ synapse_stack, synapse_n5, synapse_size ]
-    | map {
-        def n5_file = file(it[1])
-        [ "${n5_file.parent}" ] + it
-    } // [ working_dir, tiff_stack, n5_file, size ]
+    def presynaptic_stack_name = "pre_synapse"
+    def n1_stack_name = "n1_mask"
+    def n2_stack_name = "n2_mask"
 
-    def n1_data = input_data
-    | map {
-        def (synapse_stack, n1_mask_stack, n2_mask_stack, output_dir) = it
-        [ n1_mask_stack, "${output_dir}/n1_mask.n5" ]
-    }
-    | neuron1_to_n5 // [ n1_mask_stack, n1_mask_n5, n1_size ]
-    | map {
-        def n5_file = file(it[1])
-        [ "${n5_file.parent}" ] + it
-    } // [ working_dir, tiff_stack, n5_file, size ]
+    def n5_input_stacks = prepare_n5_inputs(
+        input_data,
+        output_dir,
+        [ presynaptic_stack_name, n1_stack_name, n2_stack_name ]
+    )
 
-    def n2_data = input_data
-    | map {
-        def (synapse_stack, n1_mask_stack, n2_mask_stack, output_dir) = it
-        [ n2_mask_stack, "${output_dir}/n2_mask.n5" ]
-    }
-    | neuron2_to_n5 // [ n2_mask_stack, n2_mask_n5, n2_size ]
-    | map {
-        def n5_file = file(it[1])
-        [ "${n5_file.parent}" ] + it
-    } // [ working_dir, tiff_stack, n5_file, size ]
-
-    def synapse_inputs = synapse_data
-    | join(n1_data, by:0)
-    | join(n2_data, by:0) 
-    // [ working_dir, synapse_stack, synapse_n5, synapse_size, n1_stack, n1_n5, n1_size, n2_stack, n2_n5, n2_size ]
-
-    def presynaptic_n1_inputs = synapse_inputs
-    | map {
-        def (working_dir, synapse_stack, synapse, synapse_size, n1_tiff, n1, n1_size) = it
-        def r = [ synapse, n1, synapse_size, "${working_dir}/synapse_seg.n5", "${working_dir}/synapse_seg_n1.n5" ]
-        log.debug "Pre-synaptic n1 inputs: $r"
-        r
-    }
 
     def presynaptic_n1_regions = classify_presynaptic_regions(
         presynaptic_n1_inputs,
@@ -171,164 +153,207 @@ workflow presynaptic_n1_to_n2 {
     done
 }
 
+
 // Workflow C - Neuron 1 presynaptic to Neuron 2 restricted post synaptic
 workflow presynaptic_n1_to_postsynaptic_n2 {
     take:
-    input_data // [ pre_synapse_stack, neuron1_stack, post_synapse_stack, output_dir ]
+    input_data // [ presynaptic_stack, neuron_mask_stack, postsynaptic_stack ]
+    output_dir
 
     main:
     // store all input stacks in n5 stores
-    def pre_synaptic_stack_name = "pre_synapse.n5"
-    def neuron_stack_name = "n1_mask.n5"
-    def post_synaptic_stack_name = "post_synapse.n5"
+    def presynaptic_stack_name = "pre_synapse"
+    def neuron_stack_name = "neuron_mask"
+    def postsynaptic_stack_name = "post_synapse"
 
-    def unflattened_input_data = input_data
-    | flatMap {
-        def (pre_synaptic_stack, n1_mask_stack, post_synaptic_stack, output_dir) = it
-        [
-            [ output_dir, pre_synaptic_stack, "${output_dir}/${pre_synaptic_stack_name}" ],
-            [ output_dir, n1_mask_stack, "${output_dir}/${neuron_stack_name}" ],
-            [ output_dir, post_synaptic_stack, "${output_dir}/${post_synaptic_stack_name}" ],
-        ]
-    }
-
-    def n5_input_stacks = unflattened_input_data
-    | map {
-        def (output_dir, input_stack, output_stack) = it
-        [ input_stack, output_stack ]
-    }
-    | input_stacks_to_n5
-    | join(unflattened_input_data, by: [0,1,2])
-    | map {
-        def (output_dir, input_stack, output_stack, stack_size) = it
-        def output_stack_file = file(output_stack)
-        [
-            output_dir,
-            [ output_stack_file.name, output_stack, stack_size ]
-        ]
-    }
-    | groupTuple(by: 0)
-    | map {
-        def (output_dir, list_of_stacks) = it
-        def neuron_stack = list_of_stacks.find { it[0] == neuron_stack_name }
-        def pre_synaptic_stack = list_of_stacks.find { it[0] == pre_synaptic_stack_name }
-        def post_synaptic_stack = list_of_stacks.find { it[0] == post_synaptic_stack_name }
-        [ 
-            output_dir,
-            pre_synaptic_stack[1], pre_synaptic_stack[2],
-            neuron_stack[1], neuron_stack[2],
-            post_synaptic_stack[1], post_synaptic_stack[2],
-        ]
-     } // [ output_dir, pre_synaptic_stack, pre_synaptic_stack_size, neuron_stack, neuron_stack_size, post_synaptic_stack, post_synaptic_stack_size ]
-
+    def n5_input_stacks = prepare_n5_inputs(
+        input_data,
+        output_dir,
+        [ presynaptic_stack_name, neuron_stack_name, postsynaptic_stack_name ]
+    )
  
     // Segment presynaptic channel and identify presynaptic that colocalizes with neuron1 mask
-    def presynaptic_n1_regions = classify_presynaptic_regions(
+    def presynaptic_n1_results = classify_presynaptic_regions(
         n5_input_stacks.map {
-            def (output_dir,
-                 pre_synaptic_stack, pre_synaptic_stack_size,
-                 neuron_stack, neuron_stack_size,
-                 post_synaptic_stack, post_synaptic_stack_size) = it
+            def (output_dirname, n5_stacks) = it
             [ 
-                pre_synaptic_stack,
-                "${output_dir}/pre_synapse_seg.n5",
-                pre_synaptic_stack_size,
+                n5_stacks[presynaptic_stack_name][0],
+                "${output_dirname}/pre_synapse_seg.n5",
+                n5_stacks[presynaptic_stack_name][1],
             ]
         },
         n5_input_stacks.map {
-            def (output_dir,
-                 pre_synaptic_stack, pre_synaptic_stack_size,
-                 neuron_stack, neuron_stack_size,
-                 post_synaptic_stack, post_synaptic_stack_size) = it
+            def (output_dirname, n5_stacks) = it
             [ 
-                neuron_stack,
+                n5_stacks[neuron_stack_name][0],
                 create_post_output_name(output_dir,
                                         'pre_synapse_seg_n1',
-                                        threshold, perccentage),
-
-                "${output_dir}/pre_synaptic_stack_size.n5",
+                                        params.presynaptic_stage2_threshold,
+                                        params.presynaptic_stage2_percentage),
             ]
-        }
+        },
         params.synapse_model,
-        params.presynaptic_stage1_threshold,
-        params.presynaptic_stage1_percentage,
+        params.presynaptic_stage2_threshold,
+        params.presynaptic_stage2_percentage,
     )
     | map {
         def n5_file = file(it[0])
         [ "${n5_file.parent}" ] + it
-    } // [ working_dir, pre_synapse, n1, synapse_size, synapse_seg, synapse_seg_n1 ]
+    } // [ output_dir, pre_synapse, n1, synapse_seg, synapse_seg_n1, size ]
 
-    def post_to_pre_synaptic_inputs = pre_and_post_synaptic_data
-    | join(presynaptic_n1_regions, by:0)
+    def presynaptic_to_n1_n5_stacks = n5_input_stacks
+    | join(presynaptic_n1_results, by:0)
     | map {
-        def (working_dir,
-            pre_synapse_stack, pre_synapse, pre_synapse_size,
-            n1_tiff, n1, n1_size,
-            post_synapse_stack, post_synapse, post_synapse_size) = it
-        def d = [ post_synapse, "${working_dir}/pre_synapse_seg_n1.n5", post_synapse_size, "${working_dir}/post_synapse_seg.n5", "${working_dir}/post_synapse_seg_pre_synapse_seg_n1.n5" ]
-        log.debug "Post-synaptic n2 to pre-synaptic n1 inputs: $it -> $d"
-        d
+        def (output_dirname, n5_stacks,
+             presynaptic_stack, neuron_stack,
+             presynaptic_seg_stack, post_presynaptic_seg_stack,
+             stack_size) = it
+        [
+            output_dirname,
+            n5_stacks + [
+                "pre_synapse_seg": [ presynaptic_seg_stack, stack_size ],
+                "pre_synapse_seg_n1": [ post_presynaptic_seg_stack, stack_size ]
+            ]
+        ]
     }
 
     // Segment postsynaptic channel and identify postsynaptic that colocalizes with neuron1 presynaptic 
     // (this infers restricted neuron2 presynaptic)
-    def post_to_pre_synaptic_results = classify_postsynaptic_regions(
-        post_to_pre_synaptic_inputs,
+    def postsynaptic_to_presynaptic_results = classify_postsynaptic_regions(
+        presynaptic_to_n1_n5_stacks.map {
+            def (output_dirname, n5_stacks) = it
+            [ 
+                n5_stacks[postsynaptic_stack_name][0],
+                "${output_dirname}/post_synapse_seg.n5",
+                n5_stacks[postsynaptic_stack_name][1],
+            ]
+        },
+        presynaptic_to_n1_n5_stacks.map {
+            def (output_dirname, n5_stacks) = it
+            [ 
+                n5_stacks["pre_synapse_seg_n1"][0],
+                create_post_output_name(output_dir,
+                                        'post_synapse_seg_pre_synapse_seg_n1',
+                                        params.postsynaptic_stage2_threshold,
+                                        params.postsynaptic_stage2_percentage),
+            ]
+        },
         params.synapse_model,
-        params.postsynaptic_stage2_percentage,
         params.postsynaptic_stage2_threshold,
+        params.postsynaptic_stage2_percentage,
     )
     | map {
         def n5_file = file(it[0])
         [ "${n5_file.parent}" ] + it
-    } // [ working_dir, post_synapse, pre_synapse_seg_n1, post_synapse_size, post_synapse_seg, post_synapse_seg_pre_synapse_seg_n1 ]
+    } // [ working_dir, post_synapse, pre_synapse_seg_n1, post_synapse_seg, post_synapse_seg_pre_synapse_seg_n1, post_synapse_size ]
 
-    def pre_to_post_synaptic_inputs = presynaptic_n1_regions
-    | join(post_to_pre_synaptic_results)
+    def postsynaptic_to_presynaptic_to_n1_n5_stacks = presynaptic_to_n1_n5_stacks
+    | join(postsynaptic_to_presynaptic_results, by:0)
     | map {
-        def (
-            working_dir,
-            pre_synapse, n1, synapse_size, synapse_seg, synapse_seg_n1,
-            post_synapse, pre_synapse_seg_n1, post_synapse_size, post_synapse_seg, post_synapse_seg_pre_synapse_seg_n1
-        ) = it
-        def d = [ synapse_seg_n1, post_synapse_seg_pre_synapse_seg_n1, synapse_size, "${working_dir}/pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1.n5"]
-        log.debug "Connect pre-synaptic n1 to restricted post-synaptic n2 inputs: $it -> $d"
-        d
+        def (output_dirname, n5_stacks,
+             postsynaptic_stack, presynaptic_seg_n1_stack,
+             postsynaptic_seg_stack, postsynaptic_seg_presynaptic_seg_n1_stack,
+             stack_size) = it
+        [
+            output_dirname,
+            n5_stacks + [
+                "post_synapse_seg": [ postsynaptic_seg_stack, stack_size ],
+                "post_synapse_seg_pre_synapse_seg_n1": [ postsynaptic_seg_presynaptic_seg_n1_stack, stack_size ]
+            ]
+        ]
     }
 
     // Identify neuron1 presynaptic that colocalize with neuron2 presynaptic
-    def pre_n1_to_post_synaptic_n2_results = connect_regions_in_volume(
-        pre_to_post_synaptic_inputs,
-        params.postsynaptic_stage3_percentage,
+    def presynaptic_to_postsynaptic_to_presynaptic_to_n1_results = connect_regions_in_volume(
+        postsynaptic_to_presynaptic_to_n1_n5_stacks.map {
+            def (output_dirname, n5_stacks) = it
+            [
+                n5_stacks["pre_synapse_seg_n1"][0],
+                n5_stacks["post_synapse_seg_pre_synapse_seg_n1"][0],
+                create_post_output_name(output_dir,
+                                        'pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1',
+                                        params.postsynaptic_stage3_threshold,
+                                        params.postsynaptic_stage3_percentage),
+                n5_stacks["post_synapse_seg_pre_synapse_seg_n1"][1],
+            ]
+        },
         params.postsynaptic_stage3_threshold,
+        params.postsynaptic_stage3_percentage,
     )
     | map {
         def n5_file = file(it[0])
         [ "${n5_file.parent}" ] + it
-    } // [ working_dir, synapse_seg_n1, post_synapse_seg_pre_synapse_seg_n1, synapse_size, pre_synapse_seg_n1_postsynaptic_n2_from_n1, pre_synapse_seg_n1_postsynaptic_n2_from_n1_csv ]
+    } // [ working_dir, synapse_seg_n1, post_synapse_seg_pre_synapse_seg_n1, pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1, synapse_size, pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1_csv ]
 
-    // prepare the final result
-    done = pre_and_post_synaptic_data
-    | join(pre_n1_to_post_synaptic_n2_results, by:0)
+    def final_n5_stacks = postsynaptic_to_presynaptic_to_n1_n5_stacks
+    | join(presynaptic_to_postsynaptic_to_presynaptic_to_n1_results, by:0)
     | map {
-        def (working_path, pre_synapse_stack, pre_synapse, pre_synapse_size, n1_tiff, n1, n1_size, post_synapse_stack, post_synapse, post_synapse_size) = it
-        def working_dir = file(working_path)
-        def r = [
-            pre_synapse, n1, post_synapse,
-            pre_synapse_size,
-            "${working_dir}/pre_synapse_seg.n5",
-            "${working_dir}/pre_synapse_seg_n1.n5",
-            "${working_dir}/post_synapse_seg.n5",
-            "${working_dir}/post_synapse_seg_pre_synapse_seg_n1.n5",
-            "${working_dir}/pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1.n5",
-            "${working_dir.parent}",
+        def (output_dirname, n5_stacks,
+             presynaptic_seg_n1_stack, post_synapse_seg_pre_synapse_seg_n1_stack,
+             pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1_stack,
+             stack_size) = it
+        [
+            output_dirname,
+            n5_stacks + [
+                "pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1": [ pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1_stack, stack_size ]
+            ]
         ]
-        log.debug "Pre-synaptic n1 to restricted post-synaptic n2 results:  $r"
-        r
     }
 
     emit:
-    done
+    done = final_n5_stacks
+}
+
+
+workflow prepare_n5_inputs {
+    take:
+    input_stacks // tuple with all input stacks
+    output_dir
+    stack_names // names for the corresponding output stacks
+
+    main:
+    // store all input stacks in n5 stores
+    def unflattened_input_data = index_channel(output_dir)
+    | join (index_channel(input_stacks), by: 0)
+    | flatMap {
+        def index = it[0]
+        def output_dirname = it[1]
+        def input_stack_dirs = it[2..(it.size()-1)]
+        [ input_stack_dir, stack_names ]
+            .transpose()
+            .collect {
+                def (input_stack_dir, stack_name) = it
+                [ output_dirname, input_stack_dir, stack_name ]
+            }
+    }
+
+    def n5_stacks = unflattened_input_data
+    | map {
+        def (output_dir, input_stack_dir, stack_name) = it
+        [ input_stack_dir, "${output_dir}/${stack_name}.n5" ]
+    }
+    | input_stacks_to_n5
+    | join(unflattened_input_data, by: [0,1])
+    | map {
+        def (output_dirname, input_stack_dir, stack_name, output_stack, stack_size) = it
+        [
+            output_dirname,
+            [("${stack_name}" as String): [ output_stack, stack_size ]]
+        ]
+    }
+    | groupTuple(by: 0)
+    | map {
+        def (output_dirname, list_of_stacks) = it
+        // combine all stacks in a single map
+        def data_stacks = list_of_stacks
+            .inject([:]) {
+                arg, item -> arg + item
+            }
+        [ output_dirname,  data_stacks ]
+     } // [ output_dir, {<stack_name>: [<stack_n5_dir>, <stack_size>]} ]
+
+     emit:
+     done = n5_stacks
 }
 
 workflow input_stacks_to_n5 {
