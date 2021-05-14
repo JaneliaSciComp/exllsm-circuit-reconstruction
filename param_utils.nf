@@ -82,6 +82,7 @@ def default_em_params() {
         n52tiff_cpus: 3,
         unet_cpus: 4,
         postprocessing_cpus: 3,
+        partial_volume: '',
         volume_partition_size: 512,
         presynaptic_stage2_threshold: 400,
         presynaptic_stage2_percentage: 0.5,

@@ -346,7 +346,7 @@ workflow prepare_n5_inputs {
     | flatMap {
         def index = it[0]
         def output_dirname = it[1]
-        def input_stack_dirs = it[2..(it.size()-1)]
+        def input_stack_dirs = it[2]
         [ input_stack_dirs, stack_names ]
             .transpose()
             .collect {
@@ -363,7 +363,7 @@ workflow prepare_n5_inputs {
     | input_stacks_to_n5
     | join(unflattened_input_data, by: [0,1])
     | map {
-        def (output_dirname, input_stack_dir, stack_name, output_stack, stack_size) = it
+        def (output_dirname, input_stack_dir, output_stack, stack_size, stack_name) = it
         [
             output_dirname,
             [("${stack_name}" as String): [ output_stack, stack_size ]]
