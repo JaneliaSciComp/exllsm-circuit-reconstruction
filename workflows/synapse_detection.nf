@@ -333,7 +333,6 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
     done = final_n5_stacks
 }
 
-
 workflow prepare_n5_inputs {
     take:
     input_stacks // tuple with all input stacks
@@ -379,10 +378,12 @@ workflow prepare_n5_inputs {
                 arg, item -> arg + item
             }
         [ output_dirname,  data_stacks ]
-     } // [ output_dir, {<stack_name>: [<stack_n5_dir>, <stack_size>]} ]
+    } // [ output_dir, {<stack_name>: [<stack_n5_dir>, <stack_size>]} ]
 
-     emit:
-     done = n5_stacks
+    n5_stacks.subscribe { log.debug "N5 stacks: $it" }
+ 
+    emit:
+    done = n5_stacks
 }
 
 workflow input_stacks_to_n5 {
