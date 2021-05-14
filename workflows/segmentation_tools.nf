@@ -121,7 +121,9 @@ workflow classify_and_connect_regions_in_volume {
     | join(index_channel(post_input), by:0)
     | map {
         def (idx, in_image, unet_output, image_size, mask, post_unet_output) = it
-        [ in_image, unet_output, mask, post_unet_output, image_size ]
+        def d = [ in_image, unet_output, mask, post_unet_output, image_size ]
+        log.info "U-Net and Post U-Net input: $d"
+        d
     }
 
     def classifier_results = classify_regions_in_volume(
@@ -129,12 +131,14 @@ workflow classify_and_connect_regions_in_volume {
         unet_model
     ) // [ input_image, unet_image, image_size,  ]
 
+    classifier_results.subscribe { log.info "U-Net results: $it" }
+
     def post_classifier_inputs = input_data
     | join(classifier_results, by: [0,1])
     | map {
         def (in_image, unet_output, mask, post_unet_output, image_size) = it
         def d = [ unet_output, mask, post_unet_output, image_size ]
-        log.debug "Post U-Net inputs: $it -> $d"
+        log.info "Post U-Net inputs: $it -> $d"
         d
     }
 
@@ -143,6 +147,8 @@ workflow classify_and_connect_regions_in_volume {
         threshold,
         percentage
     ) // [ unet_image, mask, post_unet_image, image_size, post_unet_csv ]
+
+    post_classifier_results.subscribe { log.info "Post U-Net results: $it" }
 
     // prepare the final result
     done = input_data
@@ -162,7 +168,7 @@ workflow classify_and_connect_regions_in_volume {
             image_size,
             post_unet_csv,
         ]
-        log.debug "Post U-Net results: $it -> $r"
+        log.info "Post U-Net final results: $it -> $r"
         r
     } // [ input_image, mask, unet_output, post_unet_output, size, post_unet_csv ]
 
