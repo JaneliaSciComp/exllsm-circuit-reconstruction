@@ -348,7 +348,7 @@ workflow prepare_n5_inputs {
         def index = it[0]
         def output_dirname = it[1]
         def input_stack_dirs = it[2..(it.size()-1)]
-        [ input_stack_dir, stack_names ]
+        [ input_stack_dirs, stack_names ]
             .transpose()
             .collect {
                 def (input_stack_dir, stack_name) = it
