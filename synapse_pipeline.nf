@@ -35,14 +35,12 @@ workflow {
                 exit(1)
             }
             synapses_res = presynaptic_n1_to_n2(
-                Channel.of(
-                    [
-                        final_params.pre_synapse_stack_dir,
-                        final_params.n1_stack_dir,
-                        final_params.n2_stack_dir,
-                        pipeline_output_dir,
-                    ]
-                )
+                [
+                    final_params.pre_synapse_stack_dir,
+                    final_params.n1_stack_dir,
+                    final_params.n2_stack_dir,
+                ],
+                pipeline_output_dir,
             )
             break;
         case 'presynaptic_n1_to_postsynaptic_n2':
@@ -53,14 +51,12 @@ workflow {
                 exit(1)
             }
             synapses_res = presynaptic_n1_to_postsynaptic_n2(
-                Channel.of(
-                    [
-                        final_params.pre_synapse_stack_dir,
-                        final_params.n1_stack_dir,
-                        final_params.post_synapse_stack_dir,
-                        pipeline_output_dir,
-                    ]
-                )
+                [
+                    final_params.pre_synapse_stack_dir,
+                    final_params.n1_stack_dir,
+                    final_params.post_synapse_stack_dir,
+                ],
+                pipeline_output_dir,
             )
             break;
         case 'presynaptic_in_volume':
@@ -70,12 +66,8 @@ workflow {
                 exit(1)
             }
             synapses_res = presynaptic_in_volume(
-                Channel.of(
-                    [
-                        final_params.pre_synapse_stack_dir,
-                        pipeline_output_dir,
-                    ]
-                )
+                final_params.pre_synapse_stack_dir,
+                pipeline_output_dir,
             )
             break;
     }
