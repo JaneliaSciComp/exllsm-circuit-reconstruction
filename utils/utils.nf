@@ -10,16 +10,13 @@
  * because the asynchronous nature of the process execution
  */
 def index_channel(c) {
-    if (c.metaClass.getMetaMethod('reduce')) {
+    if (!c.toString().contains("Dataflow")) {
+        Channel.value([0, c])
+    } else {
         c.reduce([ 0, [] ]) { accum, elem ->
             def indexed_elem = [accum[0], elem]
             [ accum[0]+1, accum[1]+[indexed_elem] ]
         } | flatMap { it[1] }
-    } else if (c.metaClass.getMetaMethod('map')) {
-        // this is a value channel
-        c.map { [0, it] }
-    } else {
-        Channel.value([0, c])
     }
 }
 
