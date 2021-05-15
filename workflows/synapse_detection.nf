@@ -360,7 +360,7 @@ workflow prepare_n5_inputs {
         if (stack_names instanceof String) {
             // this is the case for synapse in volume
             [
-                [ input_stack_dirs, stack_names ]
+                [ output_dirname, input_stack_dirs, stack_names ]
             ]
         } else {
             [ input_stack_dirs, stack_names ]
