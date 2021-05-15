@@ -20,7 +20,7 @@ include {
 
 workflow presynaptic_in_volume {
     take:
-    input_data // [ presynaptic_stack ]
+    input_data // presynaptic_stack
     output_dir
 
     main:
@@ -28,7 +28,7 @@ workflow presynaptic_in_volume {
     def n5_input_stacks = prepare_n5_inputs(
         input_data,
         output_dir,
-        [ presynaptic_stack_name ]
+        presynaptic_stack_name
     )
 
     def presynaptic_n1_results = classify_presynaptic_regions(
@@ -356,15 +356,20 @@ workflow prepare_n5_inputs {
     def unflattened_input_data = index_channel(output_dir)
     | join (index_channel(input_stacks), by: 0)
     | flatMap {
-        def index = it[0]
-        def output_dirname = it[1]
-        def input_stack_dirs = it[2]
-        [ input_stack_dirs, stack_names ]
-            .transpose()
-            .collect {
-                def (input_stack_dir, stack_name) = it
-                [ output_dirname, input_stack_dir, stack_name ]
-            }
+        def (index, output_dirname, input_stack_dirs) = it
+        if (stack_names instanceof String) {
+            // this is the case for synapse in volume
+            [
+                [ input_stack_dirs, stack_names ]
+            ]
+        } else {
+            [ input_stack_dirs, stack_names ]
+                .transpose()
+                .collect {
+                    def (input_stack_dir, stack_name) = it
+                    [ output_dirname, input_stack_dir, stack_name ]
+                }
+        }
     }
 
     def n5_stacks = unflattened_input_data
