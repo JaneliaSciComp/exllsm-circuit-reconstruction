@@ -142,7 +142,7 @@ workflow presynaptic_n1_to_n2 {
 
     // Colocalize presynaptic n1 with n2
     def synapse_n1_n2_results = connect_regions_in_volume(
-        postsynaptic_to_presynaptic_to_n1_n5_stacks.map {
+        presynaptic_to_n1_n5_stacks.map {
             def (output_dirname, n5_stacks) = it
             [
                 n5_stacks["pre_synapse_seg_n1"][0],
@@ -163,8 +163,8 @@ workflow presynaptic_n1_to_n2 {
     }  // [ working_dir, synapse_seg_n1, n2, synapse_size, synapse_seg_n1_n2, synapse_seg_n1_n2_csv ]
 
     // prepare the final result
-    def final_n5_stacks = postsynaptic_to_presynaptic_to_n1_n5_stacks
-    | join(presynaptic_to_postsynaptic_to_presynaptic_to_n1_results, by:0)
+    def final_n5_stacks = presynaptic_to_n1_n5_stacks
+    | join(synapse_n1_n2_results, by:0)
     | map {
         def (output_dirname, n5_stacks,
              presynaptic_seg_n1_stack, post_synapse_seg_pre_synapse_seg_n1_stack,
