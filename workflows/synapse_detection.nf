@@ -230,6 +230,8 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
         [ "${n5_file.parent}" ] + it
     } // [ output_dir, pre_synapse, n1, synapse_seg, synapse_seg_n1, size ]
 
+    presynaptic_n1_results.subscribe { log.info "presynaptic n1 results: $it" }
+
     def presynaptic_to_n1_n5_stacks = n5_input_stacks
     | join(presynaptic_n1_results, by:0)
     | map {
@@ -237,13 +239,15 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
              presynaptic_stack, neuron_stack,
              presynaptic_seg_stack, presynaptic_seg_n1_stack,
              stack_size) = it
-        [
+        def d = [
             output_dirname,
             n5_stacks + [
                 "pre_synapse_seg": [ presynaptic_seg_stack, stack_size ],
                 "pre_synapse_seg_n1": [ presynaptic_seg_n1_stack, stack_size ]
             ]
         ]
+        log.info "N5 stacks after presynaptic n1"
+        d
     }
 
     // Segment postsynaptic volume and identify postsynaptic regions that colocalize with presynaptic neuron1
@@ -275,6 +279,8 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
         def n5_file = file(it[0])
         [ "${n5_file.parent}" ] + it
     } // [ working_dir, post_synapse, pre_synapse_seg_n1, post_synapse_seg, post_synapse_seg_pre_synapse_seg_n1, post_synapse_size ]
+
+    postsynaptic_to_presynaptic_results.subscribe { log.info "postsynapttic masked with presynaptic n1 results: $it" }
 
     def postsynaptic_to_presynaptic_to_n1_n5_stacks = presynaptic_to_n1_n5_stacks
     | join(postsynaptic_to_presynaptic_results, by:0)
