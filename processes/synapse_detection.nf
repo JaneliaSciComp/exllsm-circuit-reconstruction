@@ -104,12 +104,14 @@ process unet_classifier {
 
     script:
     output_image = output_image_arg ? output_image_arg : input_image
+    def gpu_mem_growth_arg = params.use_gpu_mem_growth ? '--set_gpu_mem_growth' : ''
     """
     python /scripts/unet_gpu.py \
         -i ${input_image} \
         -m ${synapse_model} \
         --start ${start_subvolume} \
         --end ${end_subvolume} \
+        ${gpu_mem_growth_arg} \
         -o ${output_image}
     """
 }

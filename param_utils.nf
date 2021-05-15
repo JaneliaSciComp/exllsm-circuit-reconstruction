@@ -84,6 +84,7 @@ def default_em_params() {
         n52tiff_memory: '3 G',
         unet_cpus: 3,
         unet_memory: '3 G',
+        use_gpu_mem_growth: false,
         postprocessing_cpus: 3,
         postprocessing_memory: '3 G',
         partial_volume: '',
