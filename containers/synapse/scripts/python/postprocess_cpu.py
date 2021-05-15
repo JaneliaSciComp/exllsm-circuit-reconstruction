@@ -147,7 +147,7 @@ def main():
     parser.add_argument('--end', dest='end_coord', type=str, required=True, metavar='x2,y2,z2',
                         help='Ending coordinate (x,y,z) of block to process')
 
-    parser.add_argument('-m', '--mask', dest='mask_path', type=str, required=True,
+    parser.add_argument('-m', '--mask', dest='mask_path', type=str,
                         help='Path to the U-Net model n5')
 
     parser.add_argument('--mask_data_set', dest='mask_data_set', type=str, default='/s0',
