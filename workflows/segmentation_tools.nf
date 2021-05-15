@@ -85,7 +85,7 @@ workflow connect_regions_in_volume {
         threshold,
         percentage,
     )
-    | groupTuple(by: [0..4]) // wait for all subvolumes to be done
+    | groupTuple(by: [0,1,2,3,4]) // wait for all subvolumes to be done
     | map {
         def (in_image, mask, out_image, out_csvs_dir,
              size, start_subvol_list, end_subvol_list) = it
@@ -158,15 +158,15 @@ workflow classify_and_connect_regions_in_volume {
         def (in_image, unet_output, mask, post_unet_output, image_size) = it
         [ unet_output, mask, post_unet_output, image_size, in_image ]
     }
-    | join(post_classifier_results, by: [0..3])
+    | join(post_classifier_results, by: [0,1,2,3])
     | map {
         def (unet_output, mask, post_unet_output, image_size,
              in_image, post_unet_csv) = it
         def r = [
             in_image,
             mask,
-            unet_out_image,
-            post_unet_out_image,
+            unet_output,
+            post_unet_output,
             image_size,
             post_unet_csv,
         ]
