@@ -91,7 +91,7 @@ workflow connect_regions_in_volume {
              size, start_subvol_list, end_subvol_list) = it
         def output_csv_file = out_csvs_dir.replace('_csv', '.csv')
         def r = [ out_csvs_dir, output_csv_file, in_image, mask, out_image, size ]
-        log.info "Segmentation post-processing result: $it -> $r"
+        log.debug "Segmentation post-processing result: $it -> $r"
         r
     }
 
@@ -126,7 +126,7 @@ workflow classify_and_connect_regions_in_volume {
         def (in_image, unet_output, image_size) = unet_args
         def (mask, post_unet_output) = post_unet_args
         def d = [ in_image, unet_output, mask, post_unet_output, image_size ]
-        log.info "U-Net and Post U-Net input: $it -> $d"
+        log.debug "U-Net and Post U-Net input: $it -> $d"
         d
     }
 
@@ -135,14 +135,14 @@ workflow classify_and_connect_regions_in_volume {
         unet_model
     ) // [ input_image, unet_image, image_size,  ]
 
-    classifier_results.subscribe { log.info "U-Net results: $it" }
+    classifier_results.subscribe { log.debug "U-Net results: $it" }
 
     def post_classifier_inputs = input_data
     | join(classifier_results, by: [0,1])
     | map {
         def (in_image, unet_output, mask, post_unet_output, image_size) = it
         def d = [ unet_output, mask, post_unet_output, image_size ]
-        log.info "Post U-Net inputs: $it -> $d"
+        log.debug "Post U-Net inputs: $it -> $d"
         d
     }
 
@@ -152,7 +152,7 @@ workflow classify_and_connect_regions_in_volume {
         percentage
     ) // [ unet_image, mask, post_unet_image, image_size, post_unet_csv ]
 
-    post_classifier_results.subscribe { log.info "Post U-Net results: $it" }
+    post_classifier_results.subscribe { log.debug "Post U-Net results: $it" }
 
     // prepare the final result
     done = input_data
@@ -172,7 +172,7 @@ workflow classify_and_connect_regions_in_volume {
             image_size,
             post_unet_csv,
         ]
-        log.info "Post U-Net final results: $it -> $r"
+        log.debug "Post U-Net final results: $it -> $r"
         r
     } // [ input_image, mask, unet_output, post_unet_output, size, post_unet_csv ]
 

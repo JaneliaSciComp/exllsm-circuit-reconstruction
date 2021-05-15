@@ -230,7 +230,7 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
         [ "${n5_file.parent}" ] + it
     } // [ output_dir, pre_synapse, n1, synapse_seg, synapse_seg_n1, size ]
 
-    presynaptic_n1_results.subscribe { log.info "presynaptic n1 results: $it" }
+    presynaptic_n1_results.subscribe { log.debug "presynaptic n1 results: $it" }
 
     def presynaptic_to_n1_n5_stacks = n5_input_stacks
     | join(presynaptic_n1_results, by:0)
@@ -246,7 +246,7 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
                 "pre_synapse_seg_n1": [ presynaptic_seg_n1_stack, stack_size ]
             ]
         ]
-        log.info "N5 stacks after presynaptic n1: $d"
+        log.debug "N5 stacks after presynaptic n1: $d"
         d
     }
 
@@ -280,7 +280,7 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
         [ "${n5_file.parent}" ] + it
     } // [ working_dir, post_synapse, pre_synapse_seg_n1, post_synapse_seg, post_synapse_seg_pre_synapse_seg_n1, post_synapse_size ]
 
-    postsynaptic_to_presynaptic_results.subscribe { log.info "postsynapttic masked with presynaptic n1 results: $it" }
+    postsynaptic_to_presynaptic_results.subscribe { log.debug "postsynapttic masked with presynaptic n1 results: $it" }
 
     def postsynaptic_to_presynaptic_to_n1_n5_stacks = presynaptic_to_n1_n5_stacks
     | join(postsynaptic_to_presynaptic_results, by:0)
@@ -296,7 +296,7 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
                 "post_synapse_seg_pre_synapse_seg_n1": [ postsynaptic_seg_presynaptic_seg_n1_stack, stack_size ]
             ]
         ]
-        log.info "N5 stacks after postsynaptic masked with presynaptic n1: $d"
+        log.debug "N5 stacks after postsynaptic masked with presynaptic n1: $d"
         d
     }
 
@@ -322,7 +322,7 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
         [ "${n5_file.parent}" ] + it
     } // [ working_dir, synapse_seg_n1, post_synapse_seg_pre_synapse_seg_n1, pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1, synapse_size, pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1_csv ]
 
-    presynaptic_to_postsynaptic_to_presynaptic_to_n1_results.subscribe { log.info "presynaptic n1 masked with postsynapttic results: $it" }
+    presynaptic_to_postsynaptic_to_presynaptic_to_n1_results.subscribe { log.debug "presynaptic n1 masked with postsynapttic results: $it" }
 
     def final_n5_stacks = postsynaptic_to_presynaptic_to_n1_n5_stacks
     | join(presynaptic_to_postsynaptic_to_presynaptic_to_n1_results, by:0)
@@ -337,7 +337,7 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
                 "pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1": [ pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1_stack, stack_size ]
             ]
         ]
-        log.info "N5 stacks after presynaptic n1 masked with postsynaptic: $d"
+        log.debug "N5 stacks after presynaptic n1 masked with postsynaptic: $d"
         d
     }
 
@@ -392,7 +392,7 @@ workflow prepare_n5_inputs {
         [ output_dirname,  data_stacks ]
     } // [ output_dir, {<stack_name>: [<stack_n5_dir>, <stack_size>]} ]
 
-    n5_stacks.subscribe { log.info "N5 stacks: $it" }
+    n5_stacks.subscribe { log.debug "N5 stacks: $it" }
  
     emit:
     done = n5_stacks
