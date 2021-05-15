@@ -246,7 +246,7 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
                 "pre_synapse_seg_n1": [ presynaptic_seg_n1_stack, stack_size ]
             ]
         ]
-        log.info "N5 stacks after presynaptic n1"
+        log.info "N5 stacks after presynaptic n1: $d"
         d
     }
 
@@ -289,13 +289,15 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
              postsynaptic_stack, presynaptic_seg_n1_stack,
              postsynaptic_seg_stack, postsynaptic_seg_presynaptic_seg_n1_stack,
              stack_size) = it
-        [
+        def d = [
             output_dirname,
             n5_stacks + [
                 "post_synapse_seg": [ postsynaptic_seg_stack, stack_size ],
                 "post_synapse_seg_pre_synapse_seg_n1": [ postsynaptic_seg_presynaptic_seg_n1_stack, stack_size ]
             ]
         ]
+        log.info "N5 stacks after postsynaptic masked with presynaptic n1: $d"
+        d
     }
 
     // Identify neuron1 presynaptic regions that colocalize with neuron2 postsynaptic
@@ -320,6 +322,8 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
         [ "${n5_file.parent}" ] + it
     } // [ working_dir, synapse_seg_n1, post_synapse_seg_pre_synapse_seg_n1, pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1, synapse_size, pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1_csv ]
 
+    presynaptic_to_postsynaptic_to_presynaptic_to_n1_results.subscribe { log.info "presynaptic n1 masked with postsynapttic results: $it" }
+
     def final_n5_stacks = postsynaptic_to_presynaptic_to_n1_n5_stacks
     | join(presynaptic_to_postsynaptic_to_presynaptic_to_n1_results, by:0)
     | map {
@@ -327,12 +331,14 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
              presynaptic_seg_n1_stack, post_synapse_seg_pre_synapse_seg_n1_stack,
              pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1_stack,
              stack_size) = it
-        [
+        def d = [
             output_dirname,
             n5_stacks + [
                 "pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1": [ pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1_stack, stack_size ]
             ]
         ]
+        log.info "N5 stacks after presynaptic n1 masked with postsynaptic: $d"
+        d
     }
 
     emit:
