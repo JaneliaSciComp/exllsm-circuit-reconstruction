@@ -414,6 +414,6 @@ workflow input_stacks_to_n5 {
 }
 
 def create_post_output_name(dirname, fname, threshold, perccentage) {
-    def suffix = "${threshold}_${perccentage}".replace('.', 'p')
+    def suffix = "t${threshold}_p${perccentage}".replace('.', 'd')
     "${dirname}/${fname}_${suffix}.n5"
 }
