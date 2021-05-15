@@ -90,7 +90,9 @@ workflow connect_regions_in_volume {
         def (in_image, mask, out_image, out_csvs_dir,
              size, start_subvol_list, end_subvol_list) = it
         def output_csv_file = out_csvs_dir.replace('_csv', '.csv')
-        [ out_csvs_dir, output_csv_file, in_image, mask, out_image, size ]
+        def r = [ out_csvs_dir, output_csv_file, in_image, mask, out_image, size ]
+        log.info "Segmentation post-processing result: $it -> $r"
+        r
     }
 
     def final_post_processing_results = aggregate_csvs(
@@ -103,7 +105,7 @@ workflow connect_regions_in_volume {
     }
 
     emit:
-    done = post_processing_results
+    done = final_post_processing_results
 }
 
 // This workflow applies the UNet classifier and 
