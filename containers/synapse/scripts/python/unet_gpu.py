@@ -11,16 +11,15 @@ from n5_utils import read_n5_block, write_n5_block
 
 
 def _gpu_fix():
-    # Fix for tensorflow-gpu issues that I found online... (don't ask me what it does)
+    # Fix for tensorflow-gpu issues
     gpus = tf.config.experimental.list_physical_devices('GPU')
     if gpus:
         # Currently, memory growth needs to be the same across GPUs
         for gpu in gpus:
             tf.config.experimental.set_memory_growth(gpu, True)
-            logical_gpus = tf.config.experimental.list_logical_devices(
-                'GPU')
-            print(len(gpus), "Physical GPUs,", len(
-                logical_gpus), "Logical GPUs")
+
+        logical_gpus = tf.config.experimental.list_logical_devices('GPU')
+        print('Physical GPUs:',len(gpus), 'Logical GPUs:', len(logical_gpus))
 
 
 def masked_binary_crossentropy(y_true, y_pred):
