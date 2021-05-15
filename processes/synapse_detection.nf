@@ -1,4 +1,6 @@
 process create_n5_volume {
+    label 'small'
+
     container { params.exm_synapse_dask_container }
 
     input:
@@ -39,6 +41,7 @@ process read_n5_metadata {
 process tiff_to_n5 {
     container { params.exm_synapse_dask_container }
     cpus { params.tiff2n5_cpus }
+    memory { params.tiff2n5_memory }
 
     input:
     tuple val(input_stack_dir), val(output_n5_stack)
@@ -70,6 +73,7 @@ process tiff_to_n5 {
 process n5_to_tiff {
     container { params.exm_synapse_dask_container }
     cpus { params.n52tiff_cpus }
+    memory { params.n52tiff_memory }
 
     input:
     tuple val(input_n5_file), val(output_dir)
@@ -87,6 +91,7 @@ process n5_to_tiff {
 process unet_classifier {
     container { params.exm_synapse_container }
     cpus { params.unet_cpus }
+    memory { params.unet_memory }
     accelerator 1
     label 'withGPU'
 
@@ -112,6 +117,7 @@ process unet_classifier {
 process segmentation_postprocessing {
     container { params.exm_synapse_container }
     cpus { params.postprocessing_cpus }
+    memory { params.postprocessing_memory }
 
     input:
     tuple val(input_image), val(mask_image), val(output_image_arg), val(output_csv_dir), val(vol_size), val(start_subvolume), val(end_subvolume)
