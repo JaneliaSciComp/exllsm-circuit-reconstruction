@@ -44,8 +44,8 @@ def default_em_params() {
         threshold_mem_gb: 8,
         convert_mask_cpus: 3,
         convert_mask_mem_gb: 45,
-        expand_mask_cpus: 32,
-        expand_mask_mem_gb: 192,
+        connect_mask_cpus: 32,
+        connect_mask_mem_gb: 192,
 
         // crosstalk subtraction params
         crosstalk_threshold: 255,
