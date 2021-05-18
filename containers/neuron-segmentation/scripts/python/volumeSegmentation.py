@@ -94,14 +94,15 @@ def main():
     end = tuple([int(d) for d in args.end_coord.split(',')])
 
     # Parse the tiling subvolume from slice to aabb notation
-    tiling_subvolume_aabb = np.array(start + end)
+    subvolume = np.array(start + end)
+    subvolume_shape = tuple([end[i] - start[i] for i in range(len(end))])
 
     # Create a tiling of the subvolume using absolute coordinates
-    print("targeted subvolume for segmentation: " + str(tiling_subvolume_aabb))
+    print('targeted subvolume for segmentation:', subvolume)
     whole_vol_shape = tuple([int(d) for d in args.whole_vol_shape.split(',')])
-    print("global image shape: ", str(whole_vol_shape))
+    print('global image shape:', str(whole_vol_shape))
     tiling = tilingStrategy.UnetTiling3D(whole_vol_shape,
-                                         tiling_subvolume_aabb,
+                                         subvolume,
                                          model_output_shape,
                                          model_input_shape)
 
@@ -146,8 +147,8 @@ def main():
                                                  image=img)
     # Create an empty absolute Canvas for the targeted output region of the mask
     output_canvas = tilingStrategy.AbsoluteCanvas(whole_vol_shape,
-                                                  canvas_area=tiling_subvolume_aabb,
-                                                  image=np.zeros(shape=img.shape))
+                                                  canvas_area=subvolume,
+                                                  image=np.zeros(shape=subvolume_shape))
     # Create the unet tiler instance
     tiler = tilingStrategy.UnetTiler3D(tiling, input_canvas, output_canvas)
 
