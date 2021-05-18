@@ -87,6 +87,7 @@ def parallel_hdf5_read(image_path, image_channel_key, location):
 
 def parallel_n5_read(image_path, image_channel_key, location):
     read_img = True
+    print('!!!!!N5 READ',image_path, image_channel_key, location)
     while read_img:
         try:
             with z5py.File(image_path, 'r') as f:
