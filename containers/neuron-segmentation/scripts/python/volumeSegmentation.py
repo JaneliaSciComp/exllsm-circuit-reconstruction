@@ -227,6 +227,7 @@ def main():
             size_threshold=args.small_region_size_threshold)
 
     # Write to the same block in the output n5
+    print('Write segmented volume', start, end, tiler.mask.image.shape)
     write_n5_block(args.output_path, args.output_data_set,
                    start, end, tiler.mask.image)
 
