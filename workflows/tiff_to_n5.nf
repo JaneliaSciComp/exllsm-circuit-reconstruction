@@ -1,7 +1,7 @@
 include {
     read_n5_metadata;
     tiff_to_n5;
-} from '../processes/synapse_detection'
+} from '../processes/n5_tools'
 
 include {
     json_text_to_data;

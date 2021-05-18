@@ -1,7 +1,7 @@
 
 include {
     n5_to_tiff;
-} from '../processes/synapse_detection'
+} from '../processes/n5_tools'
 
 include {
     classify_and_connect_regions_in_volume as classify_presynaptic_regions;
@@ -16,7 +16,6 @@ include {
 include {
     index_channel;
 } from '../utils/utils'
-
 
 workflow presynaptic_in_volume {
     take:

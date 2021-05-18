@@ -29,8 +29,16 @@ def data_to_json_text(data) {
     groovy.json.JsonOutput.toJson(data)
 }
 
-def create_container_options(flag, dirs) {
-    dirs.inject('') {
-        arg, item -> "${arg} ${flag} ${item}:${item}"
+def create_container_options(dirs) {
+    if (workflow.containerEngine == 'singularity') {
+        dirs.inject(params.runtime_opts) {
+            arg, item -> "${arg} -B ${item}:${item}"
+        }
+    } else if (workflow.containerEngine == 'docker') {
+        dirs.inject(params.runtime_opts) {
+            arg, item -> "${arg} -v ${item}:${item}"
+        }
+    } else {
+        params.runtime_opts
     }
 }

@@ -44,8 +44,8 @@ def default_em_params() {
         threshold_mem_gb: 8,
         convert_mask_cpus: 3,
         convert_mask_mem_gb: 45,
-        expand_mask_cpus: 32,
-        expand_mask_mem_gb: 192,
+        connect_mask_cpus: 32,
+        connect_mask_mem_gb: 192,
 
         // crosstalk subtraction params
         crosstalk_threshold: 255,
@@ -95,6 +95,24 @@ def default_em_params() {
         postsynaptic_stage2_percentage: 0.001,
         postsynaptic_stage3_threshold: 400,
         postsynaptic_stage3_percentage: 0.001,
+
+        // neuron segmentation
+        neuron_segmentation_cpus: 1,
+        neuron_segmentation_memory: '1 G',
+        with_neuron_post_segmentation: true,
+        use_gpu_mem_growth: true,
+        neuron_model: '/groups/dickson/home/lillvisj/UNET_neuron/trained_models/neuron4_p2/neuron4_150.h5',
+        neuron_input_dataset: '/s0',
+        neuron_output_dataset: '/s0',
+        neuron_seg_unet_batch_sz: 1,
+        neuron_seg_model_in_dims: '220,220,220',
+        neuron_seg_model_out_dims: '132,132,132',
+        neuron_seg_high_th: 0.98,
+        neuron_seg_low_th: 0.2,
+        neuron_seg_small_region_prob_th: 0.2,
+        neuron_seg_small_region_size_th: 2000,
+
+
     ]
 }
 
@@ -146,4 +164,12 @@ def exm_synapse_dask_container_param(Map ps) {
         "${ps.exm_repo}/synapse-dask:1.1.0"
     else
         exm_synapse_dask_container
+}
+
+def exm_neuron_segmentation_container(Map ps) {
+    def exm_neuron_segmentation_container = ps.exm_neuron_segmentation_container
+    if (!exm_neuron_segmentation_container)
+        "${ps.exm_repo}/neuron-segmentation:1.0.0"
+    else
+        exm_neuron_segmentation_container
 }

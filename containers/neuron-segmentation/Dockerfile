@@ -22,5 +22,5 @@ RUN echo "#!/bin/bash" >> /entrypoint.sh \
     && echo "source /opt/conda/etc/profile.d/conda.sh" >> /entrypoint.sh \
     && echo "SCRIPT_NAME=\$1; shift" >> /entrypoint.sh \
     && echo "conda activate myenv" >> /entrypoint.sh \
-    && echo 'python /app/${SCRIPT_NAME}.py "$@"' >> /entrypoint.sh \
+    && echo 'python /app/python/${SCRIPT_NAME}.py "$@"' >> /entrypoint.sh \
     && chmod +x /entrypoint.sh
