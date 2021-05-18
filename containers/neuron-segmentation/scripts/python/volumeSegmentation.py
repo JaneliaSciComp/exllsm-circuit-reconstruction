@@ -141,6 +141,7 @@ def main():
     print('The unet works with\ninput shape {}\noutput shape {}'.format(
         unet.input.shape, unet.output.shape))
 
+    print('!!!! CANVAS PARAMS:',whole_vol_shape, unet_volume, img.shape)
     # Create an absolute Canvas from the input region (this is the targeted output expanded by adjacent areas that are relevant for segmentation)
     input_canvas = tilingStrategy.AbsoluteCanvas(whole_vol_shape,
                                                  canvas_area=unet_volume,
