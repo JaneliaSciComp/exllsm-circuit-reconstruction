@@ -4,3 +4,4 @@ source ${DIR}/container-versions.sh
 
 docker push registry.int.janelia.org/exm-analysis/synapse:${synapse_version}
 docker push registry.int.janelia.org/exm-analysis/synapse-dask:${synapse_dask_version}
+docker push registry.int.janelia.org/exm-analysis/neuron-segmentation:${neuron_segmentation}
