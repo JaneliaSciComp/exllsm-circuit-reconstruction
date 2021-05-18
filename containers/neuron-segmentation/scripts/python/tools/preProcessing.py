@@ -44,7 +44,9 @@ def calculateScalingFactor(x):
     counts, bins = np.histogram(x, bins=1000, range=[0, 4000])
     # Calculate mean bin value and log counts
     mean_bins = (bins[:-1] + bins[1:])/2
+    np.seterr(divide = 'ignore') # we know there will be 0s
     log_counts = np.log(counts)
+    np.seterr(divide = 'warn')
     # Drop all bins with zero count (gives runnaway when taking log counts / not informative)
     mean_bins = mean_bins[np.isfinite(log_counts)]
     log_counts = log_counts[np.isfinite(log_counts)]
