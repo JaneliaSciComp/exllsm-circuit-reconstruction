@@ -93,9 +93,6 @@ def main():
     start = tuple([int(d) for d in args.start_coord.split(',')])
     end = tuple([int(d) for d in args.end_coord.split(',')])
 
-    # Read part of the n5 based upon location
-    img = read_n5_block(args.input_path, args.data_set, start, end)
-
     # Parse the tiling subvolume from slice to aabb notation
     tiling_subvolume_aabb = np.array(start + end)
 
@@ -107,6 +104,18 @@ def main():
                                          tiling_subvolume_aabb,
                                          model_output_shape,
                                          model_input_shape)
+
+     # actual U-Net volume as x0,y0,z0,x1,y1,z1
+    input_volume_aabb = np.array(tiling.getInputVolume())
+    unet_start = [ np.max([0, d]) for d in input_volume_aabb[:3] ]
+    unet_end = [ np.min([whole_vol_shape[i], input_volume_aabb[i+3]]) 
+                    for i in range(3) ] # max extent is whole volume shape
+
+    # Read part of the n5 based upon location
+    unet_volume = np.array(unet_start + unet_end)
+
+    print('Read U-Net volume', unet_start, unet_end, unet_volume)
+    img = read_n5_block(args.input_path, args.data_set, unet_start, unet_end)
 
     # Calculate scaling factor from image data if no predefined value was given
     if args.scaling is None:
@@ -133,7 +142,7 @@ def main():
 
     # Create an absolute Canvas from the input region (this is the targeted output expanded by adjacent areas that are relevant for segmentation)
     input_canvas = tilingStrategy.AbsoluteCanvas(whole_vol_shape,
-                                                 canvas_area=tiling_subvolume_aabb,
+                                                 canvas_area=unet_volume,
                                                  image=img)
     # Create an empty absolute Canvas for the targeted output region of the mask
     output_canvas = tilingStrategy.AbsoluteCanvas(whole_vol_shape,
