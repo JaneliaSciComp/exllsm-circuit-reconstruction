@@ -46,9 +46,13 @@ def main():
                         dest='input_path', type=str, required=True,
                         help='Path to the input n5')
 
-    parser.add_argument('-d', '--data_set',
-                        dest='data_set', type=str, default="/s0",
-                        help='Path to data set (default "/s0")')
+    parser.add_argument('-id', '--input_data_set',
+                        dest='input_data_set', type=str, default="/s0",
+                        help='Path to input data set (default "/s0")')
+
+    parser.add_argument('-od', '--output_data_set',
+                        dest='output_data_set', type=str, default="/s0",
+                        help='Path to output data set (default "/s0")')
 
     parser.add_argument('-m', '--model_path',
                         dest='model_path', type=str, required=True,
@@ -85,6 +89,24 @@ def main():
                         action='store_true', default=False,
                         help='If true run the watershed segmentation')
 
+    parser.add_argument('-ht', '--high_threshold', dest='high_threshold',
+                        type=float, default=0.98,
+                        help='High confidence threshold for region closing')
+
+    parser.add_argument('-lt', '--low_threshold', dest='low_threshold',
+                        type=float, default=0.2,
+                        help='Low confidence threshold for region closing')
+
+    parser.add_argument('--small_region_probability_threshold',
+                        dest='small_region_probability_threshold',
+                        type=float, default=0.2,
+                        help='Probability threshold for small region removal')
+
+    parser.add_argument('--small_region_size_threshold',
+                        dest='small_region_size_threshold',
+                        type=int, default=2000,
+                        help='Size threshold for small region removal')
+
     args = parser.parse_args()
 
     if args.set_gpu_mem_growth:
@@ -116,7 +138,7 @@ def main():
     unet_volume = np.array(unet_start + unet_end)
 
     print('Read U-Net volume', unet_start, unet_end, unet_volume)
-    img = read_n5_block(args.input_path, args.data_set, unet_start, unet_end)
+    img = read_n5_block(args.input_path, args.input_data_set, unet_start, unet_end)
 
     # Calculate scaling factor from image data if no predefined value was given
     if args.scaling is None:
@@ -128,7 +150,8 @@ def main():
     img = preProcessing.scaleImage(img, scalingFactor)
 
     # %% Load Model File
-    # Restore the trained model. Specify where keras can find custom objects that were used to build the unet
+    # Restore the trained model. Specify where keras can
+    # find custom objects that were used to build the unet
     unet = load_model(args.model_path, compile=False,
                       custom_objects={
                           'InputBlock': model.InputBlock,
@@ -141,19 +164,24 @@ def main():
     print('The unet works with\ninput shape {}\noutput shape {}'.format(
         unet.input.shape, unet.output.shape))
 
-    print('!!!! CANVAS PARAMS:',whole_vol_shape, unet_volume, img.shape)
-    # Create an absolute Canvas from the input region (this is the targeted output expanded by adjacent areas that are relevant for segmentation)
+    # Create an absolute Canvas from the input region
+    # (this is the targeted output expanded by
+    # adjacent areas that are relevant for segmentation)
+    print('Create tiled input:',whole_vol_shape, unet_volume, img.shape)
     input_canvas = tilingStrategy.AbsoluteCanvas(whole_vol_shape,
                                                  canvas_area=unet_volume,
                                                  image=img)
-    # Create an empty absolute Canvas for the targeted output region of the mask
+    # Create an empty absolute canvas for
+    # the targeted output region of the mask
+    print('Create tiled output:',whole_vol_shape, subvolume, subvolume_shape)
+    output_image = np.zeros(shape=subvolume_shape)
     output_canvas = tilingStrategy.AbsoluteCanvas(whole_vol_shape,
                                                   canvas_area=subvolume,
-                                                  image=np.zeros(shape=subvolume_shape))
+                                                  image=output_image)
     # Create the unet tiler instance
     tiler = tilingStrategy.UnetTiler3D(tiling, input_canvas, output_canvas)
 
-    # %% Perform segmentation
+    # Perform segmentation
 
     def preprocess_dataset(x):
         # The unet expects the input data to have an additional channel axis.
@@ -191,13 +219,16 @@ def main():
 
     # Apply post Processing globaly
     if(args.with_post_processing):
-        postProcessing.clean_floodFill(
-            tiler.mask.image, high_confidence_threshold=0.98, low_confidence_threshold=0.2)
-        postProcessing.removeSmallObjects(
-            tiler.mask.image, probabilityThreshold=0.2, size_threshold=2000)
+        postProcessing.clean_floodFill(tiler.mask.image,
+            high_confidence_threshold=args.high_threshold,
+            low_confidence_threshold=args.low_threshold)
+        postProcessing.removeSmallObjects(tiler.mask.image,
+            probabilityThreshold=args.small_region_probability_threshold,
+            size_threshold=args.small_region_size_threshold)
 
     # Write to the same block in the output n5
-    write_n5_block(args.output_path, args.data_set, start, end, tiler.mask.image)
+    write_n5_block(args.output_path, args.output_data_set,
+                   start, end, tiler.mask.image)
 
 
 if __name__ == "__main__":
