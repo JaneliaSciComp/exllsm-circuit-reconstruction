@@ -18,8 +18,8 @@ import scipy
 
 #%% Import modules providing tools for image manipulation
 import sys
-sys.path.append('../tools/')
-import deformation, affine 
+import tools.deformation as deformation
+import tools.affine as affine
 
 
 def check_size(size, n_blocks):
