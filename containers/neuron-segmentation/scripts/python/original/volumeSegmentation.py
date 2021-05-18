@@ -11,19 +11,12 @@ import tensorflow as tf
 
 import os, sys, time
 
-# The path where custom modules are located
-#module_path = '/nrs/dickson/lillvis/temp/linus/GPU_Cluster/modules/'
-module_path = 'C:/Users/Linus Meienberg/Google Drive/Janelia/ImageSegmentation/'
-sys.path.append(module_path)
-sys.path.append(module_path+'3D Unet/')
-sys.path.append(module_path+'tools/')
-
 import tools.tilingStrategy as tilingStrategy
 import tools.metrics as netrics
 import unet.utilities as utilities
 import unet.model as model
 import tools.postProcessing as postProcessing
-import  tools.preProcessing as prepProcessing
+import tools.preProcessing as preProcessing
 
 import h5py
 import z5py
@@ -32,27 +25,24 @@ from tqdm import tqdm
 
 #%% Script variables
 
-##IMAGE I/O
+## IMAGE I/O
 # Specify the path to the image volume stored as h5 file
 #image_path = '/nrs/dickson/lillvis/temp/linus/Unet_Evaluation/RegionCrops/Q1.h5'
-image_path = os.path.abspath('D:/Janelia/UnetTraining/RegionCrops/Q1/Q1.h5')
+image_path = os.path.abspath('/nrs/dickson/lillvis/temp/ExM/P1_pIP10/20200808/images/export_substack_crop.n5')
 
 # Specify the group name of the image channel
-image_channel_key = 't0/channel1'
+image_channel_key = 'c1/s0'
 
 # Specify the file name and the group name under which the segmentation output should be saved (this can also be the input file to which a new dataset is added)
-#output_directory = "/nrs/dickson/lillvis/temp/linus/GPU_Cluster/20201118_MultiWorkerSegmentation/"
-#output_path = "/nrs/dickson/lillvis/temp/linus/GPU_Cluster/20201118_MultiWorkerSegmentation/Q1_mws.h5"
-output_directory = "D:/Janelia/testSegmentationMultiWorker/" # directory for report files
-output_path = "D:/Janelia/testSegmentationMultiWorker/Q1seg.n5" # path to the output file 
+output_directory = "/nrs/scicompsoft/goinac/lillvis/results/test" # directory for report files
+output_path = '/nrs/scicompsoft/goinac/lillvis/results/test/Q1seg.n5' # path to the output file 
 output_channel_key = 'test'
 # Specify wheter to output a binary segmentation mask or an object probability map
 binary = False
 
 ## Model File 
 # Specify the path to the pretrained model file
-#model_path = '/nrs/dickson/lillvis/temp/linus/GPU_Cluster/20201105_Occlusions/train1/occluded50.h5'
-model_path = 'D:/Janelia/UnetTraining/20210222_ModelCapacity/filters_8/filters_8_50.h5'
+model_path = '/groups/dickson/home/lillvisj/UNET_neuron/trained_models/neuron4_p2/neuron4_150.h5'
 
 
 model_input_shape = (220,220,220)
@@ -196,16 +186,21 @@ def main(argv):
 
         # Create a tiling of the subvolume using absolute coordinates
         print("targeted subvolume for segmentation: " + str(tiling_subvolume_aabb))
+        print("targeted subvolume shape: ",tiling_subvolume_shape)
         print("global image shape : " + str(image_shape))
         tiling = tilingStrategy.UnetTiling3D(image_shape, tiling_subvolume_aabb, model_output_shape, model_input_shape )
 
         # Load the input area required to evaluate the output tiles of the subvolume tiling
         input_volume_aabb = np.array(tiling.getInputVolume()) # aabb of input volume as x0,y0,z0,x1,y1,z1
+        print('input_volume_aabb:',input_volume_aabb)
 
         # clip the aabb if it protrudes from the canvas
         start = [ np.max([0, d]) for d in input_volume_aabb[:3] ] # origo is at (0,0,0)
         stop = [ np.min([image_shape[i], input_volume_aabb[i+3]]) for i in range(3) ] # max extent is image shape
         adjusted_input_volume_aabb = np.array(start + stop)
+
+        print('!!!! START:',start,'!!!STOP',stop)
+        print('!!!! ADJUSTED AABB:',adjusted_input_volume_aabb)
 
         adjusted_input_volume_shape = adjusted_input_volume_aabb[3:] - adjusted_input_volume_aabb[:3]
         adjusted_input_volume_slice = (adjusted_input_volume_aabb[0],adjusted_input_volume_aabb[3],adjusted_input_volume_aabb[1],adjusted_input_volume_aabb[4],adjusted_input_volume_aabb[2],adjusted_input_volume_aabb[5]) # x0,y0,z0,x1,y1,z1 -> x0,x1,y0,y1,z0,z1 (Convert aabb to array slice)
@@ -261,6 +256,7 @@ def main(argv):
     #%%
     if(work_on_subvolume):
         # Create an absolute Canvas from the input region (this is the targeted output expanded by adjacent areas that are relevant for segmentation)
+        print('!!!! CANVAS PARAMS:',image_shape, adjusted_input_volume_aabb, image.shape)
         input_canvas = tilingStrategy.AbsoluteCanvas(image_shape, canvas_area = adjusted_input_volume_aabb, image=image)
         # Create an empty absolute Canvas for the targeted output region of the mask
         output_canvas = tilingStrategy.AbsoluteCanvas(image_shape, canvas_area=tiling_subvolume_aabb, image=np.zeros(shape=tiling_subvolume_shape))
@@ -293,8 +289,10 @@ def main(argv):
 
     while tile < len(tiler):
         inp = next(dataset_iterator)
+        print('!!!INP:',inp.shape)
         batch = unet.predict(inp) # predict one batch
 
+        print('!!!TILE:',tile)
         # Reduce the channel dimension to binary or pseudoprobability
         if(binary):
             batch = np.argmax(batch, axis=-1)# use argmax on channels 
