@@ -1,30 +1,20 @@
 """ 
-This script applies a pretrained model file to a large image volume saved in hdf5 or n5 format.
+This script applies a pretrained model file to a sub-volume
+of a large n5 volume.
 """
 import argparse
-import sys
-import random
 import numpy as np
-import os
-import sys
 import time
 import tensorflow as tf
-from tensorflow.keras.models import load_model
 from tqdm import tqdm
+from tensorflow.keras.models import load_model
 
-import tools.tilingStrategy as tilingStrategy
-import unet.model as model
-import tools.postProcessing as postProcessing
-import tools.preProcessing as preProcessing
-
+from tools.tilingStrategy import (AbsoluteCanvas, UnetTiling3D, UnetTiler3D)
+from unet.model import (InputBlock, DownsampleBlock, BottleneckBlock,
+                        UpsampleBlock, OutputBlock)
+from tools.preProcessing import calculateScalingFactor, scaleImage
+from tools.postProcessing import clean_floodFill, removeSmallObjects
 from n5_utils import read_n5_block, write_n5_block
-
-model_input_shape = (220, 220, 220)
-model_output_shape = (132, 132, 132)
-batch_size = 1  # Tune batch size to speed up computation.
-
-# Specify wheter to run the postprocessing function on the segmentation ouput
-postprocessing = True
 
 
 def _gpu_fix():
@@ -76,6 +66,16 @@ def main():
                         metavar='x2,y2,z2',
                         help='Ending coordinate (x,y,z) of block to process')
 
+    parser.add_argument('--model_input_shape',
+                        dest='model_input_shape', type=str,
+                        metavar='dx,dy,dz', default='220,220,220',
+                        help='Model input shape')
+
+    parser.add_argument('--model_output_shape',
+                        dest='model_output_shape', type=str,
+                        metavar='dx,dy,dz', default='132,132,132',
+                        help='Model input shape')
+
     parser.add_argument('--whole_vol_shape',
                         dest='whole_vol_shape', type=str, required=True,
                         metavar='dx,dy,dz',
@@ -88,6 +88,10 @@ def main():
     parser.add_argument('--with_post_processing', dest='with_post_processing',
                         action='store_true', default=False,
                         help='If true run the watershed segmentation')
+
+    parser.add_argument('--unet_batch_size', dest='unet_batch_size',
+                        type=int, default=1,
+                        help='High confidence threshold for region closing')
 
     parser.add_argument('-ht', '--high_threshold', dest='high_threshold',
                         type=float, default=0.98,
@@ -115,6 +119,9 @@ def main():
     start = tuple([int(d) for d in args.start_coord.split(',')])
     end = tuple([int(d) for d in args.end_coord.split(',')])
 
+    model_input_shape = tuple([int(d) for d in args.model_input_shape.split(',')])
+    model_output_shape = tuple([int(d) for d in args.model_output_shape.split(',')])
+
     # Parse the tiling subvolume from slice to aabb notation
     subvolume = np.array(start + end)
     subvolume_shape = tuple([end[i] - start[i] for i in range(len(end))])
@@ -123,10 +130,10 @@ def main():
     print('targeted subvolume for segmentation:', subvolume)
     whole_vol_shape = tuple([int(d) for d in args.whole_vol_shape.split(',')])
     print('global image shape:', str(whole_vol_shape))
-    tiling = tilingStrategy.UnetTiling3D(whole_vol_shape,
-                                         subvolume,
-                                         model_output_shape,
-                                         model_input_shape)
+    tiling = UnetTiling3D(whole_vol_shape,
+                          subvolume,
+                          model_output_shape,
+                          model_input_shape)
 
      # actual U-Net volume as x0,y0,z0,x1,y1,z1
     input_volume_aabb = np.array(tiling.getInputVolume())
@@ -142,23 +149,24 @@ def main():
 
     # Calculate scaling factor from image data if no predefined value was given
     if args.scaling is None:
-        scalingFactor = preProcessing.calculateScalingFactor(img)
+        # calculate scaling factor
+        scalingFactor = calculateScalingFactor(img)
     else:
+        # Use scaling factor arg
         scalingFactor = args.scaling
 
-    # Apply preprocessing globaly !
-    img = preProcessing.scaleImage(img, scalingFactor)
+    img = scaleImage(img, scalingFactor)
 
     # %% Load Model File
     # Restore the trained model. Specify where keras can
     # find custom objects that were used to build the unet
     unet = load_model(args.model_path, compile=False,
                       custom_objects={
-                          'InputBlock': model.InputBlock,
-                          'DownsampleBlock': model.DownsampleBlock,
-                          'BottleneckBlock': model.BottleneckBlock,
-                          'UpsampleBlock': model.UpsampleBlock,
-                          'OutputBlock': model.OutputBlock
+                          'InputBlock': InputBlock,
+                          'DownsampleBlock': DownsampleBlock,
+                          'BottleneckBlock': BottleneckBlock,
+                          'UpsampleBlock': UpsampleBlock,
+                          'OutputBlock': OutputBlock
                       })
 
     print('The unet works with\ninput shape {}\noutput shape {}'.format(
@@ -168,20 +176,21 @@ def main():
     # (this is the targeted output expanded by
     # adjacent areas that are relevant for segmentation)
     print('Create tiled input:',whole_vol_shape, unet_volume, img.shape)
-    input_canvas = tilingStrategy.AbsoluteCanvas(whole_vol_shape,
-                                                 canvas_area=unet_volume,
-                                                 image=img)
+    input_canvas = AbsoluteCanvas(whole_vol_shape,
+                                  canvas_area=unet_volume,
+                                  image=img)
     # Create an empty absolute canvas for
     # the targeted output region of the mask
     print('Create tiled output:',whole_vol_shape, subvolume, subvolume_shape)
     output_image = np.zeros(shape=subvolume_shape)
-    output_canvas = tilingStrategy.AbsoluteCanvas(whole_vol_shape,
-                                                  canvas_area=subvolume,
-                                                  image=output_image)
+    output_canvas = AbsoluteCanvas(whole_vol_shape,
+                                   canvas_area=subvolume,
+                                   image=output_image)
     # Create the unet tiler instance
-    tiler = tilingStrategy.UnetTiler3D(tiling, input_canvas, output_canvas)
+    tiler = UnetTiler3D(tiling, input_canvas, output_canvas)
 
     # Perform segmentation
+    start_time = time.time()
 
     def preprocess_dataset(x):
         # The unet expects the input data to have an additional channel axis.
@@ -194,7 +203,7 @@ def main():
                                                        output_shapes=(tf.TensorShape(model_input_shape)))
 
     predictionset = predictionset_raw.map(
-        preprocess_dataset).batch(batch_size).prefetch(2)
+        preprocess_dataset).batch(args.unet_batch_size).prefetch(2)
 
     # Counter variable over all tiles
     tile = 0
@@ -219,12 +228,14 @@ def main():
 
     # Apply post Processing globaly
     if(args.with_post_processing):
-        postProcessing.clean_floodFill(tiler.mask.image,
+        clean_floodFill(tiler.mask.image,
             high_confidence_threshold=args.high_threshold,
             low_confidence_threshold=args.low_threshold)
-        postProcessing.removeSmallObjects(tiler.mask.image,
+        removeSmallObjects(tiler.mask.image,
             probabilityThreshold=args.small_region_probability_threshold,
             size_threshold=args.small_region_size_threshold)
+
+    print("Completed volume segmentation in {} seconds".format(time.time()-start_time))
 
     # Write to the same block in the output n5
     print('Write segmented volume', start, end, tiler.mask.image.shape)
