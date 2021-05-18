@@ -8,9 +8,9 @@ import numpy as np
 import os
 import sys
 import time
-import tqdm
 import tensorflow as tf
 from tensorflow.keras.models import load_model
+from tqdm import tqdm
 
 import tools.tilingStrategy as tilingStrategy
 import unet.model as model
