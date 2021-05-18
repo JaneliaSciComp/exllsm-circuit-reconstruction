@@ -5,4 +5,5 @@ python volumeSegmentation.py \
     -m /groups/dickson/home/lillvisj/UNET_neuron/trained_models/neuron4_p2/neuron4_150.h5 \
     -i /nrs/dickson/lillvis/temp/ExM/P1_pIP10/20200808/images/export_substack_crop.n5 \
     -d /c1/s0 \
-    -o /nrs/scicompsoft/goinac/lillvis/results/test/Q1seg.n5
+    -o /nrs/scicompsoft/goinac/lillvis/results/test/Q1seg.n5 \
+    --with_post_processing
