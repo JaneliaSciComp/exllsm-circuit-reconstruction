@@ -257,9 +257,10 @@ def main(argv):
     #%%
     if(work_on_subvolume):
         # Create an absolute Canvas from the input region (this is the targeted output expanded by adjacent areas that are relevant for segmentation)
-        print('!!!! CANVAS PARAMS:',image_shape, adjusted_input_volume_aabb, image.shape)
+        print('!!!! INPUT CANVAS PARAMS:',image_shape, adjusted_input_volume_aabb, image.shape)
         input_canvas = tilingStrategy.AbsoluteCanvas(image_shape, canvas_area = adjusted_input_volume_aabb, image=image)
         # Create an empty absolute Canvas for the targeted output region of the mask
+        print('!!!! OUTPUT CANVAS PARAMS:',image_shape, tiling_subvolume_aabb, tiling_subvolume_shape)
         output_canvas = tilingStrategy.AbsoluteCanvas(image_shape, canvas_area=tiling_subvolume_aabb, image=np.zeros(shape=tiling_subvolume_shape))
         # Create the unet tiler instance
         tiler = tilingStrategy.UnetTiler3D(tiling,input_canvas,output_canvas)
