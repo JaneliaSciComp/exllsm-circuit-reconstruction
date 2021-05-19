@@ -14,6 +14,8 @@ workflow tiff_to_n5_with_metadata {
 
     main:
     def n5_results = tiff_to_n5(input_data)
+    n5_results.subscribe { log.debug "TIFF to N5 result: $it" }
+
     def stack_with_metadata = read_n5_metadata(
         n5_results.map { it[0] },
         n5_dataset
@@ -21,7 +23,7 @@ workflow tiff_to_n5_with_metadata {
     | map {
         def (n5_stack, n5_attributes_content) = it
         def n5_stack_dims = json_text_to_data(n5_attributes_content).dimensions
-        [ n5_stack_dims, n5_stack]
+        [ n5_stack, n5_stack_dims ]
     }
     | join(n5_results, by:0)
     | map {
