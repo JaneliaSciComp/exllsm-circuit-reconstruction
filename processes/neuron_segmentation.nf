@@ -11,7 +11,7 @@ process unet_volume_segmentation {
     containerOptions { create_container_options([
         input_image,
         output_image,
-        neuron_model_dir
+        file(params.neuron_model).parent
     ]) }
 
     input:
@@ -23,7 +23,6 @@ process unet_volume_segmentation {
     script:
     def gpu_mem_growth_arg = params.use_gpu_mem_growth ? '--set_gpu_mem_growth' : ''
     def post_processing_arg = params.with_neuron_post_segmentation ? '--with_post_processing' : ''
-    def neuron_model_dir = file(params.neuron_model).parent
     def scaling_arg = scaling ? "--scaling ${scaling}" : ''
     """
     /entrypoint.sh volumeSegmentation \
