@@ -5,6 +5,7 @@ nextflow.enable.dsl=2
 include {
     default_em_params;
     get_value_or_default;
+    exm_synapse_dask_container_param;
     exm_neuron_segmentation_container;
 } from './param_utils'
 
@@ -12,6 +13,7 @@ include {
 final_params = default_em_params() + params
 
 neuron_seg_params = final_params + [
+    exm_synapse_dask_container: exm_synapse_dask_container_param(final_params),
     exm_neuron_segmentation_container: exm_neuron_segmentation_container(final_params),
 ]
 
