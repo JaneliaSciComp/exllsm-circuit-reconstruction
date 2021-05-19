@@ -35,6 +35,7 @@ process unet_volume_segmentation {
         --start ${start_subvolume} \
         --end ${end_subvolume} \
         ${scaling_arg} \
+        ${gpu_mem_growth_arg} \
         --unet_batch_size ${params.neuron_seg_unet_batch_sz} \
         --model_input_shape ${params.neuron_seg_model_in_dims} \
         --model_output_shape ${params.neuron_seg_model_out_dims} \
