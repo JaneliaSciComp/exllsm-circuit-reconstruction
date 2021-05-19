@@ -43,9 +43,8 @@ process read_n5_metadata {
     script:
     def n5_attributes_file = "${n5_stack}/${n5_dataset}/attributes.json"
     """
-    if [[ -e ${n5_attributes_file} ]]; then
-        n5_attributes=`cat ${n5_attributes_file}`
-    else
+    n5_attributes=`cat ${n5_attributes_file} || true`
+    if [[ -z ${n5_attributes} ]]; then
         n5_attributes=null
     fi
     """
