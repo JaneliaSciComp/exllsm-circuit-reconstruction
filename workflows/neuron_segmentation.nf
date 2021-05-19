@@ -39,6 +39,14 @@ workflow neuron_segmentation {
         }
     )
     | join(neuron_with_metadata, by:[0,1])
+    | flatMap {
+        def (in_image, out_image, image_size) = it
+        def image_sz_str = "${image_size[0]},${image_size[1]},${image_size[2]}"
+        partition_volume(image_size).collect {
+            def (start_subvol, end_subvol) = it
+            [ in_image, out_image, image_sz_str, start_subvol, end_subvol, '', ]
+        }
+    }
 
 
     emit:
