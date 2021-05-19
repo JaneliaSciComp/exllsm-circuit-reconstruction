@@ -4,10 +4,10 @@ pushd $DIR/..
 
 NEURON_DIR=/nrs/dickson/lillvis/temp/ExM/P1_pIP10/20200808/images/export_substack_crop.n5
 RES_DIR=/nrs/scicompsoft/goinac/lillvis/results/test/Q1seg.n5
-PROFILE=standarrd
+PROFILE=standard
 PROJECT_CODE="dickson"
 
-./neuron_segmentation.nf \
+./neuron_segmentation_pipeline.nf \
          -profile ${PROFILE} \
          --lsf_opts "-P $PROJECT_CODE" \
          --block_size '500,500,500' \
