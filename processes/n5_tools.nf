@@ -78,7 +78,7 @@ process tiff_to_n5 {
 
     if [[ -f "${input_stack_dir}/attributes.json" ]]; then
         mkdir ${output_n5_stack}
-        for s in `ls -d ${input_stack_dir}/*` ;
+        for s in `ls -d ${input_stack_dir}/*` ; do
             if [[ -d \$s ]] ; then
                 ln -s "${input_stack_dir}/\$s" "${output_n5_stack}/\$s" || true
             fi
