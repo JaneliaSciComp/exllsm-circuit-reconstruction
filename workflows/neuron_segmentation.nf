@@ -17,7 +17,7 @@ workflow neuron_segmentation {
 
     main:
     def neuron_seg_inputs = index_channel(input_dir)
-    | join (index_channel(input_stacks), by: 0)
+    | join (index_channel(output_dir), by: 0)
     | map {
         def (index, input_dirname, output_dirname) = it
         [ input_dirname, output_dirname ]
