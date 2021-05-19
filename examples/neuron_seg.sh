@@ -16,6 +16,7 @@ PROJECT_CODE="dickson"
          --synapse_model $MODEL \
          --neuron_stack_dir ${NEURON_DIR} \
          --neuron_input_dataset /c1/s0 \
+         --neuron_output_dataset /seg \
          --output_dir ${RES_DIR}
 
 popd

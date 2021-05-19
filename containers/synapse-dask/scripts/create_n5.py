@@ -5,9 +5,10 @@ import zarr
 import numcodecs as codecs
 
 def create_dataset(output_n5, template_n5, compression='same',
-                   dtype='same', data_set='/s0', overwrite=True):
+                   dtype='same', template_data_set='/s0',
+                   target_data_set='/s0', overwrite=True):
 
-    template = zarr.open(store=zarr.N5Store(template_n5), mode='r')[data_set]
+    template = zarr.open(store=zarr.N5Store(template_n5), mode='r')[template_data_set]
     out = zarr.open(store=zarr.N5Store(output_n5), mode='a')
         
     if compression == 'raw':
@@ -27,9 +28,9 @@ def create_dataset(output_n5, template_n5, compression='same',
     print(f"  shape:      {template.shape}")
     print(f"  chunking:   {template.chunks}")
     print(f"  dtype:      {dtype}")
-    print(f"  to path:    {output_n5}{data_set}")
+    print(f"  to path:    {output_n5}{target_data_set}")
 
-    out.create_dataset(data_set,
+    out.create_dataset(target_data_set,
         shape=template.shape,
         chunks=template.chunks,
         dtype=dtype,
@@ -45,13 +46,17 @@ def main():
         type=str, required=True,
         help='Path for the n5 to be created')
 
-    parser.add_argument('--data_set', dest='data_set',
+    parser.add_argument('--target_data_set', dest='target_data_set',
         type=str, default='/s0',
-        help='Path for the n5 to be created')
+        help='Target dataset to be created in the output n5 container')
 
     parser.add_argument('-t', '--template', dest='template_path',
         type=str, required=True,
         help='Path to an existing n5 to use as a template')
+
+    parser.add_argument('--template_data_set', dest='template_data_set',
+        type=str, default='/s0',
+        help='Source dataset to be replicated')
 
     parser.add_argument('--dtype', dest='dtype',
         type=str, default='same',
@@ -67,7 +72,8 @@ def main():
     create_dataset(args.output_path, args.template_path,
                   compression=args.compression,
                   dtype=args.dtype,
-                  data_set=args.data_set)
+                  template_data_set=args.template_data_set,
+                  target_data_set=args.target_data_set)
 
 
 if __name__ == "__main__":
