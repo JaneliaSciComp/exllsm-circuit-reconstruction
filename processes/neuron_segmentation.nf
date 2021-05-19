@@ -1,3 +1,7 @@
+include {
+    create_container_options;
+} from '../utils/utils'
+
 process unet_volume_segmentation {
     container { params.exm_neuron_segmentation_container }
     cpus { params.neuron_segmentation_cpus }

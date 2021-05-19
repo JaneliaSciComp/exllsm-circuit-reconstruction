@@ -1,7 +1,15 @@
+include {
+    create_container_options;
+} from '../utils/utils'
+
 process create_n5_volume {
     label 'small'
 
     container { params.exm_synapse_dask_container }
+    containerOptions { create_container_options([
+        template_image_dir,
+        output_image_dir,
+    ]) }
 
     input:
     tuple val(template_image), val(output_image)
@@ -10,8 +18,10 @@ process create_n5_volume {
     tuple val(template_image), val(output_image)
 
     script:
+    def template_image_dir = file(template_image).parent
+    def output_image_dir = file(output_image).parent
     """
-    mkdir -p ${file(output_image).parent}
+    mkdir -p ${output_image_dir}
     /entrypoint.sh create_n5 -o ${output_image} -t ${template_image} --compression ${params.n5_compression}
     """
 }
@@ -20,6 +30,9 @@ process read_n5_metadata {
     label 'small'
 
     container { params.exm_synapse_dask_container }
+    containerOptions { create_container_options([
+        n5_stack,
+    ]) }
 
     input:
     val(n5_stack)
@@ -42,6 +55,10 @@ process tiff_to_n5 {
     container { params.exm_synapse_dask_container }
     cpus { params.tiff2n5_cpus }
     memory { params.tiff2n5_memory }
+    containerOptions { create_container_options([
+        input_stack_dir,
+        output_stack_dir,
+    ]) }
 
     input:
     tuple val(input_stack_dir), val(output_n5_stack)
@@ -50,6 +67,7 @@ process tiff_to_n5 {
     tuple val(input_stack_dir), val(output_n5_stack)
 
     script:
+    def output_stack_dir = file(output_n5_stack).parent
     def chunk_size = params.block_size
     def create_empty_n5 = """
     cat > "${output_n5_stack}/attributes.json" <<EOF
@@ -58,7 +76,7 @@ process tiff_to_n5 {
     """.stripIndent()
 
     """
-    mkdir -p ${file(output_n5_stack).parent}
+    mkdir -p ${output_stack_dir}
 
     if [[ -f "${input_stack_dir}/s0/attributes.json" ]]; then
         mkdir ${output_n5_stack}
@@ -74,6 +92,10 @@ process n5_to_tiff {
     container { params.exm_synapse_dask_container }
     cpus { params.n52tiff_cpus }
     memory { params.n52tiff_memory }
+    containerOptions { create_container_options([
+        input_n5_file,
+        output_dir,
+    ]) }
 
     input:
     tuple val(input_n5_file), val(output_dir)
