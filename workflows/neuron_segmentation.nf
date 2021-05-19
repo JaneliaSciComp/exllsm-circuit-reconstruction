@@ -14,6 +14,10 @@ include {
     index_channel;
 } from '../utils/utils'
 
+include {
+    partition_volume;
+} from './workflows/segmentation_utils'
+
 workflow neuron_segmentation {
     take:
     input_dir
