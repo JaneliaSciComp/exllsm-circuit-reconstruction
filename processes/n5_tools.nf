@@ -77,10 +77,11 @@ process tiff_to_n5 {
     mkdir -p ${output_stack_dir}
 
     if [[ -f "${input_stack_dir}/attributes.json" ]]; then
-        mkdir ${output_n5_stack}
+        mkdir -p ${output_n5_stack}
         for s in `ls -d ${input_stack_dir}/*` ; do
-            if [[ -d \$s ]] ; then
-                ln -s "${input_stack_dir}/\$s" "${output_n5_stack}/\$s" || true
+            if [[ -d "\$s" ]] ; then
+                echo "Create link for \$s"
+                ln -s "\$s" "${output_n5_stack}/\$(basename \$s)" || true
             fi
         done
         ${create_empty_n5}
