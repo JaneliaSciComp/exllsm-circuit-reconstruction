@@ -76,9 +76,13 @@ process tiff_to_n5 {
     """
     mkdir -p ${output_stack_dir}
 
-    if [[ -f "${input_stack_dir}/s0/attributes.json" ]]; then
+    if [[ -f "${input_stack_dir}/attributes.json" ]]; then
         mkdir ${output_n5_stack}
-        ln -s "${input_stack_dir}/s0" "${output_n5_stack}/s0" || true
+        for s in `ls -d ${input_stack_dir}/*` ;
+            if [[ -d \$s ]] ; then
+                ln -s "${input_stack_dir}/\$s" "${output_n5_stack}/\$s" || true
+            fi
+        done
         ${create_empty_n5}
     else
         /entrypoint.sh tif_to_n5 -i ${input_stack_dir} -o ${output_n5_stack} -c ${chunk_size} --compression ${params.n5_compression}
