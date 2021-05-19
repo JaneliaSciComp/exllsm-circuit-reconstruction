@@ -111,6 +111,8 @@ def main():
                         type=int, default=2000,
                         help='Size threshold for small region removal')
 
+    start_time = time.time()
+
     args = parser.parse_args()
 
     if args.set_gpu_mem_growth:
@@ -190,7 +192,7 @@ def main():
     tiler = UnetTiler3D(tiling, input_canvas, output_canvas)
 
     # Perform segmentation
-    start_time = time.time()
+    seg_start_time = time.time()
 
     def preprocess_dataset(x):
         # The unet expects the input data to have an additional channel axis.
@@ -235,12 +237,13 @@ def main():
             probabilityThreshold=args.small_region_probability_threshold,
             size_threshold=args.small_region_size_threshold)
 
-    print("Completed volume segmentation in {} seconds".format(time.time()-start_time))
+    print("Completed segmentation step in {} seconds".format(time.time()-seg_start_time))
 
     # Write to the same block in the output n5
     print('Write segmented volume', start, end, tiler.mask.image.shape)
     write_n5_block(args.output_path, args.output_data_set,
                    start, end, tiler.mask.image)
+    print("Completed volume segmentation in {} seconds".format(time.time()-start_time))
 
 
 if __name__ == "__main__":
