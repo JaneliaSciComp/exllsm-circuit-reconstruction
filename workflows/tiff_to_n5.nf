@@ -10,11 +10,13 @@ include {
 workflow tiff_to_n5_with_metadata {
     take:
     input_data // pair of tiff_stack and n5_file
+    n5_dataset
 
     main:
     def n5_results = tiff_to_n5(input_data)
     def stack_with_metadata = read_n5_metadata(
         n5_results.map { it[1] }
+        n5_dataset
     )
     | map {
         def (n5_stack, n5_attributes_content) = it

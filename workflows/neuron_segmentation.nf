@@ -22,7 +22,7 @@ workflow neuron_segmentation {
         def (index, input_dirname, output_dirname) = it
         [ input_dirname, output_dirname ]
     }
-    | tiff_to_n5_with_metadata
+    neuron_n5_inputs = tiff_to_n5_with_metadata(neuron_seg_inputs, params.neuron_input_dataset)
 
     emit:
     done = neuron_seg_inputs

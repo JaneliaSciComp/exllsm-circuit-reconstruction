@@ -407,7 +407,7 @@ workflow input_stacks_to_n5 {
     input_data // [ input_stack, output_stack ]
 
     main:
-    def output_data = tiff_to_n5_with_metadata(input_data)
+    def output_data = tiff_to_n5_with_metadata(input_data, params.default_n5_dataset)
     | map {
         def output_stack = file(it[1])
         [ "${output_stack.parent}" ] + it

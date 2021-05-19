@@ -35,12 +35,13 @@ process read_n5_metadata {
 
     input:
     val(n5_stack)
+    val(n5_dataset)
 
     output:
     tuple val(n5_stack), env(n5_attributes)
 
     script:
-    def n5_attributes_file = "${n5_stack}/s0/attributes.json"
+    def n5_attributes_file = "${n5_stack}/${n5_dataset}/attributes.json"
     """
     if [[ -e ${n5_attributes_file} ]]; then
         n5_attributes=`cat ${n5_attributes_file}`
