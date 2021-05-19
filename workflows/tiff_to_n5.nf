@@ -15,7 +15,7 @@ workflow tiff_to_n5_with_metadata {
     main:
     def n5_results = tiff_to_n5(input_data)
     def stack_with_metadata = read_n5_metadata(
-        n5_results.map { it[1] }
+        n5_results.map { it[1] },
         n5_dataset
     )
     | map {

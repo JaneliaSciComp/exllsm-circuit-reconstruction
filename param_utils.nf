@@ -72,7 +72,7 @@ def default_em_params() {
         create_mip_mem_gb: 8,
 
         // synapse detection params
-        default_n5_dataset = '/s0',
+        default_n5_dataset: '/s0',
         pipeline: 'presynaptic_in_volume',
         synapse_model: '/groups/dickson/dicksonlab/lillvis/ExM/Ding-Ackerman/crops-for-training_Oct2018/DING/model_DNN/saved_unet_model_2020/unet_model_synapse2020_6/unet_model_synapse2020_6.whole.h5',
         pre_synapse_stack_dir: '',
