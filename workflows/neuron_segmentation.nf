@@ -27,6 +27,7 @@ workflow neuron_segmentation {
         [ input_dirname, output_dirname ]
     }
     def neuron_with_metadata = tiff_to_n5_with_metadata(input_data, params.neuron_input_dataset)
+    neuron_with_metadata | view
     def neuron_seg_inputs = create_n5_volume(
         neuron_with_metadata.map {
             def (in_image, out_image, sz) = it
