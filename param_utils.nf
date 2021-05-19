@@ -99,6 +99,7 @@ def default_em_params() {
 
         // neuron segmentation
         neuron_segmentation_cpus: 1,
+        neuron_segmentation_gpus: 1,
         neuron_segmentation_memory: '1 G',
         with_neuron_post_segmentation: true,
         use_gpu_mem_growth: true,

@@ -6,7 +6,7 @@ process unet_volume_segmentation {
     container { params.exm_neuron_segmentation_container }
     cpus { params.neuron_segmentation_cpus }
     memory { params.neuron_segmentation_memory }
-    accelerator 1
+    accelerator { params.neuron_segmentation_gpus }
     label 'withGPU'
     containerOptions { create_container_options([
         input_image,
