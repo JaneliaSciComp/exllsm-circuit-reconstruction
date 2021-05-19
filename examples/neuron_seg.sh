@@ -12,6 +12,7 @@ PROJECT_CODE="dickson"
          --lsf_opts "-P $PROJECT_CODE" \
          --runtime_opts "-B /nrs/scicompsoft/goinac -B /nrs/dickson" \
          --block_size '500,500,500' \
+         --partial_volume "1500,2000,0,500,500,500" \
          --volume_partition_size 500 \
          --synapse_model $MODEL \
          --neuron_stack_dir ${NEURON_DIR} \
