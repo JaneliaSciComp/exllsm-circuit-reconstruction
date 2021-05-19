@@ -25,4 +25,5 @@ workflow neuron_segmentation {
     | tiff_to_n5_with_metadata
 
     emit:
+    done = neuron_seg_inputs
 }
