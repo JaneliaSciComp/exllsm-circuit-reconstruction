@@ -3,6 +3,10 @@ include {
 } from './tiff_to_n5'
 
 include {
+    create_n5_volume;
+} from '../processes/n5_tools'
+
+include {
     unet_volume_segmentation;
 } from '../processes/neuron_segmentation'
 
@@ -16,14 +20,23 @@ workflow neuron_segmentation {
     output_dir
 
     main:
-    def neuron_seg_inputs = index_channel(input_dir)
+    def input_data = index_channel(input_dir)
     | join (index_channel(output_dir), by: 0)
     | map {
         def (index, input_dirname, output_dirname) = it
         [ input_dirname, output_dirname ]
     }
-    neuron_n5_inputs = tiff_to_n5_with_metadata(neuron_seg_inputs, params.neuron_input_dataset)
+    def neuron_with_metadata = tiff_to_n5_with_metadata(input_data, params.neuron_input_dataset)
+    def neuron_seg_inputs = create_n5_volume(
+        neuron_with_metadata.map {
+            def (in_image, out_image, sz) = it
+            log.info "Volume size: $sz"
+            [ in_image, out_image ]
+        }
+    )
+    | join(neuron_with_metadata, by:[0,1])
+
 
     emit:
-    done = neuron_n5_inputs
+    done = neuron_seg_inputs
 }
