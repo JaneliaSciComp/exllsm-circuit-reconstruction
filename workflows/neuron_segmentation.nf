@@ -32,7 +32,7 @@ workflow neuron_segmentation {
         neuron_with_metadata.map {
             def (in_image, out_image, sz) = it
             log.info "Volume size: $sz"
-            [ in_image, out_image ]
+            [ in_image, out_image, params.neuron_output_dataset ]
         }
     )
     | join(neuron_with_metadata, by:[0,1])

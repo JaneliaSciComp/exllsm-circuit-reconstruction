@@ -24,7 +24,7 @@ workflow classify_regions_in_volume {
     def unet_inputs = input_data
     | map {
         def (in_image, out_image) = it
-        [ in_image, out_image ]
+        [ in_image, out_image, params.default_n5_dataset ]
     }
     | create_n5_volume
     | join(input_data, by: [0,1])
@@ -65,7 +65,7 @@ workflow connect_regions_in_volume {
     def post_processing_inputs = re_arranged_input_data
     | map {
         def (in_image, out_image) = it
-        [ in_image, out_image ]
+        [ in_image, out_image, params.default_n5_dataset  ]
     }
     | create_n5_volume
     | join(re_arranged_input_data, by: [0,1])
