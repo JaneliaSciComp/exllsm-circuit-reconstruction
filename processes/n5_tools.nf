@@ -57,7 +57,7 @@ process tiff_to_n5 {
     memory { params.tiff2n5_memory }
     containerOptions { create_container_options([
         input_stack_dir,
-        output_stack_dir,
+        file(output_n5_stack).parent,
     ]) }
 
     input:
