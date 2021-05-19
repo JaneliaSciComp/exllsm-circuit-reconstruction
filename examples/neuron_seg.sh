@@ -10,6 +10,7 @@ PROJECT_CODE="dickson"
 ./neuron_segmentation_pipeline.nf \
          -profile ${PROFILE} \
          --lsf_opts "-P $PROJECT_CODE" \
+         --runtime_opts "-B ${RES_DIR}" \
          --block_size '500,500,500' \
          --volume_partition_size 500 \
          --synapse_model $MODEL \

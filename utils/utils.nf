@@ -32,7 +32,7 @@ def data_to_json_text(data) {
 def create_container_options(dirs) {
     if (workflow.containerEngine == 'singularity') {
         dirs.inject(params.runtime_opts) {
-            arg, item -> "${arg} -B ${item}:${item}"
+            arg, item -> "${arg} -B ${item}"
         }
     } else if (workflow.containerEngine == 'docker') {
         dirs.inject(params.runtime_opts) {
