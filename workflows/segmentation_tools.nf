@@ -15,7 +15,7 @@ include {
 
 include {
     partition_volume;
-} from './workflows/segmentation_utils'
+} from './segmentation_utils'
 
 // Partition the input volume and call the UNet classifier for each subvolume
 // The input_data contains a tuple with 

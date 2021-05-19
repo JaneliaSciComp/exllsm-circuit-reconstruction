@@ -16,7 +16,7 @@ include {
 
 include {
     partition_volume;
-} from './workflows/segmentation_utils'
+} from './segmentation_utils'
 
 workflow neuron_segmentation {
     take:
