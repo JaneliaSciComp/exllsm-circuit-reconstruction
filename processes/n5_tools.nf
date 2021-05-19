@@ -7,7 +7,7 @@ process create_n5_volume {
 
     container { params.exm_synapse_dask_container }
     containerOptions { create_container_options([
-        template_image_dir,
+        file(template_image).parent,
     ]) }
 
     input:
@@ -17,11 +17,13 @@ process create_n5_volume {
     tuple val(template_image), val(output_image)
 
     script:
-    def template_image_dir = file(template_image).parent
     def output_image_dir = file(output_image).parent
     """
     mkdir -p ${output_image_dir}
-    /entrypoint.sh create_n5 -o ${output_image} -t ${template_image} --compression ${params.n5_compression}
+    /entrypoint.sh create_n5 \
+        -o ${output_image} \
+        -t ${template_image} \
+        --compression ${params.n5_compression}
     """
 }
 
@@ -55,7 +57,7 @@ process tiff_to_n5 {
     cpus { params.tiff2n5_cpus }
     memory { params.tiff2n5_memory }
     containerOptions { create_container_options([
-        input_stack_dir,
+        file(input_stack_dir).parent,
     ]) }
 
     input:
