@@ -17,7 +17,7 @@ neuron_seg_params = final_params + [
 
 include {
     neuron_segmentation;
-} from 'workflows/neuron_segmentation' addParams(neuron_seg_params)
+} from './workflows/neuron_segmentation' addParams(neuron_seg_params)
 
 pipeline_output_dir = final_params.output_dir
 
