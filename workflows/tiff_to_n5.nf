@@ -15,7 +15,7 @@ workflow tiff_to_n5_with_metadata {
     main:
     def n5_results = tiff_to_n5(input_data)
     def stack_with_metadata = read_n5_metadata(
-        n5_results.map { it[1] },
+        n5_results.map { it[0] },
         n5_dataset
     )
     | map {
@@ -23,10 +23,10 @@ workflow tiff_to_n5_with_metadata {
         def n5_stack_dims = json_text_to_data(n5_attributes_content).dimensions
         [ n5_stack_dims, n5_stack]
     }
-    | join(n5_results, by:1)
+    | join(n5_results, by:0)
     | map {
-        def (n5_stack, n5_stack_dims, tiff_stack) = it
-        [ tiff_stack, n5_stack, n5_stack_dims ]
+        def (n5_stack_used_4_dim, n5_stack_dims, tiff_stack, output_n5_stack) = it
+        [ tiff_stack, output_n5_stack, n5_stack_dims ]
     }
 
     emit:

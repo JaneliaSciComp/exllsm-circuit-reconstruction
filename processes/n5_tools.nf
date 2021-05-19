@@ -64,6 +64,34 @@ process tiff_to_n5 {
     tuple val(input_stack_dir), val(output_n5_stack)
 
     output:
+    tuple env(n5_stack), val(input_stack_dir), val(output_n5_stack)
+
+    script:
+    def output_stack_dir = file(output_n5_stack).parent
+    def chunk_size = params.block_size
+    """
+    if [[ -f "${input_stack_dir}/attributes.json" ]]; then
+        n5_stack=${input_stack_dir}
+    else
+        mkdir -p ${output_stack_dir}
+        /entrypoint.sh tif_to_n5 -i ${input_stack_dir} -o ${output_n5_stack} -c ${chunk_size} --compression ${params.n5_compression}
+        n5_stack=${output_n5_stack}
+    fi
+    """
+}
+
+process tiff_to_n5_with_links {
+    container { params.exm_synapse_dask_container }
+    cpus { params.tiff2n5_cpus }
+    memory { params.tiff2n5_memory }
+    containerOptions { create_container_options([
+        file(input_stack_dir).parent,
+    ]) }
+
+    input:
+    tuple val(input_stack_dir), val(output_n5_stack)
+
+    output:
     tuple val(input_stack_dir), val(output_n5_stack)
 
     script:
