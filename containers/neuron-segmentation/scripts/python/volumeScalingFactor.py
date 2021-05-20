@@ -2,7 +2,7 @@
 This script calculates the scaling factor of a given volume
 """
 import argparse
-
+import numpy as np
 
 from tools.tilingStrategy import RectangularTiling
 from tools.preProcessing import calculateScalingFactor
@@ -44,7 +44,7 @@ def main():
 
     tiling = RectangularTiling(image_shape, chunk_shape=chunk_size)
     indices = np.arange(len(tiling))
-    subset = np.random.choice(indices, replace=False, size=n_tiles)
+    subset = np.random.choice(indices, replace=False, size=args.n_tiles)
 
     def get_tile(image, tile):
         print('Get tile block:', tile)
@@ -60,18 +60,19 @@ def main():
     sfs = []  # list of scaling factors obtained for individual tiles
     for index in subset:
         print("Sampling Tile {}".format(index))
-        t = get_tile(image, index)
-        sf = calculateScalingFactor(t, get_plot_file(t))
+        tile = tiling.getTile(index)
+        t = get_tile(img, tile)
+        sf = calculateScalingFactor(t, get_plot_file(tile))
         if sf != np.nan:
             sfs.append(sf)
 
     if len(sfs) > 0:
         mean_sf = np.nanmean(sfs)
         print('tile-wise scaling factors', sfs)
-        print('Calculated a scaling factor of {} based on {}/{} tiles'.format(mean_sf, n_tiles, len(tiling)))
+        print('Calculated a scaling factor of {} based on {}/{} tiles'.format(mean_sf, args.n_tiles, len(tiling)))
     else:
         print('No scaling factor could be computed for any of the selected tiles')
-        print('Calculated a scaling factor of null based on {}/{} tiles'.format(n_tiles, len(tiling)))
+        print('Calculated a scaling factor of null based on {}/{} tiles'.format(args.n_tiles, len(tiling)))
 
 
 if __name__ == "__main__":

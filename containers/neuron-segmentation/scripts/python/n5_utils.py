@@ -3,11 +3,9 @@ Common utilities for reading n5 formatted data
 """
 import zarr
 
-
 def read_n5_image(path, data_set):
     n5_path = path+data_set
-    img = zarr.open(store=zarr.N5Store(n5_path), mode='r')
-    return img.transpose(2, 1, 0)
+    return zarr.open(store=zarr.N5Store(n5_path), mode='r')
 
 
 def read_n5_block(path, data_set, start, end):
