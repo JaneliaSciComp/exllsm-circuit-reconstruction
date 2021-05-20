@@ -272,6 +272,9 @@ class UnetTiling3D(Tiling):
         aabb = np.add(aabb, delta)  # element wise addition
         return tuple(aabb)
 
+    def getTile(self, i):
+        return self.getInputTile()
+
     def getInputVolume(self):
         """Returns the axis alinged boundary box of the tilings input volume.
         This possibly contains values that protrudes from the image shape. Use Canvas to handle this.
