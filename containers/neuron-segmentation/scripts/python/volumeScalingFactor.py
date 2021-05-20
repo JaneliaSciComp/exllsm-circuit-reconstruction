@@ -61,8 +61,10 @@ def main():
             return args.scaling_plots_dir + '/' + fname
 
     sfs = []  # list of scaling factors obtained for individual tiles
+    ti = 0
     for index in subset:
-        print("Sampling Tile {}".format(index))
+        ti = ti + 1
+        print("Sampling Tile {}: {}".format(ti, index))
         tile = tiling.getTile(index)
         t = get_xyz_tile_from_yzx_image(zyx_img, tile)
         sf = calculateScalingFactor(t, get_plot_file(tile))
