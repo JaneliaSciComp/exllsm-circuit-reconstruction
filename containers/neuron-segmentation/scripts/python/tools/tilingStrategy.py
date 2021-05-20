@@ -74,9 +74,9 @@ class RectangularTiling(Tiling):
         # Convert index to the coordinates of the tile
         # number of elements that you skip by moving one position in dim 0
         x = i // (self.shape[1]*self.shape[2])
-        i = i % (self.shape[1]*self.shape[2])
-        y = i // self.shape[2]
-        z = i % self.shape[2]
+        yz_index = i % (self.shape[1]*self.shape[2])
+        y = yz_index // self.shape[2]
+        z = yz_index % self.shape[2]
         return x, y, z
 
     def coordinatesToIndex(self, x, y, z):
@@ -209,9 +209,9 @@ class UnetTiling3D(Tiling):
         # Convert index to the coordinates of the tile
         # number of elements that you skip by moving one position in dim 0
         x = i // (self.shape[1]*self.shape[2])
-        i = i % (self.shape[1]*self.shape[2])
-        y = i // self.shape[2]
-        z = i % self.shape[2]
+        yz_index = i % (self.shape[1]*self.shape[2])
+        y = yz_index // self.shape[2]
+        z = yz_index % self.shape[2]
         return x, y, z
 
     def coordinatesToIndex(self, x, y, z):
