@@ -38,7 +38,7 @@ workflow classify_regions_in_volume {
     | join(input_data, by: [0,1])
     | flatMap {
         def (in_image, out_image, image_size) = it
-        partition_volume(image_size).collect {
+        partition_volume(image_size, params.volume_partition_size).collect {
             def (start_subvol, end_subvol) = it
             [ in_image, out_image, image_size, start_subvol, end_subvol, ]
         }
@@ -85,7 +85,7 @@ workflow connect_regions_in_volume {
         def (in_image, out_image, mask, size) = it
         def out_image_file = file(out_image)
         def csv_folder_name = out_image_file.name - ~/\.\w+$/
-        partition_volume(size).collect {
+        partition_volume(size, params.volume_partition_size).collect {
             def (start_subvol, end_subvol) = it
             [
                 in_image, mask, out_image,

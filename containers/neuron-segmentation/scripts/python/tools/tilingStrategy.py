@@ -137,7 +137,10 @@ class UnetTiling3D(Tiling):
     Coordinates may protrude from the image shape. Use a Canvas class to handle these cases when reading and writing to arrays.
     """
 
-    def __init__(self, image_shape: tuple, tiling_subvolume=None,  output_shape=(132, 132, 132), input_shape=(220, 220, 220)):
+    def __init__(self, image_shape: tuple,
+                 tiling_subvolume=None,
+                 input_shape=(220, 220, 220),
+                 output_shape=(132, 132, 132)):
         """
         Parameters
         ----------
@@ -271,9 +274,6 @@ class UnetTiling3D(Tiling):
         delta = np.concatenate((-delta, delta))
         aabb = np.add(aabb, delta)  # element wise addition
         return tuple(aabb)
-
-    def getTile(self, i):
-        return self.getInputTile()
 
     def getInputVolume(self):
         """Returns the axis alinged boundary box of the tilings input volume.

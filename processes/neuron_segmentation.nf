@@ -11,7 +11,7 @@ process compute_unet_scaling {
     ]) }
 
     input:
-    val(input_image)
+    tuple val(input_image), val(start), val(end)
 
     output:
     tuple val(input_image), env(scaling)
@@ -27,6 +27,8 @@ process compute_unet_scaling {
         def scaling_plots_mkdir = params.neuron_scaling_plots_dir
             ? "mkdir -p ${params.neuron_scaling_plots_dir}"
             : ''
+        def start_arg = start ? "--start ${start}" : ''
+        def end_arg = end ? "--end ${end}" : ''
         """
         ${scaling_plots_mkdir}
         /entrypoint.sh volumeScalingFactor \
@@ -35,6 +37,7 @@ process compute_unet_scaling {
             -n ${params.neuron_scaling_tiles} \
             ${scaling_partition_size_arg} \
             ${scaling_plots_dir_arg} \
+            ${start_arg} ${end_arg} \
             > \$PWD/scaling.log
 
         scaling=`grep -o "Calculated a scaling factor of \\(.*\\) based on" \$PWD/scaling.log`

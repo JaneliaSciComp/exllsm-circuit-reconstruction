@@ -16,6 +16,7 @@ include {
 } from '../utils/utils'
 
 include {
+    get_processed_volume;
     partition_volume;
 } from './segmentation_utils'
 
@@ -34,7 +35,10 @@ workflow neuron_segmentation {
     def neuron_seg_inputs = tiff_to_n5_with_metadata(input_data, params.neuron_input_dataset)
 
     def neuron_scaling_results = neuron_scaling_factor(
-        neuron_seg_inputs.map { it[0] }
+        neuron_seg_inputs.map { 
+            def (in_image, out_image, sz) = it
+            [ in_image, sz ]
+        }
     )
 
     def neuron_seg_results = create_n5_volume(
@@ -57,9 +61,9 @@ workflow neuron_segmentation {
         def (in_image, out_image, image_size, neuron_scaling) = it
         def image_sz_str = "${image_size[0]},${image_size[1]},${image_size[2]}"
         def scaling_factor = neuron_scaling == 'null' ? '' : neuron_scaling
-        partition_volume(image_size).collect {
+        partition_volume(image_size, params.volume_partition_size).collect {
             def (start_subvol, end_subvol) = it
-            [ 
+            [
                 in_image, out_image,
                 image_sz_str, start_subvol, end_subvol,
                 scaling_factor,
@@ -76,10 +80,24 @@ workflow neuron_segmentation {
 
 workflow neuron_scaling_factor {
     take:
-    input_dir
+    input_data
 
     main:
-    done = compute_unet_scaling(input_dir)
+    done = input_data
+    | map {
+        def (image_filename, image_size) = it
+        if (params.partial_volume) {
+            def volume = get_processed_volume(image_size, params.partial_volume)
+            [
+                image_filename,
+                "${volume[0]},${volume[1]},${volume[2]}",
+                "${volume[0] + volume[3]},${volume[1] + volume[4]},${volume[2] + volume[5]}",
+            ]
+        } else {
+            [ image_filename, '', '' ]
+        }
+    }
+    | compute_unet_scaling
 
     emit:
     done

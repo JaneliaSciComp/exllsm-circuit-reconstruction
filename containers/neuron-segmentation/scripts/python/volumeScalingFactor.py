@@ -37,6 +37,16 @@ def main():
                         dest='scaling_plots_dir', type=str,
                         help='Directory in which to output sccaling plots')
 
+    parser.add_argument('--start',
+                        dest='start_coord', type=str,
+                        metavar='x1,y1,z1',
+                        help='Starting coordinate (x,y,z) of block to process')
+
+    parser.add_argument('--end',
+                        dest='end_coord', type=str,
+                        metavar='x2,y2,z2',
+                        help='Ending coordinate (x,y,z) of block to process')
+
     args = parser.parse_args()
 
     zyx_img = read_n5_zyx_image(args.image_path, args.data_set)
@@ -45,7 +55,20 @@ def main():
 
     partition_size = tuple([int(d) for d in args.partition_size.split(',')])
 
-    tiling = RectangularTiling(image_shape, chunk_shape=partition_size)
+    if args.start_coord:
+        start = tuple([int(d) for d in args.start_coord.split(',')])
+    else:
+        start = (0,0,0)
+    if args.end_coord:
+        end = tuple([int(d) for d in args.end_coord.split(',')])
+    else:
+        end = image_shape
+
+    tiling = UnetTiling3D(image_shape,
+                          tiling_subvolume=start+end,
+                          input_shape=partition_size,
+                          output_shape=partition_size)
+
     indices = np.arange(len(tiling))
     subset = np.random.choice(indices, replace=False, size=args.n_tiles)
 
@@ -65,7 +88,7 @@ def main():
     for index in subset:
         ti = ti + 1
         print("Sampling Tile {}: {}".format(ti, index))
-        tile = tiling.getTile(index)
+        tile = tiling.getInputTile(index)
         t = get_xyz_tile_from_yzx_image(zyx_img, tile)
         sf = calculateScalingFactor(t, get_plot_file(tile))
         if sf != np.nan:
