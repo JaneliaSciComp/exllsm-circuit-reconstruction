@@ -82,6 +82,7 @@ def calculateScalingFactor(x, plot_file=None):
         plt.xlabel('Pixel Intensity')
         plt.legend(['Huber Regression', 'Counts'])
         plt.savefig(plot_file)
+        plt.close()
 
     return scaling_factor
 

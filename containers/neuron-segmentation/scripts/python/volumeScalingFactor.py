@@ -27,8 +27,8 @@ def main():
                         dest='n_tiles', type=int, required=True,
                         help='Number of tiles used to calculate the mean')
 
-    parser.add_argument('--chunk_size',
-                        dest='chunk_size', type=str,
+    parser.add_argument('--partition_size',
+                        dest='partition_size', type=str,
                         default='200,200,200',
                         metavar='dx,dy,dz',
                         help='Chunk size')
@@ -43,9 +43,9 @@ def main():
     image_shape = (zyx_img.shape[2], zyx_img.shape[1], zyx_img.shape[0])
     print('Read image', args.image_path, args.data_set, 'of size', image_shape)
 
-    chunk_size = tuple([int(d) for d in args.chunk_size.split(',')])
+    partition_size = tuple([int(d) for d in args.partition_size.split(',')])
 
-    tiling = RectangularTiling(image_shape, chunk_shape=chunk_size)
+    tiling = RectangularTiling(image_shape, chunk_shape=partition_size)
     indices = np.arange(len(tiling))
     subset = np.random.choice(indices, replace=False, size=args.n_tiles)
 
