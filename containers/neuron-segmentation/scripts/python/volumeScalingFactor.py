@@ -5,7 +5,7 @@ import argparse
 import numpy as np
 import time
 
-from tools.tilingStrategy import RectangularTiling
+from tools.tilingStrategy import UnetTiling3D
 from tools.preProcessing import calculateScalingFactor
 from n5_utils import read_n5_zyx_image
 
