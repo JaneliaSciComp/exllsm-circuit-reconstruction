@@ -6,6 +6,7 @@ import argparse
 
 from tools.tilingStrategy import RectangularTiling
 from tools.preProcessing import calculateScalingFactor
+from n5_utils import read_n5_image
 
 
 def main():
@@ -24,7 +25,8 @@ def main():
                         help='Number of tiles used to calculate the mean')
 
     parser.add_argument('--chunk_size',
-                        dest='chunk_size', type=str, required=True,
+                        dest='chunk_size', type=str,
+                        default='200,200,200',
                         metavar='dx,dy,dz',
                         help='Chunk size')
 
@@ -36,6 +38,7 @@ def main():
 
     img = read_n5_image(args.image_path, args.data_set)
     image_shape = img.shape
+    print('Read image', args.image_path, args.data_set, 'of size', image_shape)
 
     chunk_size = tuple([int(d) for d in args.chunk_size.split(',')])
 
@@ -44,6 +47,7 @@ def main():
     subset = np.random.choice(indices, replace=False, size=n_tiles)
 
     def get_tile(image, tile):
+        print('Get tile block:', tile)
         return image[tile[0]:tile[1], tile[2]:tile[3], tile[4]:tile[5]]
 
     def get_plot_file(tile):
