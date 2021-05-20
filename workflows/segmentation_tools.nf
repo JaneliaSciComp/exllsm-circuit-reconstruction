@@ -30,7 +30,8 @@ workflow classify_regions_in_volume {
         def (in_image, out_image) = it
         [
             in_image, out_image,
-            params.default_n5_dataset, params.default_n5_dataset
+            params.default_n5_dataset, params.default_n5_dataset,
+            ''
         ]
     }
     | create_n5_volume
@@ -74,7 +75,8 @@ workflow connect_regions_in_volume {
         def (in_image, out_image) = it
         [
             in_image, out_image,
-            params.default_n5_dataset, params.default_n5_dataset
+            params.default_n5_dataset, params.default_n5_dataset,
+            ''
         ]
     }
     | create_n5_volume

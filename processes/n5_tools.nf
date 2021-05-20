@@ -12,7 +12,8 @@ process create_n5_volume {
 
     input:
     tuple val(template_image), val(output_image),
-          val(template_dataset), val(target_dataset)
+          val(template_dataset), val(target_dataset),
+          val(data_type)
 
     output:
     tuple val(template_image), val(output_image)
@@ -21,13 +22,15 @@ process create_n5_volume {
     def output_image_dir = file(output_image).parent
     def template_dataset_arg = template_dataset ? "--template_data_set ${template_dataset}" : ''
     def target_dataset_arg = target_dataset ? "--target_data_set ${target_dataset}" : ''
+    def data_type_arg = data_type ? "--dtype ${data_type}" : ''
     """
     mkdir -p ${output_image_dir}
     /entrypoint.sh create_n5 \
         -o ${output_image} \
         -t ${template_image} \
         ${template_dataset_arg} ${target_dataset_arg} \
-        --compression ${params.n5_compression}
+        --compression ${params.n5_compression} \
+        ${data_type_arg}
     """
 }
 

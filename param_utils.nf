@@ -105,6 +105,7 @@ def default_em_params() {
         neuron_model: '/groups/dickson/home/lillvisj/UNET_neuron/trained_models/neuron4_p2/neuron4_150.h5',
         neuron_input_dataset: '/s0',
         neuron_output_dataset: '/s0',
+        neuron_mask_as_binary: false,
         neuron_seg_unet_batch_sz: 1,
         neuron_seg_model_in_dims: '220,220,220',
         neuron_seg_model_out_dims: '132,132,132',
@@ -112,8 +113,6 @@ def default_em_params() {
         neuron_seg_low_th: 0.2,
         neuron_seg_small_region_prob_th: 0.2,
         neuron_seg_small_region_size_th: 2000,
-
-
     ]
 }
 

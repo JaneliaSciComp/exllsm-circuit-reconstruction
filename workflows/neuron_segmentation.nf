@@ -35,10 +35,14 @@ workflow neuron_segmentation {
     def neuron_seg_results = create_n5_volume(
         neuron_seg_inputs.map {
             def (in_image, out_image, sz) = it
+            def datatype = params.neuron_mask_as_binary
+                ? 'uint8'
+                : 'float32'
             log.info "Volume size: $sz"
             [
                 in_image, out_image,
                 params.neuron_input_dataset, params.neuron_output_dataset,
+                datatype,
             ]
         }
     )

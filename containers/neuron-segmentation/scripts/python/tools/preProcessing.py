@@ -3,10 +3,11 @@ Image preprocessing routines
 """
 
 import numpy as np
+import matplotlib.pyplot as plt
 from sklearn.linear_model import HuberRegressor
 
 
-def calculateScalingFactor(x):
+def calculateScalingFactor(x, plot_file=None):
     """
     This Preprocessing function calculates a scaling factor for the pixel intensities, such that the majority of pixel values lie in the intervall [0,1]
 
@@ -44,9 +45,9 @@ def calculateScalingFactor(x):
     counts, bins = np.histogram(x, bins=1000, range=[0, 4000])
     # Calculate mean bin value and log counts
     mean_bins = (bins[:-1] + bins[1:])/2
-    np.seterr(divide = 'ignore') # we know there will be 0s
+    np.seterr(divide='ignore')  # we know there will be 0s
     log_counts = np.log(counts)
-    np.seterr(divide = 'warn')
+    np.seterr(divide='warn')
     # Drop all bins with zero count (gives runnaway when taking log counts / not informative)
     mean_bins = mean_bins[np.isfinite(log_counts)]
     log_counts = log_counts[np.isfinite(log_counts)]
@@ -67,6 +68,20 @@ def calculateScalingFactor(x):
     # EMPIRICAL Probability should reduce to 1/10th after 0.5 intensity units to get an intensity distribution within [0,1]
     b_target = -np.log(10)/0.5
     scaling_factor = huber.coef_[0]/b_target
+
+    if plot_file is not None:
+        # Show exponential Fit
+        plt.figure()
+        # scatter plot histogram data
+        plt.scatter(mean_bins, log_counts, marker='.')
+        # line plot huber regressor fit
+        plt.plot(mean_bins, huber.predict(mean_bins.reshape(-1, 1)),
+                 color='red')
+        plt.ylim([-1, 25])
+        plt.ylabel('log(Counts)')
+        plt.xlabel('Pixel Intensity')
+        plt.legend(['Huber Regression', 'Counts'])
+        plt.savefig(plot_file)
 
     return scaling_factor
 

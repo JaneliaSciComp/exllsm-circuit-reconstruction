@@ -76,8 +76,8 @@ def main():
                         metavar='dx,dy,dz', default='132,132,132',
                         help='Model input shape')
 
-    parser.add_argument('--whole_vol_shape',
-                        dest='whole_vol_shape', type=str, required=True,
+    parser.add_argument('--image_shape',
+                        dest='image_shape', type=str, required=True,
                         metavar='dx,dy,dz',
                         help='Whole volume shape')
 
@@ -88,6 +88,10 @@ def main():
     parser.add_argument('--with_post_processing', dest='with_post_processing',
                         action='store_true', default=False,
                         help='If true run the watershed segmentation')
+
+    parser.add_argument('--as_binary_mask', dest='as_binary_mask',
+                        action='store_true', default=False,
+                        help='If true output the result as binary mask')
 
     parser.add_argument('--unet_batch_size', dest='unet_batch_size',
                         type=int, default=1,
@@ -130,9 +134,9 @@ def main():
 
     # Create a tiling of the subvolume using absolute coordinates
     print('targeted subvolume for segmentation:', subvolume)
-    whole_vol_shape = tuple([int(d) for d in args.whole_vol_shape.split(',')])
-    print('global image shape:', str(whole_vol_shape))
-    tiling = UnetTiling3D(whole_vol_shape,
+    image_shape = tuple([int(d) for d in args.image_shape.split(',')])
+    print('global image shape:', str(image_shape))
+    tiling = UnetTiling3D(image_shape,
                           subvolume,
                           model_output_shape,
                           model_input_shape)
@@ -140,7 +144,7 @@ def main():
      # actual U-Net volume as x0,y0,z0,x1,y1,z1
     input_volume_aabb = np.array(tiling.getInputVolume())
     unet_start = [ np.max([0, d]) for d in input_volume_aabb[:3] ]
-    unet_end = [ np.min([whole_vol_shape[i], input_volume_aabb[i+3]]) 
+    unet_end = [ np.min([image_shape[i], input_volume_aabb[i+3]]) 
                     for i in range(3) ] # max extent is whole volume shape
 
     # Read part of the n5 based upon location
@@ -177,15 +181,15 @@ def main():
     # Create an absolute Canvas from the input region
     # (this is the targeted output expanded by
     # adjacent areas that are relevant for segmentation)
-    print('Create tiled input:',whole_vol_shape, unet_volume, img.shape)
-    input_canvas = AbsoluteCanvas(whole_vol_shape,
+    print('Create tiled input:', image_shape, unet_volume, img.shape)
+    input_canvas = AbsoluteCanvas(image_shape,
                                   canvas_area=unet_volume,
                                   image=img)
     # Create an empty absolute canvas for
     # the targeted output region of the mask
-    print('Create tiled output:',whole_vol_shape, subvolume, subvolume_shape)
+    print('Create tiled output:', image_shape, subvolume, subvolume_shape)
     output_image = np.zeros(shape=subvolume_shape)
-    output_canvas = AbsoluteCanvas(whole_vol_shape,
+    output_canvas = AbsoluteCanvas(image_shape,
                                    canvas_area=subvolume,
                                    image=output_image)
     # Create the unet tiler instance
@@ -218,8 +222,13 @@ def main():
         inp = next(dataset_iterator)
         batch = unet.predict(inp)  # predict one batch
 
-        # use softmax on channels and retain object cannel
-        batch = tf.nn.softmax(batch, axis=-1)[..., 1]
+        # Reduce the channel dimension to binary or pseudoprobability
+        if args.as_binary_mask:
+            # use argmax on channels
+            batch = np.argmax(batch, axis=-1)
+        else:
+            # use softmax on channels and retain object cannel
+            batch = tf.nn.softmax(batch, axis=-1)[..., 1]
 
         # Write each tile in the batch to it's correct location in the output
         for i in range(batch.shape[0]):

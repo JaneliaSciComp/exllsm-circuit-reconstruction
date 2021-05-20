@@ -3,6 +3,13 @@ Common utilities for reading n5 formatted data
 """
 import zarr
 
+
+def read_n5_image(path, data_set):
+    n5_path = path+data_set
+    img = zarr.open(store=zarr.N5Store(n5_path), mode='r')
+    return img.transpose(2, 1, 0)
+
+
 def read_n5_block(path, data_set, start, end):
     """
     Reads and returns an image block from the specified n5 location.
@@ -15,7 +22,7 @@ def read_n5_block(path, data_set, start, end):
     img = zarr.open(store=zarr.N5Store(n5_path), mode='r')
     img = img[start[2]:end[2], start[1]:end[1], start[0]:end[0]]
     # zarr loads zyx order
-    return img[...].transpose(2, 1, 0)
+    return img.transpose(2, 1, 0)
 
 
 def write_n5_block(path, data_set, start, end, data):
@@ -29,5 +36,5 @@ def write_n5_block(path, data_set, start, end, data):
     n5_path = path+data_set
     img = zarr.open(store=zarr.N5Store(n5_path), mode='a')
     # zarr writes zyx order
-    zarr_data = data[...].transpose(2, 1, 0)
+    zarr_data = data.transpose(2, 1, 0)
     img[start[2]:end[2], start[1]:end[1], start[0]:end[0]] = zarr_data

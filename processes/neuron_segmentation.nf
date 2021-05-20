@@ -24,6 +24,7 @@ process unet_volume_segmentation {
     def gpu_mem_growth_arg = params.use_gpu_mem_growth ? '--set_gpu_mem_growth' : ''
     def post_processing_arg = params.with_neuron_post_segmentation ? '--with_post_processing' : ''
     def scaling_arg = scaling ? "--scaling ${scaling}" : ''
+    def binary_mask_arg = params.neuron_mask_as_binary ? '--as_binary_mask' : ''
     """
     /entrypoint.sh volumeSegmentation \
         -i ${input_image} \
@@ -31,7 +32,7 @@ process unet_volume_segmentation {
         -o ${output_image} \
         -od ${params.neuron_output_dataset} \
         -m ${params.neuron_model} \
-        --whole_vol_shape ${vol_size} \
+        --image_shape ${vol_size} \
         --start ${start_subvolume} \
         --end ${end_subvolume} \
         ${scaling_arg} \
@@ -39,6 +40,7 @@ process unet_volume_segmentation {
         --unet_batch_size ${params.neuron_seg_unet_batch_sz} \
         --model_input_shape ${params.neuron_seg_model_in_dims} \
         --model_output_shape ${params.neuron_seg_model_out_dims} \
+        ${binary_mask_arg} \
         ${post_processing_arg} \
         --high_threshold ${params.neuron_seg_high_th} \
         --low_threshold ${params.neuron_seg_low_th} \
