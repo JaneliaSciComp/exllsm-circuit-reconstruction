@@ -2,6 +2,50 @@ include {
     create_container_options;
 } from '../utils/utils'
 
+process compute_unet_scaling {
+    container { params.exm_neuron_segmentation_container }
+    cpus { params.neuron_scaling_cpus }
+    memory { params.neuron_scaling_memory }
+    containerOptions { create_container_options([
+        input_image,
+    ]) }
+
+    input:
+    val(input_image)
+
+    output:
+    tuple val(input_image), env(scaling)
+
+    script:
+    if (params.neuron_scaling_tiles > 0) {
+        def scaling_partition_size_arg = params.neuron_scaling_partition_size
+            ? "--partition_size ${params.neuron_scaling_partition_size}"
+            : ''
+        def scaling_plots_dir_arg = params.neuron_scaling_plots_dir
+            ? "--scaling_plots_dir ${params.neuron_scaling_plots_dir}"
+            : ''
+        def scaling_plots_mkdir = params.neuron_scaling_plots_dir
+            ? "mkdir -p ${params.neuron_scaling_plots_dir}"
+            : ''
+        """
+        ${scaling_plots_mkdir}
+        /entrypoint.sh volumeScalingFactor \
+            -i ${input_image} \
+            -d ${params.neuron_input_dataset} \
+            -n ${params.neuron_scaling_tiles} \
+            ${scaling_partition_size_arg} \
+            ${scaling_plots_dir_arg} \
+            > \$PWD/scaling.log
+
+        scaling=`grep -o "Calculated a scaling factor of \\(.*\\) based on" \$PWD/scaling.log`
+        """
+    } else {
+        """
+        scaling=null
+        """
+    }
+}
+
 process unet_volume_segmentation {
     container { params.exm_neuron_segmentation_container }
     cpus { params.neuron_segmentation_cpus }

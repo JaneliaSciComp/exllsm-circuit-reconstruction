@@ -98,6 +98,12 @@ def default_em_params() {
         postsynaptic_stage3_percentage: 0.001,
 
         // neuron segmentation
+        neuron_scaling_cpus: 1,
+        neuron_scaling_memory: '1 G',
+        neuron_scaling_tiles: 50,
+        neuron_scaling_partition_size: '396,396,396',
+        neuron_scaling_plots_dir: '',
+
         neuron_segmentation_cpus: 1,
         neuron_segmentation_memory: '1 G',
         with_neuron_post_segmentation: true,
