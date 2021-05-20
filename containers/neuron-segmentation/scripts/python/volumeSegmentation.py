@@ -30,6 +30,8 @@ def _gpu_fix():
 
 
 def main():
+    start_time = time.time()
+
     parser = argparse.ArgumentParser(description='Neuron segmentation')
 
     parser.add_argument('-i', '--input',
@@ -114,8 +116,6 @@ def main():
                         dest='small_region_size_threshold',
                         type=int, default=2000,
                         help='Size threshold for small region removal')
-
-    start_time = time.time()
 
     args = parser.parse_args()
 

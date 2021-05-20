@@ -3,7 +3,7 @@ Common utilities for reading n5 formatted data
 """
 import zarr
 
-def read_n5_image(path, data_set):
+def read_n5_zyx_image(path, data_set):
     n5_path = path+data_set
     return zarr.open(store=zarr.N5Store(n5_path), mode='r')
 

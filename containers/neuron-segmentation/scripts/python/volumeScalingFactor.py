@@ -3,13 +3,16 @@ This script calculates the scaling factor of a given volume
 """
 import argparse
 import numpy as np
+import time
 
 from tools.tilingStrategy import RectangularTiling
 from tools.preProcessing import calculateScalingFactor
-from n5_utils import read_n5_image
+from n5_utils import read_n5_zyx_image
 
 
 def main():
+    start_time = time.time()
+
     parser = argparse.ArgumentParser(description='Volume scaling factor')
 
     parser.add_argument('-i', '--input',
@@ -36,8 +39,8 @@ def main():
 
     args = parser.parse_args()
 
-    img = read_n5_image(args.image_path, args.data_set)
-    image_shape = img.shape
+    zyx_img = read_n5_zyx_image(args.image_path, args.data_set)
+    image_shape = (zyx_img.shape[2], zyx_img.shape[1], zyx_img.shape[0])
     print('Read image', args.image_path, args.data_set, 'of size', image_shape)
 
     chunk_size = tuple([int(d) for d in args.chunk_size.split(',')])
@@ -46,9 +49,9 @@ def main():
     indices = np.arange(len(tiling))
     subset = np.random.choice(indices, replace=False, size=args.n_tiles)
 
-    def get_tile(image, tile):
+    def get_xyz_tile_from_yzx_image(an_zyx_image, tile):
         print('Get tile block:', tile)
-        return image[tile[0]:tile[1], tile[2]:tile[3], tile[4]:tile[5]]
+        return an_zyx_image[tile[4]:tile[5], tile[2]:tile[3], tile[0]:tile[1]].transpose(2, 1, 0)
 
     def get_plot_file(tile):
         if args.scaling_plots_dir is None:
@@ -61,7 +64,7 @@ def main():
     for index in subset:
         print("Sampling Tile {}".format(index))
         tile = tiling.getTile(index)
-        t = get_tile(img, tile)
+        t = get_xyz_tile_from_yzx_image(zyx_img, tile)
         sf = calculateScalingFactor(t, get_plot_file(tile))
         if sf != np.nan:
             sfs.append(sf)
@@ -73,6 +76,8 @@ def main():
     else:
         print('No scaling factor could be computed for any of the selected tiles')
         print('Calculated a scaling factor of null based on {}/{} tiles'.format(args.n_tiles, len(tiling)))
+
+    print("Completed scaling factor computation in {} seconds".format(time.time()-start_time))
 
 
 if __name__ == "__main__":
