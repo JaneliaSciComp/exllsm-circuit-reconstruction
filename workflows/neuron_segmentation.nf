@@ -119,7 +119,7 @@ workflow neuron_scaling_factor {
         }
         def scaling_factor_results = compute_unet_scaling(
             scaling_factor_inputs.map { it[0..2] },
-            '', // we always pass the tiles used for scaling as a percentage
+            0, // we always pass the tiles used for scaling as a percentage
             scaling_factor_inputs.map { it[3] },
         )
         | filter { it[1] == 'null' || it[1] == 'nan' }

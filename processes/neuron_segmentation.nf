@@ -30,10 +30,10 @@ process compute_unet_scaling {
         : ''
     def start_arg = start ? "--start ${start}" : ''
     def end_arg = end ? "--end ${end}" : ''
-    def n_tiles_arg = n_tiles_for_scaling > 0
+    def n_tiles_arg = (n_tiles_for_scaling as int) > 0
         ? "-n ${n_tiles_for_scaling}"
         : ''
-    def percent_tiles_arg = percent_tiles_for_scaling > 0
+    def percent_tiles_arg = (percent_tiles_for_scaling as float) > 0
         ? "-p ${percent_tiles_for_scaling}"
         : ''
     """
