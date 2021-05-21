@@ -19,42 +19,36 @@ process compute_unet_scaling {
     tuple val(input_image), env(scaling)
 
     script:
-    if (n_tiles_for_scaling > 0 || percent_tiles_for_scaling > 0) {
-        def scaling_partition_size_arg = params.neuron_scaling_partition_size
-            ? "--partition_size ${params.neuron_scaling_partition_size}"
-            : ''
-        def scaling_plots_dir_arg = params.neuron_scaling_plots_dir
-            ? "--scaling_plots_dir ${params.neuron_scaling_plots_dir}"
-            : ''
-        def scaling_plots_mkdir = params.neuron_scaling_plots_dir
-            ? "mkdir -p ${params.neuron_scaling_plots_dir}"
-            : ''
-        def start_arg = start ? "--start ${start}" : ''
-        def end_arg = end ? "--end ${end}" : ''
-        def n_tiles_arg = n_tiles_for_scaling > 0
-            ? "-n ${n_tiles_for_scaling}"
-            : ''
-        def percent_tiles_arg = percent_tiles_for_scaling > 0
-            ? "-p ${percent_tiles_for_scaling}"
-            : ''
-        """
-        ${scaling_plots_mkdir}
-        /entrypoint.sh volumeScalingFactor \
-            -i ${input_image} \
-            -d ${params.neuron_input_dataset} \
-            ${n_tiles_arg} ${percent_tiles_arg} \
-            ${scaling_partition_size_arg} \
-            ${scaling_plots_dir_arg} \
-            ${start_arg} ${end_arg} \
-            > \$PWD/scaling.log
+    def scaling_partition_size_arg = params.neuron_scaling_partition_size
+        ? "--partition_size ${params.neuron_scaling_partition_size}"
+        : ''
+    def scaling_plots_dir_arg = params.neuron_scaling_plots_dir
+        ? "--scaling_plots_dir ${params.neuron_scaling_plots_dir}"
+        : ''
+    def scaling_plots_mkdir = params.neuron_scaling_plots_dir
+        ? "mkdir -p ${params.neuron_scaling_plots_dir}"
+        : ''
+    def start_arg = start ? "--start ${start}" : ''
+    def end_arg = end ? "--end ${end}" : ''
+    def n_tiles_arg = n_tiles_for_scaling > 0
+        ? "-n ${n_tiles_for_scaling}"
+        : ''
+    def percent_tiles_arg = percent_tiles_for_scaling > 0
+        ? "-p ${percent_tiles_for_scaling}"
+        : ''
+    """
+    ${scaling_plots_mkdir}
+    /entrypoint.sh volumeScalingFactor \
+        -i ${input_image} \
+        -d ${params.neuron_input_dataset} \
+        ${n_tiles_arg} ${percent_tiles_arg} \
+        ${scaling_partition_size_arg} \
+        ${scaling_plots_dir_arg} \
+        ${start_arg} ${end_arg} \
+        > \$PWD/scaling.log
 
-        scaling=`grep -o "Calculated a scaling factor of \\(.*\\) based on" \$PWD/scaling.log`
-        """
-    } else {
-        """
-        scaling=null
-        """
-    }
+    scaling=`grep -o "Calculated a scaling factor of \\(.*\\) based on" \$PWD/scaling.log`
+    """
 }
 
 process unet_volume_segmentation {
