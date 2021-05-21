@@ -76,7 +76,6 @@ def main():
 
     tiling = RectangularTiling(start, end, partition_size)
     total_tiles = len(tiling)
-    indices = np.arange(total_tiles)
     if args.n_tiles is not None:
         n_tiles = min(args.n_tiles, total_tiles)
     elif args.percent_tiles is not None:
@@ -84,6 +83,8 @@ def main():
     else:
         n_tiles = 0
 
+    print('Select', n_tiles, 'random tiles out of', total_tiles)
+    indices = np.arange(total_tiles)
     subset = np.random.choice(indices, replace=False, size=n_tiles)
 
     def get_xyz_tile_from_yzx_image(an_zyx_image, tile):
@@ -101,10 +102,11 @@ def main():
     ti = 0
     for index in subset:
         ti = ti + 1
-        print("Sampling Tile {}: {}".format(ti, index))
+        print(f'Sampling Tile {ti}: {index}')
         tile = tiling.getTile(index)
         t = get_xyz_tile_from_yzx_image(zyx_img, tile)
         sf = calculateScalingFactor(t, get_plot_file(tile))
+        print(f'Scaling factor for tile {ti}: {t} -> {sf}')
         if sf != np.nan:
             sfs.append(sf)
 
