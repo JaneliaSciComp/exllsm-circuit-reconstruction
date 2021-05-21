@@ -25,28 +25,31 @@ class Tiling(ABC):
     def indexToCoordinates(self, i):
         pass
 
-    @abstractmethod
-    def coordinatesToIndex(self, x, y, z):
-        pass
-
 
 class RectangularTiling(Tiling):
     """
     Divides a volume into 0-alinged chunks
     """
 
-    def __init__(self, image_shape: tuple, chunk_shape: tuple):
-        assert len(image_shape) == 3
+    def __init__(self,
+                 start_coord: tuple, end_coord: tuple, chunk_shape: tuple):
+        assert len(start_coord) == 3
+        assert len(end_coord) == 3
         assert len(chunk_shape) == 3
-        self.image_shape = image_shape
+        self.start_coord = start_coord
+        self.end_coord = end_coord
         self.chunk_shape = chunk_shape
+
+        image_shape = (end_coord[0] - start_coord[0],
+                       end_coord[1] - start_coord[1],
+                       end_coord[2] - start_coord[2])
 
         # Calculate the coordinate mesh of the tiling
         # Each list goes up to the last multiple of tile_shape smaller than image_shape => endpoint excluded
         self.coords = []
         for d in range(3):
             self.coords.append(
-                list(range(0, self.image_shape[d], self.chunk_shape[d])))
+                list(range(0, image_shape[d], chunk_shape[d])))
 
         # Expose the shape of the tiling
         self.shape = [len(d) for d in self.coords]
@@ -79,18 +82,6 @@ class RectangularTiling(Tiling):
         z = yz_index % self.shape[2]
         return x, y, z
 
-    def coordinatesToIndex(self, x, y, z):
-        """
-        Converts the coordinates of a tile in the tiling grid to it's index
-        """
-        assert x < self.shape[0] and x >= 0, 'Coordinates out of bounds'
-        assert y < self.shape[1] and y >= 0, 'Coordinates out of bounds'
-        assert z < self.shape[2] and z >= 0, 'Coordinates out of bounds'
-        i = x*self.shape[1]*self.shape[2]
-        i += y*self.shape[2]
-        i += z
-        return i
-
     def getTile(self, i):
         """
         Returns the array slice coordinates for the i-th input tile.
@@ -108,15 +99,15 @@ class RectangularTiling(Tiling):
         """
         x, y, z = self.indexToCoordinates(i)
         # assemble the coordinates of the target chunk
-        x0 = self.coords[0][x]
-        y0 = self.coords[1][y]
-        z0 = self.coords[2][z]
+        x0 = self.start_coord[0] + self.coords[0][x]
+        y0 = self.start_coord[1] + self.coords[1][y]
+        z0 = self.start_coord[2] + self.coords[2][z]
         x1 = x0 + self.chunk_shape[0]
         y1 = y0 + self.chunk_shape[1]
         z1 = z0 + self.chunk_shape[2]
-        x1 = np.min([x1, self.image_shape[0]])
-        y1 = np.min([y1, self.image_shape[1]])
-        z1 = np.min([z1, self.image_shape[2]])
+        x1 = np.min([x1, self.end_coord[0]])
+        y1 = np.min([y1, self.end_coord[1]])
+        z1 = np.min([z1, self.end_coord[2]])
         return (x0, x1, y0, y1, z0, z1)
 
     def __getitem__(self, index):
@@ -217,18 +208,6 @@ class UnetTiling3D(Tiling):
         z = yz_index % self.shape[2]
         return x, y, z
 
-    def coordinatesToIndex(self, x, y, z):
-        """
-        Converts the coordinates of a tile in the tiling grid to it's index
-        """
-        assert x < self.shape[0] and x >= 0, 'Coordinates out of bounds'
-        assert y < self.shape[1] and y >= 0, 'Coordinates out of bounds'
-        assert z < self.shape[2] and z >= 0, 'Coordinates out of bounds'
-        i = x*self.shape[1]*self.shape[2]
-        i += y*self.shape[2]
-        i += z
-        return i
-
     def getOutputTile(self, i):
         """
         Returns an axis aligned boundary box defining the i-th output tile. 
@@ -266,8 +245,8 @@ class UnetTiling3D(Tiling):
         tuple
              aabb coordinate tuple (x0,y0,z0,x1,y1,z1) (diagonal oposite corners that define a rectangular volume)
         """
-        aabb = self.getOutputTile(
-            i)  # get the aabb of the corresponding input tile
+        # get the aabb of the corresponding input tile
+        aabb = self.getOutputTile(i)
         # symmetric expansion in each direction
         delta = np.subtract(self.input_shape, self.output_shape) // 2
         # we have to subtract delta from the inital coords and add it to the stop coords
@@ -284,103 +263,6 @@ class UnetTiling3D(Tiling):
         # get the second corner of the last input tile
         end_corner = self.getInputTile(len(self)-1)[3:]
         return start_corner + end_corner
-
-    def getAdjacentTiles(self, i: int) -> list:
-        """Returns a list with the indices of adjacent tiles. (Rectangular tiles that share a face with the reference tile)
-
-        Parameters
-        ----------
-        i : int
-            index of the reference tile
-
-        Returns
-        -------
-        list
-            indices of adjacent tiles or None in format [x_pre, x_post, y_pre, y_post, z_pre, z_post]
-        """
-        adjacent = []
-        # get the coordinates of the current tile
-        coords = self.indexToCoordinates(i)
-        # In every dimension
-        for d in range(3):
-            # Add or subtract one position
-            for n in [-1, 1]:
-                try:
-                    new_coords = list(coords)
-                    new_coords[d] += n
-                    # try to convert to tile index -> fails if nonexistent
-                    new_i = self.coordinatesToIndex(*new_coords)
-                    adjacent.append(new_i)
-                except AssertionError:
-                    adjacent.append(None)
-        return adjacent
-
-
-class OverlappingUnetTiling3D(UnetTiling3D):
-    """
-    Derived from UnetTiling3D, instead of using adjacent output Tiles to cover the input image, each tile is shifted only by a given stepsize in each dimension.
-    This allows for mutually overlapping tiles.
-    """
-
-    def __init__(self, image_shape, output_shape=(132, 132, 132), input_shape=(220, 220, 220), delta=(8, 8, 8), containTiling=False):
-        """
-        Parameters
-        ----------
-        image_shape : tuple
-            the shape of the volume that should be tiled
-        output_shape : tuple
-            shape of the segmentation output of the unet
-        input_shape : tuple
-            shape of the image input of the unet
-        delta : tuple
-            spacing of the tiling grid as (dx,dy,dz)
-        containTiling: bool
-            wheter the ouput tile grid should be centered on the available data. This tries to prevent the input regions to extend past the image borders but also makes some border pixels inaccessible by the unet output.
-        """
-        super().__init__(image_shape, output_shape, input_shape)
-        self.image_shape = image_shape
-        # Store output and input shape of the unet and check for correct number of dimensions
-        self.output_shape = output_shape
-        self.input_shape = input_shape
-        assert len(
-            self.image_shape) == 3, 'Specify a single channel 3D image with format (x,y,z)'
-        assert len(
-            self.output_shape) == 3, 'Specify the extent of the output shape as (x,y,z)'
-        assert len(
-            self.input_shape) == 3, 'Specify the extent of the input shape as (x,y,z)'
-        assert self.output_shape <= self.input_shape, 'The input shape cannot be smaller than the output shape'
-        # Store delta and check for correct number of dimensions
-        self.delta = delta
-        assert len(
-            self.delta) == 3, 'Specify the spacing of the tiling grid as (dx,dy,dz)'
-        assert self.delta <= self.output_shape, 'The spacing must be smaller or equal to the output shape to prevent gaps between tiles'
-
-        # Calculate the coordinate mesh of the tiling
-        # Each list goes up to the last multiple of the step size smaller than image_shape
-        self.coords = []  # list of coordinates, one entry for each axis
-        for d in range(3):
-            self.coords.append([])  # list of grid nodes along axis d
-            # offset by input region border
-            offset = (self.input_shape[d]-self.output_shape[d])//2
-            if containTiling:
-                i = offset
-            else:
-                i = 0  # start tiling with ouput region at image border
-
-            while True:
-                self.coords[d].append(i)
-                if containTiling:
-                    # add the next grid position until the input tile protrudes from the image for the first time
-                    if i + self.output_shape[d] + offset >= self.image_shape[d]:
-                        break
-                else:
-                    # add the next grid position until the output tile protrudes from the image for the first time.
-                    if i+self.output_shape[d] > self.image_shape[d]:
-                        break
-                i += delta[d]
-
-        # Expose the shape of the tiling
-        self.shape = tuple([len(d) for d in self.coords])
 
 
 class Canvas():

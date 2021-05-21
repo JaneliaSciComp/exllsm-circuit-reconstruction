@@ -5,7 +5,7 @@ import argparse
 import numpy as np
 import time
 
-from tools.tilingStrategy import UnetTiling3D
+from tools.tilingStrategy import RectangularTiling
 from tools.preProcessing import calculateScalingFactor
 from n5_utils import read_n5_zyx_image
 
@@ -24,8 +24,12 @@ def main():
                         help='Path to input data set (default "/s0")')
 
     parser.add_argument('-n', '--n_tiles',
-                        dest='n_tiles', type=int, required=True,
+                        dest='n_tiles', type=int,
                         help='Number of tiles used to calculate the mean')
+
+    parser.add_argument('-p', '--percent_tiles',
+                        dest='percent_tiles', type=float,
+                        help='Percent of tiles used to calculate the mean')
 
     parser.add_argument('--partition_size',
                         dest='partition_size', type=str,
@@ -64,13 +68,17 @@ def main():
     else:
         end = image_shape
 
-    tiling = UnetTiling3D(image_shape,
-                          tiling_subvolume=start+end,
-                          input_shape=partition_size,
-                          output_shape=partition_size)
+    tiling = RectangularTiling(start, end, partition_size)
+    total_tiles = len(tiling)
+    indices = np.arange(total_tiles)
+    if args.n_tiles is not None:
+        n_tiles = min(args.n_tiles, total_tiles)
+    elif args.percent_tiles is not None:
+        n_tiles = int(min(1, args.percent_tiles) * total_tiles)
+    else:
+        n_tiles = 0
 
-    indices = np.arange(len(tiling))
-    subset = np.random.choice(indices, replace=False, size=args.n_tiles)
+    subset = np.random.choice(indices, replace=False, size=n_tiles)
 
     def get_xyz_tile_from_yzx_image(an_zyx_image, tile):
         print('Get tile block:', tile)
