@@ -122,7 +122,7 @@ workflow neuron_scaling_factor {
             0, // we always pass the tiles used for scaling as a percentage
             scaling_factor_inputs.map { it[3] },
         )
-        | filter { it[1] == 'null' || it[1] == 'nan' }
+        | filter { it[1] != 'null' && it[1] != 'nan' }
         | groupTuple(by: 0)
         | map {
             def (input_image, scaling_factors) = it
