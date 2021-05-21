@@ -16,8 +16,8 @@ include {
 } from '../utils/utils'
 
 include {
-    get_processed_volume;
     partition_volume;
+    number_of_subvols
 } from './segmentation_utils'
 
 workflow neuron_segmentation {
