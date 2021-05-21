@@ -113,10 +113,10 @@ def main():
     if len(sfs) > 0:
         mean_sf = np.nanmean(sfs)
         print('tile-wise scaling factors', sfs)
-        print('Calculated a scaling factor of {} based on {}/{} tiles'.format(mean_sf, args.n_tiles, len(tiling)))
+        print('Calculated a scaling factor of {} based on {}/{} tiles'.format(mean_sf, n_tiles, total_tiles))
     else:
         print('No scaling factor could be computed for any of the selected tiles')
-        print('Calculated a scaling factor of null based on {}/{} tiles'.format(args.n_tiles, len(tiling)))
+        print('Calculated a scaling factor of null based on {}/{} tiles'.format(n_tiles, total_tiles))
 
     print("Completed scaling factor computation in {} seconds".format(time.time()-start_time))
 

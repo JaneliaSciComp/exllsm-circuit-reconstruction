@@ -38,6 +38,7 @@ process compute_unet_scaling {
         : ''
     """
     ${scaling_plots_mkdir}
+    scaling_log=\$PWD/scaling.log
     /entrypoint.sh volumeScalingFactor \
         -i ${input_image} \
         -d ${params.neuron_input_dataset} \
@@ -45,9 +46,9 @@ process compute_unet_scaling {
         ${scaling_partition_size_arg} \
         ${scaling_plots_dir_arg} \
         ${start_arg} ${end_arg} \
-        > \$PWD/scaling.log
-
-    scaling=`grep -o "Calculated a scaling factor of \\(.*\\) based on" \$PWD/scaling.log`
+        > \$scaling_log
+    echo "Extract scaling factor from \$scaling_log"
+    scaling=`grep -o "Calculated a scaling factor of \\(.*\\) based on" \$scaling_log | cut -d ' ' -f6`
     """
 }
 
