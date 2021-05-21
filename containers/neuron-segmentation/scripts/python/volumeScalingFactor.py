@@ -74,6 +74,7 @@ def main():
     else:
         end = image_shape
 
+    print('Tiled volume', start, end)
     tiling = RectangularTiling(start, end, partition_size)
     total_tiles = len(tiling)
     if args.n_tiles is not None:
