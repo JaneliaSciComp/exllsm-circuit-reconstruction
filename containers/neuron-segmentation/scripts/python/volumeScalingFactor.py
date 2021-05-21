@@ -15,6 +15,12 @@ def main():
 
     parser = argparse.ArgumentParser(description='Volume scaling factor')
 
+    def percent(value):
+        fvalue = float(value)
+        if fvalue < 0 or fvalue > 1:
+            raise argparse.ArgumentTypeError("%s is an invalid percent value" % value)
+        return fvalue
+
     parser.add_argument('-i', '--input',
                         dest='image_path', type=str, required=True,
                         help='Path to the input n5')
@@ -28,7 +34,7 @@ def main():
                         help='Number of tiles used to calculate the mean')
 
     parser.add_argument('-p', '--percent_tiles',
-                        dest='percent_tiles', type=float,
+                        dest='percent_tiles', type=percent,
                         help='Percent of tiles used to calculate the mean')
 
     parser.add_argument('--partition_size',
@@ -74,7 +80,7 @@ def main():
     if args.n_tiles is not None:
         n_tiles = min(args.n_tiles, total_tiles)
     elif args.percent_tiles is not None:
-        n_tiles = int(min(1, args.percent_tiles) * total_tiles)
+        n_tiles = int(args.percent_tiles * total_tiles)
     else:
         n_tiles = 0
 
