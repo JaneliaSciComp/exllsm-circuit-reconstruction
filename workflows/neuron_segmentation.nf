@@ -127,7 +127,7 @@ workflow neuron_scaling_factor {
         | map {
             def (input_image, scaling_factors) = it
             // average the scaling factors
-            log.debug "Compute mean scaling factor for ${image_name} from ${scaling_factors}"
+            log.debug "Compute mean scaling factor for ${input_image} from ${scaling_factors}"
             def scaling_factor = scaling_factors.collect { it as int }.average() as String
             [ input_image, scaling_factor ]
         }
