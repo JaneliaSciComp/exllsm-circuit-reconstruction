@@ -41,6 +41,11 @@ workflow neuron_segmentation {
         }
     )
 
+    // get the partition size for calculating the scaling factor
+    def scaling_factor_chunk_sizes = params.neuron_scaling_partition_size
+                                        .tokenize(',')
+                                        .collect { it.trim() as int }
+
     def neuron_seg_results = create_n5_volume(
         neuron_seg_inputs.map {
             def (in_image, out_image, sz) = it
@@ -61,7 +66,7 @@ workflow neuron_segmentation {
         def (in_image, out_image, image_size, neuron_scaling) = it
         def image_sz_str = "${image_size[0]},${image_size[1]},${image_size[2]}"
         def scaling_factor = neuron_scaling == 'null' ? '' : neuron_scaling
-        partition_volume(image_size, params.volume_partition_size).collect {
+        partition_volume(image_size, params.partial_volume, scaling_factor_chunk_sizes).collect {
             def (start_subvol, end_subvol) = it
             [
                 in_image, out_image,
@@ -83,21 +88,58 @@ workflow neuron_scaling_factor {
     input_data
 
     main:
-    done = input_data
-    | map {
-        def (image_filename, image_size) = it
-        if (params.partial_volume) {
-            def volume = get_processed_volume(image_size, params.partial_volume)
-            [
-                image_filename,
-                "${volume[0]},${volume[1]},${volume[2]}",
-                "${volume[0] + volume[3]},${volume[1] + volume[4]},${volume[2] + volume[5]}",
-            ]
-        } else {
-            [ image_filename, '', '' ]
+    if (params.neuron_scaling_tiles > 0 ||
+        (params.neuron_percent_scaling_tiles > 0 && params.neuron_percent_scaling_tiles < 1)) {
+        def scaling_factor_chunk_sizes = params.neuron_scaling_partition_size
+                                            .tokenize(',')
+                                            .collect { it.trim() as int }
+        def scaling_factor_inputs = input_data
+        | flatMap {
+            def (image_filename, image_size) = it
+            // calculate an optimal partitioning for neuron_scaling
+            // the formula is based on not having more than <max_scaling_tiles_per_job>
+            // tiles process for scaling factor in a single job
+            // Formula used is scaling_chunk_size * cubic_root(max_scaling_tiles_per_job / percent_tiles_for_scaling)
+            def n_tiles = number_of_subvols(image_size, params.partial_volume, params.neuron_scaling_partition_size)
+            def percentage_used_for_scaling = 0
+            if (params.neuron_scaling_tiles > 0) {
+                percentage_used_for_scaling = params.neuron_scaling_tiles / n_tiles
+            } else {
+                percentage_used_for_scaling = params.neuron_percent_scaling_tiles
+            }
+
+            def partition_size_for_scaling = (scaling_factor_chunk_sizes.min() *
+                Math.cbrt(params.max_scaling_tiles_per_job / percentage_used_for_scaling)) as int
+            partition_volume(image_size, params.partial_volume, partition_size_for_scaling).collect {
+                def (start_subvol, end_subvol) = it
+                [
+                    in_image, start_subvol, end_subvol, percentage_used_for_scaling
+                ]
+            }
+        }
+        def scaling_factor_results = compute_unet_scaling(
+            scaling_factor_inputs.map { it[0..2] },
+            '', // we always pass the tiles used for scaling as a percentage
+            scaling_factor_inputs.map { it[3] },
+        )
+        | filter { it[1] == 'null' || it[1] == 'nan' }
+        | groupTuple(by: 0)
+        | map {
+            def (input_image, scaling_factors) = it
+            // average the scaling factors
+            log.debug "Compute mean scaling factor for ${image_name} from ${scaling_factors}"
+            def scaling_factor = scaling_factors.collect { it as int }.average() as String
+            [ input_image, scaling_factor ]
+        }
+        done = scaling_factor_results
+    } else {
+        // no scaling factor is calculated
+        done = input_data
+        | map {
+            def (image_filename) = it
+            [ image_filename, '' ]
         }
     }
-    | compute_unet_scaling
 
     emit:
     done

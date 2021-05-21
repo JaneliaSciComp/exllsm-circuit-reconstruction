@@ -1,23 +1,24 @@
-def partition_volume(volume, partition_size) {
-    def (start_x, start_y, start_z, dx, dy, dz) = get_processed_volume(volume, params.partial_volume)
-    def ncols = ((dx % partition_size) > 0 ? (dx / partition_size + 1) : (dx / partition_size)) as int
-    def nrows =  ((dy % partition_size) > 0 ? (dy / partition_size + 1) : (dy / partition_size)) as int
-    def nslices = ((dz % partition_size) > 0 ? (dz / partition_size + 1) : (dz / partition_size)) as int
+def partition_volume(total_volume_size, partial_volume, partition_size) {
+    def (x_partition_size, y_partition_size, z_partition_size) = size_components(partition_size)
+    def (start_x, start_y, start_z, dx, dy, dz) = get_processed_volume(total_volume_size, partial_volume)
+    def ncols = ((dx % x_partition_size) > 0 ? (dx / x_partition_size + 1) : (dx / x_partition_size)) as int
+    def nrows =  ((dy % y_partition_size) > 0 ? (dy / y_partition_size + 1) : (dy / y_partition_size)) as int
+    def nslices = ((dz % z_partition_size) > 0 ? (dz / z_partition_size + 1) : (dz / z_partition_size)) as int
     [0..ncols-1, 0..nrows-1, 0..nslices-1]
         .combinations()
         .collect {
-            def start_col = it[0] * partition_size
-            def end_col = start_col + partition_size
+            def start_col = it[0] * x_partition_size
+            def end_col = start_col + x_partition_size
             if (end_col > dx) {
                 end_col = dx
             }
-            def start_row = it[1] * partition_size
-            def end_row = start_row + partition_size
+            def start_row = it[1] * y_partition_size
+            def end_row = start_row + y_partition_size
             if (end_row > dy) {
                 end_row = dy
             }
-            def start_slice = it[2] * partition_size
-            def end_slice = start_slice + partition_size
+            def start_slice = it[2] * z_partition_size
+            def end_slice = start_slice + z_partition_size
             if (end_slice > dz) {
                 end_slice = dz
             }
@@ -28,16 +29,29 @@ def partition_volume(volume, partition_size) {
         }
 }
 
-def number_of_subvols(volume, partition_size) {
-    def (start_x, start_y, start_z, dx, dy, dz) = get_processed_volume(volume, params.partial_volume)
-    def ncols = ((dx % partition_size) > 0 ? (dx / partition_size + 1) : (dx / partition_size)) as int
-    def nrows =  ((dy % partition_size) > 0 ? (dy / partition_size + 1) : (dy / partition_size)) as int
-    def nslices = ((dz % partition_size) > 0 ? (dz / partition_size + 1) : (dz / partition_size)) as int
+def number_of_subvols(total_volume_size, partial_volume, partition_size) {
+    def (x_partition_size, y_partition_size, z_partition_size) = size_components(partition_size)
+    def (start_x, start_y, start_z, dx, dy, dz) = get_processed_volume(total_volume_size, partial_volume)
+    def ncols = ((dx % x_partition_size) > 0 ? (dx / x_partition_size + 1) : (dx / x_partition_size)) as int
+    def nrows =  ((dy % y_partition_size) > 0 ? (dy / y_partition_size + 1) : (dy / y_partition_size)) as int
+    def nslices = ((dz % z_partition_size) > 0 ? (dz / z_partition_size + 1) : (dz / z_partition_size)) as int
     return ncols * nrows * nslices
 }
 
-def get_processed_volume(volume, partial_volume) {
-    def (width, height, depth) = volume
+def size_components(sz) {
+    def x_sz
+    def y_sz
+    def z_sz
+    if (sz instanceof Number) {
+        [ sz, sz, sz ]
+    } else {
+        sz
+    }
+}
+
+// returns the adjusted partial volume as [<start> <dims>]
+def get_processed_volume(total_volume_size, partial_volume) {
+    def (width, height, depth) = total_volume_size
     if (partial_volume) {
         def (start_x, start_y, start_z, dx, dy, dz) = partial_volume.split(',').collect { it as int }
         if (start_x < 0 || start_x >= width) {

@@ -17,7 +17,7 @@ def main():
 
     def percent(value):
         fvalue = float(value)
-        if fvalue < 0 or fvalue > 1:
+        if fvalue < 0:
             raise argparse.ArgumentTypeError("%s is an invalid percent value" % value)
         return fvalue
 
@@ -79,7 +79,7 @@ def main():
     if args.n_tiles is not None:
         n_tiles = min(args.n_tiles, total_tiles)
     elif args.percent_tiles is not None:
-        n_tiles = int(args.percent_tiles * total_tiles)
+        n_tiles = int(min(args.percent_tiles, 1) * total_tiles)
     else:
         n_tiles = 0
 
