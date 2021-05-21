@@ -101,7 +101,7 @@ def default_em_params() {
         neuron_scaling_cpus: 1,
         neuron_scaling_memory: '1 G',
         neuron_scaling_tiles: 0,
-        neuron_percent_scaling_tiles: 0.,
+        neuron_percent_scaling_tiles: 0,
         neuron_scaling_partition_size: '396,396,396',
         max_scaling_tiles_per_job: 50,
         neuron_scaling_plots_dir: '',
