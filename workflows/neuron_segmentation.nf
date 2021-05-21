@@ -100,7 +100,7 @@ workflow neuron_scaling_factor {
             // the formula is based on not having more than <max_scaling_tiles_per_job>
             // tiles process for scaling factor in a single job
             // Formula used is scaling_chunk_size * cubic_root(max_scaling_tiles_per_job / percent_tiles_for_scaling)
-            def n_tiles = number_of_subvols(image_size, params.partial_volume, params.neuron_scaling_partition_size)
+            def n_tiles = number_of_subvols(image_size, params.partial_volume, scaling_factor_chunk_sizes)
             def percentage_used_for_scaling = 0
             if (params.neuron_scaling_tiles > 0) {
                 percentage_used_for_scaling = params.neuron_scaling_tiles / n_tiles
