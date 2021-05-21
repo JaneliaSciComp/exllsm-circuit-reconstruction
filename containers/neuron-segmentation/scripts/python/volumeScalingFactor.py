@@ -96,7 +96,7 @@ def main():
     for index in subset:
         ti = ti + 1
         print("Sampling Tile {}: {}".format(ti, index))
-        tile = tiling.getInputTile(index)
+        tile = tiling.getTile(index)
         t = get_xyz_tile_from_yzx_image(zyx_img, tile)
         sf = calculateScalingFactor(t, get_plot_file(tile))
         if sf != np.nan:
