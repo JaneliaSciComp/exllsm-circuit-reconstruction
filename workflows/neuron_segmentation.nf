@@ -113,7 +113,7 @@ workflow neuron_scaling_factor {
             partition_volume(image_size, params.partial_volume, partition_size_for_scaling).collect {
                 def (start_subvol, end_subvol) = it
                 [
-                    in_image, start_subvol, end_subvol, percentage_used_for_scaling
+                    image_filename, start_subvol, end_subvol, percentage_used_for_scaling
                 ]
             }
         }
