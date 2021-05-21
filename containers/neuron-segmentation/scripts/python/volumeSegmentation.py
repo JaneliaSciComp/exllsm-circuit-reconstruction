@@ -138,8 +138,8 @@ def main():
     print('global image shape:', str(image_shape))
     tiling = UnetTiling3D(image_shape,
                           subvolume,
-                          model_output_shape,
-                          model_input_shape)
+                          input_shape=model_input_shape,
+                          output_shape=model_output_shape)
 
      # actual U-Net volume as x0,y0,z0,x1,y1,z1
     input_volume_aabb = np.array(tiling.getInputVolume())

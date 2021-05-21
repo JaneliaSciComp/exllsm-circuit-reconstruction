@@ -157,15 +157,17 @@ class UnetTiling3D(Tiling):
         # Store output and input shape of the unet and check for correct number of dimensions
         self.output_shape = output_shape
         self.input_shape = input_shape
-        assert len(
-            self.image_shape) == 3, 'Specify a single channel 3D image with format (x,y,z)'
-        assert len(
-            self.tiling_subvolume) == 6, 'Specify a 3D tiling subvolume as coordinate tuple (x0,y0,z0,x1,y1,z1)'
-        assert len(
-            self.output_shape) == 3, 'Specify the extent of the output shape as (x,y,z)'
-        assert len(
-            self.input_shape) == 3, 'Specify the extent of the input shape as (x,y,z)'
-        assert self.output_shape <= self.input_shape, 'The input shape cannot be smaller than the output shape'
+        assert len(self.image_shape) == 3, \
+            'Specify a single channel 3D image with format (x,y,z)'
+        assert len(self.tiling_subvolume) == 6, \
+            'Specify a 3D tiling subvolume as tuple (x0,y0,z0,x1,y1,z1)'
+        assert len(self.output_shape) == 3, \
+            'Specify the extent of the output shape as (x,y,z)'
+        assert len(self.input_shape) == 3, \
+            'Specify the extent of the input shape as (x,y,z)'
+        assert self.output_shape <= self.input_shape, \
+            f'The input shape {self.input_shape} ' + \
+            'cannot be smaller than the output shape {self.output_shape}'
 
         # Calculate the coordinate mesh of the tiling
         # For each axis there are as many tiles as the number of output shapes that fit between the borders of the subvolume
