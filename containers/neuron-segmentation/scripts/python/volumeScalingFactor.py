@@ -106,7 +106,7 @@ def main():
         tile = tiling.getTile(index)
         t = get_xyz_tile_from_yzx_image(zyx_img, tile)
         sf = calculateScalingFactor(t, get_plot_file(tile))
-        print(f'Scaling factor for tile {ti}: {t} -> {sf}')
+        print(f'Scaling factor for tile {ti}: {tile} -> {sf}')
         if sf != np.nan:
             sfs.append(sf)
 
