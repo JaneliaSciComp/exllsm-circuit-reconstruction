@@ -233,7 +233,7 @@ def get_stitching_tile_json_inputs(current_stitching_dir, stitching_inputs, defa
     if (!stitching_inputs) {
         entries_inputs_args(
             current_stitching_dir,
-            channels,
+            default_channels,
             '-i',
             '-decon',
             '.json'
@@ -254,7 +254,7 @@ def get_fuse_tile_json_inputs(current_stitching_dir, stitching_inputs, default_c
     if (!stitching_inputs) {
         entries_inputs_args(
             current_stitching_dir,
-            channels,
+            default_channels,
             '-i',
             '-decon-final',
             '.json'
