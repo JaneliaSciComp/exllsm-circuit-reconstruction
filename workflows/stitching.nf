@@ -78,6 +78,7 @@ workflow stitching {
         indexed_spark_work_dir, //  here I only want a tuple that has the working dir as the 2nd element
         { current_stitching_dir ->
             def tile_json_inputs = get_stitching_tile_json_inputs(
+                current_stitching_dir,
                 params.stitching_json_inputs,
                 channels
             )
@@ -120,6 +121,7 @@ workflow stitching {
         stitch_res,
         { current_stitching_dir ->
             def tile_json_inputs = get_fuse_tile_json_inputs(
+                current_stitching_dir,
                 params.stitching_json_inputs,
                 channels
             )
@@ -248,7 +250,7 @@ def get_stitching_tile_json_inputs(current_stitching_dir, stitching_inputs, defa
 }
 
 
-def get_fuse_tile_json_inputs(stitching_inputs, default_channels) {
+def get_fuse_tile_json_inputs(current_stitching_dir, stitching_inputs, default_channels) {
     if (!stitching_inputs) {
         entries_inputs_args(
             current_stitching_dir,
