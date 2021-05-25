@@ -92,22 +92,22 @@ def apply_unet(img, model_path, input_sz=(64, 64, 64), step=(24, 24, 24), mask=N
     del new_img
     predict_img = np.zeros(img.shape, dtype=img.dtype)
 
-    for row in range(0, img.shape[0]-input_sz[0], step[0]):
-        for col in range(0, img.shape[1]-input_sz[1], step[1]):
-            for vol in range(0, img.shape[2]-input_sz[2], step[2]):
+    for x_pos in range(0, img.shape[0]-input_sz[0], step[0]):
+        for y_pos in range(0, img.shape[1]-input_sz[1], step[1]):
+            for z_pos in range(0, img.shape[2]-input_sz[2], step[2]):
                 patch_img = np.zeros((1,
                                       input_sz[0],
                                       input_sz[1],
                                       input_sz[2],
                                       1),
                                      dtype=img.dtype)
-                patch_img[0, ..., 0] = img[row:row+input_sz[0],
-                                           col:col+input_sz[1],
-                                           vol:vol+input_sz[2]]
+                patch_img[0, ..., 0] = img[x_pos:x_pos+input_sz[0],
+                                           y_pos:y_pos+input_sz[1],
+                                           z_pos:z_pos+input_sz[2]]
                 patch_predict = unet_model.predict(patch_img)
-                predict_img[row+gap[0]:row+gap[0]+step[0],
-                            col+gap[1]:col+gap[1]+step[1],
-                            vol+gap[2]:vol+gap[2]+step[2]] = \
+                predict_img[x_pos+gap[0]:x_pos+gap[0]+step[0],
+                            y_pos+gap[1]:y_pos+gap[1]+step[1],
+                            z_pos+gap[2]:z_pos+gap[2]+step[2]] = \
                     patch_predict[0, ..., 0]
 
     predict_img[predict_img >= 0.5] = 255

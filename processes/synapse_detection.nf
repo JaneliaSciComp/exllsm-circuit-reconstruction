@@ -1,9 +1,17 @@
+include {
+    create_container_options;
+} from '../utils/utils'
+
 process unet_classifier {
     container { params.exm_synapse_container }
     cpus { params.unet_cpus }
     memory { params.unet_memory }
     accelerator 1
     label 'withGPU'
+    containerOptions { create_container_options([
+        input_image,
+        output_image_arg,
+    ]) }
 
     input:
     tuple val(input_image), val(output_image_arg), val(vol_size), val(start_subvolume), val(end_subvolume)
@@ -30,6 +38,11 @@ process segmentation_postprocessing {
     container { params.exm_synapse_container }
     cpus { params.postprocessing_cpus }
     memory { params.postprocessing_memory }
+    containerOptions { create_container_options([
+        input_image,
+        mask_image,
+        output_image_arg,
+    ]) }
 
     input:
     tuple val(input_image), val(mask_image), val(output_image_arg), val(output_csv_dir), val(vol_size), val(start_subvolume), val(end_subvolume)
@@ -60,6 +73,9 @@ process segmentation_postprocessing {
 process aggregate_csvs {
     container { params.exm_synapse_container }
     label 'small'
+    containerOptions { create_container_options([
+        input_csvs_dir
+    ]) }
 
     input:
     tuple val(input_csvs_dir), val(output_csv)
