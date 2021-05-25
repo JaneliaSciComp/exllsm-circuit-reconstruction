@@ -69,7 +69,7 @@ Further detailed documentation is available here:
 * Workflows
     * [Stitching](docs/Stitching.md) 
     * [Image Processing](docs/ImageProcessing.md) 
-    * Neuron Segmentation
+    * [Neuron Segmentation](docs/NeuronSegmentation.md)
     * [Synapse Prediction](docs/SynapsePrediction.md)
 * [Troubleshooting](docs/Troubleshooting.md)
 * [Development Guide](docs/Development.md)

@@ -100,6 +100,7 @@ def default_em_params() {
         // neuron segmentation
         neuron_scaling_cpus: 1,
         neuron_scaling_memory: '1 G',
+        user_defined_scaling: '',
         neuron_scaling_tiles: 0,
         neuron_percent_scaling_tiles: 0,
         neuron_scaling_partition_size: '396,396,396',
@@ -119,8 +120,8 @@ def default_em_params() {
         neuron_seg_model_out_dims: '132,132,132',
         neuron_seg_high_th: 0.98,
         neuron_seg_low_th: 0.2,
-        neuron_seg_small_region_prob_th: 0.2,
-        neuron_seg_small_region_size_th: 2000,
+        neuron_seg_small_region_prob_th: 0.9,
+        neuron_seg_small_region_size_th: 1000,
     ]
 }
 

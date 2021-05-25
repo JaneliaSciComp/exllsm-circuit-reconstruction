@@ -140,7 +140,7 @@ workflow neuron_scaling_factor {
         done = input_data
         | map {
             def (image_filename) = it
-            [ image_filename, '' ]
+            [ image_filename, params.user_defined_scaling ]
         }
     }
 
