@@ -77,12 +77,9 @@ workflow stitching {
         indexed_data,
         indexed_spark_work_dir, //  here I only want a tuple that has the working dir as the 2nd element
         { current_stitching_dir ->
-            def tile_json_inputs = entries_inputs_args(
-                current_stitching_dir,
-                channels,
-                '-i',
-                '-decon',
-                '.json'
+            def tile_json_inputs = get_stitching_tile_json_inputs(
+                params.stitching_json_inputs,
+                channels
             )
             def args_list = []
             args_list 
@@ -122,12 +119,9 @@ workflow stitching {
         indexed_data,
         stitch_res,
         { current_stitching_dir ->
-            def tile_json_inputs = entries_inputs_args(
-                current_stitching_dir,
-                channels,
-                '-i',
-                '-decon-final',
-                '.json'
+            def tile_json_inputs = get_fuse_tile_json_inputs(
+                params.stitching_json_inputs,
+                channels
             )
             def args_list = []
             args_list 
@@ -230,5 +224,46 @@ def prepare_app_args(app_name,
         ]
         log.debug "${app_name} app input ${idx}: ${app_inputs}"
         return app_inputs
+    }
+}
+
+def get_stitching_tile_json_inputs(current_stitching_dir, stitching_inputs, default_channels) {
+    if (!stitching_inputs) {
+        entries_inputs_args(
+            current_stitching_dir,
+            channels,
+            '-i',
+            '-decon',
+            '.json'
+        )
+    } else {
+        entries_inputs_args(
+            current_stitching_dir,
+            stitching_inputs.tokenize(',').collect { it.trim() },
+            '-i',
+            '',
+            '.json'
+        )
+    }
+}
+
+
+def get_fuse_tile_json_inputs(stitching_inputs, default_channels) {
+    if (!stitching_inputs) {
+        entries_inputs_args(
+            current_stitching_dir,
+            channels,
+            '-i',
+            '-decon-final',
+            '.json'
+        )
+    } else {
+        entries_inputs_args(
+            current_stitching_dir,
+            stitching_inputs.tokenize(',').collect { it.trim() },
+            '-i',
+            '-final',
+            '.json'
+        )
     }
 }

@@ -24,6 +24,10 @@ def default_em_params() {
         stitching_mode: 'incremental',
         stitching_padding: '0,0,0',
         stitching_blur_sigma: '2',
+        // the default stiching inputs based on the channels parameter is 488nm-decon,560nm-decon,642nm-decon
+        stitching_json_inputs: '', // this can override the default stitching inputs and allows us to do stitching 
+                                   // using 1 or more raw channel inputs, in that case the stitching_json_inputs would be
+                                   // 488nm or it can be "488nm,560nm" or "488nm,560nm,642nm"
         export_level: '0',
         allow_fusestage: false,
 
