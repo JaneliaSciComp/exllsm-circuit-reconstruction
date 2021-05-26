@@ -77,6 +77,31 @@ workflow stitching {
         stitch_res = indexed_spark_work_dir
     } else {
         // prepare stitching tiles
+        def json_inputs_to_stitch = index_stitched_filenames_by_ch(
+            get_stitching_tile_json_inputs(
+                params.stitching_json_inputs,
+                channels
+            )
+        )
+        def a_stitched_result = json_inputs_to_stitch
+                                    .find()
+                                    .collect {
+                                        def (ch, ch_fn) = it
+                                        def ch_fn_suffix = ch_fn.replace(ch,'')
+                                        [ ch, ch_fn_suffix, "${ch}${ch_fn_suffix}-final"]
+                                    }
+                                    .first()
+        def stitch_results_to_clone = index_stitched_filenames_by_ch(channels)
+                                            .findAll { ch, ch_fn -> !json_inputs_to_stitch.containsKey(ch) }
+                                            .collect { 
+                                                def (ch, ch_fn) = it
+                                                [
+                                                    ch,
+                                                    a_stitched_result[2],
+                                                    "${ch}${a_stitched_result[1]}-final"
+                                                ]
+                                            }
+        log.info "!!!! TO CLONE: $stitch_results_to_clone"
         def stitching_args = prepare_app_args(
             "stitch",
             "org.janelia.stitching.StitchingSpark",
@@ -85,10 +110,7 @@ workflow stitching {
             { current_stitching_dir ->
                 def tile_json_inputs = entries_inputs_args(
                     current_stitching_dir,
-                    get_stitching_tile_json_inputs(
-                        params.stitching_json_inputs,
-                        channels
-                    ),
+                    json_inputs_to_stitch.values(),
                     '-i',
                     '', // suffix was already appended in get_stitching_tile_json_inputs
                     '.json'
@@ -283,8 +305,8 @@ def get_fuse_tile_json_inputs(fuse_inputs, default_channels) {
     }
 }
 
-def pair_stitching_and_fuse_inputs(stitching_inputs, fuse_inputs) {
-    (stitching_inputs + fuse_inputs)
+def index_stitched_filenames_by_ch(stitched_filenames) {
+    stitched_filenames
         .groupBy {
             def ch_key = it.replaceAll(/\..*$/, '')
             ch_key.tokenize('-').first()
