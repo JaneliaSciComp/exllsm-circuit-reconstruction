@@ -122,7 +122,7 @@ workflow stitching {
         { current_stitching_dir ->
             def tile_json_inputs = get_fuse_tile_json_inputs(
                 current_stitching_dir,
-                params.stitching_json_inputs,
+                params.fuse_to_n5_json_inputs,
                 channels
             )
             def args_list = []
@@ -250,7 +250,7 @@ def get_stitching_tile_json_inputs(current_stitching_dir, stitching_inputs, defa
 }
 
 
-def get_fuse_tile_json_inputs(current_stitching_dir, stitching_inputs, default_channels) {
+def get_fuse_tile_json_inputs(current_stitching_dir, fuse_inputs, default_channels) {
     if (!stitching_inputs) {
         entries_inputs_args(
             current_stitching_dir,
@@ -264,7 +264,7 @@ def get_fuse_tile_json_inputs(current_stitching_dir, stitching_inputs, default_c
             current_stitching_dir,
             stitching_inputs.tokenize(',').collect { it.trim() },
             '-i',
-            '-final',
+            '',
             '.json'
         )
     }

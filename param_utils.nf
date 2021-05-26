@@ -28,6 +28,8 @@ def default_em_params() {
         stitching_json_inputs: '', // this can override the default stitching inputs and allows us to do stitching 
                                    // using 1 or more raw channel inputs, in that case the stitching_json_inputs would be
                                    // 488nm or it can be "488nm,560nm" or "488nm,560nm,642nm"
+        fuse_to_n5_json_inputs: '', // this will override the default inputs to be used for fuse step and then exported to n5
+                                    // keep in mind that the entries will be used as they are
         export_level: '0',
         allow_fusestage: false,
 
