@@ -27,6 +27,7 @@ workflow stitching {
     stitching_blur_sigma
     export_level
     allow_fusestage
+    skipped_steps
     spark_conf
     spark_work_dir
     spark_workers
@@ -70,124 +71,150 @@ workflow stitching {
         | join(indexed_spark_uri)
         | join(indexed_stitching_dir) // [ idx, work_dir, uri, stitching_dir ]
 
-    // prepare stitching tiles
-    def stitching_args = prepare_app_args(
-        "stitch",
-        "org.janelia.stitching.StitchingSpark",
-        indexed_data,
-        indexed_spark_work_dir, //  here I only want a tuple that has the working dir as the 2nd element
-        { current_stitching_dir ->
-            def tile_json_inputs = get_stitching_tile_json_inputs(
-                current_stitching_dir,
-                params.stitching_json_inputs,
-                channels
-            )
-            def args_list = []
-            args_list 
-                << '--stitch'
-                <<  '-r' << '-1'
-                << tile_json_inputs
-                << '--mode' << "'${stitching_mode}'"
-                << '--padding' << "'${stitching_padding}'"
-                << '--blurSigma' << "${stitching_blur_sigma}"
+    def stitch_res
+    if (skipped_steps.contains('stitch')) {
+        // skip stitching
+        stitch_res = indexed_spark_work_dir
+    } else {
+        // prepare stitching tiles
+        def stitching_args = prepare_app_args(
+            "stitch",
+            "org.janelia.stitching.StitchingSpark",
+            indexed_data,
+            indexed_spark_work_dir, //  here I only want a tuple that has the working dir as the 2nd element
+            { current_stitching_dir ->
+                def tile_json_inputs = entries_inputs_args(
+                    current_stitching_dir,
+                    get_stitching_tile_json_inputs(
+                        params.stitching_json_inputs,
+                        channels
+                    ),
+                    '-i',
+                    '', // suffix was already appended in get_stitching_tile_json_inputs
+                    '.json'
+                )
+                def args_list = []
+                args_list
+                    << '--stitch'
+                    <<  '-r' << '-1'
+                    << tile_json_inputs
+                    << '--mode' << "'${stitching_mode}'"
+                    << '--padding' << "'${stitching_padding}'"
+                    << '--blurSigma' << "${stitching_blur_sigma}"
 
-            args_list.join(' ')
-        }
-    )
-    def stitch_res = run_stitching(
-        stitching_args.map { it[0] }, // spark uri
-        stitching_app,
-        stitching_args.map { it[1] }, // main
-        stitching_args.map { it[2] }, // args
-        stitching_args.map { it[3] }, // log
-        terminate_app_name, // terminate name
-        spark_conf,
-        stitching_args.map { it[4] }, // spark work dir
-        spark_workers,
-        spark_worker_cores,
-        spark_gbmem_per_core,
-        spark_driver_cores,
-        spark_driver_memory,
-        spark_driver_stack,
-        spark_driver_logconfig,
-        spark_driver_deploy
-    )
-
-    // prepare fuse tiles
-    def fuse_args = prepare_app_args(
-        "fuse",
-        "org.janelia.stitching.StitchingSpark",
-        indexed_data,
-        stitch_res,
-        { current_stitching_dir ->
-            def tile_json_inputs = get_fuse_tile_json_inputs(
-                current_stitching_dir,
-                params.fuse_to_n5_json_inputs,
-                channels
-            )
-            def args_list = []
-            args_list 
-                << '--fuse'
-                << tile_json_inputs
-                << '--blending'
-            if (allow_fusestage) {
-                args_list << '--fusestage'
+                args_list.join(' ')
             }
+        )
+        stitch_res = run_stitching(
+            stitching_args.map { it[0] }, // spark uri
+            stitching_app,
+            stitching_args.map { it[1] }, // main
+            stitching_args.map { it[2] }, // args
+            stitching_args.map { it[3] }, // log
+            terminate_app_name, // terminate name
+            spark_conf,
+            stitching_args.map { it[4] }, // spark work dir
+            spark_workers,
+            spark_worker_cores,
+            spark_gbmem_per_core,
+            spark_driver_cores,
+            spark_driver_memory,
+            spark_driver_stack,
+            spark_driver_logconfig,
+            spark_driver_deploy
+        )
+    }
 
-            args_list.join(' ')
-        }
-    )
-    def fuse_res = run_fuse(
-        fuse_args.map { it[0] }, // spark uri
-        stitching_app,
-        fuse_args.map { it[1] }, // main
-        fuse_args.map { it[2] }, // args
-        fuse_args.map { it[3] }, // log
-        terminate_app_name, // terminate name
-        spark_conf,
-        fuse_args.map { it[4] }, // spark work dir
-        spark_workers,
-        spark_worker_cores,
-        spark_gbmem_per_core,
-        spark_driver_cores,
-        spark_driver_memory,
-        spark_driver_stack,
-        spark_driver_logconfig,
-        spark_driver_deploy
-    )
+    def fuse_res
+    if (skipped_steps.contains('fuse')) {
+        fuse_res = stitch_res
+    } else {
+        // prepare fuse tiles
+        def fuse_args = prepare_app_args(
+            "fuse",
+            "org.janelia.stitching.StitchingSpark",
+            indexed_data,
+            stitch_res,
+            { current_stitching_dir ->
+                def tile_json_inputs = entries_inputs_args(
+                    current_stitching_dir,
+                    get_fuse_tile_json_inputs(
+                        params.fuse_to_n5_json_inputs,
+                        channels
+                    ),
+                    '-i',
+                    '', // suffix was already appended in get_fuse_tile_json_inputs
+                    '.json'
+                )
+                def args_list = []
+                args_list
+                    << '--fuse'
+                    << tile_json_inputs
+                    << '--blending'
+                if (allow_fusestage) {
+                    args_list << '--fusestage'
+                }
 
-    // prepare export tiles
-    def export_args = prepare_app_args(
-        "export",
-        "org.janelia.stitching.N5ToSliceTiffSpark",
-        indexed_data,
-        fuse_res,
-        { current_stitching_dir ->
-            def args_list = []
-            args_list 
-                << '-i' << "${current_stitching_dir}/export.n5"
-                << '--scaleLevel' << "${export_level}"
-            args_list.join(' ')
-        }
-    )
-    def export_res = run_export(
-        export_args.map { it[0] }, // spark uri
-        stitching_app,
-        export_args.map { it[1] }, // main
-        export_args.map { it[2] }, // args
-        export_args.map { it[3] }, // log
-        terminate_app_name, // terminate name
-        spark_conf,
-        export_args.map { it[4] }, // spark work dir
-        spark_workers,
-        spark_worker_cores,
-        spark_gbmem_per_core,
-        spark_driver_cores,
-        spark_driver_memory,
-        spark_driver_stack,
-        spark_driver_logconfig,
-        spark_driver_deploy
-    )
+                args_list.join(' ')
+            }
+        )
+        fuse_res = run_fuse(
+            fuse_args.map { it[0] }, // spark uri
+            stitching_app,
+            fuse_args.map { it[1] }, // main
+            fuse_args.map { it[2] }, // args
+            fuse_args.map { it[3] }, // log
+            terminate_app_name, // terminate name
+            spark_conf,
+            fuse_args.map { it[4] }, // spark work dir
+            spark_workers,
+            spark_worker_cores,
+            spark_gbmem_per_core,
+            spark_driver_cores,
+            spark_driver_memory,
+            spark_driver_stack,
+            spark_driver_logconfig,
+            spark_driver_deploy
+        )
+    }
+
+    def export_res
+    if (skipped_steps.contains('tiff-export')) {
+        export_res = fuse_res
+    } else {
+        // prepare export tiles
+        def export_args = prepare_app_args(
+            "export",
+            "org.janelia.stitching.N5ToSliceTiffSpark",
+            indexed_data,
+            fuse_res,
+            { current_stitching_dir ->
+                def args_list = []
+                args_list
+                    << '-i' << "${current_stitching_dir}/export.n5"
+                    << '--scaleLevel' << "${export_level}"
+                args_list.join(' ')
+            }
+        )
+        export_res = run_export(
+            export_args.map { it[0] }, // spark uri
+            stitching_app,
+            export_args.map { it[1] }, // main
+            export_args.map { it[2] }, // args
+            export_args.map { it[3] }, // log
+            terminate_app_name, // terminate name
+            spark_conf,
+            export_args.map { it[4] }, // spark work dir
+            spark_workers,
+            spark_worker_cores,
+            spark_gbmem_per_core,
+            spark_driver_cores,
+            spark_driver_memory,
+            spark_driver_stack,
+            spark_driver_logconfig,
+            spark_driver_deploy
+        )
+    }
 
     // terminate stitching cluster
     done = terminate_stitching(
@@ -229,43 +256,18 @@ def prepare_app_args(app_name,
     }
 }
 
-def get_stitching_tile_json_inputs(current_stitching_dir, stitching_inputs, default_channels) {
-    if (!stitching_inputs) {
-        entries_inputs_args(
-            current_stitching_dir,
-            default_channels,
-            '-i',
-            '-decon',
-            '.json'
-        )
+def get_stitching_tile_json_inputs(stitching_inputs, default_channels) {
+    if (stitching_inputs) {
+        stitching_inputs.tokenize(',').collect { it.trim() }
     } else {
-        entries_inputs_args(
-            current_stitching_dir,
-            stitching_inputs.tokenize(',').collect { it.trim() },
-            '-i',
-            '',
-            '.json'
-        )
+        default_channels.collect { "${it}-decon" }
     }
 }
 
-
-def get_fuse_tile_json_inputs(current_stitching_dir, fuse_inputs, default_channels) {
-    if (!stitching_inputs) {
-        entries_inputs_args(
-            current_stitching_dir,
-            default_channels,
-            '-i',
-            '-decon-final',
-            '.json'
-        )
+def get_fuse_tile_json_inputs(fuse_inputs, default_channels) {
+    if (fuse_inputs) {
+        fuse_inputs.tokenize(',').collect { it.trim() }
     } else {
-        entries_inputs_args(
-            current_stitching_dir,
-            stitching_inputs.tokenize(',').collect { it.trim() },
-            '-i',
-            '',
-            '.json'
-        )
+        default_channels.collect { "${it}-decon-final" }
     }
 }

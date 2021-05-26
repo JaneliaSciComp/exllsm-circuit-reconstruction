@@ -12,6 +12,7 @@ def default_em_params() {
         images_dir: '',
         psf_dir: '',
         output_dir: '',
+        skip: '', // stitching steps to skip
         spark_container_repo: 'registry.int.janelia.org/exm-analysis',
         spark_container_name: 'stitching',
         spark_container_version: '1.8.1',

@@ -47,6 +47,8 @@ stitching_dir = final_params.stitching_output
 
 channels = get_list_or_default(final_params, 'channels', [])
 
+skip = get_list_or_default(final_params, 'skip', [])
+
 // spark config
 spark_conf = final_params.spark_conf
 spark_work_dir = final_params.spark_work_dir
@@ -76,69 +78,92 @@ workflow {
 
     stitching_data.subscribe { log.debug "Stitching: $it" }
 
-    def pre_stitching_res = prestitching(
-        final_params.stitching_app,
-        stitching_data.map { it[0] },  // images dir
-        stitching_data.map { it[1] },  // stitching dir
-        channels,
-        final_params.resolution,
-        final_params.axis,
-        final_params.block_size,
-        spark_conf,
-        stitching_data.map { "${it[2]}/prestitch" }, // spark_working_dir
-        spark_workers,
-        spark_worker_cores,
-        spark_gb_per_core,
-        spark_driver_cores,
-        spark_driver_memory,
-        spark_driver_stack,
-        spark_driver_logconfig
-    ) // [ input_images_dir, stitching_dir ]
-
-    pre_stitching_res.subscribe { log.debug "Pre stitch results: $it" }
-
-    def deconv_res = deconvolution(
-        pre_stitching_res.map { it[1] }, // stitching_dir
-        channels,
-        channels_psfs,
-        iterations_per_channel
-    )
-    | groupTuple(by: 1) // groupBy input_dir
-    | map {
-        [
-            it[1], // stitching_dir
-            it[0], // channels
-            it[2]  // deconv_res
-        ]
+    def pre_stitching_res
+    if (skip.contains('prestitching')) {
+        // skip prestitching
+        pre_stitching_res = stitching_data
+        | map {
+            def (input_images_dir, stitching_dirname) = it
+            [ input_images_dir, stitching_dirname ]
+        }
+    } else {
+        pre_stitching_res = prestitching(
+            final_params.stitching_app,
+            stitching_data.map { it[0] },  // images dir
+            stitching_data.map { it[1] },  // stitching dir
+            channels,
+            final_params.resolution,
+            final_params.axis,
+            final_params.block_size,
+            spark_conf,
+            stitching_data.map { "${it[2]}/prestitch" }, // spark_working_dir
+            spark_workers,
+            spark_worker_cores,
+            spark_gb_per_core,
+            spark_driver_cores,
+            spark_driver_memory,
+            spark_driver_stack,
+            spark_driver_logconfig
+        ) // [ input_images_dir, stitching_dir ]
+        pre_stitching_res.subscribe { log.debug "Pre stitch results: $it" }
     }
-    deconv_res | view
 
-    def stitching_input = stitching_data
-    | map {
-        it[1..2] // [ stitching_dir, stitching_work_dir ]
+    def stitching_input
+    if (skip.contains('deconvolution')) {
+        // skip deconvolution
+        stitching_input = stitching_data
+        | join(pre_stitching_res, by:[0,1])
+        | map {
+            def (input_images_dir, stitching_dirname, stitching_working_dir) = it
+            [ stitching_dirname, stitching_working_dir ]
+        }
+    } else {
+        def deconv_res = deconvolution(
+            pre_stitching_res.map { it[1] }, // stitching_dir
+            channels,
+            channels_psfs,
+            iterations_per_channel
+        )
+        | groupTuple(by: 1) // groupBy input_dir
+        | map {
+            [
+                it[1], // stitching_dir
+                it[0], // channels
+                it[2]  // deconv_res
+            ]
+        }
+        deconv_res | view
+
+        stitching_input = stitching_data
+        | map {
+            it[1..2] // [ stitching_dir, stitching_work_dir ]
+        }
+        | join(deconv_res, by: 0) // [ stitching_dir, stitching_work_dir, channels, deconv_json_res ]
+
+        stitching_input | view
     }
-    | join(deconv_res, by: 0) // [ stitching_dir, stitching_work_dir, channels, deconv_json_res ]
 
-    stitching_input | view
-
-    def stitching_res = stitching(
-        final_params.stitching_app,
-        stitching_input.map { it[0] }, // stitching_dir
-        channels,
-        final_params.stitching_mode,
-        final_params.stitching_padding,
-        final_params.stitching_blur_sigma,
-        final_params.export_level,
-        final_params.allow_fusestage,
-        spark_conf,
-        stitching_input.map { "${it[1]}/stitch" }, // spark working dir
-        spark_workers,
-        spark_worker_cores,
-        spark_gb_per_core,
-        spark_driver_cores,
-        spark_driver_memory,
-        spark_driver_stack,
-        spark_driver_logconfig
-    )
-    stitching_res | view
+    if (!skip.contains('stitch') || !skip.contains('fuse') || !skip.contains('tiff-export')) {
+        def stitching_res = stitching(
+            final_params.stitching_app,
+            stitching_input.map { it[0] }, // stitching_dir
+            channels,
+            final_params.stitching_mode,
+            final_params.stitching_padding,
+            final_params.stitching_blur_sigma,
+            final_params.export_level,
+            final_params.allow_fusestage,
+            skip,
+            spark_conf,
+            stitching_input.map { "${it[1]}/stitch" }, // spark working dir
+            spark_workers,
+            spark_worker_cores,
+            spark_gb_per_core,
+            spark_driver_cores,
+            spark_driver_memory,
+            spark_driver_stack,
+            spark_driver_logconfig
+        )
+        stitching_res | view
+    }
 }
