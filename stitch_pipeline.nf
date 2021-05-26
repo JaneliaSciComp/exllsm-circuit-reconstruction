@@ -15,9 +15,9 @@ include {
 } from './param_utils'
 
 // app parameters
-final_params = default_spark_params() + default_em_params() + params
+def final_params = default_spark_params() + default_em_params() + params
 
-stitch_params = final_params + [
+def stitch_params = final_params + [
     stitching_container: stitching_container_param(final_params)
 ]
 include {
@@ -32,50 +32,49 @@ include {
     stitching;
 } from './workflows/stitching' addParams(stitch_params)
 
-deconv_params = final_params + [
+def deconv_params = final_params + [
     deconvolution_container: deconvolution_container_param(final_params),
 ]
 include {
     deconvolution
 } from './workflows/deconvolution' addParams(deconv_params)
 
-images_dir = final_params.images_dir
-pipeline_output_dir = get_value_or_default(final_params, 'output_dir', images_dir)
-stitching_dir = final_params.stitching_output 
+def images_dir = final_params.images_dir
+def pipeline_output_dir = get_value_or_default(final_params, 'output_dir', images_dir)
+def stitching_dir = final_params.stitching_output 
         ? "${pipeline_output_dir}/${final_params.stitching_output}"
         : pipeline_output_dir
 
-channels = get_list_or_default(final_params, 'channels', [])
-
-skip = get_list_or_default(final_params, 'skip', [])
-
 // spark config
-spark_conf = final_params.spark_conf
-spark_work_dir = final_params.spark_work_dir
-spark_workers = final_params.workers
-spark_worker_cores = final_params.worker_cores
-spark_gb_per_core = final_params.gb_per_core
-spark_driver_cores = final_params.driver_cores
-spark_driver_memory = final_params.driver_memory
-spark_driver_stack = final_params.driver_stack
-spark_driver_logconfig = final_params.driver_logconfig
+def spark_conf = final_params.spark_conf
+def spark_work_dir = final_params.spark_work_dir
+def spark_workers = final_params.workers
+def spark_worker_cores = final_params.worker_cores
+def spark_gb_per_core = final_params.gb_per_core
+def spark_driver_cores = final_params.driver_cores
+def spark_driver_memory = final_params.driver_memory
+def spark_driver_stack = final_params.driver_stack
+def spark_driver_logconfig = final_params.driver_logconfig
 
+def channels = get_list_or_default(final_params, 'channels', [])
+def skip = get_list_or_default(final_params, 'skip', [])
 // deconvolution params
-iterations_per_channel = get_list_or_default(final_params, 'iterations_per_channel', []).collect {
-    it as int
-}
-channels_psfs = channels.collect {
-    ch = it.replace('nm', '')
+def iterations_per_channel = get_list_or_default(final_params, 'iterations_per_channel', [])
+    .collect {
+        it as int
+    }
+def channels_psfs = channels.collect {
+    def ch = it.replace('nm', '')
     return "${final_params.psf_dir}/${ch}_PSF.tif"
 }
 
-log.info """
-    channels: ${channels}
-    skipped_steps: ${skip}
-    spark_workers: ${spark_workers}
-    """.stripIndent()
-
 workflow {
+    log.info """
+        channels: ${channels}
+        skipped_steps: ${skip}
+        spark_workers: ${spark_workers}
+        """.stripIndent()
+
     def stitching_data = prepare_stitching_data(
         Channel.of(images_dir),
         Channel.of(stitching_dir),
