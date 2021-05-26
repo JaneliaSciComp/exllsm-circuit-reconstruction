@@ -129,6 +129,17 @@ workflow stitching {
     if (skipped_steps.contains('fuse')) {
         fuse_res = stitch_res
     } else {
+        def to_update_args = pair_stitching_and_fuse_inputs(
+            get_stitching_tile_json_inputs(
+                params.stitching_json_inputs,
+                channels
+            ),
+            get_fuse_tile_json_inputs(
+                params.fuse_to_n5_json_inputs,
+                channels
+            )
+        )
+        log.info "!!!! $to_update_args"
         // prepare fuse tiles
         def fuse_args = prepare_app_args(
             "fuse",
@@ -270,4 +281,11 @@ def get_fuse_tile_json_inputs(fuse_inputs, default_channels) {
     } else {
         default_channels.collect { "${it}-decon-final" }
     }
+}
+
+def pair_stitching_and_fuse_inputs(stitching_inputs, fuse_inputs) {
+    (stitching_inputs + fuse_inputs)
+        .groupBy {
+            it.replaceAll(/\\..*$/, '').tokenize('-').first()
+        }
 }
