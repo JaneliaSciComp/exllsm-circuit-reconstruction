@@ -69,6 +69,12 @@ channels_psfs = channels.collect {
     return "${final_params.psf_dir}/${ch}_PSF.tif"
 }
 
+log.info """
+    channels: ${channels}
+    skipped_steps: ${skip}
+    spark_workers: ${spark_workers}
+    """.stripIndent()
+
 workflow {
     def stitching_data = prepare_stitching_data(
         Channel.of(images_dir),
