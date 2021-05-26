@@ -286,6 +286,7 @@ def get_fuse_tile_json_inputs(fuse_inputs, default_channels) {
 def pair_stitching_and_fuse_inputs(stitching_inputs, fuse_inputs) {
     (stitching_inputs + fuse_inputs)
         .groupBy {
-            it.replaceAll(/\\..*$/, '').tokenize('-').first()
+            def ch_key = it.replaceAll(/\..*$/, '')
+            ch_key.tokenize('-').first()
         }
 }
