@@ -257,7 +257,7 @@ def prepare_app_args(app_name,
 }
 
 def get_stitching_tile_json_inputs(stitching_inputs, default_channels) {
-    if (stitching_inputs) {
+    if (stitching_inputs instanceof String && stitching_inputs) {
         stitching_inputs.tokenize(',').collect { it.trim() }
     } else {
         default_channels.collect { "${it}-decon" }
@@ -265,7 +265,7 @@ def get_stitching_tile_json_inputs(stitching_inputs, default_channels) {
 }
 
 def get_fuse_tile_json_inputs(fuse_inputs, default_channels) {
-    if (fuse_inputs) {
+    if (fuse_inputs instanceof String && fuse_inputs) {
         fuse_inputs.tokenize(',').collect { it.trim() }
     } else {
         default_channels.collect { "${it}-decon-final" }
