@@ -83,25 +83,6 @@ workflow stitching {
                 channels
             )
         )
-        def a_stitched_result = json_inputs_to_stitch
-                                    .find()
-                                    .collect {
-                                        def (ch, ch_fn) = it
-                                        def ch_fn_suffix = ch_fn.replace(ch,'')
-                                        [ ch, ch_fn_suffix, "${ch}${ch_fn_suffix}-final"]
-                                    }
-                                    .first()
-        def stitch_results_to_clone = index_stitched_filenames_by_ch(channels)
-                                            .findAll { ch, ch_fn -> !json_inputs_to_stitch.containsKey(ch) }
-                                            .collect { 
-                                                def (ch, ch_fn) = it
-                                                [
-                                                    ch,
-                                                    a_stitched_result[2],
-                                                    "${ch}${a_stitched_result[1]}-final"
-                                                ]
-                                            }
-        log.info "!!!! TO CLONE: $stitch_results_to_clone"
         def stitching_args = prepare_app_args(
             "stitch",
             "org.janelia.stitching.StitchingSpark",
@@ -145,6 +126,30 @@ workflow stitching {
             spark_driver_logconfig,
             spark_driver_deploy
         )
+        def a_stitched_result = json_inputs_to_stitch
+                                    .collect {
+                                        def (ch, ch_fn) = [it.key, it.value]
+                                        def ch_fn_suffix = ch_fn.replaceAll(ch,'')
+                                        [ ch, ch_fn_suffix, "${ch}${ch_fn_suffix}-final"]
+                                    }
+				    .first()
+	log.info " !!!! TO STITCH: $json_inputs_to_stitch"
+        log.info " !!!! A STITCHED RES: $a_stitched_result"
+
+        def stitch_results_to_clone = index_stitched_filenames_by_ch(channels)
+                                            .findAll { ch, ch_fn ->
+					        !json_inputs_to_stitch.containsKey(ch)
+                                            }
+                                            .collect { 
+                                                def (ch, ch_fn) = [it.key, it.value]
+                                                [
+                                                    ch,
+                                                    a_stitched_result[2],
+                                                    "${ch}${a_stitched_result[1]}-final"
+                                                ]
+                                            }
+        log.info "!!!! TO CLONE: $stitch_results_to_clone"
+
     }
 
     def fuse_res
@@ -307,8 +312,8 @@ def get_fuse_tile_json_inputs(fuse_inputs, default_channels) {
 
 def index_stitched_filenames_by_ch(stitched_filenames) {
     stitched_filenames
-        .groupBy {
+        .collectEntries {
             def ch_key = it.replaceAll(/\..*$/, '')
-            ch_key.tokenize('-').first()
+            [ ch_key.tokenize('-').first(), ch_key ]
         }
 }
