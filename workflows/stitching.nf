@@ -283,7 +283,7 @@ workflow stitching {
                      source_tiles_content,
                      target_tiles_content,
                      spark_uri,
-                     spark_work_dir)
+                     spark_work_dir) = it
                 [
                     target_tiles_file,
                     spark_uri,
