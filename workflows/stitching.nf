@@ -162,22 +162,22 @@ workflow stitching {
             def clone_stitched_tiles_inputs = indexed_data
             | join(stitch_app_res, by:1)
             | map {
-                def (spark_work_dir, idx, spark_uri, stitching_dir) = it
-                [ spark_uri, spark_work_dir, stitching_dir ]
+                def (spark_work_dir, idx, spark_uri, current_stitching_dir) = it
+                [ spark_uri, spark_work_dir, current_stitching_dir ]
             }
             | combine(tile_files_to_clone)
             | map {
-                def (spark_uri, spark_work_dir, stitching_dir,
+                def (spark_uri, spark_work_dir, current_stitching_dir,
                      stitched_result_name,
                      source_tiles_filename,
                      cloned_result_name) = it
                 [
-                    "${stitching_dir}/${stitched_result_name}.json",
-                    "${stitching_dir}/${source_tiles_filename}.json",
-                    "${stitching_dir}/${cloned_result_name}.json",
+                    "${current_stitching_dir}/${stitched_result_name}.json",
+                    "${current_stitching_dir}/${source_tiles_filename}.json",
+                    "${current_stitching_dir}/${cloned_result_name}.json",
                     spark_uri,
                     spark_work_dir,
-                    stitching_dir,
+                    current_stitching_dir,
                 ]
             }
             // copy the stitched results into the clone
@@ -195,49 +195,23 @@ workflow stitching {
                     target_tiles_content,
                     spark_uri,
                     spark_work_dir,
-                    stitching_dir) = it
-                def indexed_source_tiles = json_text_to_data(source_tiles_content)
-                    .collectEntries { tile ->
-                        [ tile.index, tile ]
-                    }
-                log.debug "Indexed source tiles from ${source_tiles_file}"
-                def target_tiles = json_text_to_data(target_tiles_content)
-                    .collect { tile ->
-                        def source_tile = indexed_source_tiles.get(tile.index)
-                        if (source_tile) {
-                            tile.file = source_tile.file
-                        } else {
-                            tile.file = null
-                        }
-                        tile
-                    }
-                    .findAll { tile -> tile.file != null}
-                log.debug "Tile files from ${target_tiles_file} will be updated with tile files from ${source_tiles_file}"
+                    current_stitching_dir) = it
+                log.debug "Copy tile files from ${source_tiles_file} to be written to ${target_tiles_file}"
                 [
                     target_tiles_file,
                     spark_uri,
                     spark_work_dir,
-                    stitching_dir,
-                    data_to_json_text(target_tiles)
+                    current_stitching_dir,
+                    copy_tile_files(source_tiles_content, target_tiles_content),
                 ]
             }
-            stitch_res = write_file_content(
-                clone_stitched_tiles_results.map {
-                    def (target_tiles_file,
-                        spark_uri,
-                        spark_work_dir,
-                        stitching_dir,
-                        target_tiles_content) = it
-                     [ target_tiles_file, target_tiles_content ]
-                }
-            )
-            | join(clone_stitched_tiles_results, by:0)
+            stitch_res = update_tile_file_content(clone_stitched_tiles_results)
             | map {
                 def (target_tiles_file,
                      spark_uri,
                      spark_work_dir,
-                     stitching_dir) = it
-                [ spark_uri, spark_work_dir, stitching_dir, target_tiles_file ]
+                     current_stitching_dir) = it
+                [ spark_uri, spark_work_dir, current_stitching_dir, target_tiles_file ]
             }
             | groupTuple(by: [0,1,2])
             stitch_res.subscribe { log.debug "Cloned stitch result $it" }
@@ -279,14 +253,14 @@ workflow stitching {
             def clone_with_decon_tiles_inputs = indexed_data
             | join(stitch_res, by:1)
             | map {
-                def (spark_work_dir, idx, spark_uri, stitching_dir) = it
-                [ spark_uri, spark_work_dir, stitching_dir ]
+                def (spark_work_dir, idx, spark_uri, current_stitching_dir) = it
+                [ spark_uri, spark_work_dir, current_stitching_dir ]
             }
             | combine(candidate_ch_to_clone_with_deconv_tiles)
             | map {
-                def (spark_uri, spark_work_dir, stitching_dir, ch) = it
+                def (spark_uri, spark_work_dir, current_stitching_dir, ch) = it
                 [
-                    stitching_dir,
+                    current_stitching_dir,
                     ch,
                     spark_uri,
                     spark_work_dir,
@@ -295,10 +269,43 @@ workflow stitching {
             def clone_with_decon_tiles_results = clone_with_decon_tiles(
                 clone_with_decon_tiles_inputs.map { it[0..1] }
             )
-
-            clone_with_decon_tiles_results | view
-
-            fuse_working_data = stitch_res // !!!!!!!
+            | filter {
+                def (current_stitching_dir,
+                     ch,
+                     target_tiles_file) = it
+                target_tiles_file != "null"
+            }
+            | join(clone_with_decon_tiles_inputs, by:[0,1])
+            | map {
+                def (current_stitching_dir,
+                     ch,
+                     target_tiles_file,
+                     source_tiles_content,
+                     target_tiles_content,
+                     spark_uri,
+                     spark_work_dir)
+                [
+                    target_tiles_file,
+                    spark_uri,
+                    spark_work_dir,
+                    current_stitching_dir,
+                    copy_tile_files(source_tiles_content, target_tiles_content),
+                ]
+            }
+            fuse_working_data = update_tile_file_content(clone_with_decon_tiles_results)
+            | map {
+                def (target_tiles_file,
+                     spark_uri,
+                     spark_work_dir,
+                     current_stitching_dir) = it
+                [ spark_uri, spark_work_dir, current_stitching_dir, target_tiles_file ]
+            }
+            | groupTuple(by: [0,1,2])
+            | concat(stitch_res)
+            | unique {
+                it[0..2].collect { "$it" }
+            }
+            fuse_working_data | view
         } else {
             // there are no files actually used for the fuse step
             // that need the tiles to be replaced with the deconv tiles
@@ -404,6 +411,22 @@ workflow stitching {
     done
 }
 
+workflow update_tile_file_content {
+    take:
+    tile_file_with_content // tuple in which the first element is the file name and the last is the content
+
+    main:
+    done = write_file_content(
+        tile_file_with_content.map {
+            [ it[0], it[-1] ]
+        }
+    )
+    | join(tile_file_with_content, by:0)
+
+    emit:
+    done
+}
+
 def prepare_app_args(app_name,
                      app_main,
                      indexed_data,
@@ -450,4 +473,23 @@ def index_tile_filenames_by_ch(stitched_filenames) {
             def ch_key = it.replaceAll(/\..*$/, '')
             [ ch_key.tokenize('-').first(), ch_key ]
         }
+}
+
+def copy_tile_files(source_tiles_content, dest_tiles_content) {
+    def indexed_source_tiles = json_text_to_data(source_tiles_content)
+        .collectEntries { tile ->
+            [ tile.index, tile ]
+        }
+    def dest_tiles = json_text_to_data(dest_tiles_content)
+        .collect { tile ->
+            def source_tile = indexed_source_tiles.get(tile.index)
+            if (source_tile) {
+                tile.file = source_tile.file
+            } else {
+                tile.file = null
+            }
+            tile
+        }
+        .findAll { tile -> tile.file != null}
+    data_to_json_text(dest_tiles)
 }
