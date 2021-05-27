@@ -87,7 +87,7 @@ workflow stitching {
         stitch_res = indexed_spark_work_dir
     } else {
         // prepare stitching tiles
-        def json_inputs_to_stitch = index_stitched_filenames_by_ch(
+        def json_inputs_to_stitch = index_tile_filenames_by_ch(
             get_stitching_tile_json_inputs(
                 params.stitching_json_inputs,
                 channels
@@ -142,21 +142,21 @@ workflow stitching {
                                         def ch_fn_suffix = ch_fn.replaceAll(ch,'')
                                         [ ch, ch_fn_suffix, "${ch}${ch_fn_suffix}-final"]
                                     }
-				    .first()
-        def stitch_results_to_clone = index_stitched_filenames_by_ch(channels)
-                                            .findAll { ch, ch_fn ->
-                                                !json_inputs_to_stitch.containsKey(ch)
-                                            }
-                                            .collect { 
-                                                def (ch, ch_fn) = [it.key, it.value]
-                                                [
-                                                    ch,
-                                                    a_stitched_result[2],
-                                                    "${ch}${a_stitched_result[1]}",
-                                                    "${ch}${a_stitched_result[1]}-final"
-                                                ]
-                                            }
-        if (stitch_results_to_clone.size() == 0) {
+				                    .first()
+        def tile_files_to_clone = index_tile_filenames_by_ch(channels)
+                                    .findAll { ch, ch_fn ->
+                                        !json_inputs_to_stitch.containsKey(ch)
+                                    }
+                                    .collect { 
+                                        def (ch, ch_fn) = [it.key, it.value]
+                                        [
+                                            ch,
+                                            a_stitched_result[2],
+                                            "${ch}${a_stitched_result[1]}",
+                                            "${ch}${a_stitched_result[1]}-final"
+                                        ]
+                                    }
+        if (tile_files_to_clone.size() == 0) {
             stitch_res = stitch_app_res
         } else {
             def clone_stitched_tiles_inputs = indexed_data
@@ -165,7 +165,7 @@ workflow stitching {
                 def (spark_work_dir, idx, spark_uri, stitching_dir) = it
                 [ spark_uri, spark_work_dir, stitching_dir ]
             }
-            | combine(stitch_results_to_clone)
+            | combine(tile_files_to_clone)
             | map {
                 def (spark_uri, spark_work_dir, stitching_dir,
                      ch,
@@ -249,15 +249,24 @@ workflow stitching {
     if (skipped_steps.contains('fuse')) {
         fuse_res = stitch_res
     } else {
-        def json_inputs_to_fuse = index_stitched_filenames_by_ch(
+        // identify tile files that may need to have
+        // the tile files replaced with the corresponding deconv tiles
+        def indexed_default_fused_files = index_tile_filenames_by_ch(channels)
+                                    .collect { ch, ch_fn ->
+                                        [
+                                            ch,
+                                            "${ch}-decon-final"
+                                        ]
+                                    }
+        log.info "!!!!!! DEFAULT FUSED FILES: ${indexed_default_fused_files}"
+
+        def json_inputs_to_fuse = index_tile_filenames_by_ch(
             get_fuse_tile_json_inputs(
                 params.fuse_to_n5_json_inputs,
                 channels
             )
         )
         log.info "!!!!!! INPUTS TO FUSE: ${json_inputs_to_fuse}"
-
-        fuse_res = stitch_res // !!!!
 
         // prepare fuse tiles
         def fuse_args = prepare_app_args(
@@ -305,6 +314,7 @@ workflow stitching {
             spark_driver_deploy
         )
 */
+        fuse_res = stitch_res // !!!!
     }
 
     def export_res
@@ -401,7 +411,7 @@ def get_fuse_tile_json_inputs(fuse_inputs, default_channels) {
     }
 }
 
-def index_stitched_filenames_by_ch(stitched_filenames) {
+def index_tile_filenames_by_ch(stitched_filenames) {
     stitched_filenames
         .collectEntries {
             def ch_key = it.replaceAll(/\..*$/, '')
