@@ -205,7 +205,6 @@ workflow stitching {
                 def target_tiles = json_text_to_data(target_tiles_content)
                     .collect { tile ->
                         def source_tile = indexed_source_tiles.get(tile.index)
-                        log.info "!!!!! SOURCE TILE FOR ${tile.index}: ${source_tile}"
                         if (source_tile) {
                             tile.file = source_tile.file
                         } else {
@@ -214,7 +213,7 @@ workflow stitching {
                         tile
                     }
                     .findAll { tile -> tile.file != null}
-                log.info "!!!!!!! TARGET TILES to write to ${target_tiles_file}: ${target_tiles}"
+                log.debug "Tile files from ${target_tiles_file} will be updated with tile files from ${source_tiles_file}"
                 [
                     target_tiles_file,
                     spark_uri,
@@ -223,7 +222,6 @@ workflow stitching {
                     data_to_json_text(target_tiles)
                 ]
             }
-            clone_stitched_tiles_results | view
             stitch_res = write_file_content(
                 clone_stitched_tiles_results.map {
                     def (target_tiles_file,
@@ -243,8 +241,7 @@ workflow stitching {
                 [ spark_uri, spark_work_dir, stitching_dir, target_tiles_file ]
             }
             | groupTuple(by: [0,1,2])
-
-            stitch_res | view // !!!!
+            stitch_res.subscribe { log.debug "Cloned stitch result $it" }
         }
     }
 
