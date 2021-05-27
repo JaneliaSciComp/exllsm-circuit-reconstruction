@@ -32,7 +32,7 @@ include {
     stitching;
 } from './workflows/stitching' addParams(stitch_params)
 
-def deconv_params = final_params + [
+def deconv_params = stitch_params + [
     deconvolution_container: deconvolution_container_param(final_params),
 ]
 include {

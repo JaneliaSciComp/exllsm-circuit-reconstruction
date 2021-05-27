@@ -1,6 +1,7 @@
 process prepare_stitching_data {
     label 'small'
     label 'preferLocal'
+    container { params.stitching_container }
     
     input:
     val(input_images_dir)
@@ -27,6 +28,7 @@ process prepare_stitching_data {
 process clone_stitched_tiles_args {
     label 'small'
     label 'preferLocal'
+    container { params.stitching_container }
 
     input:
     tuple val(stitched_tiles_template),

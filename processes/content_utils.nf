@@ -1,7 +1,7 @@
 process read_file_content {
     label 'small'
-
-    container { params.deconvolution_container }
+    label 'preferLocal'
+    container { params.stitching_container }
 
     input:
     val(f)
@@ -21,8 +21,8 @@ process read_file_content {
 
 process write_file_content {
     label 'small'
-
-    container { params.deconvolution_container }
+    label 'preferLocal'
+    container { params.stitching_container }
 
     input:
     tuple val(f), val(content)

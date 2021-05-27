@@ -1,6 +1,6 @@
 process get_flatfield_attributes {
     label 'small'
-
+    label 'preferLocal'
     container { params.deconvolution_container }
 
     input:
@@ -70,6 +70,8 @@ process deconvolution_job {
 }
 
 process prepare_deconv_dir {
+    label 'small'
+    label 'preferLocal'
     container { params.deconvolution_container }
 
     input:
