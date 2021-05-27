@@ -164,7 +164,7 @@ workflow stitching {
             | combine(stitch_results_to_clone)
             | map {
                 def (spark_uri, spark_work_dir, stitching_dir,
-                     ch
+                     ch,
                      stitched_result_name,
                      source_tiles_filename,
                      cloned_result_name) = it
@@ -173,6 +173,7 @@ workflow stitching {
                     "${stitching_dir}/${source_tiles_filename}.json",
                     "${stitching_dir}/${cloned_result_name}.json",
                 ]
+                log.info "!!!! TO CLONE: $r"
                 r
             }
             | clone_stitched_tiles_args // copy the stitched results into the clone
