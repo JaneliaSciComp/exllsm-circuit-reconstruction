@@ -142,7 +142,7 @@ workflow stitching {
                                                 [
                                                     a_stitched_result[2],
                                                     ch,
-                                                    "${ch}${a_stitched_result[1]}"
+                                                    "${ch}${a_stitched_result[1]}",
                                                     "${ch}${a_stitched_result[1]}-final"
                                                 ]
                                             }
