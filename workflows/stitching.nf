@@ -10,7 +10,7 @@ include {
 } from '../external-modules/spark/lib/processes'
 
 include {
-    clone_stitched_tiles_args;
+    clone_stitched_tiles_from_template;
 } from '../processes/stitching'
 
 include {
@@ -182,7 +182,7 @@ workflow stitching {
                 ]
             }
             // copy the stitched results into the clone
-            def clone_stitched_tiles_results = clone_stitched_tiles_args(
+            def clone_stitched_tiles_results = clone_stitched_tiles_from_template(
                 clone_stitched_tiles_inputs.map { it[0..2] }
             )
             | join(clone_stitched_tiles_inputs, by:[0,1,2])

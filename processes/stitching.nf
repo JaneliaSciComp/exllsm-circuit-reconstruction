@@ -25,7 +25,7 @@ process prepare_stitching_data {
     """
 }
 
-process clone_stitched_tiles_args {
+process clone_stitched_tiles_from_template {
     label 'small'
     label 'preferLocal'
     container { params.stitching_container }
