@@ -24,7 +24,7 @@ process prepare_stitching_data {
     """
 }
 
-process c {
+process check_stitch_result_clone_args {
     label 'small'
     label 'preferLocal'
 
