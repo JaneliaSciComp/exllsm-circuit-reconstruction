@@ -168,13 +168,11 @@ workflow stitching {
                      stitched_result_name,
                      source_tiles_filename,
                      cloned_result_name) = it
-                def r = [
+                [
                     "${stitching_dir}/${stitched_result_name}.json",
                     "${stitching_dir}/${source_tiles_filename}.json",
                     "${stitching_dir}/${cloned_result_name}.json",
                 ]
-                log.info "!!!! TO CLONE: $r"
-                r
             }
             | clone_stitched_tiles_args // copy the stitched results into the clone
             | map {
@@ -184,12 +182,12 @@ workflow stitching {
                      source_tiles_file,
                      source_tiles_content,
                      target_tiles_file,
-                     target_tiles_content)
+                     target_tiles_content) = it
                 def indexed_source_tiles = json_text_to_data(source_tiles_content)
                     .collectEntries { tile ->
                         [ tile.index, tile ]
                     }
-                log.info "!!!!!!! INDEXED SOURCE TILES from ${source_tiles_file}: ${indexed_source_tiles}"
+                log.debug "Indexed source tiles from ${source_tiles_file}"
                 def target_tiles = json_text_to_data(target_tiles_content)
                     .collect { tile ->
                         def source_tile = indexed_source_tiles.get(tile.index)
@@ -199,6 +197,7 @@ workflow stitching {
                         } else {
                             tile.file = null
                         }
+                        tile
                     }
                     .findAll { tile -> tile.file != null}
                 log.info "!!!!!!! TARGET TILES to write to ${target_tiles_file}: ${target_tiles}"
