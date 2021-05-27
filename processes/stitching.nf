@@ -49,3 +49,52 @@ process clone_stitched_tiles_from_template {
     target_tiles_content=`cat ${target_tiles_file}`
     """
 }
+
+process clone_with_decon_tiles {
+    label 'small'
+    label 'preferLocal'
+    container { params.stitching_container }
+
+    input:
+    tuple val(data_dir), val(ch)
+
+    output:
+    tuple val(data_dir),
+          val(ch),
+          env(cloned_deconv_final_file),
+          env(source_tiles_content),
+          env(target_tiles_content)
+
+    script:
+    def deconv_final_file = "${data_dir}/${ch}-decon-final.json"
+    def deconv_tiles_file = "${data_dir}/${ch}-decon.json"
+    """
+    if [[ -f ${deconv_final_file} ]]; then
+        # if deconv file exists do not do anything
+        cloned_deconv_final_file=null
+        source_tiles_content=null
+        target_tiles_content=null
+    else
+        if [[ -f ${deconv_tiles_file} ]]; then
+            cp "${data_dir}/${ch}-final.json" "${deconv_final_file}" || \
+            cp "${data_dir}/${ch}.json" "${deconv_final_file}" || \
+            true
+            if [[ -f ${deconv_final_file} ]]; then
+                cloned_deconv_final_file=${deconv_final_file}
+                source_tiles_content=`cat ${deconv_tiles_file}`
+                target_tiles_content=`cat ${deconv_final_file}`
+            else
+                echo "Could not find any source for ${data_dir}/${ch}.json to create to ${deconv_final_file}"
+                cloned_deconv_final_file=null
+                source_tiles_content=null
+                target_tiles_content=null
+            fi
+        else
+            echo "Cannot clone final decon file ${deconv_final_file} because ${deconv_tiles_file} cannot be found"
+            cloned_deconv_final_file=null
+            source_tiles_content=null
+            target_tiles_content=null
+        fi
+    fi
+    """
+}

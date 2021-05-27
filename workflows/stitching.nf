@@ -11,6 +11,7 @@ include {
 
 include {
     clone_stitched_tiles_from_template;
+    clone_with_decon_tiles;
 } from '../processes/stitching'
 
 include {
@@ -150,7 +151,6 @@ workflow stitching {
                                     .collect { 
                                         def (ch, ch_fn) = [it.key, it.value]
                                         [
-                                            ch,
                                             a_stitched_result[2],
                                             "${ch}${a_stitched_result[1]}",
                                             "${ch}${a_stitched_result[1]}-final"
@@ -168,7 +168,6 @@ workflow stitching {
             | combine(tile_files_to_clone)
             | map {
                 def (spark_uri, spark_work_dir, stitching_dir,
-                     ch,
                      stitched_result_name,
                      source_tiles_filename,
                      cloned_result_name) = it
@@ -266,27 +265,42 @@ workflow stitching {
                 channels
             )
         )
-        def candidate_tile_files_to_clone = json_inputs_to_fuse
+        def candidate_ch_to_clone_with_deconv_tiles = json_inputs_to_fuse
                                     .findAll { ch, ch_fn ->
                                         indexed_default_fused_files.containsKey(ch) &&
                                         ch_fn == indexed_default_fused_files.get(ch)
                                     }
                                     .collect {
-                                        def (ch, ch_fn) = [it.key, it.value]
-                                        [
-                                            "${ch}-final", // template
-                                            "${ch}-decon", // source for tile file names
-                                            "${ch}-decon-final", // target file name
-                                        ]
+                                        it.key // return only the channel
                                     }
-        log.info "!!!!!! INPUTS TO FUSE: ${json_inputs_to_fuse}"
-        log.info "!!!!!! CANDIDATES TO CLONE: ${candidate_tile_files_to_clone}"
-
         def fuse_working_data
-        if (candidate_tile_files_to_clone.size() > 0) {
-           fuse_working_data = stitch_res // !!!!!!!
+        if (candidate_ch_to_clone_with_deconv_tiles.size() > 0) {
+            log.info "Candidates for updating tiles with decon tiles: ${candidate_ch_to_clone_with_deconv_tiles}"
+            def clone_with_decon_tiles_inputs = indexed_data
+            | join(stitch_res, by:1)
+            | map {
+                def (spark_work_dir, idx, spark_uri, stitching_dir) = it
+                [ spark_uri, spark_work_dir, stitching_dir ]
+            }
+            | combine(candidate_ch_to_clone_with_deconv_tiles)
+            | map {
+                def (spark_uri, spark_work_dir, stitching_dir, ch) = it
+                [
+                    stitching_dir,
+                    ch
+                    spark_uri,
+                    spark_work_dir,
+                ]
+            }
+            def clone_with_decon_tiles_results = clone_with_decon_tiles(
+                clone_with_decon_tiles_inputs.map { it[0..1] }
+            )
+            | view
+            fuse_working_data = stitch_res // !!!!!!!
         } else {
-           fuse_working_data = stitch_res
+            // there are no files actually used for the fuse step
+            // that need the tiles to be replaced with the deconv tiles
+            fuse_working_data = stitch_res
         }
         // prepare fuse tiles
         def fuse_args = prepare_app_args(
