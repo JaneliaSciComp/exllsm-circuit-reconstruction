@@ -36,8 +36,8 @@ process clone_stitched_tiles_args {
     output:
     tuple val(stitched_tiles_template),
           val(source_tiles_file),
-          env(source_tiles_content),
           val(target_tiles_file),
+          env(source_tiles_content),
           env(target_tiles_content)
 
     script:

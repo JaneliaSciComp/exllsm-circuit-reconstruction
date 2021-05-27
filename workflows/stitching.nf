@@ -14,6 +14,10 @@ include {
 } from '../processes/stitching'
 
 include {
+    write_file_content;
+} from '../processes/content_utils'
+
+include {
     entries_inputs_args
 } from './stitching_utils'
 
@@ -155,7 +159,7 @@ workflow stitching {
         if (stitch_results_to_clone.size() == 0) {
             stitch_res = stitch_app_res
         } else {
-            def clone_stitch_res_input = indexed_data
+            def clone_stitched_tiles_inputs = indexed_data
             | join(stitch_app_res, by:1)
             | map {
                 def (spark_work_dir, idx, spark_uri, stitching_dir) = it
@@ -172,17 +176,27 @@ workflow stitching {
                     "${stitching_dir}/${stitched_result_name}.json",
                     "${stitching_dir}/${source_tiles_filename}.json",
                     "${stitching_dir}/${cloned_result_name}.json",
+                    spark_uri,
+                    spark_work_dir,
+                    stitching_dir,
                 ]
             }
-            | clone_stitched_tiles_args // copy the stitched results into the clone
+            // copy the stitched results into the clone
+            def clone_stitched_tiles_results = clone_stitched_tiles_args(
+                clone_stitched_tiles_inputs.map { it[0..2] }
+            )
+            | join(clone_stitched_tiles_inputs, by:[0,1,2])
             | map {
-                // we take the tiles from the source_tiles_filename
-                // and replace them in the clone
+                // take the tiles from the source_tiles_file
+                // and replace them in the clone - target_tiles_file
                 def (stitched_tiles_template,
-                     source_tiles_file,
-                     source_tiles_content,
-                     target_tiles_file,
-                     target_tiles_content) = it
+                    source_tiles_file,
+                    target_tiles_file,
+                    source_tiles_content,
+                    target_tiles_content,
+                    spark_uri,
+                    spark_work_dir,
+                    stitching_dir) = it
                 def indexed_source_tiles = json_text_to_data(source_tiles_content)
                     .collectEntries { tile ->
                         [ tile.index, tile ]
@@ -203,11 +217,31 @@ workflow stitching {
                 log.info "!!!!!!! TARGET TILES to write to ${target_tiles_file}: ${target_tiles}"
                 [
                     target_tiles_file,
+                    spark_uri,
+                    spark_work_dir,
+                    stitching_dir,
                     data_to_json_text(target_tiles)
                 ]
             }
-            | view
-            stitch_res = stitch_app_res // !!!!!!!
+            clone_stitched_tiles_results | view
+            stitch_res = write_file_content(
+                clone_stitched_tiles_results.map {
+                    def (target_tiles_file,
+                        spark_uri,
+                        spark_work_dir,
+                        stitching_dir,
+                        target_tiles_content) = it
+                     [ target_tiles_file, target_tiles_content ]
+                }
+            )
+            | join(clone_stitched_tiles_results, by:0)
+            | map {
+                def (target_tiles_file,
+                     spark_uri,
+                     spark_work_dir,
+                     stitching_dir) = it
+                [ spark_uri, spark_work_dir ]
+            }
         }
     }
 
