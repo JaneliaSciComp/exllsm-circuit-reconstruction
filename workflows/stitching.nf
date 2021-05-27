@@ -240,8 +240,11 @@ workflow stitching {
                      spark_uri,
                      spark_work_dir,
                      stitching_dir) = it
-                [ spark_uri, spark_work_dir ]
+                [ spark_uri, spark_work_dir, stitching_dir, target_tiles_file ]
             }
+            | groupTuple(by: [0,1,2])
+
+            stitch_res | view // !!!!
         }
     }
 
