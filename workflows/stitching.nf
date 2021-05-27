@@ -266,20 +266,34 @@ workflow stitching {
                 channels
             )
         )
-        def candidate_tile_files_to_clone = indexed_default_fused_files
+        def candidate_tile_files_to_clone = json_inputs_to_fuse
                                     .findAll { ch, ch_fn ->
                                         indexed_default_fused_files.containsKey(ch) &&
                                         ch_fn == indexed_default_fused_files.get(ch)
                                     }
+                                    .collect {
+                                        def (ch, ch_fn) = [it.key, it.value]
+                                        [
+                                            "${ch}-final", // template
+                                            "${ch}-decon", // source for tile file names
+                                            "${ch}-decon-final", // target file name
+                                        ]
+                                    }
         log.info "!!!!!! INPUTS TO FUSE: ${json_inputs_to_fuse}"
         log.info "!!!!!! CANDIDATES TO CLONE: ${candidate_tile_files_to_clone}"
 
+        def fuse_working_data
+        if (candidate_tile_files_to_clone.size() > 0) {
+           fuse_working_data = stitch_res // !!!!!!!
+        } else {
+           fuse_working_data = stitch_res
+        }
         // prepare fuse tiles
         def fuse_args = prepare_app_args(
             "fuse",
             "org.janelia.stitching.StitchingSpark",
             indexed_data,
-            stitch_res,
+            fuse_working_data,
             { current_stitching_dir ->
                 def tile_json_inputs = entries_inputs_args(
                     current_stitching_dir,
