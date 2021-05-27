@@ -249,17 +249,16 @@ workflow stitching {
     if (skipped_steps.contains('fuse')) {
         fuse_res = stitch_res
     } else {
-        def to_update_args = pair_stitching_and_fuse_inputs(
-            get_stitching_tile_json_inputs(
-                params.stitching_json_inputs,
-                channels
-            ),
+        def json_inputs_to_fuse = index_stitched_filenames_by_ch(
             get_fuse_tile_json_inputs(
                 params.fuse_to_n5_json_inputs,
                 channels
             )
         )
-        log.info "!!!! $to_update_args"
+        log.info "!!!!!! INPUTS TO FUSE: ${json_inputs_to_fuse}"
+
+        fuse_res = stitch_res // !!!!
+
         // prepare fuse tiles
         def fuse_args = prepare_app_args(
             "fuse",
@@ -269,10 +268,7 @@ workflow stitching {
             { current_stitching_dir ->
                 def tile_json_inputs = entries_inputs_args(
                     current_stitching_dir,
-                    get_fuse_tile_json_inputs(
-                        params.fuse_to_n5_json_inputs,
-                        channels
-                    ),
+                    json_inputs_to_fuse.values(),
                     '-i',
                     '', // suffix was already appended in get_fuse_tile_json_inputs
                     '.json'
@@ -289,6 +285,7 @@ workflow stitching {
                 args_list.join(' ')
             }
         )
+/* !!!!!
         fuse_res = run_fuse(
             fuse_args.map { it[0] }, // spark uri
             stitching_app,
@@ -307,6 +304,7 @@ workflow stitching {
             spark_driver_logconfig,
             spark_driver_deploy
         )
+*/
     }
 
     def export_res
