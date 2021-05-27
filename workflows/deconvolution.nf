@@ -7,10 +7,13 @@ include {
     get_flatfield_attributes;
     deconvolution_job;
     prepare_deconv_dir;
+} from '../processes/deconvolution'
+
+include {
     read_file_content as read_file_content_for_tile_files;
     read_file_content as read_file_content_for_update;
     write_file_content;
-} from '../processes/deconvolution'
+} from '../processes/utils'
 
 workflow deconvolution {
     take:

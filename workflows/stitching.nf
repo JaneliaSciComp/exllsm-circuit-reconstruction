@@ -108,7 +108,7 @@ workflow stitching {
                 args_list.join(' ')
             }
         )
-        stitch_res = run_stitching(
+        def stitch_app_res = run_stitching(
             stitching_args.map { it[0] }, // spark uri
             stitching_app,
             stitching_args.map { it[1] }, // main
@@ -133,23 +133,29 @@ workflow stitching {
                                         [ ch, ch_fn_suffix, "${ch}${ch_fn_suffix}-final"]
                                     }
 				    .first()
-	log.info " !!!! TO STITCH: $json_inputs_to_stitch"
-        log.info " !!!! A STITCHED RES: $a_stitched_result"
-
         def stitch_results_to_clone = index_stitched_filenames_by_ch(channels)
                                             .findAll { ch, ch_fn ->
-					        !json_inputs_to_stitch.containsKey(ch)
+                                                !json_inputs_to_stitch.containsKey(ch)
                                             }
                                             .collect { 
                                                 def (ch, ch_fn) = [it.key, it.value]
                                                 [
-                                                    ch,
                                                     a_stitched_result[2],
+                                                    ch,
+                                                    "${ch}${a_stitched_result[1]}"
                                                     "${ch}${a_stitched_result[1]}-final"
                                                 ]
                                             }
-        log.info "!!!! TO CLONE: $stitch_results_to_clone"
-
+        if (stitch_results_to_clone.size() == 0) {
+            stitch_res = stitch_app_res
+        } else {
+            stitch_res = stitch_app_res
+            | combine(stitch_results_to_clone)
+            | map {
+                log.info "!!!!!!! TO CLONE $it"
+                [it[0], it[1]]
+            }
+        }
     }
 
     def fuse_res
