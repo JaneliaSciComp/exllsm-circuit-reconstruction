@@ -10,7 +10,7 @@ include {
 } from '../external-modules/spark/lib/processes'
 
 include {
-    check_stitch_result_clone_args;
+    clone_stitched_tiles_args;
 } from '../processes/stitching'
 
 include {
@@ -19,6 +19,8 @@ include {
 
 include {
     index_channel;
+    json_text_to_data;
+    data_to_json_text;
 } from '../utils/utils'
 
 workflow stitching {
@@ -144,8 +146,8 @@ workflow stitching {
                                             .collect { 
                                                 def (ch, ch_fn) = [it.key, it.value]
                                                 [
-                                                    a_stitched_result[2],
                                                     ch,
+                                                    a_stitched_result[2],
                                                     "${ch}${a_stitched_result[1]}",
                                                     "${ch}${a_stitched_result[1]}-final"
                                                 ]
@@ -162,20 +164,48 @@ workflow stitching {
             | combine(stitch_results_to_clone)
             | map {
                 def (spark_uri, spark_work_dir, stitching_dir,
+                     ch
                      stitched_result_name,
-                     f1,
-                     f2,
+                     source_tiles_filename,
                      cloned_result_name) = it
                 def r = [
                     "${stitching_dir}/${stitched_result_name}.json",
-                    "${stitching_dir}/${f2}.json",
-                    "${stitching_dir}/${f1}.json",
+                    "${stitching_dir}/${source_tiles_filename}.json",
                     "${stitching_dir}/${cloned_result_name}.json",
                 ]
-                log.info "!!!! CLONE INPUTS $r"
                 r
             }
-            | check_stitch_result_clone_args
+            | clone_stitched_tiles_args // copy the stitched results into the clone
+            | map {
+                // we take the tiles from the source_tiles_filename
+                // and replace them in the clone
+                def (stitched_tiles_template,
+                     source_tiles_file,
+                     source_tiles_content,
+                     target_tiles_file,
+                     target_tiles_content)
+                def indexed_source_tiles = json_text_to_data(source_tiles_content)
+                    .collectEntries { tile ->
+                        [ tile.index, tile ]
+                    }
+                log.info "!!!!!!! INDEXED SOURCE TILES from ${source_tiles_file}: ${indexed_source_tiles}"
+                def target_tiles = json_text_to_data(target_tiles_content)
+                    .collect { tile ->
+                        def source_tile = indexed_source_tiles.get(tile.index)
+                        log.info "!!!!! SOURCE TILE FOR ${tile.index}: ${source_tile}"
+                        if (source_tile) {
+                            tile.file = source_tile.file
+                        } else {
+                            tile.file = null
+                        }
+                    }
+                    .findAll { tile -> tile.file != null}
+                log.info "!!!!!!! TARGET TILES to write to ${target_tiles_file}: ${target_tiles}"
+                [
+                    target_tiles_file,
+                    data_to_json_text(target_tiles)
+                ]
+            }
             | view
             stitch_res = stitch_app_res // !!!!!!!
         }

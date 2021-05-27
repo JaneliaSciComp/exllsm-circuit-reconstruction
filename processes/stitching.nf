@@ -24,35 +24,26 @@ process prepare_stitching_data {
     """
 }
 
-process check_stitch_result_clone_args {
+process clone_stitched_tiles_args {
     label 'small'
     label 'preferLocal'
 
     input:
-    tuple val(stitched_result),
-          val(source_candidate_1),
-          val(source_candidate_2),
-          val(target_stitched_result)
+    tuple val(stitched_tiles_template),
+          val(source_tiles_file),
+          val(target_tiles_file)
     
     output:
-    tuple val(stitched_result),
-          env(source_tiles_file),
-          env(target_tiles_file)
+    tuple val(stitched_tiles_template),
+          val(source_tiles_file),
+          env(source_tiles_content),
+          val(target_tiles_file),
+          env(target_tiles_content)
 
     script:
     """
-    if [[ -f ${target_stitched_result} ]]; then
-        target_tiles_file=null
-    else
-        target_tiles_file=${target_stitched_result}
-    fi
-    if [[ -f ${source_candidate_1} ]]; then
-        source_tiles_file=${source_candidate_1}
-    elif [[ -f ${source_candidate_2} ]]; then
-        source_tiles_file=${source_candidate_1}
-    else
-        echo "Neither ${source_candidate_1} or ${source_candidate_2} was found"
-        source_tiles_file=null
-    fi
+    cp ${stitched_tiles_template} ${target_tiles_file}
+    source_tiles_content=`cat ${source_tiles_file}`
+    target_tiles_content=`cat ${target_tiles_file}`
     """
 }
