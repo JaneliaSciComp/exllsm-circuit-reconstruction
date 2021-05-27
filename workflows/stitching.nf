@@ -287,7 +287,7 @@ workflow stitching {
                 def (spark_uri, spark_work_dir, stitching_dir, ch) = it
                 [
                     stitching_dir,
-                    ch
+                    ch,
                     spark_uri,
                     spark_work_dir,
                 ]
@@ -295,7 +295,9 @@ workflow stitching {
             def clone_with_decon_tiles_results = clone_with_decon_tiles(
                 clone_with_decon_tiles_inputs.map { it[0..1] }
             )
-            | view
+
+            clone_with_decon_tiles_results | view
+
             fuse_working_data = stitch_res // !!!!!!!
         } else {
             // there are no files actually used for the fuse step
@@ -328,7 +330,6 @@ workflow stitching {
                 args_list.join(' ')
             }
         )
-/* !!!!!
         fuse_res = run_fuse(
             fuse_args.map { it[0] }, // spark uri
             stitching_app,
@@ -347,8 +348,6 @@ workflow stitching {
             spark_driver_logconfig,
             spark_driver_deploy
         )
-*/
-        fuse_res = stitch_res // !!!!
     }
 
     def export_res
