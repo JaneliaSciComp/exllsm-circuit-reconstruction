@@ -10,6 +10,10 @@ include {
 } from '../external-modules/spark/lib/processes'
 
 include {
+    check_stitch_result_clone_args;
+} from '../processes/stitching'
+
+include {
     entries_inputs_args
 } from './stitching_utils'
 
@@ -149,14 +153,31 @@ workflow stitching {
         if (stitch_results_to_clone.size() == 0) {
             stitch_res = stitch_app_res
         } else {
-            stitch_res = indexed_data
+            def clone_stitch_res_input = indexed_data
             | join(stitch_app_res, by:1)
-            | combine(stitch_results_to_clone)
             | map {
                 def (spark_work_dir, idx, spark_uri, stitching_dir) = it
-                log.info "!!!!!!! TO CLONE $it"
-                [spark_uri, spark_work_dir]
+                [ spark_uri, spark_work_dir, stitching_dir ]
             }
+            | combine(stitch_results_to_clone)
+            | map {
+                def (spark_uri, spark_work_dir, stitching_dir,
+                     stitched_result_name,
+                     f1,
+                     f2,
+                     cloned_result_name) = it
+                def r = [
+                    "${stitching_dir}/${stitched_result_name}.json",
+                    "${stitching_dir}/${f2}.json",
+                    "${stitching_dir}/${f1}.json",
+                    "${stitching_dir}/${cloned_result_name}.json",
+                ]
+                log.info "!!!! CLONE INPUTS $r"
+                r
+            }
+            | check_stitch_result_clone_args
+            | view
+            stitch_res = stitch_app_res // !!!!!!!
         }
     }
 
