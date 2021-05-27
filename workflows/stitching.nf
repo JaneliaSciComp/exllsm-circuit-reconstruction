@@ -149,11 +149,13 @@ workflow stitching {
         if (stitch_results_to_clone.size() == 0) {
             stitch_res = stitch_app_res
         } else {
-            stitch_res = stitch_app_res
+            stitch_res = indexed_data
+            | join(stitch_app_res, by:1)
             | combine(stitch_results_to_clone)
             | map {
+                def (spark_work_dir, idx, spark_uri, stitching_dir) = it
                 log.info "!!!!!!! TO CLONE $it"
-                [it[0], it[1]]
+                [spark_uri, spark_work_dir]
             }
         }
     }
