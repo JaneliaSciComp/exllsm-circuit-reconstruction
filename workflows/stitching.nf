@@ -252,7 +252,7 @@ workflow stitching {
         // identify tile files that may need to have
         // the tile files replaced with the corresponding deconv tiles
         def indexed_default_fused_files = index_tile_filenames_by_ch(channels)
-                                    .collect { ch, ch_fn ->
+                                    .collectEntries { ch, ch_fn ->
                                         [
                                             ch,
                                             "${ch}-decon-final"
@@ -266,7 +266,13 @@ workflow stitching {
                 channels
             )
         )
+        def candidate_tile_files_to_clone = indexed_default_fused_files
+                                    .findAll { ch, ch_fn ->
+                                        indexed_default_fused_files.containsKey(ch) &&
+                                        ch_fn == indexed_default_fused_files.get(ch)
+                                    }
         log.info "!!!!!! INPUTS TO FUSE: ${json_inputs_to_fuse}"
+        log.info "!!!!!! CANDIDATES TO CLONE: ${candidate_tile_files_to_clone}"
 
         // prepare fuse tiles
         def fuse_args = prepare_app_args(
