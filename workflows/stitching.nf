@@ -272,13 +272,13 @@ workflow stitching {
                 it[0..1]
             }
             | clone_with_decon_tiles
-            | join(clone_with_decon_tiles_inputs, by:[0,1])
             | filter {
                 def (current_stitching_dir,
                      ch,
                      target_tiles_file) = it
                 target_tiles_file != "null"
             }
+            | join(clone_with_decon_tiles_inputs, by:[0,1])
             | map {
                 def (current_stitching_dir,
                      ch,
