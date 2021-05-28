@@ -31,6 +31,9 @@ Usage ([example](../examples/stitching.sh)):
 | --spark_container_name | stitching | Name for the container in the spark_container_repo | 
 | &#x2011;&#x2011;spark_container_version | 1.8.1 | Version for the container in the spark_container_repo |
 | --stitching_app | /app/app.jar | Path to the JAR file containing the stitching application. |
+| --skip | | Specifies the steps to be skipped. The valid values are:  `prestitching, deconvolution, stitch, fuse, tiff-export` |
+| --stitching_json_inputs | 488nm-decon,560nm-decon,642nm-decon | Default JSON inputs for the stich step |
+| --fuse_to_n5_json_inputs | 488nm-decon-final,560nm-decon-final,642nm-decon-final | Default JSON inputs for the fuse and export step |
 | --workers | 4 | Number of Spark workers to use for stitching |
 | --worker_cores | 4 | Number of cores allocated to each Spark worker |
 | --gb_per_core | 15 | Size of memory (in GB) that is allocated for each core of a Spark worker. The total memory usage for stitching will be workers * worker_cores * gb_per_core. | 
