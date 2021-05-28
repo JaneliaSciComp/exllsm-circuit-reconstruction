@@ -231,8 +231,6 @@ workflow stitching {
                                             "${ch}-decon-final"
                                         ]
                                     }
-        log.info "!!!!!! DEFAULT FUSED FILES: ${indexed_default_fused_files}"
-
         def json_inputs_to_fuse = index_tile_filenames_by_ch(
             get_fuse_tile_json_inputs(
                 params.fuse_to_n5_json_inputs,
