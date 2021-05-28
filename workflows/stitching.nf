@@ -231,6 +231,22 @@ workflow stitching {
                                             "${ch}-decon-final"
                                         ]
                                     }
+        def indexed_stitched_deconv_files = index_tile_filenames_by_ch(
+            get_stitching_tile_json_inputs(
+                params.stitching_json_inputs,
+                channels
+            )
+        )
+        .findAll { ch, ch_fn ->
+            // filter stitch inputs that use decon tiles if stitch was not skipped
+            // if stitch was skipped we cannot tell for sure whether the
+            // 'decon-final' files are there
+            !skipped_steps.contains('stitch') && ch_fn == "${ch}-decon"
+        }
+        .collectEntries {
+            // append '-final' suffix because stitch step generates <input>-final.json 
+            [ it.key, "${it.value}-final" ]
+        }
         def json_inputs_to_fuse = index_tile_filenames_by_ch(
             get_fuse_tile_json_inputs(
                 params.fuse_to_n5_json_inputs,
@@ -239,7 +255,11 @@ workflow stitching {
         )
         def candidate_ch_to_clone_with_deconv_tiles = json_inputs_to_fuse
                                     .findAll { ch, ch_fn ->
+                                        // filter out files that don't use deconv tiles, i.e.,
+                                        // they don't have a 'decon' suffix or we know for sure
+                                        // that deconv tiles were used for stitching
                                         indexed_default_fused_files.containsKey(ch) &&
+                                        !indexed_stitched_deconv_files.containsKey(ch) &&
                                         ch_fn == indexed_default_fused_files.get(ch)
                                     }
                                     .collect {
@@ -247,6 +267,8 @@ workflow stitching {
                                     }
         def fuse_working_data
         if (candidate_ch_to_clone_with_deconv_tiles.size() > 0) {
+            // these are just candidates which will actually be skipped
+            // if the stitch step uses the default inputs
             log.info "Candidates for updating tiles with decon tiles: ${candidate_ch_to_clone_with_deconv_tiles}"
             def clone_with_decon_tiles_inputs = indexed_data
             | join(stitch_res, by:1)
