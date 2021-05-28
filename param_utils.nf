@@ -145,7 +145,7 @@ def get_list_or_default(Map ps, String param, List default_list) {
         value = ps[param]
     else
         value = null
-    return value
+    return value instanceof String && value
         ? value.tokenize(',').collect { it.trim() }
         : default_list
 }
