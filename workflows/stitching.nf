@@ -266,16 +266,19 @@ workflow stitching {
                     spark_work_dir,
                 ]
             }
-            def clone_with_decon_tiles_results = clone_with_decon_tiles(
-                clone_with_decon_tiles_inputs.map { it[0..1] }
-            )
+
+            def clone_with_decon_tiles_results = clone_with_decon_tiles_inputs
+            | map {
+                it[0..1]
+            }
+            | clone_with_decon_tiles
+            | join(clone_with_decon_tiles_inputs, by:[0,1])
             | filter {
                 def (current_stitching_dir,
                      ch,
                      target_tiles_file) = it
                 target_tiles_file != "null"
             }
-            | join(clone_with_decon_tiles_inputs, by:[0,1])
             | map {
                 def (current_stitching_dir,
                      ch,
@@ -292,7 +295,7 @@ workflow stitching {
                     copy_tile_files(source_tiles_content, target_tiles_content),
                 ]
             }
-            fuse_working_data = update_tile_file_content(clone_with_decon_tiles_results)
+            | update_tile_file_content
             | map {
                 def (target_tiles_file,
                      spark_uri,
@@ -301,10 +304,13 @@ workflow stitching {
                 [ spark_uri, spark_work_dir, current_stitching_dir, target_tiles_file ]
             }
             | groupTuple(by: [0,1,2])
-            | concat(stitch_res)
-            | unique {
-                it[0..2].collect { "$it" }
-            }
+
+            clone_with_decon_tiles_results | view
+
+            fuse_working_data = stitch_res
+            | concat(clone_with_decon_tiles_results)
+            | unique { it[1] }
+
             fuse_working_data | view
         } else {
             // there are no files actually used for the fuse step
@@ -416,11 +422,11 @@ workflow update_tile_file_content {
     tile_file_with_content // tuple in which the first element is the file name and the last is the content
 
     main:
-    done = write_file_content(
-        tile_file_with_content.map {
-            [ it[0], it[-1] ]
-        }
-    )
+    done = tile_file_with_content
+    | map {
+        [ it[0], it[-1] ] // filename and content
+    }
+    | write_file_content
     | join(tile_file_with_content, by:0)
 
     emit:
@@ -493,3 +499,4 @@ def copy_tile_files(source_tiles_content, dest_tiles_content) {
         .findAll { tile -> tile.file != null}
     data_to_json_text(dest_tiles)
 }
+
