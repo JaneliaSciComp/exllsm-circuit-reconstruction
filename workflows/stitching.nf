@@ -325,13 +325,9 @@ workflow stitching {
             }
             | groupTuple(by: [0,1,2])
 
-            clone_with_decon_tiles_results | view
-
             fuse_working_data = stitch_res
             | concat(clone_with_decon_tiles_results)
             | unique { it[1] }
-
-            fuse_working_data | view
         } else {
             // there are no files actually used for the fuse step
             // that need the tiles to be replaced with the deconv tiles
