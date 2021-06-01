@@ -30,7 +30,6 @@ include {
 
 workflow stitching {
     take:
-    stitching_app
     stitching_dir
     channels
     stitching_mode
@@ -39,6 +38,7 @@ workflow stitching {
     export_level
     allow_fusestage
     skipped_steps
+    stitching_app
     spark_conf
     spark_work_dir
     spark_workers
@@ -66,16 +66,14 @@ workflow stitching {
         spark_gbmem_per_core,
         terminate_app_name
     ) // [ spark_uri, spark_work_dir ]
-    // print spark cluster result
-    spark_cluster_res.subscribe {  log.debug "Spark cluster result: $it"  }
 
     def indexed_spark_uri = spark_cluster_res
-        .join(indexed_spark_work_dir, by:1)
-        .map {
-            def indexed_uri = [ it[2], it[1] ]
-            log.debug "Create indexed spark URI from $it -> ${indexed_uri}"
-            return indexed_uri
-        }
+    | join(indexed_spark_work_dir, by:1)
+    | map {
+        def indexed_uri = [ it[2], it[1] ]
+        log.debug "Indexed spark URI from $it -> ${indexed_uri}"
+        return indexed_uri
+    }
 
     // create a channel of tuples:  [index, spark_uri, dataset, stitching_dir, spark_work_dir]
     def indexed_data = indexed_spark_work_dir \

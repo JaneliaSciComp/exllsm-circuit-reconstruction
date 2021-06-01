@@ -93,13 +93,13 @@ workflow {
         }
     } else {
         pre_stitching_res = prestitching(
-            final_params.stitching_app,
             stitching_data.map { it[0] },  // images dir
             stitching_data.map { it[1] },  // stitching dir
             channels,
             final_params.resolution,
             final_params.axis,
             final_params.block_size,
+            final_params.stitching_app,
             spark_conf,
             stitching_data.map { "${it[2]}/prestitch" }, // spark_working_dir
             spark_workers,
@@ -150,7 +150,6 @@ workflow {
 
     if (!skip.contains('stitch') || !skip.contains('fuse') || !skip.contains('tiff-export')) {
         def stitching_res = stitching(
-            final_params.stitching_app,
             stitching_input.map { it[0] }, // stitching_dir
             channels,
             final_params.stitching_mode,
@@ -159,6 +158,7 @@ workflow {
             final_params.export_level,
             final_params.allow_fusestage,
             skip,
+            final_params.stitching_app,
             spark_conf,
             stitching_input.map { "${it[1]}/stitch" }, // spark working dir
             spark_workers,
