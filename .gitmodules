@@ -4,4 +4,4 @@
 	branch = master
 [submodule "external-modules/stitching-spark"]
 	path = external-modules/stitching-spark
-	url = git@github.com:saalfeldlab/stitching-spark.git
+	url = git@github.com:JaneliaSciComp/n5-spark.git
