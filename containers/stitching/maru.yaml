@@ -1,6 +1,6 @@
 maru_version: 0.1.1
 name: stitching
-version: 1.8.1
+version: 1.9.0
 remotes:
 - registry.int.janelia.org/exm-analysis
 build_args:
@@ -8,7 +8,7 @@ build_args:
 template_args:
   flavor: java_maven
   build:
-    repo_url: https://github.com/saalfeldlab/stitching-spark.git
+    repo_url: https://github.com/JaneliaSciComp/n5-spark.git
     command: mvn package
   java_maven:
     jdk_version: "8"

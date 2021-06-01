@@ -153,7 +153,7 @@ def get_list_or_default(Map ps, String param, List default_list) {
 def stitching_container_param(Map ps) {
     def stitching_container = ps.stitching_container
     if (!stitching_container)
-        "${ps.exm_repo}/stitching:1.8.1"
+        "${ps.exm_repo}/stitching:1.9.0"
     else
         stitching_container
 }

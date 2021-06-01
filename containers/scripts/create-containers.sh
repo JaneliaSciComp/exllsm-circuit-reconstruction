@@ -15,7 +15,13 @@ docker build \
     containers/synapse-dask
 
 docker build \
-    -t registry.int.janelia.org/exm-analysis/neuron-segmentation:${neuron_segmentation} \
-    -t neuron-segmentation:${neuron_segmentation} \
+    -t registry.int.janelia.org/exm-analysis/neuron-segmentation:${neuron_segmentation_version} \
+    -t neuron-segmentation:${neuron_segmentation_version} \
     -t neuron-segmentation \
     containers/neuron-segmentation
+
+docker build \
+    -t registry.int.janelia.org/exm-analysis/stitching:${stitching_version} \
+    -t stitching:${stitching_version} \
+    -t stitching \
+    containers/stitching
