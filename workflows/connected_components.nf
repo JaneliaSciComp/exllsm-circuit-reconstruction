@@ -11,7 +11,7 @@ workflow connected_components {
     take:
     input_dir // n5 dir
     input_dataset // n5 container sub-dir (c0/s0)
-    output_dir
+    output_dataset
     components_app
     spark_conf
     spark_work_dir
@@ -30,7 +30,7 @@ workflow connected_components {
     // index inputs so that I can pair inputs with the corresponding spark URI and/or spark working dir
     def indexed_input_dir = index_channel(input_dir)
     def indexed_input_dataset = index_channel(input_dataset)
-    def indexed_output_dir = index_channel(output_dir)
+    def indexed_output_dataset = index_channel(output_dataset)
     def indexed_spark_work_dir = index_channel(spark_work_dir)
 
     // start a spark cluster
@@ -55,7 +55,7 @@ workflow connected_components {
         | join(indexed_spark_uri)
         | join(indexed_input_dir)
         | join(indexed_input_dataset)
-        | join(indexed_output_dir)
+        | join(indexed_output_dataset)
 
     def connected_comps_args = indexed_data
     | map {
@@ -64,10 +64,15 @@ workflow connected_components {
              spark_uri,
              currrent_input_dir,
              current_input_dataset,
-             current_output_dir) = it
+             current_output_dataset) = it
         def args_list = []
         args_list << "-n ${currrent_input_dir}"
         args_list << "-i ${current_input_dataset}"
+        args_list << "-o ${current_output_dataset}"
+        args_list << "-m ${params.min_connected_pixels}"
+        args_list << "-s ${params.connected_pixels_shape}"
+        if (params.connected_pixels_threshold > 0)
+            args_list << "-t ${params.connected_pixels_threshold}"
         [
             spark_uri,
             args_list.join(' '),

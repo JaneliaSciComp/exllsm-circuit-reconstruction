@@ -113,6 +113,9 @@ def default_em_params() {
         neuron_scaling_partition_size: '396,396,396',
         max_scaling_tiles_per_job: 40,
         neuron_scaling_plots_dir: '',
+        min_connected_pixels: 2000, // minimum pixels in a connected component to be kept
+        connected_pixels_shape: "diamond", // shape of neighborhood (default "diamond", option "box")
+        connected_pixels_threshold: 0, // threshold value for neuron segmentation binarization
 
         neuron_segmentation_cpus: 1,
         neuron_segmentation_memory: '1 G',
