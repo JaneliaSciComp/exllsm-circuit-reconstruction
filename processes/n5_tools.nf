@@ -85,12 +85,14 @@ process tiff_to_n5 {
         n5_stack=${input_stack_dir}
     else
         mkdir -p ${output_stack_dir}
+        # convert tiffs to n5
         /entrypoint.sh tif_to_n5 \
         -i ${input_stack_dir} \
         -o ${output_n5_stack} \
         -c ${chunk_size} \
         --compression ${params.n5_compression} \
-        ${distributed_args} \
+        ${distributed_args}
+        # set the return value
         n5_stack=${output_n5_stack}
     fi
     """
