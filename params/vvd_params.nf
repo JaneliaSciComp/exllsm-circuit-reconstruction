@@ -19,5 +19,9 @@ def vvd_spark_params() {
         ? ps.vvd_spark
         : [:]
     spark_params() +
+    [
+        spark_container_name: 'n5-spark-tools',
+        spark_container_version: '3.8.0',
+    ] +
     vvd_spark_cmdline_params
 }

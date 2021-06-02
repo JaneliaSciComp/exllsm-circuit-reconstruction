@@ -6,3 +6,4 @@ docker push registry.int.janelia.org/exm-analysis/synapse:${synapse_version}
 docker push registry.int.janelia.org/exm-analysis/synapse-dask:${synapse_dask_version}
 docker push registry.int.janelia.org/exm-analysis/neuron-segmentation:${neuron_segmentation_version}
 docker push registry.int.janelia.org/exm-analysis/stitching:${stitching_version}
+docker push registry.int.janelia.org/exm-analysis/n5-spark-tools:${n5_spark_tools_version}

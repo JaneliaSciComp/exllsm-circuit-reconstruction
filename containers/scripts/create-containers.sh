@@ -25,3 +25,9 @@ docker build \
     -t stitching:${stitching_version} \
     -t stitching \
     containers/stitching
+
+docker build \
+    -t registry.int.janelia.org/exm-analysis/n5-spark-tools:${n5_spark_tools_version} \
+    -t n5-spark-tools:${n5_spark_tools_version} \
+    -t n5-spark-tools \
+    containers/stitching
