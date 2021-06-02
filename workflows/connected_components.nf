@@ -83,7 +83,7 @@ workflow connected_components {
     def connected_comps_res = run_connected_components(
         connected_comps_args.map { it[0] }, // spark uri
         components_app,
-        'org.janelia.saalfeldlab.n5.spark.N5ConnectedComponentsSpark'
+        'org.janelia.saalfeldlab.n5.spark.N5ConnectedComponentsSpark',
         connected_comps_args.map { it[1] }, // args
         'connected_comps.log',
         terminate_app_name,
