@@ -8,5 +8,6 @@ def spark_params() {
         spark_container_repo: 'registry.int.janelia.org/exm-analysis',
         spark_local_dir: "/tmp",
         app: '/app/app.jar',
+        driver_stack_size: '', // default spark
     ]
 }

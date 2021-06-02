@@ -66,7 +66,7 @@ workflow {
             neuron_comp_params.gb_per_core,
             neuron_comp_params.driver_cores,
             neuron_comp_params.driver_memory,
-            neuron_comp_params.driver_stack,
+            neuron_comp_params.driver_stack_size,
             neuron_comp_params.driver_logconfig
 
         )

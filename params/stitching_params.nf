@@ -37,7 +37,7 @@ def stitching_spark_params(Map ps) {
     [
         spark_container_name: 'stitching',
         spark_container_version: '1.9.0',
-        driver_stack: '128m', // stitching requires a larger driver stack size
+        driver_stack_size: '128m', // stitching requires a larger driver stack size
     ] +
     stitching_spark_cmdline_params
 }
