@@ -78,7 +78,7 @@ process tiff_to_n5 {
     def chunk_size = params.block_size
     def distributed_args = ''
     if (params.tiff2n5_workers > 0) {
-        distributed_args = "--distributed ${params.tiff2n5_workers}"
+        distributed_args = "--distributed --workers ${params.tiff2n5_workers}"
     }
     """
     if [[ -f "${input_stack_dir}/attributes.json" ]]; then
