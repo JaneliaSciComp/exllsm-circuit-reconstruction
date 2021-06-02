@@ -76,7 +76,7 @@ workflow n5_to_vvd {
     def n5_to_vvd_res = run_n5_to_vvd(
         n5_to_vvd_args.map { it[0] }, // spark uri
         components_app,
-        'org.janelia.saalfeldlab.n5.spark.N5ToVVDSpark'
+        'org.janelia.saalfeldlab.n5.spark.N5ToVVDSpark',
         n5_to_vvd_args.map { it[1] }, // args
         'n5_to_vvd.log',
         terminate_app_name,
