@@ -55,22 +55,19 @@ workflow {
     def connected_comps_res;
     if (final_params.with_connected_comps) {
         connected_comps_res = connected_components(
-            stitching_data.map { it[0] },  // images dir
-            stitching_data.map { it[1] },  // stitching dir
-            channels,
-            final_params.resolution,
-            final_params.axis,
-            final_params.block_size,
-            final_params.stitching_app,
-            spark_conf,
-            stitching_data.map { "${it[2]}/prestitch" }, // spark_working_dir
-            spark_workers,
-            spark_worker_cores,
-            spark_gb_per_core,
-            spark_driver_cores,
-            spark_driver_memory,
-            spark_driver_stack,
-            spark_driver_logconfig
+            neuron_res.map { it[0] },  // n5 input dir
+            final_params.neuron_output_dataset, // input sub dir
+            final_params.neuron_conn_comp_dataset, // sub dir for connected comp
+            final_params.app,
+            final_params.spark_conf,
+            "${final_params.spark_work_dir}/connected_comps", // spark_working_dir
+            final_params.workers,
+            final_params.worker_cores,
+            final_params.gb_per_core,
+            final_params.driver_cores,
+            final_params.driver_memory,
+            final_params.driver_stack,
+            final_params.driver_logconfig
 
         )
     } else {

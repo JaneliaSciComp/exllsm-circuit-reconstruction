@@ -18,6 +18,7 @@ def neuron_params() {
         min_connected_pixels: 2000, // minimum pixels in a connected component to be kept
         connected_pixels_shape: "diamond", // shape of neighborhood (default "diamond", option "box")
         connected_pixels_threshold: 0, // threshold value for neuron segmentation binarization
+        neuron_conn_comp_dataset: '/c1/s0',
 
         neuron_segmentation_cpus: 1,
         neuron_segmentation_memory: '1 G',
