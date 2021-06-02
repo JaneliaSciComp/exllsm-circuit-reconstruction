@@ -14,7 +14,7 @@ def vvd_params() {
     ]
 }
 
-def vvd_spark_params() {
+def vvd_spark_params(Map ps) {
     def vvd_spark_cmdline_params = ps.vvd_spark
         ? ps.vvd_spark
         : [:]
