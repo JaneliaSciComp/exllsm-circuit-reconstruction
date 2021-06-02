@@ -10,6 +10,7 @@ def synapse_params() {
         post_synapse_stack_dir: '',
         tiff2n5_cpus: 3,
         tiff2n5_memory: '3 G',
+        tiff2n5_workers: 0,
         n52tiff_cpus: 3,
         n52tiff_memory: '3 G',
         unet_cpus: 3,

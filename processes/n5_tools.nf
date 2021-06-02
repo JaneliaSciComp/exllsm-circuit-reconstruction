@@ -76,12 +76,21 @@ process tiff_to_n5 {
     script:
     def output_stack_dir = file(output_n5_stack).parent
     def chunk_size = params.block_size
+    def distributed_args = ''
+    if (params.tiff2n5_workers > 0) {
+        distributed_args = "--distributed ${params.tiff2n5_workers}"
+    }
     """
     if [[ -f "${input_stack_dir}/attributes.json" ]]; then
         n5_stack=${input_stack_dir}
     else
         mkdir -p ${output_stack_dir}
-        /entrypoint.sh tif_to_n5 -i ${input_stack_dir} -o ${output_n5_stack} -c ${chunk_size} --compression ${params.n5_compression}
+        /entrypoint.sh tif_to_n5 \
+        -i ${input_stack_dir} \
+        -o ${output_n5_stack} \
+        -c ${chunk_size} \
+        --compression ${params.n5_compression} \
+        "${distributed_args}" \
         n5_stack=${output_n5_stack}
     fi
     """

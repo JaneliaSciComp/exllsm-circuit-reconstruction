@@ -103,7 +103,7 @@ def main():
         from dask.distributed import Client
         client = Client(processes=True, n_workers=args.workers, \
             threads_per_worker=1, dashboard_address=dashboard_address)
-        
+
     else:
         from dask.diagnostics import ProgressBar
         pbar = ProgressBar()
