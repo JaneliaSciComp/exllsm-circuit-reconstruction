@@ -91,7 +91,7 @@ workflow connected_components {
         connected_comps_args.map { it[1] }, // args
         'connected_comps.log',
         terminate_app_name,
-        spark_cconf,
+        spark_conf,
         connected_comps_args.map { it[2] }, // spark work dir
         spark_workers,
         spark_worker_cores,
