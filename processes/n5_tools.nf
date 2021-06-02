@@ -81,10 +81,10 @@ process tiff_to_n5 {
         distributed_args = "--distributed --workers ${params.tiff2n5_workers}"
     }
     """
+    mkdir -p ${output_stack_dir}
     if [[ -f "${input_stack_dir}/attributes.json" ]]; then
         n5_stack=${input_stack_dir}
     else
-        mkdir -p ${output_stack_dir}
         # convert tiffs to n5
         /entrypoint.sh tif_to_n5 \
         -i ${input_stack_dir} \
