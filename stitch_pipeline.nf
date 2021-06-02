@@ -15,11 +15,12 @@ include {
 } from './param_utils'
 
 // app parameters
-def final_params = default_em_params(params) +
-                    stitching_spark_params(params) +
+def default_params = default_em_params(params)
+def final_params =  default_params +
+                    stitching_spark_params(default_params) +
                     [
-                        stitching_container: stitching_container_param(params),
-                        deconvolution_container: deconvolution_container_param(params),
+                        stitching_container: stitching_container_param(default_params),
+                        deconvolution_container: deconvolution_container_param(default_params),
                     ]
 include {
     prepare_stitching_data;
@@ -86,7 +87,7 @@ workflow {
             final_params.resolution,
             final_params.axis,
             final_params.block_size,
-            final_params.stitching_app,
+            final_params.app, // app.jar location
             final_params.spark_conf,
             stitching_data.map { "${it[2]}/prestitch" }, // spark_working_dir
             final_params.workers,
@@ -145,7 +146,7 @@ workflow {
             final_params.export_level,
             final_params.allow_fusestage,
             skip,
-            final_params.stitching_app,
+            final_params.app, // app.jar location
             final_params.spark_conf,
             stitching_input.map { "${it[1]}/stitch" }, // spark working dir
             final_params.workers,
