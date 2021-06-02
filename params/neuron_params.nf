@@ -42,6 +42,12 @@ def neuron_connected_comps_spark_params(Map ps) {
     def neuron_comps_spark_cmdline_params = ps.neuron_comps_spark
         ? ps.neuron_comps_spark
         : [:]
+    [
+        workers: 1,
+        worker_cores: 1,
+        driver_cores: 1,
+        gb_per_core: 1,
+    ] +
     spark_params() +
     [
         spark_container_name: 'n5-spark-tools',
