@@ -77,7 +77,7 @@ process tiff_to_n5 {
     def output_stack_dir = file(output_n5_stack).parent
     def chunk_size = params.block_size
     def distributed_args = ''
-    if (params.tiff2n5_workers > 0) {
+    if (params.tiff2n5_workers > 1) {
         distributed_args = "--distributed --workers ${params.tiff2n5_workers}"
     }
     """
