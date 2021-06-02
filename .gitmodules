@@ -1,7 +1,7 @@
 [submodule "external-modules/spark"]
 	path = external-modules/spark
-	url = git@github.com:JaneliaSciComp/nextflow-spark.git
+	url = https://github.com/JaneliaSciComp/nextflow-spark.git
 	branch = master
 [submodule "external-modules/stitching-spark"]
 	path = external-modules/stitching-spark
-	url = git@github.com:JaneliaSciComp/n5-spark.git
+	url = https://github.com/saalfeldlab/stitching-spark.git
