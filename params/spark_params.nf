@@ -3,7 +3,7 @@ include {
 } from '../external-modules/spark/lib/param_utils'
 
 def spark_params() {
-    common_spark_params() +
+    default_spark_params() +
     [
         spark_container_repo: 'registry.int.janelia.org/exm-analysis',
         spark_container_name: 'stitching',
