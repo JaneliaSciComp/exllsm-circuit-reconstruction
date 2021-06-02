@@ -3,8 +3,8 @@
 nextflow.enable.dsl=2
 
 include {
-    default_spark_params;
-} from './external-modules/spark/lib/param_utils'
+    stitching_spark_params;
+} from './params/stitching_params'
 
 include {
     default_em_params;
@@ -15,29 +15,27 @@ include {
 } from './param_utils'
 
 // app parameters
-def final_params = default_spark_params() + default_em_params() + params
-
-def stitch_params = final_params + [
-    stitching_container: stitching_container_param(final_params)
-]
+def final_params = default_em_params(params) +
+                    stitching_spark_params(params) +
+                    [
+                        stitching_container: stitching_container_param(params),
+                        deconvolution_container: deconvolution_container_param(params),
+                    ]
 include {
     prepare_stitching_data;
-} from './processes/stitching' addParams(stitch_params)
+} from './processes/stitching' addParams(final_params)
 
 include {
     prepare_tiles_for_stitching as prestitching;
-} from './workflows/prestitching' addParams(stitch_params)
+} from './workflows/prestitching' addParams(final_params)
 
 include {
     stitching;
-} from './workflows/stitching' addParams(stitch_params)
+} from './workflows/stitching' addParams(final_params)
 
-def deconv_params = stitch_params + [
-    deconvolution_container: deconvolution_container_param(final_params),
-]
 include {
     deconvolution
-} from './workflows/deconvolution' addParams(deconv_params)
+} from './workflows/deconvolution' addParams(final_params)
 
 workflow {
     def images_dir = final_params.images_dir
@@ -45,17 +43,6 @@ workflow {
     def stitching_dir = final_params.stitching_output 
             ? "${pipeline_output_dir}/${final_params.stitching_output}"
             : pipeline_output_dir
-
-    // spark config
-    def spark_conf = final_params.spark_conf
-    def spark_work_dir = final_params.spark_work_dir
-    def spark_workers = final_params.workers
-    def spark_worker_cores = final_params.worker_cores
-    def spark_gb_per_core = final_params.gb_per_core
-    def spark_driver_cores = final_params.driver_cores
-    def spark_driver_memory = final_params.driver_memory
-    def spark_driver_stack = final_params.driver_stack
-    def spark_driver_logconfig = final_params.driver_logconfig
 
     def channels = get_list_or_default(final_params, 'channels', [])
     def skip = get_list_or_default(final_params, 'skip', [])
@@ -72,13 +59,13 @@ workflow {
     log.info """
         channels: ${channels}
         skipped_steps: ${skip}
-        spark_workers: ${spark_workers}
+        spark_workers: ${final_params.workers}
         """.stripIndent()
 
     def stitching_data = prepare_stitching_data(
         Channel.of(images_dir),
         Channel.of(stitching_dir),
-        Channel.of(spark_work_dir)
+        Channel.of(final_params.spark_work_dir)
     ) // [ input_images_dir, stitching_dir, stitching_working_dir ]
 
     stitching_data.subscribe { log.debug "Stitching: $it" }
@@ -100,15 +87,15 @@ workflow {
             final_params.axis,
             final_params.block_size,
             final_params.stitching_app,
-            spark_conf,
+            final_params.spark_conf,
             stitching_data.map { "${it[2]}/prestitch" }, // spark_working_dir
-            spark_workers,
-            spark_worker_cores,
-            spark_gb_per_core,
-            spark_driver_cores,
-            spark_driver_memory,
-            spark_driver_stack,
-            spark_driver_logconfig
+            final_params.workers,
+            final_params.worker_cores,
+            final_params.gb_per_core,
+            final_params.driver_cores,
+            final_params.driver_memory,
+            final_params.driver_stack,
+            final_params.driver_logconfig
         ) // [ input_images_dir, stitching_dir ]
         pre_stitching_res.subscribe { log.debug "Pre stitch results: $it" }
     }
@@ -159,15 +146,15 @@ workflow {
             final_params.allow_fusestage,
             skip,
             final_params.stitching_app,
-            spark_conf,
+            final_params.spark_conf,
             stitching_input.map { "${it[1]}/stitch" }, // spark working dir
-            spark_workers,
-            spark_worker_cores,
-            spark_gb_per_core,
-            spark_driver_cores,
-            spark_driver_memory,
-            spark_driver_stack,
-            spark_driver_logconfig
+            final_params.workers,
+            final_params.worker_cores,
+            final_params.gb_per_core,
+            final_params.driver_cores,
+            final_params.driver_memory,
+            final_params.driver_stack,
+            final_params.driver_logconfig
         )
         stitching_res | view
     }

@@ -10,7 +10,7 @@ include {
 } from './param_utils'
 
 // app parameters
-final_params = default_em_params() + params
+final_params = default_em_params(params)
 
 synapse_params = final_params + [
     exm_synapse_container: exm_synapse_container_param(final_params),
