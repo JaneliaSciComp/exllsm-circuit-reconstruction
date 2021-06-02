@@ -90,7 +90,7 @@ process tiff_to_n5 {
         -o ${output_n5_stack} \
         -c ${chunk_size} \
         --compression ${params.n5_compression} \
-        "${distributed_args}" \
+        ${distributed_args} \
         n5_stack=${output_n5_stack}
     fi
     """
