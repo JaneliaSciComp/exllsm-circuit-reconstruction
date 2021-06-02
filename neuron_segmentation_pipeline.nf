@@ -53,21 +53,21 @@ workflow {
     );
     neuron_res | view
     def connected_comps_res;
-    if (final_params.with_connected_comps) {
+    if (neuron_comp_params.with_connected_comps) {
         connected_comps_res = connected_components(
             neuron_res.map { it[0] },  // n5 input dir
-            final_params.neuron_output_dataset, // input sub dir
-            final_params.neuron_conn_comp_dataset, // sub dir for connected comp
-            final_params.app,
-            final_params.spark_conf,
+            neuron_comp_params.neuron_output_dataset, // input sub dir
+            neuron_comp_params.neuron_conn_comp_dataset, // sub dir for connected comp
+            neuron_comp_params.app,
+            neuron_comp_params.spark_conf,
             "${final_params.spark_work_dir}/connected_comps", // spark_working_dir
-            final_params.workers,
-            final_params.worker_cores,
-            final_params.gb_per_core,
-            final_params.driver_cores,
-            final_params.driver_memory,
-            final_params.driver_stack,
-            final_params.driver_logconfig
+            neuron_comp_params.workers,
+            neuron_comp_params.worker_cores,
+            neuron_comp_params.gb_per_core,
+            neuron_comp_params.driver_cores,
+            neuron_comp_params.driver_memory,
+            neuron_comp_params.driver_stack,
+            neuron_comp_params.driver_logconfig
 
         )
     } else {
