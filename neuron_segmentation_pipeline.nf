@@ -61,7 +61,7 @@ workflow {
             neuron_comp_params.neuron_conn_comp_dataset, // sub dir for connected comp
             neuron_comp_params.app,
             neuron_comp_params.spark_conf,
-            "${final_params.spark_work_dir}/connected_comps", // spark_working_dir
+            "${get_spark_working_dir(neuron_comp_params.spark_work_dir)}/connected_comps", // spark_working_dir
             neuron_comp_params.workers,
             neuron_comp_params.worker_cores,
             neuron_comp_params.gb_per_core,
@@ -77,4 +77,8 @@ workflow {
     if (final_params.with_vvd_convert) {
 
     }
+}
+
+def get_spark_working_dir(base_dir) {
+    base_dir ? base_dir : '/tmp'
 }
