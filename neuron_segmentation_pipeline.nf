@@ -84,7 +84,11 @@ workflow {
             vvd_params.neuron_vvd_output,
             vvd_params.app,
             vvd_params.spark_conf,
-            "${get_spark_working_dir(vvd_params.spark_work_dir)}/n52vvd", // spark_working_dir
+            connected_comps_res.map {
+                // this is just so that it would not start the cluster before
+                // the conneccted components completes
+                "${get_spark_working_dir(vvd_params.spark_work_dir)}/n52vvd"
+            }, // spark_working_dir
             vvd_params.workers,
             vvd_params.worker_cores,
             vvd_params.gb_per_core,
