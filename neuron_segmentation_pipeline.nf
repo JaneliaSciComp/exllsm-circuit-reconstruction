@@ -51,11 +51,12 @@ workflow {
         final_params.neuron_stack_dir,
         pipeline_output_dir,
     );
-    neuron_res | view
+    neuron_res.subscribe { log.debug "Neuron segmentation result: $it" }
+
     def connected_comps_res;
     if (neuron_comp_params.with_connected_comps) {
         connected_comps_res = connected_components(
-            neuron_res.map { it[0] },  // n5 input dir
+            neuron_res.map { it[1] },  // neuron segmented mask dir
             neuron_comp_params.neuron_output_dataset, // input sub dir
             neuron_comp_params.neuron_conn_comp_dataset, // sub dir for connected comp
             neuron_comp_params.app,
@@ -68,7 +69,6 @@ workflow {
             neuron_comp_params.driver_memory,
             neuron_comp_params.driver_stack_size,
             neuron_comp_params.driver_logconfig
-
         )
     } else {
         connected_comps_res = neuron_res
