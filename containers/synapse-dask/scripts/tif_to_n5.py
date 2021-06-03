@@ -38,6 +38,8 @@ def tif_series_to_n5_volume(input_path, output_path, data_set, compressor,
               for c in range(0,num_slices,chunk_z) if in_subvol(c, chunk_z) ]
 
     print("Saving volume")
+    if subvolume is not None:
+        print(f"  subvolume: {subvolume}")
     print(f"  compressor: {compressor}")
     print(f"  shape:      {volume.shape}")
     print(f"  chunking:   {chunk_size}")
