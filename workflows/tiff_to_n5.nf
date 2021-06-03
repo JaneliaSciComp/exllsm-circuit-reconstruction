@@ -26,6 +26,7 @@ workflow tiff_to_n5_with_metadata {
         def n5_stack_dims = json_text_to_data(n5_attributes_content).dimensions
         def r = [ n5_stack, n5_stack_dims ]
         log.debug "N5 stack with dims: $r"
+        r
     }
     | join(n5_results, by:0)
     | map {

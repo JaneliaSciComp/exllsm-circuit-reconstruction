@@ -355,26 +355,34 @@ workflow prepare_n5_inputs {
     def unflattened_input_data = index_channel(output_dir)
     | join (index_channel(input_stacks), by: 0)
     | flatMap {
+        // we convert names to file type in order to normalize file names
+        // to prevent 'a//b' in the path
         def (index, output_dirname, input_stack_dirs) = it
+        def output_dir_as_file = file(output_dirname)
         if (stack_names instanceof String) {
             // this is the case for synapse in volume
+            def input_stack_dir_as_file = file(input_stack_dirs)
             [
-                [ output_dirname, input_stack_dirs, stack_names ]
+                [ "${output_dir_as_file}", "${input_stack_dir_as_file}", stack_names ]
             ]
         } else {
             [ input_stack_dirs, stack_names ]
                 .transpose()
                 .collect {
-                    def (input_stack_dir, stack_name) = it
-                    [ output_dirname, input_stack_dir, stack_name ]
+                    def (input_stack_dirname, stack_name) = it
+                    def input_stack_dir_as_file = file(input_stack_dirname)
+                    [ "${output_dir_as_file}", "${input_stack_dir_as_file}", stack_name ]
                 }
         }
     }
 
+    unflattened_input_data.subscribe { log.debug "prepare_n5_inputs: N5 input $it" }
+
     def n5_stacks = unflattened_input_data
     | map {
-        def (output_dir, input_stack_dir, stack_name) = it
-        [ input_stack_dir, "${output_dir}/${stack_name}.n5" ]
+        def (output_dirname, input_stack_dirname, stack_name) = it
+        def n5_stack_file = file("${output_dirname}/${stack_name}.n5")
+        [ input_stack_dirname, "${n5_stack_file}" ]
     }
     | input_stacks_to_n5
     | join(unflattened_input_data, by: [0,1])
