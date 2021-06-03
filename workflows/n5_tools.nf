@@ -7,6 +7,10 @@ include {
     terminate_spark;
 } from '../external-modules/spark/lib/processes'
 
+include {
+    index_channel;
+} from '../utils/utils'
+
 workflow n5_to_vvd {
     take:
     input_dir // n5 dir
