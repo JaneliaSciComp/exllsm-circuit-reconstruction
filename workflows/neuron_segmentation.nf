@@ -32,37 +32,46 @@ workflow neuron_segmentation {
         def (index, input_dirname, output_dirname) = it
         [ input_dirname, output_dirname ]
     }
+
     def neuron_seg_inputs = tiff_to_n5_with_metadata(
         input_data,
         params.partial_volume,
         params.neuron_input_dataset)
 
-    def neuron_scaling_results = neuron_scaling_factor(
-        neuron_seg_inputs.map { 
-            def (in_image, out_image, sz) = it
-            [ in_image, sz ]
-        }
-    )
+    log.debug { "Neuron N5 inputs: $it"}
+
+    def neuron_scaling_results = neuron_seg_inputs
+    | map {
+        def (in_image, out_image, sz) = it
+        [ in_image, sz ]
+    }
+    | neuron_scaling_factor
+
+    log.debug { "Neuron scaling results: $it"}
 
     // get the partition size for calculating the scaling factor
     def scaling_factor_chunk_sizes = params.neuron_scaling_partition_size
                                         .tokenize(',')
                                         .collect { it.trim() as int }
 
-    def neuron_seg_results = create_n5_volume(
-        neuron_seg_inputs.map {
-            def (in_image, out_image, sz) = it
-            def datatype = params.neuron_mask_as_binary
-                ? 'uint8'
-                : 'float32'
-            log.info "Volume size: $sz"
-            [
-                in_image, out_image,
-                params.neuron_input_dataset, params.neuron_output_dataset,
-                datatype,
-            ]
-        }
-    )
+    def neuron_seg_vol = neuron_seg_inputs
+    | map {
+        def (in_image, out_image, sz) = it
+        def datatype = params.neuron_mask_as_binary
+            ? 'uint8'
+            : 'float32'
+        log.info "Volume size: $sz"
+        [
+            in_image, out_image,
+            params.neuron_input_dataset, params.neuron_output_dataset,
+            datatype,
+        ]
+    }
+    | create_n5_volume
+
+    log.debug "New neuron segmmented volume: $it"
+
+    def neuron_seg_results = neuron_seg_vol
     | join(neuron_seg_inputs, by:[0,1])
     | join(neuron_scaling_results, by:0)
     | flatMap {
@@ -126,14 +135,18 @@ workflow neuron_scaling_factor {
             0, // we always pass the tiles used for scaling as a percentage
             scaling_factor_inputs.map { it[3] },
         )
-        | filter { it[1] != 'null' && it[1] != 'nan' }
         | groupTuple(by: 0)
         | map {
             def (input_image, scaling_factors) = it
             // average the scaling factors
             log.debug "Compute mean scaling factor for ${input_image} from ${scaling_factors}"
-            def scaling_factor = scaling_factors.collect { it as double }.average()
-            [ input_image, (scaling_factor as String) ]
+            def valid_scaling_factors = scaling_factors
+                .findAll { it != 'null' && it != 'nan' }
+                .collect { it as double }
+            def scaling_factor = valid_scaling_factors 
+                ? (valid_scaling_factors.average() as String)
+                : 'null'
+            [ input_image, scaling_factor ]
         }
         scaling_factor_results.subscribe { log.debug "Scaling factor result: $it" }
 
