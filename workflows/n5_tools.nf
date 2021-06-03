@@ -70,6 +70,12 @@ workflow n5_to_vvd {
              current_input_dataset,
              current_output_dir) = it
         def args_list = []
+        args_list << "-ni ${currrent_input_dir}"
+        args_list << "-i ${current_input_dataset}"
+        args_list << "-o ${current_output_dir}"
+        if (params.n5_compression) {
+            args_list << "-c ${params.n5_compression}"
+        }
         [
             spark_uri,
             args_list.join(' '),
