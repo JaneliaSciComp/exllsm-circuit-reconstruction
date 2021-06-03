@@ -14,7 +14,7 @@ def neuron_params() {
         max_scaling_tiles_per_job: 40,
         neuron_scaling_plots_dir: '',
         with_connected_comps: true,
-        with_vvd_convert: true,
+        neuron_vvd_output: '', // VVD output directorry
         min_connected_pixels: 2000, // minimum pixels in a connected component to be kept
         connected_pixels_shape: "diamond", // shape of neighborhood (default "diamond", option "box")
         connected_pixels_threshold: 0, // threshold value for neuron segmentation binarization

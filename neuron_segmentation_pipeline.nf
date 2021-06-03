@@ -44,19 +44,17 @@ include {
     n5_to_vvd
 } from './workflows/n5_tools' addParams(vvd_params)
 
-pipeline_output_dir = final_params.output_dir
-
 workflow {
     def neuron_res = neuron_segmentation(
-        final_params.neuron_stack_dir,
-        pipeline_output_dir,
+        neuron_seg_params.neuron_stack_dir,
+        neuron_seg_params.output_dir,
     );
     neuron_res.subscribe { log.debug "Neuron segmentation result: $it" }
 
     def connected_comps_res;
-    if (neuron_comp_params.with_connected_comps) {
+    if (neuron_seg_params.with_connected_comps) {
         connected_comps_res = connected_components(
-            neuron_res.map { it[1] },  // neuron segmented mask dir
+            neuron_res.map { it[1] },  // neuron segmented N5 dir
             neuron_comp_params.neuron_output_dataset, // input sub dir
             neuron_comp_params.neuron_conn_comp_dataset, // sub dir for connected comp
             neuron_comp_params.app,
@@ -71,11 +69,30 @@ workflow {
             neuron_comp_params.driver_logconfig
         )
     } else {
+        log.info "Skip connected components step"
         connected_comps_res = neuron_res
+        | map {
+            [ it[1], neuron_comp_params.neuron_output_dataset, neuron_comp_params.neuron_output_dataset ]
+        }
     }
-    connected_comps_res | view
-    if (final_params.with_vvd_convert) {
+    connected_comps_res.subscribe { log.debug "Neuron connected commponents: $it" }
 
+    if (vvd_params.neuron_vvd_output) {
+        def n52vvd_res = n5_to_vvd(
+            connected_comps_res.map { it[0] }, // neuron segmented N5 dir
+            connected_comps_res.map { it[2] }, // sub dir for connected comp
+            vvd_params.neuron_vvd_output,
+            vvd_params.app,
+            vvd_params.spark_conf,
+            "${get_spark_working_dir(vvd_params.spark_work_dir)}/n52vvd", // spark_working_dir
+            vvd_params.workers,
+            vvd_params.worker_cores,
+            vvd_params.gb_per_core,
+            vvd_params.driver_cores,
+            vvd_params.driver_memory,
+            vvd_params.driver_stack_size,
+            vvd_params.driver_logconfig
+        )
     }
 }
 

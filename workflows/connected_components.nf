@@ -108,9 +108,18 @@ workflow connected_components {
         connected_comps_res.map { it[1] },
         terminate_app_name
     )
-    | join(indexed_data, by:1) | map { 
-        log.info "Completed connected components: ${it}"
-        it
+    | join(indexed_data, by:1)
+    | map {
+        def (spark_work_dir,
+             terminate_fn,
+             idx,
+             spark_uri,
+             current_input_dir,
+             current_input_dataset,
+             current_output_dataset)
+        def r = [ current_input_dir, current_input_dataset, current_output_dataset ]
+        log.info "Completed connected components: ${it} -> ${r}"
+        r
     }
 
     emit:
