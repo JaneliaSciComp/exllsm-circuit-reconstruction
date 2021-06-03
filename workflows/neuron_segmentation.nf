@@ -38,7 +38,7 @@ workflow neuron_segmentation {
         params.partial_volume,
         params.neuron_input_dataset)
 
-    log.debug { "Neuron N5 inputs: $it"}
+    neuron_seg_inputs.subscribe { log.debug "Neuron N5 inputs: $it" }
 
     def neuron_scaling_results = neuron_seg_inputs
     | map {
@@ -47,7 +47,7 @@ workflow neuron_segmentation {
     }
     | neuron_scaling_factor
 
-    log.debug { "Neuron scaling results: $it"}
+    neuron_scaling_results.subscribe { log.debug "Neuron scaling results: $it" }
 
     // get the partition size for calculating the scaling factor
     def scaling_factor_chunk_sizes = params.neuron_scaling_partition_size
@@ -69,7 +69,7 @@ workflow neuron_segmentation {
     }
     | create_n5_volume
 
-    log.debug "New neuron segmmented volume: $it"
+    neuron_seg_vol.subscribe { log.debug "New neuron segmmented volume: $it" }
 
     def neuron_seg_results = neuron_seg_vol
     | join(neuron_seg_inputs, by:[0,1])
