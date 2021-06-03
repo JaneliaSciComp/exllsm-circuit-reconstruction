@@ -116,7 +116,7 @@ workflow connected_components {
              spark_uri,
              current_input_dir,
              current_input_dataset,
-             current_output_dataset)
+             current_output_dataset) = it
         def r = [ current_input_dir, current_input_dataset, current_output_dataset ]
         log.info "Completed connected components: ${it} -> ${r}"
         r
