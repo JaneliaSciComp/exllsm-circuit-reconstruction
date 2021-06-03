@@ -60,7 +60,16 @@ def tif_series_to_n5_volume(input_path, output_path, data_set, compressor,
     # Proceed slab-by-slab through Z so that memory is not overwhelmed
     for r in ranges:
         print("Saving slice range", r)
-        regions = (slice(r[0], r[1]), slice(None), slice(None))
+        z_slice = slice(r[0], r[1])
+
+        if subvolume is None:
+            x_slice = slice(None)
+            y_slice = slice(None)
+        else:
+            x_slice = slice(subvolume[0], subvolume[3])
+            y_slice = slice(subvolume[1], subvolume[4])
+
+        regions = (z_slice, y_slice, x_slice)
         slices = volume[regions]
         z = delayed(zarr.Array)(store, path=data_set)
         slices.store(z, regions=regions, lock=False, compute=True)
