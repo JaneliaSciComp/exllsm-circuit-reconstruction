@@ -32,7 +32,10 @@ workflow neuron_segmentation {
         def (index, input_dirname, output_dirname) = it
         [ input_dirname, output_dirname ]
     }
-    def neuron_seg_inputs = tiff_to_n5_with_metadata(input_data, params.neuron_input_dataset)
+    def neuron_seg_inputs = tiff_to_n5_with_metadata(
+        input_data,
+        params.partial_volume,
+        params.neuron_input_dataset)
 
     def neuron_scaling_results = neuron_scaling_factor(
         neuron_seg_inputs.map { 
