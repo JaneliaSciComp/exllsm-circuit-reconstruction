@@ -84,7 +84,7 @@ workflow n5_to_vvd {
         n5_to_vvd_args.map { it[1] }, // args
         'n5_to_vvd.log',
         terminate_app_name,
-        spark_cconf,
+        spark_conf,
         n5_to_vvd_args.map { it[2] }, // spark work dir
         spark_workers,
         spark_worker_cores,
