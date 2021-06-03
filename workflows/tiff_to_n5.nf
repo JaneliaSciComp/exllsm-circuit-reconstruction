@@ -10,10 +10,11 @@ include {
 workflow tiff_to_n5_with_metadata {
     take:
     input_data // pair of tiff_stack and n5_file
+    partial_volume
     n5_dataset
 
     main:
-    def n5_results = tiff_to_n5(input_data)
+    def n5_results = tiff_to_n5(input_data, partial_volume)
     n5_results.subscribe { log.debug "TIFF to N5 result: $it" }
 
     def stack_with_metadata = read_n5_metadata(
@@ -23,7 +24,8 @@ workflow tiff_to_n5_with_metadata {
     | map {
         def (n5_stack, n5_attributes_content) = it
         def n5_stack_dims = json_text_to_data(n5_attributes_content).dimensions
-        [ n5_stack, n5_stack_dims ]
+        def r = [ n5_stack, n5_stack_dims ]
+        log.debug "N5 stack with dims: $r"
     }
     | join(n5_results, by:0)
     | map {

@@ -7,8 +7,11 @@ import dask_image.imread
 from dask.delayed import delayed
 
 
-def tif_series_to_n5_volume(input_path, output_path, data_set, compressor, \
-                            chunk_size=(512,512,512), dtype='same', overwrite=True):
+def tif_series_to_n5_volume(input_path, output_path, data_set, compressor,
+                            subvolume=None,
+                            chunk_size=(512,512,512),
+                            dtype='same',
+                            overwrite=True):
     '''
     Convert TIFF slices into an n5 volume with given chunk size. 
     This method processes only one Z chunk at a time, to avoid overwhelming worker memory. 
@@ -24,7 +27,15 @@ def tif_series_to_n5_volume(input_path, output_path, data_set, compressor, \
     store = zarr.N5Store(output_path)
     num_slices = volume.shape[0]
     chunk_z = chunk_size[2]
-    ranges = [(c, c+chunk_z if c+chunk_z<num_slices else num_slices) for c in range(0,num_slices,chunk_z)]
+
+    def in_subvol(c, cz):
+        if subvolume is None:
+            return True
+        else:
+            return c + cz > subvolume[2] and c < subvolume[5]
+
+    ranges = [(c, c+chunk_z if c+chunk_z<num_slices else num_slices)
+              for c in range(0,num_slices,chunk_z) if in_subvol(c, chunk_z) ]
 
     print("Saving volume")
     print(f"  compressor: {compressor}")
@@ -83,11 +94,23 @@ def main():
     parser.add_argument('--workers', dest='workers', type=int, default=20, \
         help='If --distributed is set, this specifies the number of workers (default 20)')
 
+    parser.add_argument('--subvol', dest='subvolume', type=str, \
+        help='Subvolume to be converted')
+
     parser.add_argument('--dashboard', dest='dashboard', action='store_true', \
         help='Run a web-based dashboard on port 8787')
     parser.set_defaults(dashboard=False)
 
     args = parser.parse_args()
+
+    if args.subvolume is not None:
+        subvolume_tuple = [int(d) for d in args.subvolume.split(',')]
+        start = subvolume_tuple[:3]
+        dims = subvolume_tuple[3:]
+        end = [ start[i] + dims[i] for i in range(3) ]
+        subvolume = tuple(start + end)
+    else:
+        subvolume = None
 
     if args.compression=='raw':
         compressor = None
@@ -111,6 +134,7 @@ def main():
 
     tif_series_to_n5_volume(args.input_path, args.output_path, args.data_set,
                             compressor,
+                            subvolume=subvolume,
                             chunk_size=[int(c)
                                         for c in args.chunk_size.split(',')],
                             dtype=args.dtype)

@@ -4,6 +4,7 @@ def global_em_params() {
         exm_repo: 'registry.int.janelia.org/exm-analysis',
 
         // global parameters
+        partial_volume: '',
         block_size: '512,512,512',
         resolution: '0.104,0.104,0.18',
         n5_compression: 'gzip',

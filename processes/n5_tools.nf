@@ -69,6 +69,7 @@ process tiff_to_n5 {
 
     input:
     tuple val(input_stack_dir), val(output_n5_stack)
+    val(partial_volume)
 
     output:
     tuple env(n5_stack), val(input_stack_dir), val(output_n5_stack)
@@ -80,6 +81,10 @@ process tiff_to_n5 {
     if (params.tiff2n5_workers > 1) {
         distributed_args = "--distributed --workers ${params.tiff2n5_workers}"
     }
+    def subvol_arg = ''
+    if (partial_volume) {
+        subvol_arg = "--subvol ${partial_volume}"
+    }
     """
     mkdir -p ${output_stack_dir}
     if [[ -f "${input_stack_dir}/attributes.json" ]]; then
@@ -90,8 +95,9 @@ process tiff_to_n5 {
         -i ${input_stack_dir} \
         -o ${output_n5_stack} \
         -c ${chunk_size} \
-        --compression ${params.n5_compression} \
-        ${distributed_args}
+        ${distributed_args} \
+        ${subvol_arg} \
+        --compression ${params.n5_compression}
         # set the return value
         n5_stack=${output_n5_stack}
     fi
