@@ -5,6 +5,7 @@ def global_em_params() {
 
         // global parameters
         partial_volume: '',
+        volume_partition_size: 512,
         block_size: '512,512,512',
         resolution: '0.104,0.104,0.18',
         n5_compression: 'gzip',

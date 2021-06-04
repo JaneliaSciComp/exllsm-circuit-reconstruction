@@ -15,6 +15,7 @@ def neuron_params() {
         neuron_scaling_plots_dir: '',
         with_connected_comps: true,
         neuron_vvd_output: '', // VVD output directorry
+        vvd_scale_levels: '2,2,2',
         min_connected_pixels: 2000, // minimum pixels in a connected component to be kept
         connected_pixels_shape: "diamond", // shape of neighborhood (default "diamond", option "box")
         connected_pixels_threshold: 0, // threshold value for neuron segmentation binarization

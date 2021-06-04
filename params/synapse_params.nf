@@ -18,7 +18,6 @@ def synapse_params() {
         use_gpu_mem_growth: false,
         postprocessing_cpus: 3,
         postprocessing_memory: '3 G',
-        volume_partition_size: 512,
         presynaptic_stage2_threshold: 400,
         presynaptic_stage2_percentage: 0.5,
         postsynaptic_stage2_threshold: 200,
