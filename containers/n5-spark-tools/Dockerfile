@@ -10,7 +10,7 @@ WORKDIR /tmp/app
 RUN git clone --branch $STITCHING_SPARK_GIT_TAG --depth 1 https://github.com/JaneliaSciComp/n5-spark.git . \
     && git submodule update --init --recursive \
     && /usr/local/bin/buildinfo.sh \
-    && mvn package
+    && mvn package -P "fatjar,spark-provided"
 
 # Find the built jar, based on the version in the pom file
 RUN xq -r '.project.artifactId+"-"+.project.version+".jar"' pom.xml > filename \
@@ -18,6 +18,11 @@ RUN xq -r '.project.artifactId+"-"+.project.version+".jar"' pom.xml > filename \
 
 # Create final image
 FROM multifish/spark:3.0.1-hadoop3.2
+
+WORKDIR /tmp
+
+RUN wget https://download-ib01.fedoraproject.org/pub/epel/8/Everything/x86_64/Packages/b/blosc-1.17.0-2.el8.x86_64.rpm
+RUN dnf install -y blosc-1.17.0-2.el8.x86_64.rpm
 
 WORKDIR /app
 COPY --from=builder /tmp/app/app.jar /app/app.jar
