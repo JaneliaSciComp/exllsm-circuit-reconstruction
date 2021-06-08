@@ -167,7 +167,7 @@ workflow presynaptic_n1_to_n2 {
     | map {
         def (output_dirname, n5_stacks,
              presynaptic_container_dir, presynaptic_dataset, 
-             n1_container_dir, n1_dataset
+             n1_container_dir, n1_dataset,
              presynaptic_seg_container_dir, presynaptic_seg_dataset,
              presynaptic_seg_n1_container_dir, presynaptic_seg_n1_dataset,
              stack_size,
