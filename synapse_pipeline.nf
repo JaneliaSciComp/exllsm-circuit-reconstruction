@@ -77,7 +77,7 @@ workflow {
                 [
                     synapse_params.pre_synapse_stack_dir,
                     synapse_params.pre_synapse_in_dataset,
-                ]
+                ],
                 pipeline_output_dir,
             )
             break;
