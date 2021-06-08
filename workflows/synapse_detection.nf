@@ -488,8 +488,14 @@ workflow input_stacks_to_n5 {
     input_data // [ input_stack, input_dataset, output_stack, output_dataset, output_dir, stack_name ]
 
     main:
+    def tiff_to_n5_inputs = input_data
+    | map {
+        def (input_dir, input_dataset,
+             output_dir, output_dataset) = it
+        [ input_dir, input_dataset, output_dir, output_dataset ]
+    }
     def output_data = tiff_to_n5_with_metadata(
-        input_data, 
+        tiff_to_n5_inputs,
         params.partial_volume
     )
     | join(input_data, by: [0,1,2,3])
