@@ -39,7 +39,7 @@ process unet_classifier {
         ? "--input_data_set ${input_dataset}"
         : '' 
     def output_dataset_arg = output_dataset
-        ? "--input_data_set ${output_dataset}"
+        ? "--output_data_set ${output_dataset}"
         : '' 
     """
     python /scripts/unet_gpu.py \
