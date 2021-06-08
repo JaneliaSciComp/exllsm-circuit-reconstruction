@@ -68,7 +68,7 @@ process segmentation_postprocessing {
           val(mask_image),
           val(mask_dataset),
           val(output_image_arg),
-          val(output_dataset)
+          val(output_dataset),
           val(output_csv_dir),
           val(vol_size),
           val(start_subvolume),
@@ -82,7 +82,7 @@ process segmentation_postprocessing {
           val(mask_image),
           val(mask_dataset),
           val(output_image),
-          val(output_dataset)
+          val(output_dataset),
           val(output_csv_dir),
           val(vol_size),
           val(start_subvolume),
