@@ -40,6 +40,6 @@ def get_n5_path(path, data_set):
     n5_path = path
     dataset_subdir = re.sub('^/','', re.sub('/$','',data_set))
     if dataset_subdir:
-        n5_path + '/' + dataset_subdir
+        return n5_path + '/' + dataset_subdir
     else:
         return n5_path
