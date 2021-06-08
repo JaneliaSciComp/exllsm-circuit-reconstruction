@@ -27,8 +27,8 @@ workflow classify_regions_in_volume {
     main:
     def unet_inputs = input_data
     | map {
-        def (in_image, input_dataset,
-             out_image, output_dataset) = it
+        def (in_image, in_dataset,
+             out_image, out_dataset) = it
         def d = [
             in_image, in_dataset,
             out_image, out_dataset,
