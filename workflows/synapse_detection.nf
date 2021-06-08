@@ -18,9 +18,10 @@ workflow presynaptic_in_volume {
     output_dir
 
     main:
+
     def presynaptic_stack_name = "pre_synapse"
     def n5_input_stacks = prepare_n5_inputs(
-        presynaptic_stack_name
+        presynaptic_stack_name,
         input_data,
         output_dir,
         [
@@ -28,7 +29,6 @@ workflow presynaptic_in_volume {
             params.working_pre_synapse_dataset,
         ]
     )
-
     def presynaptic_n1_results = classify_presynaptic_regions(
         n5_input_stacks.map {
             def (output_dirname, n5_stacks) = it
@@ -89,7 +89,7 @@ workflow presynaptic_in_volume {
     final_n5_stacks.subscribe { log.info "final presynaptic in volume results: $it" }
 
     emit:
-    done = final_n5_stacks
+    done = n5_input_stacks
 }
 
 // Workflow A - Neuron 1 presynaptic to Neuron 2
