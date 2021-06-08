@@ -27,7 +27,7 @@ def default_em_params(Map ps) {
     ps
 }
 
-def get_value_or_default(Map ps, String param, String default_value) {
+def get_value_or_default(Map ps, String param, Object default_value) {
     if (ps[param])
         ps[param]
     else
