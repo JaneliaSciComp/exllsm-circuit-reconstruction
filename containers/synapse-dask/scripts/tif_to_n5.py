@@ -1,9 +1,15 @@
 #!/usr/bin/env python
 
 import argparse
-import zarr
+import glob
+import numbers
 import numcodecs as codecs
+import numpy as np
+import pims
+import os
+import zarr
 
+import dask.array as da
 from dask_image.imread import _map_read_frame
 from dask.delayed import delayed
 
