@@ -13,6 +13,7 @@ def read_n5_block(path, data_set, start, end):
     end: tuple (x,y,z) indicating the ending corner of the data block
     """
     n5_path = get_n5_path(path, data_set)
+    print('Reading', path, data_set, n5_path, start, end)
     img = zarr.open(store=zarr.N5Store(n5_path), mode='r')
     img = img[start[2]:end[2], start[1]:end[1], start[0]:end[0]]
     # zarr loads zyx order
@@ -28,6 +29,7 @@ def write_n5_block(path, data_set, start, end, data):
     end: tuple (x,y,z) indicating the ending corner of the data block
     """
     n5_path = get_n5_path(path, data_set)
+    print('Writing', path, data_set, n5_path, start, end)
     img = zarr.open(store=zarr.N5Store(n5_path), mode='a')
     # zarr writes zyx order
     zarr_data = data[...].transpose(2, 1, 0)

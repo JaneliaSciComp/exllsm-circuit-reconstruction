@@ -29,8 +29,8 @@ def write_n5_block(path, data_set, start, end, data):
     start: tuple x,y,z indicating the starting corner of the data block
     end: tuple (x,y,z) indicating the ending corner of the data block
     """
-    n5_path = get_n5_path(path, data_set, start, end)
-    print('Writing', n5_path)
+    n5_path = get_n5_path(path, data_set)
+    print('Writing', n5_path, start, end)
     img = zarr.open(store=zarr.N5Store(n5_path), mode='a')
     # zarr writes zyx order
     img = img[...].transpose(2, 1, 0)
