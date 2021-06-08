@@ -104,35 +104,37 @@ workflow presynaptic_n1_to_n2 {
             params.working_n2_mask_dataset,
         ]
     )
-/*
+
     // Segment presynaptic volume and identify presynaptic regions that colocalize with neuron1 mask
     def presynaptic_n1_results = classify_presynaptic_regions(
         n5_input_stacks.map {
             def (output_dirname, n5_stacks) = it
             [
-                n5_stacks[presynaptic_stack_name][0],
-                get_stack_dataset_fullpath(
+                n5_stacks[presynaptic_stack_name][0], // input_n5_dir
+                n5_stacks[presynaptic_stack_name][1], // input_dataset_name
+                get_container_fullpath(
                     output_dirname,
-                    get_value_with_default_param(params, 'working_pre_synapse_seg_container', 'working_container'),
-                    params.working_pre_synapse_seg_dataset
-                ),
-                n5_stacks[presynaptic_stack_name][1],
+                    get_value_with_default_param(params, 'working_pre_synapse_seg_container', 'working_container')
+                ), // unet_n5_dir
+                params.working_pre_synapse_seg_dataset, // unet_dataset
+                n5_stacks[presynaptic_stack_name][2],
             ]
         },
         n5_input_stacks.map {
             def (output_dirname, n5_stacks) = it
             [
-                n5_stacks[n1_stack_name][0],
-                get_stack_dataset_fullpath(
+                n5_stacks[n1_stack_name][0], // mask_n5_dir
+                n5_stacks[n1_stack_name][1], // mask_dataset
+                get_container_fullpath(
                     output_dirname,
-                    get_value_with_default_param(params, 'working_pre_synapse_seg_n1_container', 'working_container'),
-                    params.working_pre_synapse_seg_n1_dataset
-                ),
+                    get_value_with_default_param(params, 'working_pre_synapse_seg_n1_container', 'working_container')
+                ), // post_unet_n5_dir
+                params.working_pre_synapse_seg_n1_dataset, // post_unet_dataset
                 create_post_output_name(
                     output_dirname,
                     'pre_synapse_seg_n1',
                     params.presynaptic_stage2_threshold,
-                    params.presynaptic_stage2_percentage)
+                    params.presynaptic_stage2_percentage) // post csv data dir
             ]
         },
         params.synapse_model,
@@ -144,6 +146,7 @@ workflow presynaptic_n1_to_n2 {
         [ "${n5_file.parent}" ] + it
     } // [ output_dir, pre_synapse, n1, synapse_seg, synapse_seg_n1, size ]
 
+/*
     def presynaptic_to_n1_n5_stacks = n5_input_stacks
     | join(presynaptic_n1_results, by:0)
     | map {
@@ -206,7 +209,7 @@ workflow presynaptic_n1_to_n2 {
     }
 */
     emit:
-    done = n5_input_stacks
+    done = presynaptic_n1_results
 }
 
 
@@ -475,7 +478,7 @@ workflow prepare_n5_inputs {
                 arg, item -> arg + item
             }
         [ output_dirname,  data_stacks ]
-    } // [ output_dir, {<stack_name>: [<stack_n5_dir>, <stack_size>]} ]
+    } // [ output_dir, {<stack_name>: [<stack_n5_container>, <stack_dataset>, <stack_size>]} ]
 
     n5_stacks.subscribe { log.info "prepare_n5_inputs: N5 stacks: $it" }
  
