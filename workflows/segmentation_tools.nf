@@ -34,7 +34,7 @@ workflow classify_regions_in_volume {
             out_image, out_dataset,
             '' // same datatype
         ]
-        log.info "create_n5_volume: $d"
+        log.debug "create_n5_volume: $d"
         d
     }
     | create_n5_volume
@@ -120,7 +120,7 @@ workflow connect_regions_in_volume {
                 size,
                 start_subvol, end_subvol,
             ]
-            log.info "segmentation_postprocessing: $d"
+            log.debug "segmentation_postprocessing: $d"
             d
         }
     }
