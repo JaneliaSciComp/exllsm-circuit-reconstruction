@@ -447,8 +447,8 @@ workflow prepare_n5_inputs {
             input_dataset,
             get_container_fullpath(output_dirname, working_container),
             working_dataset,
-            stack_name,
             output_dirname,
+            stack_name,
         ]
         log.info "input_stacks_to_n5 input: $d"
         d

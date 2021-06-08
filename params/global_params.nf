@@ -9,6 +9,7 @@ def global_em_params() {
         block_size: '512,512,512',
         resolution: '0.104,0.104,0.18',
         n5_compression: 'gzip',
+        default_n5_dataset: 's0',
 
         images_dir: '',
         output_dir: '',

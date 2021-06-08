@@ -83,7 +83,8 @@ process tiff_to_n5 {
 
     script:
     def input_stack_dir = file("${input_dir}/${input_dataset}")
-    def output_stack_dir = file("${output_dir}/${output_dataset}")
+    def output_dir_as_file = file("${output_dir}")
+    def output_stack_dir = file("${output_dir}/${}")
     def chunk_size = params.block_size
     def distributed_args = ''
     if (params.tiff2n5_workers > 1) {
@@ -93,21 +94,24 @@ process tiff_to_n5 {
     if (partial_volume) {
         subvol_arg = "--subvol ${partial_volume}"
     }
+    def n5_dataset = output_dataset
+        ? "${output_dataset}"
+        : "${params.default_n5_dataset}" // use default
     """
-    mkdir -p ${output_stack_dir.parent}
+    mkdir -p ${output_dir_as_file.parent}
     if [[ -f "${input_stack_dir}/attributes.json" ]]; then
         n5_stack=${input_stack_dir}
     else
         # convert tiffs to n5
         /entrypoint.sh tif_to_n5 \
         -i ${input_stack_dir} \
-        -o ${output_stack_dir} \
+        -o ${output_dir} -d ${n5_dataset} \
         -c ${chunk_size} \
         ${distributed_args} \
         ${subvol_arg} \
         --compression ${params.n5_compression}
         # set the return value
-        n5_stack=${output_stack_dir}
+        n5_stack="${output_dir_as_file}/${n5_dataset}"
     fi
     """
 }
