@@ -135,13 +135,17 @@ def main():
                         dest='input_path', type=str, required=True,
                         help='Path to the input n5')
 
-    parser.add_argument('-d', '--data_set',
-                        dest='data_set', type=str, default="/s0",
-                        help='Path to data set (default "/s0")')
+    parser.add_argument('-id', '--input_data_set',
+                        dest='input_data_set', type=str, default="/s0",
+                        help='Path to input data set (default "/s0")')
 
     parser.add_argument('-o', '--output',
                         dest='output_path', type=str, required=True,
                         help='Path to the (already existing) output n5')
+
+    parser.add_argument('-od', '--output_data_set',
+                        dest='output_data_set', type=str, default="/s0",
+                        help='Path to input data set (default "/s0")')
 
     parser.add_argument('-m', '--model',
                         dest='model_path', type=str, required=True,
@@ -170,7 +174,7 @@ def main():
     end = tuple([int(d) for d in args.end_coord.split(',')])
 
     # Read part of the n5 based upon location
-    img = read_n5_block(args.input_path, args.data_set, start, end)
+    img = read_n5_block(args.input_path, args.input_data_set, start, end)
 
     print('Applying 3D U-Net...')
     start_time = time.time()
@@ -178,7 +182,7 @@ def main():
     print("DONE!! Running time is {} seconds".format(time.time()-start_time))
 
     # Write to the same block in the output n5
-    write_n5_block(args.output_path, args.data_set, start, end, img)
+    write_n5_block(args.output_path, args.output_data_set, start, end, img)
 
     print('DONE!')
 

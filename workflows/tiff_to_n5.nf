@@ -9,9 +9,8 @@ include {
 
 workflow tiff_to_n5_with_metadata {
     take:
-    input_data // pair of input_stack and n5_file
+    input_data // [ input_dir, input_dataset, output_dir, output_dataset
     partial_volume
-    n5_dataset
 
     main:
     def n5_results = tiff_to_n5(input_data, partial_volume)
@@ -19,7 +18,6 @@ workflow tiff_to_n5_with_metadata {
 
     def stack_with_metadata = read_n5_metadata(
         n5_results.map { it[0] },
-        n5_dataset
     )
     | map {
         def (n5_stack, n5_attributes_content) = it
@@ -30,8 +28,14 @@ workflow tiff_to_n5_with_metadata {
     }
     | join(n5_results, by:0)
     | map {
-        def (n5_stack_used_4_dim, n5_stack_dims, input_stack, output_n5_stack) = it
-        [ input_stack, output_n5_stack, n5_stack_dims ]
+        def (n5_stack_used_4_dim, n5_stack_dims,
+             input_dir, input_dataset,
+             output_n5_dir, output_dataset) = it
+        [
+            input_dir, input_dataset,
+            output_n5_dir, output_dataset,
+            n5_stack_dims
+        ]
     }
 
     emit:

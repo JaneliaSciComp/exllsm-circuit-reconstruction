@@ -132,11 +132,14 @@ def main():
     parser.add_argument('-i', '--input_path', dest='input_path', type=str, required=True,
                         help='Path to the input n5')
 
-    parser.add_argument('--data_set', dest='data_set', type=str, default='/s0',
+    parser.add_argument('--input_data_set', dest='input_data_set', type=str, default='/s0',
                         help='Path to data set (default "/s0")')
 
     parser.add_argument('-o', '--output_path', dest='output_path', type=str, required=True,
                         help='Path to the (already existing) output n5')
+
+    parser.add_argument('--output_data_set', dest='output_data_set', type=str, default='/s0',
+                        help='Path to data set (default "/s0")')
 
     parser.add_argument('--csv_output_path', dest='csv_output_path', type=str, required=False,
                         help='Path to an existing folder where CSV output should be written. Defaults to the parent of --output.')
@@ -178,14 +181,14 @@ def main():
         print('Mask', args.mask_path, 'at', start, end, 'has', mask_voxels, 'voxels')
         # if the mask has all 0s, write out the result directly
         if mask_voxels == 0:
-            write_n5_block(args.output_path, args.data_set, start, end, mask)
+            write_n5_block(args.output_path, args.output_data_set, start, end, mask)
             print('DONE! Location of the mask has all 0s.')
             sys.exit(0)
     else:
         mask = None
 
     # Read part of the n5 image file based upon location
-    img = read_n5_block(args.input_path, args.data_set, start, end)
+    img = read_n5_block(args.input_path, args.input_data_set, start, end)
 
     start_time = time.time()
     print('#############################')
@@ -226,7 +229,7 @@ def main():
                              percentage=args.percentage,
                              connectivity=args.connectivity)
 
-    write_n5_block(args.output_path, args.data_set, start, end, img)
+    write_n5_block(args.output_path, args.output_data_set, start, end, img)
 
     if not args.keep_ws_tiff and os.path.exists(out_img_path):
         os.remove(out_img_path)

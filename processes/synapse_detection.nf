@@ -14,23 +14,41 @@ process unet_classifier {
     ]) }
 
     input:
-    tuple val(input_image), val(output_image_arg), val(vol_size), val(start_subvolume), val(end_subvolume)
+    tuple val(input_image),
+          val(input_dataset),
+          val(output_image_arg),
+          val(output_dataset),
+          val(vol_size),
+          val(start_subvolume),
+          val(end_subvolume)
     val(synapse_model)
 
     output:
-    tuple val(input_image), val(output_image), val(vol_size), val(start_subvolume), val(end_subvolume)
+    tuple val(input_image),
+          val(input_dataset),
+          val(output_image),
+          val(output_dataset),
+          val(vol_size),
+          val(start_subvolume),
+          val(end_subvolume)
 
     script:
     output_image = output_image_arg ? output_image_arg : input_image
     def gpu_mem_growth_arg = params.use_gpu_mem_growth ? '--set_gpu_mem_growth' : ''
+    def input_dataset_arg = input_dataset
+        ? "--input_data_set ${input_dataset}"
+        : '' 
+    def output_dataset_arg = output_dataset
+        ? "--input_data_set ${output_dataset}"
+        : '' 
     """
     python /scripts/unet_gpu.py \
-        -i ${input_image} \
+        -i ${input_image} ${input_dataset_arg} \
         -m ${synapse_model} \
         --start ${start_subvolume} \
         --end ${end_subvolume} \
         ${gpu_mem_growth_arg} \
-        -o ${output_image}
+        -o ${output_image} ${output_dataset_arg}
     """
 }
 
@@ -45,22 +63,49 @@ process segmentation_postprocessing {
     ]) }
 
     input:
-    tuple val(input_image), val(mask_image), val(output_image_arg), val(output_csv_dir), val(vol_size), val(start_subvolume), val(end_subvolume)
+    tuple val(input_image),
+          val(input_dataset),
+          val(mask_image),
+          val(mask_dataset),
+          val(output_image_arg),
+          val(output_dataset)
+          val(output_csv_dir),
+          val(vol_size),
+          val(start_subvolume),
+          val(end_subvolume)
     val(threshold)
     val(percentage)
 
     output:
-    tuple val(input_image), val(mask_image), val(output_image), val(output_csv_dir), val(vol_size), val(start_subvolume), val(end_subvolume)
+    tuple val(input_image),
+          val(input_dataset),           
+          val(mask_image),
+          val(mask_dataset),
+          val(output_image),
+          val(output_dataset)
+          val(output_csv_dir),
+          val(vol_size),
+          val(start_subvolume),
+          val(end_subvolume)
 
     script:
     output_image = output_image_arg ? output_image_arg : input_image
-    def mask_arg = mask_image ? "-m ${mask_image}" : ''
+    def input_dataset_arg = input_dataset
+        ? "--input_data_set ${input_dataset}"
+        : '' 
+    def output_dataset_arg = output_dataset
+        ? "--input_data_set ${output_dataset}"
+        : '' 
+    def mask_dataset_arg = mask_dataset
+        ? "--mask_data_set ${mask_dataset}"
+        : '' 
+    def mask_arg = mask_image ? "-m ${mask_image} ${mask_dataset_arg}" : ''
     """
     mkdir -p ${output_csv_dir}
 
     /scripts/postprocess_cpu.sh \
-        -i ${input_image} \
-        -o ${output_image} \
+        -i ${input_image} ${input_dataset_arg} \
+        -o ${output_image} ${output_dataset_arg} \
         --csv_output_path ${output_csv_dir} \
         --start ${start_subvolume} \
         --end ${end_subvolume} \

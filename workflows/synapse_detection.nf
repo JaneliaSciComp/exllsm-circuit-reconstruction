@@ -1,8 +1,3 @@
-
-include {
-    n5_to_tiff;
-} from '../processes/n5_tools'
-
 include {
     classify_and_connect_regions_in_volume as classify_presynaptic_regions;
     classify_and_connect_regions_in_volume as classify_postsynaptic_regions;
@@ -109,7 +104,7 @@ workflow presynaptic_n1_to_n2 {
             params.working_n2_mask_dataset,
         ]
     )
-
+/*
     // Segment presynaptic volume and identify presynaptic regions that colocalize with neuron1 mask
     def presynaptic_n1_results = classify_presynaptic_regions(
         n5_input_stacks.map {
@@ -209,9 +204,9 @@ workflow presynaptic_n1_to_n2 {
             ]
         ]
     }
-    
+*/
     emit:
-    done = final_n5_stacks
+    done = n5_input_stacks
 }
 
 
@@ -406,33 +401,33 @@ workflow prepare_n5_inputs {
         // to prevent 'a//b' in the path
         def (index,
              output_dirname,
-             input_stack_dirs,
-             working_stack_dirs) = it
+             input_stacks_with_datasets,
+             working_containers_with_datasets) = it
         def output_dir_as_file = file(output_dirname)
         def stack_name_list = stack_names instanceof String
             ? [ stack_names ]
             : stack_names
         def named_stacks = [
             stack_name_list,
-            input_stack_dirs.collate(2),
-            working_stack_dirs.collate(2)
+            input_stacks_with_datasets.collate(2),
+            working_containers_with_datasets.collate(2)
         ]
         named_input_stacks
             .transpose()
             .colllect {
                 def (stack_name, 
-                     input_stack_dir_with_dataset,
-                     working_stack_dir_with_dataset) = it
-                def (input_stack_dirname, input_stack_dataset) = input_stack_dir_with_dataset
-                def (working_stack_dirname, working_stack_dataset) = working_stack_dir_with_dataset
+                     input_stack_with_dataset,
+                     working_container_with_dataset) = it
+                def (input_stack_dirname, input_stack_dataset) = input_stack_with_dataset
+                def (working_container, working_dataset) = working_container_with_dataset
                 def input_stack_dir_as_file = file(input_stack_dirname)
                 [
                     "${output_dir_as_file}",
                     stack_name,
                     "${input_stack_dir_as_file}",
                     input_stack_dataset,
-                    working_stack_dirname,
-                    working_stack_dataset,
+                    working_container,
+                    working_dataset,
                 ]
             }
     }
@@ -445,13 +440,15 @@ workflow prepare_n5_inputs {
              stack_name,
              input_stack_dirname,
              input_stack_dataset,
-             working_stack_dirname,
-             working_stack_dataset) = it
+             working_container,
+             working_dataset) = it
         [
             get_stack_dataset_fullpath(input_stack_dirname, '', input_stack_dataset),
-            get_stack_dataset_fullpath(output_dirname, working_stack_dirname, working_stack_dataset),
+            input_stack_dataset,
+            get_stack_dataset_fullpath(output_dirname, working_container, working_dataset),
+            working_stack_dataset,
+            stack_name,
             output_dirname,
-            stack_name
         ]
     }
     | input_stacks_to_n5
@@ -459,12 +456,12 @@ workflow prepare_n5_inputs {
     | map {
         def (output_dirname,
              stack_name,
-             input_stack_dir,
-             output_stack_dir,
+             input_stack_dir, input_dataset,
+             output_stack_dir, output_dataset,
              stack_size) = it
         [
             output_dirname,
-            [(stack_name as String): [ output_stack_dir, stack_size ]]
+            [(stack_name as String): [ output_stack_dir, output_dataset, stack_size ] ]
         ]
     }
     | groupTuple(by: 0)
@@ -478,7 +475,7 @@ workflow prepare_n5_inputs {
         [ output_dirname,  data_stacks ]
     } // [ output_dir, {<stack_name>: [<stack_n5_dir>, <stack_size>]} ]
 
-    n5_stacks.subscribe { log.debug "prepare_n5_inputs: N5 stacks: $it" }
+    n5_stacks.subscribe { log.info "prepare_n5_inputs: N5 stacks: $it" }
  
     emit:
     done = n5_stacks
@@ -486,14 +483,25 @@ workflow prepare_n5_inputs {
 
 workflow input_stacks_to_n5 {
     take:
-    input_data // [ input_stack, output_stack, output_dirname, stack_name ]
+    input_data // [ input_stack, input_dataset, output_stack, output_dataset, output_dir, stack_name ]
 
     main:
-    def output_data = tiff_to_n5_with_metadata(input_data, params.partial_volume, params.default_n5_dataset)
-    | join(input_data, by: [0,1])
+    def output_data = tiff_to_n5_with_metadata(
+        input_data, 
+        params.partial_volume
+    )
+    | join(input_data, by: [0,1,2,3])
     | map {
-        def (input_stack, output_stack, dims, output_dirname, stack_name) = it
-        [ output_dirname, stack_name, input_stack, output_stack, dims ]
+        def (input_stack, input_dataset,
+             output_stack, output_dataset,
+             dims,
+             output_dirname, stack_name) = it
+        [
+            output_dirname, stack_name,
+            input_stack, input_dataset,
+            output_stack, output_dataset,
+            dims
+        ]
     } // // [ parent_output_dir, stack_name, input_stack, output_stack, stack_volume_size ]
 
     output_data.subscribe { log.info "input_stacks_to_n5: N5 stack: $it" }

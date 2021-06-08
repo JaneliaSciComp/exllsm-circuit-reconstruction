@@ -62,8 +62,8 @@ workflow neuron_segmentation {
             : 'float32'
         log.info "Volume size: $sz"
         [
-            in_image, out_image,
-            params.neuron_input_dataset, params.neuron_output_dataset,
+            in_image, params.neuron_input_dataset, 
+            out_image, params.neuron_output_dataset,
             datatype,
         ]
     }

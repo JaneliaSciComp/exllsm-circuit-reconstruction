@@ -21,34 +21,44 @@ include {
 // The input_data contains a tuple with 
 workflow classify_regions_in_volume {
     take:
-    input_data // [ input_image, output_image, size ]
+    input_data // [ input_image, input_dataset, output_image, output_dataset, size ]
     unet_model
 
     main:
     def unet_inputs = input_data
     | map {
-        def (in_image, out_image) = it
+        def (in_image, input_dataset,
+             out_image, output_dataset) = it
         [
-            in_image, out_image,
-            params.default_n5_dataset, params.default_n5_dataset,
-            ''
+            in_image, in_dataset,
+            out_image, out_dataset,
+            '' // same datatype
         ]
     }
     | create_n5_volume
-    | join(input_data, by: [0,1])
+    | join(input_data, by: [0,1,2,3])
     | flatMap {
-        def (in_image, out_image, image_size) = it
+        def (in_image, in_dataset,
+             out_image, out_dataset,
+             image_size) = it
         partition_volume(image_size, params.partial_volume, params.volume_partition_size).collect {
             def (start_subvol, end_subvol) = it
-            [ in_image, out_image, image_size, start_subvol, end_subvol, ]
+            [
+                in_image, in_dataset,
+                out_image, out_dataset,
+                image_size,
+                start_subvol, end_subvol,
+            ]
         }
     } // [ in_image, start_subvol, end_subvol, out_image, image_size ]
 
     def unet_classifier_results = unet_classifier(unet_inputs, unet_model)
-    | groupTuple(by: [0,1,2]) // wait for all subvolumes to be done
+    | groupTuple(by: [0,1,2,3,4]) // wait for all subvolumes to be done
     | map {
-        def (in_image, out_image, image_size) = it
-        [ in_image, out_image, image_size, ]
+        def (in_image, in_dataset,
+             out_image, out_dataset,
+             image_size) = it
+        [ in_image, in_dataset, out_image, out_dataset, image_size, ]
     }
 
     emit:
@@ -60,36 +70,53 @@ workflow classify_regions_in_volume {
 // this is done as a post-process of the UNet classifier
 workflow connect_regions_in_volume {
     take:
-    input_data // channel of [ input_image, mask, output_image, size, output_csv ]
+    input_data // channel of [ input_image, input_dataset, mask, mask_dataset, output_image, output_dataset, size, output_csv ]
     threshold
     percentage
 
     main:
     def re_arranged_input_data = input_data
     | map {
-        def (in_image, mask, out_image, size, output_csv) = it
-        [ in_image, out_image, mask, size, output_csv ]
+        def (in_image, in_dataset,
+             mask, mask_dataset,
+             out_image, output_dataset,
+             size,
+             output_csv) = it
+        [
+            in_image, in_dataset,
+            out_image, output_dataset,
+            mask, mask_dataset,
+            size,
+            output_csv
+        ]
     }
     def post_processing_inputs = re_arranged_input_data
     | map {
-        def (in_image, out_image) = it
+        def (in_image, in_dataset,
+             out_image, output_dataset) = it
         [
-            in_image, out_image,
-            params.default_n5_dataset, params.default_n5_dataset,
-            ''
+            in_image, in_dataset,
+            out_image, output_dataset,
+            '' // same datatype
         ]
     }
     | create_n5_volume
-    | join(re_arranged_input_data, by: [0,1])
+    | join(re_arranged_input_data, by: [0,1,2,3])
     | flatMap {
-        def (in_image, out_image, mask, size, output_csv) = it
-        def out_image_file = file(out_image)
+        def (in_image, in_dataset,
+             out_image, output_dataset,
+             mask, mask_dataset,
+             size,
+             output_csv) = it
         partition_volume(size, params.partial_volume, params.volume_partition_size).collect {
             def (start_subvol, end_subvol) = it
             [
-                in_image, mask, out_image,
+                in_image, in_dataset,
+                mask, mask_dataset,
+                out_image, output_dataset,
                 output_csv,
-                size, start_subvol, end_subvol,
+                size,
+                start_subvol, end_subvol,
             ]
         }
     }
@@ -99,12 +126,23 @@ workflow connect_regions_in_volume {
         threshold,
         percentage,
     )
-    | groupTuple(by: [0,1,2,3,4]) // wait for all subvolumes to be done
+    | groupTuple(by: [0,1,2,3,4,5,6,7]) // wait for all subvolumes to be done
     | map {
-        def (in_image, mask, out_image, out_csvs_dir,
-             size, start_subvol_list, end_subvol_list) = it
+        def (in_image, in_dataset,
+             mask, mask_dataset,
+             out_image, output_dataset,
+             out_csvs_dir,
+             size,
+             start_subvol_list,
+             end_subvol_list) = it
         def output_csv_file = out_csvs_dir.replace('_csv', '.csv')
-        def r = [ out_csvs_dir, output_csv_file, in_image, mask, out_image, size ]
+        def r = [
+                    out_csvs_dir, output_csv_file,
+                    in_image, in_dataset,
+                    mask, mask_dataset,
+                    out_image, output_dataset,
+                    size
+                ]
         log.debug "Segmentation post-processing result: $it -> $r"
         r
     }
@@ -114,8 +152,18 @@ workflow connect_regions_in_volume {
     )
     | join(post_processing_results, by:[0,1])
     | map {
-        def (out_csvs_dir, output_csv_file, in_image, mask, out_image, size) = it
-        [ in_image, mask, out_image, size, output_csv_file ]
+        def (out_csvs_dir, output_csv_file,
+             in_image, in_dataset,
+             mask, mask_dataset,
+             out_image, output_dataset,
+             size) = it
+        [
+            in_image, in_dataset,
+            mask, mask_dataset,
+            out_image, output_dataset,
+            size,
+            output_csv_file
+        ]
     }
 
     emit:
@@ -126,8 +174,8 @@ workflow connect_regions_in_volume {
 // then it connects the regions found by UNet and applies the given mask if a mask is provided
 workflow classify_and_connect_regions_in_volume {
     take:
-    unet_input // [ in_image, unet_output, image_size ]
-    post_input // [ mask, post_unet_output, output_csv ]
+    unet_input // [ in_image, in_dataset, unet_output, unet_dataset, image_size ]
+    post_input // [ mask, mask_dataset, post_unet_output, post_unet_dataset, output_csv ]
     unet_model
     threshold
     percentage
@@ -137,9 +185,20 @@ workflow classify_and_connect_regions_in_volume {
     | join(index_channel(post_input), by:0)
     | map {
         def (idx, unet_args, post_unet_args) = it
-        def (in_image, unet_output, image_size) = unet_args
-        def (mask, post_unet_output, output_csv) = post_unet_args
-        def d = [ in_image, unet_output, mask, post_unet_output, image_size, output_csv ]
+        def (in_image, in_dataset,
+             unet_output, unet_dataset,
+             image_size) = unet_args
+        def (mask, mask_dataset,
+             post_unet_output, post_unet_dataset,
+             output_csv) = post_unet_args
+        def d = [
+            in_image, in_dataset,
+            unet_output, unet_dataset,
+            mask, mask_dataset,
+            post_unet_output, post_unet_dataset,
+            image_size,
+            output_csv
+        ]
         log.debug "U-Net and Post U-Net input: $it -> $d"
         d
     }
@@ -147,15 +206,26 @@ workflow classify_and_connect_regions_in_volume {
     def classifier_results = classify_regions_in_volume(
         unet_input,
         unet_model
-    ) // [ input_image, unet_image, image_size,  ]
+    ) // [ input_image, input_dataset, unet_image, unet_dataset, image_size,  ]
 
     classifier_results.subscribe { log.debug "U-Net results: $it" }
 
     def post_classifier_inputs = input_data
-    | join(classifier_results, by: [0,1])
+    | join(classifier_results, by: [0,1,2,3])
     | map {
-        def (in_image, unet_output, mask, post_unet_output, image_size, output_csv) = it
-        def d = [ unet_output, mask, post_unet_output, image_size, output_csv ]
+        def (in_image, in_dataset,
+             unet_output, unet_dataset,
+             mask, mask_dataset,
+             post_unet_output, post_unet_dataset,
+             image_size,
+             output_csv) = it
+        def d = [
+            unet_output, unet_dataset,
+            mask, mask_dataset,
+            post_unet_output, post_unet_dataset,
+            image_size,
+            output_csv
+        ]
         log.debug "Post U-Net inputs: $it -> $d"
         d
     }
@@ -171,18 +241,33 @@ workflow classify_and_connect_regions_in_volume {
     // prepare the final result
     done = input_data
     | map {
-        def (in_image, unet_output, mask, post_unet_output, image_size, output_csv) = it
-        [ unet_output, mask, post_unet_output, image_size, in_image ]
+        def (in_image, in_dataset,
+             unet_output, unet_dataset,
+             mask, mask_dataset,
+             post_unet_output, post_unet_dataset,
+             image_size,
+             output_csv) = it
+        [
+            unet_output, unet_dataset,
+            mask, mask_dataset,
+            post_unet_output, post_unet_dataset,
+            image_size,
+            in_image, in_dataset,
+        ]
     }
-    | join(post_classifier_results, by: [0,1,2,3])
+    | join(post_classifier_results, by: [0,1,2,3,4,5,6])
     | map {
-        def (unet_output, mask, post_unet_output, image_size,
-             in_image, post_unet_csv) = it
+        def (unet_output, unet_dataset,
+             mask, mask_dataset,
+             post_unet_output, post_unet_dataset,
+             image_size,
+             in_image, in_dataset,
+             post_unet_csv) = it
         def r = [
-            in_image,
-            mask,
-            unet_output,
-            post_unet_output,
+            in_image, in_dataset,
+            mask, mask_dataset,
+            unet_output, unet_dataset,
+            post_unet_output, post_unet_dataset,
             image_size,
             post_unet_csv,
         ]

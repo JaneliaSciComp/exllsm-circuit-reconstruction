@@ -11,12 +11,17 @@ process create_n5_volume {
     ]) }
 
     input:
-    tuple val(template_image), val(output_image),
-          val(template_dataset), val(target_dataset),
+    tuple val(template_image),
+          val(template_dataset),
+          val(output_image),
+          val(target_dataset),
           val(data_type)
 
     output:
-    tuple val(template_image), val(output_image)
+    tuple val(template_image),
+          val(template_dataset),
+          val(output_image),
+          val(target_dataset)
 
     script:
     def output_image_dir = file(output_image).parent
@@ -44,13 +49,12 @@ process read_n5_metadata {
 
     input:
     val(n5_stack)
-    val(n5_dataset)
 
     output:
     tuple val(n5_stack), env(n5_attributes)
 
     script:
-    def n5_attributes_file = "${n5_stack}/${n5_dataset}/attributes.json"
+    def n5_attributes_file = "${n5_stack}/attributes.json"
     """
     n5_attributes=`cat ${n5_attributes_file} || true`
     if [[ -z \${n5_attributes} ]]; then
@@ -64,18 +68,22 @@ process tiff_to_n5 {
     cpus { params.tiff2n5_cpus }
     memory { params.tiff2n5_memory }
     containerOptions { create_container_options([
-        file(input_stack_dir).parent,
+        file(input_dir).parent,
     ]) }
 
     input:
-    tuple val(input_stack_dir), val(output_n5_stack)
+    tuple val(input_dir), val(input_dataset),
+          val(output_dir), val(output_dataset)
     val(partial_volume)
 
     output:
-    tuple env(n5_stack), val(input_stack_dir), val(output_n5_stack)
+    tuple env(n5_stack),
+          val(input_dir), val(input_dataset),
+          val(output_dir), val(output_dataset)
 
     script:
-    def output_stack_dir = file(output_n5_stack).parent
+    def input_stack_dir = file("${input_dir}/${input_dataset}")
+    def output_stack_dir = file("${output_dir}/${output_dataset}")
     def chunk_size = params.block_size
     def distributed_args = ''
     if (params.tiff2n5_workers > 1) {
@@ -86,41 +94,20 @@ process tiff_to_n5 {
         subvol_arg = "--subvol ${partial_volume}"
     }
     """
-    mkdir -p ${output_stack_dir}
+    mkdir -p ${output_stack_dir.parent}
     if [[ -f "${input_stack_dir}/attributes.json" ]]; then
         n5_stack=${input_stack_dir}
     else
         # convert tiffs to n5
         /entrypoint.sh tif_to_n5 \
         -i ${input_stack_dir} \
-        -o ${output_n5_stack} \
+        -o ${output_stack_dir} \
         -c ${chunk_size} \
         ${distributed_args} \
         ${subvol_arg} \
         --compression ${params.n5_compression}
         # set the return value
-        n5_stack=${output_n5_stack}
+        n5_stack=${output_stack_dir}
     fi
-    """
-}
-
-process n5_to_tiff {
-    container { params.exm_synapse_dask_container }
-    cpus { params.n52tiff_cpus }
-    memory { params.n52tiff_memory }
-    containerOptions { create_container_options([
-        input_n5_file,
-    ]) }
-
-    input:
-    tuple val(input_n5_file), val(output_dir)
-
-    output:
-    tuple val(input_n5_file), val(output_dir)
-
-    script:
-    """
-    mkdir -p ${output_dir}
-    /entrypoint.sh n5_to_tif.py -i ${input_n5_file} -o ${output_dir}
     """
 }
