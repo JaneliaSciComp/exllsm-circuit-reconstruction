@@ -103,6 +103,12 @@ workflow connected_components {
         spark_driver_deploy
     )
 
+/*
+    def connected_comps_res = connected_comps_args.map {
+        [ it[0], it[2] ]
+    }
+*/
+
     // terminate stitching cluster
     done = terminate_spark(
         connected_comps_res.map { it[1] },

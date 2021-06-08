@@ -120,7 +120,7 @@ workflow presynaptic_n1_to_n2 {
                     output_dirname,
                     get_value_with_default_param(params, 'working_pre_synapse_seg_container', 'working_container'),
                     params.working_pre_synapse_seg_dataset
-                )
+                ),
                 n5_stacks[presynaptic_stack_name][1],
             ]
         },
@@ -176,7 +176,7 @@ workflow presynaptic_n1_to_n2 {
                     output_dirname,
                     get_value_with_default_param(params, 'working_pre_synapse_seg_n1_n2_container', 'working_container'),
                     params.working_pre_synapse_seg_n1_n2_dataset
-                )
+                ),
                 n5_stacks[n2_stack_name][1],
                 create_post_output_name(
                     output_dirname,
@@ -396,8 +396,6 @@ workflow prepare_n5_inputs {
     output_dir
     working_stacks
 
-    
-
     main:
     // store all input stacks in n5 stores
     def unflattened_input_data = index_channel(output_dir)
@@ -415,16 +413,14 @@ workflow prepare_n5_inputs {
             ? [ stack_names ]
             : stack_names
         def named_stacks = [
-            [ index ],
             stack_name_list,
-            input_stack_dirs.collate(2)
+            input_stack_dirs.collate(2),
             working_stack_dirs.collate(2)
         ]
         named_input_stacks
             .transpose()
             .colllect {
-                def (index,
-                     stack_name, 
+                def (stack_name, 
                      input_stack_dir_with_dataset,
                      working_stack_dir_with_dataset) = it
                 def (input_stack_dirname, input_stack_dataset) = input_stack_dir_with_dataset
@@ -439,7 +435,6 @@ workflow prepare_n5_inputs {
                     working_stack_dataset,
                 ]
             }
-        }
     }
 
     unflattened_input_data.subscribe { log.debug "prepare_n5_inputs: N5 input $it" }
