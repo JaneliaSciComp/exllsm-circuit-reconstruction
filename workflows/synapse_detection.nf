@@ -416,16 +416,16 @@ workflow prepare_n5_inputs {
             .transpose()
             .collect {
                 def (stack_name, 
-                     input_stack_with_dataset,
+                     input_stack, // [ container, dataset ]
                      working_container_with_dataset) = it
-                def (input_stack_dirname, input_stack_dataset) = input_stack_with_dataset
+                def (input_container_dir, input_dataset) = input_stack
                 def (working_container, working_dataset) = working_container_with_dataset
-                def input_stack_dir_as_file = file(input_stack_dirname)
+                def input_container_dir_as_file = file(input_container_dir)
                 [
                     "${output_dir_as_file}",
                     stack_name,
-                    "${input_stack_dir_as_file}",
-                    input_stack_dataset,
+                    "${input_container_dir_as_file}",
+                    input_dataset,
                     working_container,
                     working_dataset,
                 ]
@@ -438,14 +438,14 @@ workflow prepare_n5_inputs {
     | map {
         def (output_dirname,
              stack_name,
-             input_stack_dirname,
-             input_stack_dataset,
+             input_container_dir,
+             input_dataset,
              working_container,
              working_dataset) = it
         def d = [
-            get_stack_dataset_fullpath(input_stack_dirname, '', input_stack_dataset),
-            input_stack_dataset,
-            get_stack_dataset_fullpath(output_dirname, working_container, working_dataset),
+            get_container_fullpath(input_container_dir, ''),
+            input_dataset,
+            get_container_fullpath(output_dirname, working_container),
             working_dataset,
             stack_name,
             output_dirname,
@@ -530,8 +530,7 @@ def create_post_output_name(dirname, fname, threshold, perccentage) {
     "${dirname}/${fname}_${suffix}_csv"
 }
 
-def get_stack_dataset_fullpath(stack_dir, container_dirname, dataset_dir) {
-    def container_path = new File("${stack_dir}", "${container_dirname}")
-    def dataset_fullpath = new File(container_path, "${dataset_dir}")
-    "${dataset_fullpath.canonicalPath}"
+def get_container_fullpath(output_dir, container_dirname) {
+    def container_path = new File("${output_dir}", "${container_dirname}")
+    "${container_path.canonicalPath}"
 }
