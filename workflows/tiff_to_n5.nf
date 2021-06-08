@@ -9,7 +9,7 @@ include {
 
 workflow tiff_to_n5_with_metadata {
     take:
-    input_data // pair of tiff_stack and n5_file
+    input_data // pair of input_stack and n5_file
     partial_volume
     n5_dataset
 
@@ -30,8 +30,8 @@ workflow tiff_to_n5_with_metadata {
     }
     | join(n5_results, by:0)
     | map {
-        def (n5_stack_used_4_dim, n5_stack_dims, tiff_stack, output_n5_stack) = it
-        [ tiff_stack, output_n5_stack, n5_stack_dims ]
+        def (n5_stack_used_4_dim, n5_stack_dims, input_stack, output_n5_stack) = it
+        [ input_stack, output_n5_stack, n5_stack_dims ]
     }
 
     emit:

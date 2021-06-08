@@ -104,47 +104,6 @@ process tiff_to_n5 {
     """
 }
 
-process tiff_to_n5_with_links {
-    container { params.exm_synapse_dask_container }
-    cpus { params.tiff2n5_cpus }
-    memory { params.tiff2n5_memory }
-    containerOptions { create_container_options([
-        file(input_stack_dir).parent,
-    ]) }
-
-    input:
-    tuple val(input_stack_dir), val(output_n5_stack)
-
-    output:
-    tuple val(input_stack_dir), val(output_n5_stack)
-
-    script:
-    def output_stack_dir = file(output_n5_stack).parent
-    def chunk_size = params.block_size
-    def create_empty_n5 = """
-    cat > "${output_n5_stack}/attributes.json" <<EOF
-    {"n5":"2.2.0"}
-    EOF
-    """.stripIndent()
-
-    """
-    mkdir -p ${output_stack_dir}
-
-    if [[ -f "${input_stack_dir}/attributes.json" ]]; then
-        mkdir -p ${output_n5_stack}
-        for s in `ls -d ${input_stack_dir}/*` ; do
-            if [[ -d "\$s" ]] ; then
-                echo "Create link for \$s"
-                ln -s "\$s" "${output_n5_stack}/\$(basename \$s)" || true
-            fi
-        done
-        ${create_empty_n5}
-    else
-        /entrypoint.sh tif_to_n5 -i ${input_stack_dir} -o ${output_n5_stack} -c ${chunk_size} --compression ${params.n5_compression}
-    fi
-    """
-}
-
 process n5_to_tiff {
     container { params.exm_synapse_dask_container }
     cpus { params.n52tiff_cpus }

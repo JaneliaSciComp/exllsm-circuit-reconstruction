@@ -25,9 +25,13 @@ workflow presynaptic_in_volume {
     main:
     def presynaptic_stack_name = "pre_synapse"
     def n5_input_stacks = prepare_n5_inputs(
+        presynaptic_stack_name
         input_data,
         output_dir,
-        presynaptic_stack_name
+        [
+            get_value_with_default_param(params, 'working_pre_synapse_container', 'working_container'),
+            params.working_pre_synapse_dataset,
+        ]
     )
 
     def presynaptic_n1_results = classify_presynaptic_regions(
@@ -89,9 +93,21 @@ workflow presynaptic_n1_to_n2 {
     def n2_stack_name = "n2_mask"
 
     def n5_input_stacks = prepare_n5_inputs(
+        [
+            presynaptic_stack_name,
+            n1_stack_name,
+            n2_stack_name,
+        ],
         input_data,
         output_dir,
-        [ presynaptic_stack_name, n1_stack_name, n2_stack_name ]
+        [ 
+            get_value_with_default_param(params, 'working_pre_synapse_container', 'working_container'),
+            params.working_pre_synapse_dataset,
+            get_value_with_default_param(params, 'working_n1_mask_container', 'working_container'),
+            params.working_n1_mask_dataset,
+            get_value_with_default_param(params, 'working_n2_mask_container', 'working_container'),
+            params.working_n2_mask_dataset,
+        ]
     )
 
     // Segment presynaptic volume and identify presynaptic regions that colocalize with neuron1 mask
@@ -100,7 +116,11 @@ workflow presynaptic_n1_to_n2 {
             def (output_dirname, n5_stacks) = it
             [
                 n5_stacks[presynaptic_stack_name][0],
-                "${output_dirname}/pre_synapse_seg.n5",
+                get_stack_dataset_fullpath(
+                    output_dirname,
+                    get_value_with_default_param(params, 'working_pre_synapse_seg_container', 'working_container'),
+                    params.working_pre_synapse_seg_dataset
+                )
                 n5_stacks[presynaptic_stack_name][1],
             ]
         },
@@ -108,10 +128,16 @@ workflow presynaptic_n1_to_n2 {
             def (output_dirname, n5_stacks) = it
             [
                 n5_stacks[n1_stack_name][0],
-                create_post_output_name(output_dirname,
-                                        'pre_synapse_seg_n1',
-                                        params.presynaptic_stage2_threshold,
-                                        params.presynaptic_stage2_percentage),
+                get_stack_dataset_fullpath(
+                    output_dirname,
+                    get_value_with_default_param(params, 'working_pre_synapse_seg_n1_container', 'working_container'),
+                    params.working_pre_synapse_seg_n1_dataset
+                ),
+                create_post_output_name(
+                    output_dirname,
+                    'pre_synapse_seg_n1',
+                    params.presynaptic_stage2_threshold,
+                    params.presynaptic_stage2_percentage)
             ]
         },
         params.synapse_model,
@@ -146,11 +172,18 @@ workflow presynaptic_n1_to_n2 {
             [
                 n5_stacks["pre_synapse_seg_n1"][0],
                 n5_stacks[n2_stack_name][0],
-                create_post_output_name(output_dirname,
-                                        'pre_synapse_seg_n1_n2',
-                                        params.postsynaptic_stage3_threshold,
-                                        params.postsynaptic_stage3_percentage),
+                get_stack_dataset_fullpath(
+                    output_dirname,
+                    get_value_with_default_param(params, 'working_pre_synapse_seg_n1_n2_container', 'working_container'),
+                    params.working_pre_synapse_seg_n1_n2_dataset
+                )
                 n5_stacks[n2_stack_name][1],
+                create_post_output_name(
+                    output_dirname,
+                    'pre_synapse_seg_n1_n2',
+                    params.postsynaptic_stage2_threshold,
+                    params.postsynaptic_stage2_percentage)
+
             ]
         },
         params.postsynaptic_stage2_threshold,
@@ -195,9 +228,21 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
     def postsynaptic_stack_name = "post_synapse"
 
     def n5_input_stacks = prepare_n5_inputs(
+        [
+            presynaptic_stack_name,
+            neuron_stack_name,
+            postsynaptic_stack_name
+        ]
         input_data,
         output_dir,
-        [ presynaptic_stack_name, neuron_stack_name, postsynaptic_stack_name ]
+        [
+            get_value_with_default_param(params, 'working_pre_synapse_container', 'working_container'),
+            params.working_pre_synapse_dataset,
+            get_value_with_default_param(params, 'working_n1_mask_container', 'working_container'),
+            params.working_n1_mask_dataset,
+            get_value_with_default_param(params, 'working_post_synapse_container', 'working_container'),
+            params.working_post_synapse_dataset,
+        ]
     )
  
     // Segment presynaptic volume and identify presynaptic regions that colocalize with neuron1 mask
@@ -346,33 +391,54 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
 
 workflow prepare_n5_inputs {
     take:
+    stack_names // names for the corresponding output stacks
     input_stacks // tuple with all input stacks
     output_dir
-    stack_names // names for the corresponding output stacks
+    working_stacks
+
+    
 
     main:
     // store all input stacks in n5 stores
     def unflattened_input_data = index_channel(output_dir)
     | join (index_channel(input_stacks), by: 0)
+    | join (index_channel(working_stacks), by: 0)
     | flatMap {
         // we convert names to file type in order to normalize file names
         // to prevent 'a//b' in the path
-        def (index, output_dirname, input_stack_dirs) = it
+        def (index,
+             output_dirname,
+             input_stack_dirs,
+             working_stack_dirs) = it
         def output_dir_as_file = file(output_dirname)
-        if (stack_names instanceof String) {
-            // this is the case for synapse in volume
-            def input_stack_dir_as_file = file(input_stack_dirs)
-            [
-                [ "${output_dir_as_file}", "${input_stack_dir_as_file}", stack_names ]
-            ]
-        } else {
-            [ input_stack_dirs, stack_names ]
-                .transpose()
-                .collect {
-                    def (input_stack_dirname, stack_name) = it
-                    def input_stack_dir_as_file = file(input_stack_dirname)
-                    [ "${output_dir_as_file}", "${input_stack_dir_as_file}", stack_name ]
-                }
+        def stack_name_list = stack_names instanceof String
+            ? [ stack_names ]
+            : stack_names
+        def named_stacks = [
+            [ index ],
+            stack_name_list,
+            input_stack_dirs.collate(2)
+            working_stack_dirs.collate(2)
+        ]
+        named_input_stacks
+            .transpose()
+            .colllect {
+                def (index,
+                     stack_name, 
+                     input_stack_dir_with_dataset,
+                     working_stack_dir_with_dataset) = it
+                def (input_stack_dirname, input_stack_dataset) = input_stack_dir_with_dataset
+                def (working_stack_dirname, working_stack_dataset) = working_stack_dir_with_dataset
+                def input_stack_dir_as_file = file(input_stack_dirname)
+                [
+                    "${output_dir_as_file}",
+                    stack_name,
+                    "${input_stack_dir_as_file}",
+                    input_stack_dataset,
+                    working_stack_dirname,
+                    working_stack_dataset,
+                ]
+            }
         }
     }
 
@@ -380,17 +446,30 @@ workflow prepare_n5_inputs {
 
     def n5_stacks = unflattened_input_data
     | map {
-        def (output_dirname, input_stack_dirname, stack_name) = it
-        def n5_stack_file = file("${output_dirname}/${stack_name}.n5")
-        [ input_stack_dirname, "${n5_stack_file}" ]
+        def (output_dirname,
+             stack_name,
+             input_stack_dirname,
+             input_stack_dataset,
+             working_stack_dirname,
+             working_stack_dataset) = it
+        [
+            get_stack_dataset_fullpath(input_stack_dirname, '', input_stack_dataset),
+            get_stack_dataset_fullpath(output_dirname, working_stack_dirname, working_stack_dataset),
+            output_dirname,
+            stack_name
+        ]
     }
     | input_stacks_to_n5
     | join(unflattened_input_data, by: [0,1])
     | map {
-        def (output_dirname, input_stack_dir, output_stack, stack_size, stack_name) = it
+        def (output_dirname,
+             stack_name,
+             input_stack_dir,
+             output_stack_dir,
+             stack_size) = it
         [
             output_dirname,
-            [("${stack_name}" as String): [ output_stack, stack_size ]]
+            [(stack_name as String): [ output_stack_dir, stack_size ]]
         ]
     }
     | groupTuple(by: 0)
@@ -412,22 +491,36 @@ workflow prepare_n5_inputs {
 
 workflow input_stacks_to_n5 {
     take:
-    input_data // [ input_stack, output_stack ]
+    input_data // [ input_stack, output_stack, output_dirname, stack_name ]
 
     main:
     def output_data = tiff_to_n5_with_metadata(input_data, params.partial_volume, params.default_n5_dataset)
+    | join(input_data, by: [0,1])
     | map {
-        def output_stack = file(it[1])
-        [ "${output_stack.parent}" ] + it
-    } // // [ parent_output_stack, input_stack, output_stack, stack_volume_size ]
+        def (input_stack, output_stack, dims, output_dirname, stack_name) = it
+        [ output_dirname, stack_name, input_stack, output_stack, dims ]
+    } // // [ parent_output_dir, stack_name, input_stack, output_stack, stack_volume_size ]
 
-    output_data.subscribe { log.debug "input_stacks_to_n5: N5 stack: $it" }
+    output_data.subscribe { log.info "input_stacks_to_n5: N5 stack: $it" }
 
     emit:
     done = output_data
 }
 
+def get_value_with_default_param(Map ps, String param, String default_param) {
+    if (ps[param])
+        ps[param]
+    else
+        ps[default_param]
+}
+
 def create_post_output_name(dirname, fname, threshold, perccentage) {
     def suffix = "t${threshold}_p${perccentage}".replace('.', 'd')
-    "${dirname}/${fname}_${suffix}.n5"
+    "${dirname}/${fname}_${suffix}_csv"
+}
+
+def get_stack_dataset_fullpath(stack_dir, container_dirname, dataset_dir) {
+    def container_path = new File("${stack_dir}", "${container_dirname}")
+    def dataset_fullpath = new File(container_path, "${dataset_dir}")
+    "${dataset_fullpath.canonicalPath}"
 }

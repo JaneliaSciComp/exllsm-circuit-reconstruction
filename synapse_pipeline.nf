@@ -37,8 +37,11 @@ workflow {
             synapses_res = presynaptic_n1_to_n2(
                 [
                     final_params.pre_synapse_stack_dir,
+                    final_params.pre_synapse_in_dataset,
                     final_params.n1_stack_dir,
+                    final_params.n1_in_dataset,
                     final_params.n2_stack_dir,
+                    final_params.n2_in_dataset,
                 ],
                 pipeline_output_dir,
             )
@@ -53,8 +56,11 @@ workflow {
             synapses_res = presynaptic_n1_to_postsynaptic_n2(
                 [
                     final_params.pre_synapse_stack_dir,
+                    final_params.pre_synapse_in_dataset,
                     final_params.n1_stack_dir,
+                    final_params.n1_in_dataset,
                     final_params.post_synapse_stack_dir,
+                    final_params.post_synapse_in_dataset,
                 ],
                 pipeline_output_dir,
             )
@@ -67,6 +73,7 @@ workflow {
             }
             synapses_res = presynaptic_in_volume(
                 final_params.pre_synapse_stack_dir,
+                final_params.pre_synapse_in_dataset,
                 pipeline_output_dir,
             )
             break;
