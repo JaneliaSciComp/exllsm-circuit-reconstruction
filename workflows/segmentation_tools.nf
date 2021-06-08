@@ -29,11 +29,13 @@ workflow classify_regions_in_volume {
     | map {
         def (in_image, input_dataset,
              out_image, output_dataset) = it
-        [
+        def d = [
             in_image, in_dataset,
             out_image, out_dataset,
             '' // same datatype
         ]
+        log.info "create_n5_volume: $d"
+        d
     }
     | create_n5_volume
     | join(input_data, by: [0,1,2,3])
@@ -110,7 +112,7 @@ workflow connect_regions_in_volume {
              output_csv) = it
         partition_volume(size, params.partial_volume, params.volume_partition_size).collect {
             def (start_subvol, end_subvol) = it
-            [
+            def d = [
                 in_image, in_dataset,
                 mask, mask_dataset,
                 out_image, output_dataset,
@@ -118,6 +120,8 @@ workflow connect_regions_in_volume {
                 size,
                 start_subvol, end_subvol,
             ]
+            log.info "segmentation_postprocessing: $d"
+            d
         }
     }
 
