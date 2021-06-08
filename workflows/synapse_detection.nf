@@ -14,7 +14,7 @@ include {
 
 workflow presynaptic_in_volume {
     take:
-    input_data // presynaptic_stack
+    input_data // [ presynaptic_container, presynaptic_dataset ]
     output_dir
 
     main:

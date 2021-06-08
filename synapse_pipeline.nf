@@ -74,8 +74,10 @@ workflow {
                 exit(1)
             }
             synapses_res = presynaptic_in_volume(
-                synapse_params.pre_synapse_stack_dir,
-                synapse_params.pre_synapse_in_dataset,
+                [
+                    synapse_params.pre_synapse_stack_dir,
+                    synapse_params.pre_synapse_in_dataset,
+                ]
                 pipeline_output_dir,
             )
             break;
