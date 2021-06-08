@@ -94,7 +94,7 @@ process segmentation_postprocessing {
         ? "--input_data_set ${input_dataset}"
         : '' 
     def output_dataset_arg = output_dataset
-        ? "--input_data_set ${output_dataset}"
+        ? "--output_data_set ${output_dataset}"
         : '' 
     def mask_dataset_arg = mask_dataset
         ? "--mask_data_set ${mask_dataset}"
