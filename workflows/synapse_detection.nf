@@ -412,9 +412,9 @@ workflow prepare_n5_inputs {
             input_stacks_with_datasets.collate(2),
             working_containers_with_datasets.collate(2)
         ]
-        named_input_stacks
+        named_stacks
             .transpose()
-            .colllect {
+            .collect {
                 def (stack_name, 
                      input_stack_with_dataset,
                      working_container_with_dataset) = it
@@ -432,7 +432,7 @@ workflow prepare_n5_inputs {
             }
     }
 
-    unflattened_input_data.subscribe { log.debug "prepare_n5_inputs: N5 input $it" }
+    unflattened_input_data.subscribe { log.info "prepare_n5_inputs: N5 input $it" }
 
     def n5_stacks = unflattened_input_data
     | map {
@@ -442,14 +442,16 @@ workflow prepare_n5_inputs {
              input_stack_dataset,
              working_container,
              working_dataset) = it
-        [
+        def d = [
             get_stack_dataset_fullpath(input_stack_dirname, '', input_stack_dataset),
             input_stack_dataset,
             get_stack_dataset_fullpath(output_dirname, working_container, working_dataset),
-            working_stack_dataset,
+            working_dataset,
             stack_name,
             output_dirname,
         ]
+        log.info "input_stacks_to_n5 input: $d"
+        d
     }
     | input_stacks_to_n5
     | join(unflattened_input_data, by: [0,1])
