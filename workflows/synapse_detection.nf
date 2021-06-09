@@ -633,7 +633,7 @@ workflow input_stacks_to_n5 {
             output_dirname, stack_name,
             input_stack, input_dataset,
             output_stack, output_dataset,
-            {}
+            [0, 0, 0]
         ]
     }
 
