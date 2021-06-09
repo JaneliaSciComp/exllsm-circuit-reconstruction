@@ -12,7 +12,7 @@ include {
     index_channel;
 } from '../utils/utils'
 
-workflow classify_presynaptic_regions {
+workflow classify_synapses {
     take:
     input_data // [ presynaptic_container, presynaptic_dataset ]
     output_dir
@@ -53,7 +53,7 @@ workflow classify_presynaptic_regions {
     done = presynaptic_results
 }
 
-workflow collocate_synaptic_regions {
+workflow collocate_synapses {
     take:
     input_data // [ presynaptic_stack, n1_mask_stack ]
     output_dir
