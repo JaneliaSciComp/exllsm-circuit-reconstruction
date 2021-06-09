@@ -38,8 +38,8 @@ def tif_write(im_array, file_name):
 
 
 def remove_small_piece(out_path, prefix, img, start, end, mask=None,
-                      threshold=10, percentage=1.0, connectivity=3,
-                      mp_pool_size=1):
+                       threshold=10, percentage=1.0, connectivity=3,
+                       mp_pool_size=1):
     """
     Remove blobs that have less than N voxels.
     Write final result to output hdf5 file, output a .csv file indicating the location and size of each synapses.
@@ -54,7 +54,8 @@ def remove_small_piece(out_path, prefix, img, start, end, mask=None,
     percentage: threshold to remove the object if it falls in the mask less than a percentage. If percentage is 1, criteria will be whether the centroid falls within the mask
     """
 
-    print('Removing small blobs - initially there are ', np.count_nonzero(img), 'voxels')
+    print('Removing small blobs - initially there are ',
+          np.count_nonzero(img), 'voxels')
     img[img != 0] = 1
     label_img = label(img, connectivity=connectivity)
     regionprop_img = regionprops(label_img)
@@ -73,22 +74,20 @@ def remove_small_piece(out_path, prefix, img, start, end, mask=None,
     if mp_pool_size > 1:
         pool = ThreadPool(mp_pool_size)
         csv_rows = filter(lambda x: x is not None,
-                        pool.map(partial(process_region,
-                                        label_img,
-                                        mask,
-                                        img.dtype,
-                                        threshold,
-                                        percentage),
-                                regionprop_img))
+                          pool.map(partial(process_region,
+                                           label_img,
+                                           mask, start, end, img.dtype,
+                                           threshold,
+                                           percentage),
+                                   regionprop_img))
     else:
         csv_rows = filter(lambda x: x is not None,
-                        map(partial(process_region,
-                                        label_img,
-                                        mask,
-                                        img.dtype,
-                                        threshold,
-                                        percentage),
-                            regionprop_img))
+                          map(partial(process_region,
+                                      label_img,
+                                      mask, start, end, img.dtype,
+                                      threshold,
+                                      percentage),
+                              regionprop_img))
 
     if len(csv_rows) > 0:
         print('Writing to', csv_filepath)
@@ -107,7 +106,7 @@ def remove_small_piece(out_path, prefix, img, start, end, mask=None,
     return img
 
 
-def process_region(label_img, mask, img_data_type,
+def process_region(label_img, mask, start, end, img_data_type,
                    threshold, percentage, region):
     num_voxel = region.area
     print('num voxels: ', num_voxel)
@@ -142,8 +141,8 @@ def process_region(label_img, mask, img_data_type,
         bbox_z = (int(min_z+start[2]), int(max_z+start[2]))
 
         center = (int(center_x+start[0]),
-                    int(center_y+start[1]),
-                    int(center_z+start[2]))
+                  int(center_y+start[1]),
+                  int(center_z+start[2]))
 
         return [str(num_voxel), str(center),
                 str(bbox_x), str(bbox_y), str(bbox_z)]
@@ -205,10 +204,12 @@ def main():
         print('Read mask', args.mask_path, 'volume', start, end)
         mask = read_n5_block(args.mask_path, args.mask_data_set, start, end)
         mask_voxels = np.count_nonzero(mask)
-        print('Mask', args.mask_path, 'at', start, end, 'has', mask_voxels, 'voxels')
+        print('Mask', args.mask_path, 'at', start,
+              end, 'has', mask_voxels, 'voxels')
         # if the mask has all 0s, write out the result directly
         if mask_voxels == 0:
-            write_n5_block(args.output_path, args.output_data_set, start, end, mask)
+            write_n5_block(args.output_path,
+                           args.output_data_set, start, end, mask)
             print('DONE! Location of the mask has all 0s.')
             sys.exit(0)
     else:
