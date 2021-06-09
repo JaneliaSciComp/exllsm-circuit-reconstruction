@@ -51,16 +51,25 @@ workflow presynaptic_in_volume {
         },
         n5_input_stacks.map {
             def (output_dirname, n5_stacks) = it
+            def output_n5_container_key
+            def csv_results_name
+            if (n5_stacks[n1_stack_name][0]) {
+                output_n5_container_key = 'working_pre_synapse_seg_n1_container'
+                csv_results_name = 'pre_synapse_seg_n1'
+            } else {
+                output_n5_container_key = 'working_pre_synapse_seg_post_container'
+                csv_results_name = 'pre_synapse_seg_post'
+            }
             [
                 n5_stacks[n1_stack_name][0], // mask_n5_dir
                 n5_stacks[n1_stack_name][1], // mask_dataset
                 get_container_fullpath(
                     output_dirname,
-                    get_n5_container_name('working_pre_synapse_seg_post_container')
+                    get_n5_container_name(output_n5_container_key)
                 ), // post_unet_n5_dir
                 params.working_pre_synapse_seg_post_dataset, // post_unet_dataset
                 create_post_output_name(output_dirname,
-                                        'pre_synapse_seg_post',
+                                        csv_results_name,
                                         params.presynaptic_stage2_threshold,
                                         params.presynaptic_stage2_percentage),
             ]
