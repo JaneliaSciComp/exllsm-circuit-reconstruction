@@ -52,12 +52,15 @@ workflow presynaptic_in_volume {
         n5_input_stacks.map {
             def (output_dirname, n5_stacks) = it
             def output_n5_container_key
+            def output_dataset_key
             def csv_results_name
             if (n5_stacks[n1_stack_name][0]) {
                 output_n5_container_key = 'working_pre_synapse_seg_n1_container'
+                output_dataset_key = 'working_pre_synapse_seg_n1_dataset'
                 csv_results_name = 'pre_synapse_seg_n1'
             } else {
                 output_n5_container_key = 'working_pre_synapse_seg_post_container'
+                output_dataset_key = 'working_pre_synapse_seg_post_dataset'
                 csv_results_name = 'pre_synapse_seg_post'
             }
             [
@@ -67,7 +70,7 @@ workflow presynaptic_in_volume {
                     output_dirname,
                     get_n5_container_name(output_n5_container_key)
                 ), // post_unet_n5_dir
-                params.working_pre_synapse_seg_post_dataset, // post_unet_dataset
+                params[output_dataset_key], // post_unet_dataset
                 create_post_output_name(output_dirname,
                                         csv_results_name,
                                         params.presynaptic_stage2_threshold,
@@ -249,11 +252,12 @@ workflow presynaptic_n1_to_n2 {
         params.postprocessing_cpus,
         params.postprocessing_memory,
         params.postprocessing_threads,
+        true,
     )
     | map {
         def csv_file = file(it[-1])
         [ "${csv_file.parent}" ] + it
-    }  // [ working_dir, synapse_seg_n1, n2, synapse_size, synapse_seg_n1_n2, synapse_seg_n1_n2_csv ]
+    }  // [ output_dir, synapse_seg_n1, n2, synapse_size, synapse_seg_n1_n2, synapse_seg_n1_n2_csv ]
 
     // prepare the final result
     def final_n5_stacks = presynaptic_to_n1_n5_stacks
@@ -491,6 +495,7 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
         params.postprocessing_cpus,
         params.postprocessing_memory,
         params.postprocessing_threads,
+        false,
     )
     | map {
         def csv_file = file(it[-1])
