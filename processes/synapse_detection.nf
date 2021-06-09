@@ -100,6 +100,9 @@ process segmentation_postprocessing {
         ? "--mask_data_set ${mask_dataset}"
         : '' 
     def mask_arg = mask_image ? "-m ${mask_image} ${mask_dataset_arg}" : ''
+    def nthreads_arg = params.postprocessing_cpus > 1
+        ? "--nthreads ${params.postprocessing_cpus}"
+        : ''
     """
     mkdir -p ${output_csv_dir}
 
@@ -111,6 +114,7 @@ process segmentation_postprocessing {
         --end ${end_subvolume} \
         -t ${threshold} \
         -p ${percentage} \
+        ${nthreads_arg} \
         ${mask_arg}
     """
 }

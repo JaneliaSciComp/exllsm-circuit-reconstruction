@@ -12,6 +12,8 @@ import watershed
 from skimage.measure import label, regionprops
 import skimage.io
 from n5_utils import read_n5_block, write_n5_block
+from functools import partial
+from multiprocessing.pool import ThreadPool
 
 
 def tif_read(file_name):
@@ -35,7 +37,9 @@ def tif_write(im_array, file_name):
     return None
 
 
-def remove_small_piece(out_path, prefix, img, start, end, mask=None, threshold=10, percentage=1.0, connectivity=3):
+def remove_small_piece(out_path, prefix, img, start, end, mask=None,
+                      threshold=10, percentage=1.0, connectivity=3,
+                      mp_pool_size=1):
     """
     Remove blobs that have less than N voxels.
     Write final result to output hdf5 file, output a .csv file indicating the location and size of each synapses.
@@ -54,7 +58,6 @@ def remove_small_piece(out_path, prefix, img, start, end, mask=None, threshold=1
     img[img != 0] = 1
     label_img = label(img, connectivity=connectivity)
     regionprop_img = regionprops(label_img)
-    idx = 0
 
     if mask is not None:
         assert mask.shape == img.shape, 'Mask and image shapes do not match!'
@@ -67,66 +70,78 @@ def remove_small_piece(out_path, prefix, img, start, end, mask=None, threshold=1
         '_z' + str(start[2]) + '_' + str(end[2]) + \
         '.csv'
 
-    csv_rows = []
-    for props in regionprop_img:
-        num_voxel = props.area
-        print('num voxels: ', num_voxel)
-        curr_obj = np.zeros(img.shape, dtype=img.dtype)
-        curr_obj[label_img == props.label] = 1
-        # because the image array has shape (cols, rows, slices)
-        # the coord comming from region properties will be
-        # in the form (x, y, z) instead of (slice, row, col)
-        center_x, center_y, center_z = props.centroid
-        curr_obj = curr_obj * mask
-        num_masked_voxels = np.count_nonzero(curr_obj)
-        print('  Non zero after masking: ', num_masked_voxels)
-
-        exclude = False
-        if num_voxel < threshold:
-            exclude = True
-        if percentage < 1:
-            if num_masked_voxels < num_voxel*percentage:
-                exclude = True
-        else:
-            if mask[int(center_x), int(center_y), int(center_z)] == 0:
-                exclude = True
-
-        if exclude:
-            print('  Excluding label', str(props.label), 'at', props.centroid)
-            img[label_img == props.label] = 0
-        else:
-            print('  Including label ', str(props.label), 'at', props.centroid)
-            if idx == 0:
-                with open(csv_filepath, 'w') as csv_file:
-                    print('Writing to', csv_filepath)
-                    writer = csv.writer(
-                        csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-                    writer.writerow(
-                        [' ID ', ' Num vxl ', ' centroid ', ' bbox x ', ' bbox y ', ' bbox z '])
-
-            idx += 1
-            min_x, min_y, min_z, max_x, max_y, max_z = props.bbox
-            bbox_x = (int(min_x+start[0]), int(max_x+start[0]))
-            bbox_y = (int(min_y+start[1]), int(max_y+start[1]))
-            bbox_z = (int(min_z+start[2]), int(max_z+start[2]))
-
-            center = (int(center_x+start[0]),
-                      int(center_y+start[1]),
-                      int(center_z+start[2]))
-
-            csv_row = [str(idx), str(num_voxel), str(center),
-                       str(bbox_x), str(bbox_y), str(bbox_z)]
-            csv_rows.append(csv_row)
+    if mp_pool_size > 1:
+        pool = ThreadPool(mp_pool_size)
+        csv_rows = filter(lambda x: x is not None,
+                        pool.map(partial(process_region,
+                                        label_img,
+                                        mask,
+                                        img.type),
+                                regionprop_img))
+    else:
+        csv_rows = filter(lambda x: x is not None,
+                        map(partial(process_region,
+                                        label_img,
+                                        mask,
+                                        img.type),
+                            regionprop_img))
 
     if len(csv_rows) > 0:
+        print('Writing to', csv_filepath)
         with open(csv_filepath, 'a') as csv_file:
             writer = csv.writer(csv_file, delimiter=',',
                                 quotechar='"', quoting=csv.QUOTE_MINIMAL)
-            writer.writerow(csv_row)
+            writer.writerow([' ID ', ' Num vxl ', ' centroid ',
+                             ' bbox x ', ' bbox y ', ' bbox z '])
+            idx = 1
+            for csv_row in csv_rows:
+                writer.writerow([idx] + csv_row)
+                idx = idx + 1
 
     img[img != 0] = 255
     print('Non-zero voxels:', np.count_nonzero(img))
     return img
+
+
+def process_region(label_img, mask, img_data_type, region):
+    num_voxel = region.area
+    print('num voxels: ', num_voxel)
+    curr_obj = np.zeros(mask.shape, dtype=img_data_type)
+    curr_obj[label_img == region.label] = 1
+    # because the image array has shape (cols, rows, slices)
+    # the coord comming from region properties will be
+    # in the form (x, y, z) instead of (slice, row, col)
+    center_x, center_y, center_z = region.centroid
+    curr_obj = curr_obj * mask
+    num_masked_voxels = np.count_nonzero(curr_obj)
+    print('  Non zero after masking: ', num_masked_voxels)
+
+    exclude = False
+    if num_voxel < threshold:
+        exclude = True
+    if percentage < 1:
+        if num_masked_voxels < num_voxel*percentage:
+            exclude = True
+    else:
+        if mask[int(center_x), int(center_y), int(center_z)] == 0:
+            exclude = True
+
+    if exclude:
+        print('  Excluding label', str(region.label), 'at', region.centroid)
+        return None
+    else:
+        print('  Including label ', str(region.label), 'at', region.centroid)
+        min_x, min_y, min_z, max_x, max_y, max_z = region.bbox
+        bbox_x = (int(min_x+start[0]), int(max_x+start[0]))
+        bbox_y = (int(min_y+start[1]), int(max_y+start[1]))
+        bbox_z = (int(min_z+start[2]), int(max_z+start[2]))
+
+        center = (int(center_x+start[0]),
+                    int(center_y+start[1]),
+                    int(center_z+start[2]))
+
+        return [str(num_voxel), str(center),
+                str(bbox_x), str(bbox_y), str(bbox_z)]
 
 
 def main():
@@ -171,6 +186,9 @@ def main():
 
     parser.add_argument('--keep_ws_tiff', dest='keep_ws_tiff', action='store_true', default=False,
                         help='If true keep the tiffs generated by the watershed')
+
+    parser.add_argument('--nthreads', dest='nthreads', type=int, default=0,
+                        help='Number of threads used for post processing connected regions')
 
     args = parser.parse_args()
     start = tuple([int(d) for d in args.start_coord.split(',')])
@@ -231,7 +249,8 @@ def main():
                              mask=mask,
                              threshold=args.threshold,
                              percentage=args.percentage,
-                             connectivity=args.connectivity)
+                             connectivity=args.connectivity,
+                             mp_pool_size=args.nthreads)
 
     write_n5_block(args.output_path, args.output_data_set, start, end, img)
 

@@ -208,7 +208,7 @@ workflow presynaptic_n1_to_n2 {
                     output_dirname,
                     'pre_synapse_seg_n1_n2',
                     params.postsynaptic_stage2_threshold,
-                    params.postsynaptic_stage2_percentage) // csv ouput
+                    params.postsynaptic_stage2_percentage), // csv ouput
             ]
         },
         params.postsynaptic_stage2_threshold,
@@ -428,11 +428,16 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
                 n5_stacks["pre_synapse_seg_n1"][1], // input dataset
                 n5_stacks["post_synapse_seg_pre_synapse_seg_n1"][0], // mask n5
                 n5_stacks["post_synapse_seg_pre_synapse_seg_n1"][1], // mask dataset
+                get_container_fullpath(
+                    output_dirname,
+                    get_n5_container_name('working_pre_synapse_seg_post_synapse_seg_n1_container'),
+                ), // output n5
+                params.working_pre_synapse_seg_post_synapse_seg_n1_dataset, // output dataset
+                n5_stacks["post_synapse_seg_pre_synapse_seg_n1"][2], // size
                 create_post_output_name(output_dirname,
                                         'pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1',
                                         params.postsynaptic_stage3_threshold,
-                                        params.postsynaptic_stage3_percentage),
-                n5_stacks["post_synapse_seg_pre_synapse_seg_n1"][2],
+                                        params.postsynaptic_stage3_percentage), // csv output
             ]
         },
         params.postsynaptic_stage3_threshold,
