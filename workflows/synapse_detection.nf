@@ -175,8 +175,16 @@ workflow presynaptic_n1_to_n2 {
         [
             output_dirname,
             n5_stacks + [
-                "pre_synapse_seg": [ presynaptic_seg_container_dir, presynaptic_seg_dataset, stack_size ],
-                "pre_synapse_seg_n1": [ presynaptic_seg_n1_container_dir, presynaptic_seg_n1_dataset, stack_size ]
+                "pre_synapse_seg": [
+                    presynaptic_seg_container_dir,
+                    presynaptic_seg_dataset,
+                    stack_size
+                ],
+                "pre_synapse_seg_n1": [
+                    presynaptic_seg_n1_container_dir,
+                    presynaptic_seg_n1_dataset,
+                    stack_size
+                ]
             ]
         ]
     }
@@ -224,7 +232,11 @@ workflow presynaptic_n1_to_n2 {
         [
             output_dirname,
             n5_stacks + [
-                "pre_synapse_seg_n1_n2": [ presynaptic_seg_n1_n2_container, presynaptic_seg_n1_n2_dataset, stack_size ]
+                "pre_synapse_seg_n1_n2": [
+                    presynaptic_seg_n1_n2_container,
+                    presynaptic_seg_n1_n2_dataset,
+                    stack_size
+                ]
             ]
         ]
     }
@@ -321,8 +333,16 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
         [
             output_dirname,
             n5_stacks + [
-                "pre_synapse_seg": [ presynaptic_seg_container_dir, presynaptic_seg_dataset, stack_size ],
-                "pre_synapse_seg_n1": [ presynaptic_seg_n1_container_dir, presynaptic_seg_n1_dataset, stack_size ]
+                "pre_synapse_seg": [
+                    presynaptic_seg_container_dir,
+                    presynaptic_seg_dataset,
+                    stack_size
+                ],
+                "pre_synapse_seg_n1": [
+                    presynaptic_seg_n1_container_dir,
+                    presynaptic_seg_n1_dataset,
+                    stack_size
+                ]
             ]
         ]
     }
@@ -383,8 +403,16 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
         def d = [
             output_dirname,
             n5_stacks + [
-                "post_synapse_seg": [ postsynaptic_seg_container, postsynaptic_seg_dataset, stack_size ],
-                "post_synapse_seg_pre_synapse_seg_n1": [ postsynaptic_seg_presynaptic_seg_n1_container, postsynaptic_seg_presynaptic_seg_n1_dataset, stack_size ]
+                "post_synapse_seg": [
+                    postsynaptic_seg_container,
+                    postsynaptic_seg_dataset,
+                    stack_size
+                ],
+                "post_synapse_seg_pre_synapse_seg_n1": [
+                    postsynaptic_seg_presynaptic_seg_n1_container,
+                    postsynaptic_seg_presynaptic_seg_n1_dataset,
+                    stack_size
+                ]
             ]
         ]
         log.debug "N5 stacks after postsynaptic masked with presynaptic n1: $d"
@@ -396,21 +424,23 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
         postsynaptic_to_presynaptic_to_n1_n5_stacks.map {
             def (output_dirname, n5_stacks) = it
             [
-                n5_stacks["pre_synapse_seg_n1"][0],
-                n5_stacks["post_synapse_seg_pre_synapse_seg_n1"][0],
+                n5_stacks["pre_synapse_seg_n1"][0], // input n5
+                n5_stacks["pre_synapse_seg_n1"][1], // input dataset
+                n5_stacks["post_synapse_seg_pre_synapse_seg_n1"][0], // mask n5
+                n5_stacks["post_synapse_seg_pre_synapse_seg_n1"][1], // mask dataset
                 create_post_output_name(output_dirname,
                                         'pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1',
                                         params.postsynaptic_stage3_threshold,
                                         params.postsynaptic_stage3_percentage),
-                n5_stacks["post_synapse_seg_pre_synapse_seg_n1"][1],
+                n5_stacks["post_synapse_seg_pre_synapse_seg_n1"][2],
             ]
         },
         params.postsynaptic_stage3_threshold,
         params.postsynaptic_stage3_percentage,
     )
     | map {
-        def n5_file = file(it[0])
-        [ "${n5_file.parent}" ] + it
+        def csv_file = file(it[-1])
+        [ "${csv_file.parent}" ] + it
     } // [ working_dir, synapse_seg_n1, post_synapse_seg_pre_synapse_seg_n1, pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1, synapse_size, pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1_csv ]
 
     presynaptic_to_postsynaptic_to_presynaptic_to_n1_results.subscribe { log.debug "presynaptic n1 masked with postsynapttic results: $it" }
@@ -419,13 +449,19 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
     | join(presynaptic_to_postsynaptic_to_presynaptic_to_n1_results, by:0)
     | map {
         def (output_dirname, n5_stacks,
-             presynaptic_seg_n1_stack, post_synapse_seg_pre_synapse_seg_n1_stack,
-             pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1_stack,
-             stack_size) = it
+             presynaptic_seg_n1_container, presynaptic_seg_n1_dataset,
+             post_synapse_seg_pre_synapse_seg_n1_container, post_synapse_seg_pre_synapse_seg_n1_dataset,
+             pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1_container, pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1_dataset,
+             stack_size,
+             csv_results) = it
         def d = [
             output_dirname,
             n5_stacks + [
-                "pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1": [ pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1_stack, stack_size ]
+                "pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1": [
+                    pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1_container,
+                    pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1_dataset,
+                    stack_size
+                ]
             ]
         ]
         log.debug "N5 stacks after presynaptic n1 masked with postsynaptic: $d"
