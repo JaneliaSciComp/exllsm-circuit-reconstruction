@@ -18,15 +18,21 @@ workflow presynaptic_in_volume {
     output_dir
 
     main:
-    def presynaptic_stack_name = "pre_synapse"
+    def presynaptic_stack_name = 'pre_synapse'
+    def n1_stack_name = 'n1_mask'
 
     def n5_input_stacks = prepare_n5_inputs(
-        presynaptic_stack_name,
+        [
+            presynaptic_stack_name,
+            n1_stack_name,
+        ],
         input_data,
         output_dir,
         [
             get_n5_container_name('working_pre_synapse_container'),
             params.working_pre_synapse_dataset,
+            get_n5_container_name('working_n1_mask_container'),
+            params.working_n1_mask_dataset,
         ]
     )
     def presynaptic_n1_results = classify_presynaptic_regions(
@@ -46,8 +52,8 @@ workflow presynaptic_in_volume {
         n5_input_stacks.map {
             def (output_dirname, n5_stacks) = it
             [
-                '', // mask_n5
-                '', // mask_dataset
+                n5_stacks[n1_stack_name][0], // mask_n5_dir
+                n5_stacks[n1_stack_name][1], // mask_dataset
                 get_container_fullpath(
                     output_dirname,
                     get_n5_container_name('working_pre_synapse_seg_post_container')
@@ -83,11 +89,19 @@ workflow presynaptic_in_volume {
             presynaptic_seg_post_container, presynaptic_seg_post_dataset,
             stack_size,
             csv_results) = it
+        log.info "!!!!!!!!!! MASK CONTAINER $mask_container"
+        def post_pre_synaptic_seg_key = mask_container
+            ? 'pre_synapse_seg_n1'
+            : 'pre_synapse_seg_post'
         [
             output_dirname,
             n5_stacks + [
-                "pre_synapse_seg": [ presynaptic_seg_container, presynaptic_seg_dataset, stack_size ],
-                "pre_synapse_seg_post": [ presynaptic_seg_post_container, presynaptic_seg_post_dataset, stack_size ],
+                'pre_synapse_seg': [
+                    presynaptic_seg_container,
+                    presynaptic_seg_dataset,
+                    stack_size
+                ],
+                post_pre_synaptic_seg_key: [ presynaptic_seg_post_container, presynaptic_seg_post_dataset, stack_size ],
             ]
         ]
     }
@@ -104,9 +118,9 @@ workflow presynaptic_n1_to_n2 {
     output_dir
 
     main:
-    def presynaptic_stack_name = "pre_synapse"
-    def n1_stack_name = "n1_mask"
-    def n2_stack_name = "n2_mask"
+    def presynaptic_stack_name = 'pre_synapse'
+    def n1_stack_name = 'n1_mask'
+    def n2_stack_name = 'n2_mask'
 
     def n5_input_stacks = prepare_n5_inputs(
         [
@@ -185,12 +199,12 @@ workflow presynaptic_n1_to_n2 {
         [
             output_dirname,
             n5_stacks + [
-                "pre_synapse_seg": [
+                'pre_synapse_seg': [
                     presynaptic_seg_container_dir,
                     presynaptic_seg_dataset,
                     stack_size
                 ],
-                "pre_synapse_seg_n1": [
+                'pre_synapse_seg_n1': [
                     presynaptic_seg_n1_container_dir,
                     presynaptic_seg_n1_dataset,
                     stack_size
@@ -596,7 +610,7 @@ workflow prepare_n5_inputs {
         [ output_dirname,  data_stacks ]
     } // [ output_dir, {<stack_name>: [<stack_n5_container>, <stack_dataset>, <stack_size>]} ]
 
-    n5_stacks.subscribe { log.debug "prepare_n5_inputs: N5 stacks: $it" }
+    n5_stacks.subscribe { log.info "prepare_n5_inputs: N5 stacks: $it" }
  
     emit:
     done = n5_stacks
