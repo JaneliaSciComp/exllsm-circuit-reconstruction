@@ -623,7 +623,22 @@ workflow input_stacks_to_n5 {
     input_data // [ input_stack, input_dataset, output_stack, output_dataset, output_dir, stack_name ]
 
     main:
+    def empty_stacks = input_data
+    | filter { !it[0] }
+    | map {
+        def (input_stack, input_dataset,
+             output_stack, output_dataset,
+             output_dirname, stack_name) = it
+        [
+            output_dirname, stack_name,
+            input_stack, input_dataset,
+            output_stack, output_dataset,
+            {}
+        ]
+    }
+
     def tiff_to_n5_inputs = input_data
+    | filter { it[0] } // input_dir must be set
     | map {
         def (input_dir, input_dataset,
              output_dir, output_dataset) = it
@@ -645,7 +660,9 @@ workflow input_stacks_to_n5 {
             output_stack, output_dataset,
             dims
         ]
-    } // // [ parent_output_dir, stack_name, input_stack, output_stack, stack_volume_size ]
+    } // [ parent_output_dir, stack_name, input_stack, output_stack, stack_volume_size ]
+    | concat(empty_stacks)
+
 
     output_data.subscribe { log.debug "input_stacks_to_n5: N5 stack: $it" }
 
