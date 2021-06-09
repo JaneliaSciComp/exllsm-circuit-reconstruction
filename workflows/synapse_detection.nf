@@ -617,7 +617,7 @@ def get_container_fullpath(output_dir, container_dirname) {
 }
 
 def get_n5_container_name(container_key) {
-    get_value_with_default_param(params, container_key, 'working_container'),
+    get_value_with_default_param(params, container_key, 'working_container')
 }
 
 def get_value_with_default_param(Map ps, String param, String default_param) {
