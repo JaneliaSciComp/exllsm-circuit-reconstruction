@@ -11,12 +11,14 @@ process compute_unet_scaling {
     ]) }
 
     input:
-    tuple val(input_image), val(start), val(end)
+    tuple val(input_image), val(input_dataset)
+          val(start),
+          val(end)
     val(n_tiles_for_scaling) // number of tiles used for computing the scaling
     val(percent_tiles_for_scaling) // percentage of the tiles used for scaling
 
     output:
-    tuple val(input_image), env(scaling)
+    tuple val(input_image), val(input_dataset), env(scaling)
 
     script:
     def scaling_partition_size_arg = params.neuron_scaling_partition_size
@@ -41,7 +43,7 @@ process compute_unet_scaling {
     scaling_log=\$PWD/scaling.log
     /entrypoint.sh volumeScalingFactor \
         -i ${input_image} \
-        -d ${params.neuron_input_dataset} \
+        -d ${input_dataset} \
         ${n_tiles_arg} ${percent_tiles_arg} \
         ${scaling_partition_size_arg} \
         ${scaling_plots_dir_arg} \
@@ -65,10 +67,19 @@ process unet_volume_segmentation {
     ]) }
 
     input:
-    tuple val(input_image), val(output_image), val(vol_size), val(start_subvolume), val(end_subvolume), val(scaling)
+    tuple val(input_image), val(input_dataset),
+          val(output_image), val(output_dataset),
+          val(vol_size),
+          val(start_subvolume),
+          val(end_subvolume),
+          val(scaling)
 
     output:
-    tuple val(input_image), val(output_image), val(vol_size), val(start_subvolume), val(end_subvolume)
+    tuple val(input_image), val(input_dataset),
+          val(output_image), val(output_dataset),
+          val(vol_size),
+          val(start_subvolume),
+          val(end_subvolume)
 
     script:
     def gpu_mem_growth_arg = params.use_gpu_mem_growth ? '--set_gpu_mem_growth' : ''
@@ -78,9 +89,9 @@ process unet_volume_segmentation {
     """
     /entrypoint.sh volumeSegmentation \
         -i ${input_image} \
-        -id ${params.neuron_input_dataset} \
+        -id ${input_dataset} \
         -o ${output_image} \
-        -od ${params.neuron_output_dataset} \
+        -od ${output_dataset} \
         -m ${params.neuron_model} \
         --image_shape ${vol_size} \
         --start ${start_subvolume} \
