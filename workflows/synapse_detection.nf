@@ -631,8 +631,8 @@ workflow input_stacks_to_n5 {
              output_dirname, stack_name) = it
         [
             output_dirname, stack_name,
-            input_stack, input_dataset,
-            output_stack, output_dataset,
+            '', '', // input stack and dataset
+            '', '', // output stack and dataset
             [0, 0, 0]
         ]
     }
