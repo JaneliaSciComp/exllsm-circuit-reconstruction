@@ -25,7 +25,7 @@ workflow presynaptic_in_volume {
         input_data,
         output_dir,
         [
-            get_value_with_default_param(params, 'working_pre_synapse_container', 'working_container'),
+            get_n5_container_name('working_pre_synapse_container'),
             params.working_pre_synapse_dataset,
         ]
     )
@@ -37,7 +37,7 @@ workflow presynaptic_in_volume {
                 n5_stacks[presynaptic_stack_name][1], // input_datasett
                 get_container_fullpath(
                     output_dirname,
-                    get_value_with_default_param(params, 'working_pre_synapse_seg_container', 'working_container')
+                    get_n5_container_name('working_pre_synapse_seg_container')
                 ), // unet_n5_dir
                 params.working_pre_synapse_seg_dataset, // unet_dataset
                 n5_stacks[presynaptic_stack_name][2],
@@ -50,7 +50,7 @@ workflow presynaptic_in_volume {
                 '', // mask_dataset
                 get_container_fullpath(
                     output_dirname,
-                    get_value_with_default_param(params, 'working_pre_synapse_seg_post_container', 'working_container')
+                    get_n5_container_name('working_pre_synapse_seg_post_container')
                 ), // post_unet_n5_dir
                 params.working_pre_synapse_seg_post_dataset, // post_unet_dataset
                 create_post_output_name(output_dirname,
@@ -86,7 +86,7 @@ workflow presynaptic_in_volume {
             ]
         ]
     }
-    final_n5_stacks.subscribe { log.info "final presynaptic in volume results: $it" }
+    final_n5_stacks.subscribe { log.debug "final presynaptic in volume results: $it" }
 
     emit:
     done = n5_input_stacks
@@ -112,11 +112,11 @@ workflow presynaptic_n1_to_n2 {
         input_data,
         output_dir,
         [ 
-            get_value_with_default_param(params, 'working_pre_synapse_container', 'working_container'),
+            get_n5_container_name('working_pre_synapse_container'),
             params.working_pre_synapse_dataset,
-            get_value_with_default_param(params, 'working_n1_mask_container', 'working_container'),
+            get_n5_container_name('working_n1_mask_container'),
             params.working_n1_mask_dataset,
-            get_value_with_default_param(params, 'working_n2_mask_container', 'working_container'),
+            get_n5_container_name('working_n2_mask_container'),
             params.working_n2_mask_dataset,
         ]
     )
@@ -130,7 +130,7 @@ workflow presynaptic_n1_to_n2 {
                 n5_stacks[presynaptic_stack_name][1], // input_dataset_name
                 get_container_fullpath(
                     output_dirname,
-                    get_value_with_default_param(params, 'working_pre_synapse_seg_container', 'working_container')
+                    get_n5_container_name('working_pre_synapse_seg_container')
                 ), // unet_n5_dir
                 params.working_pre_synapse_seg_dataset, // unet_dataset
                 n5_stacks[presynaptic_stack_name][2], // input size
@@ -143,7 +143,7 @@ workflow presynaptic_n1_to_n2 {
                 n5_stacks[n1_stack_name][1], // mask_dataset
                 get_container_fullpath(
                     output_dirname,
-                    get_value_with_default_param(params, 'working_pre_synapse_seg_n1_container', 'working_container')
+                    get_n5_container_name('working_pre_synapse_seg_n1_container')
                 ), // post_unet_n5_dir
                 params.working_pre_synapse_seg_n1_dataset, // post_unet_dataset
                 create_post_output_name(
@@ -200,7 +200,7 @@ workflow presynaptic_n1_to_n2 {
                 n5_stacks[n2_stack_name][1], // mask dataset
                 get_container_fullpath(
                     output_dirname,
-                    get_value_with_default_param(params, 'working_pre_synapse_seg_n1_n2_container', 'working_container'),
+                    get_n5_container_name('working_pre_synapse_seg_n1_n2_container'),
                 ), // output n5
                 params.working_pre_synapse_seg_n1_n2_dataset, // output dataset
                 n5_stacks[n2_stack_name][2], // size
@@ -240,7 +240,7 @@ workflow presynaptic_n1_to_n2 {
             ]
         ]
     }
-    final_n5_stacks.subscribe { log.info "final presynaptic n1 to n2 results: $it" }
+    final_n5_stacks.subscribe { log.debug "final presynaptic n1 to n2 results: $it" }
 
     emit:
     done = final_n5_stacks
@@ -263,16 +263,16 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
         [
             presynaptic_stack_name,
             neuron_stack_name,
-            postsynaptic_stack_name
-        ]
+            postsynaptic_stack_name,
+        ],
         input_data,
         output_dir,
         [
-            get_value_with_default_param(params, 'working_pre_synapse_container', 'working_container'),
+            get_n5_container_name('working_pre_synapse_container'),
             params.working_pre_synapse_dataset,
-            get_value_with_default_param(params, 'working_n1_mask_container', 'working_container'),
+            get_n5_container_name('working_n1_mask_container'),
             params.working_n1_mask_dataset,
-            get_value_with_default_param(params, 'working_post_synapse_container', 'working_container'),
+            get_n5_container_name('working_post_synapse_container'),
             params.working_post_synapse_dataset,
         ]
     )
@@ -286,7 +286,7 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
                 n5_stacks[presynaptic_stack_name][1], // input dataset
                 get_container_fullpath(
                     output_dirname,
-                    get_value_with_default_param(params, 'working_pre_synapse_seg_container', 'working_container')
+                    get_n5_container_name('working_pre_synapse_seg_container')
                 ), // unet_n5_dir
                 params.working_pre_synapse_seg_dataset, // unet_dataset
                 n5_stacks[presynaptic_stack_name][2], // input size
@@ -299,7 +299,7 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
                 n5_stacks[neuron_stack_name][1], // mask dataset
                 get_container_fullpath(
                     output_dirname,
-                    get_value_with_default_param(params, 'working_pre_synapse_seg_n1_container', 'working_container')
+                    get_n5_container_name('working_pre_synapse_seg_n1_container')
                 ), // post_unet_n5_dir
                 params.working_pre_synapse_seg_n1_dataset, // post_unet_dataset
                 create_post_output_name(
@@ -357,7 +357,7 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
                 n5_stacks[postsynaptic_stack_name][1], // input dataset
                 get_container_fullpath(
                     output_dirname,
-                    get_value_with_default_param(params, 'working_post_synapse_seg_container', 'working_container')
+                    get_n5_container_name('working_post_synapse_seg_container')
                 ), // unet_n5_dir
                 params.working_post_synapse_seg_dataset, // unet_dataset
                 n5_stacks[postsynaptic_stack_name][2],
@@ -370,7 +370,7 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
                 n5_stacks["pre_synapse_seg_n1"][1], // mask dataset
                 get_container_fullpath(
                     output_dirname,
-                    get_value_with_default_param(params, 'working_post_synapse_seg_n1_container', 'working_container')
+                    get_n5_container_name('working_post_synapse_seg_n1_container')
                 ), // post_unet_n5_dir
                 params.working_post_synapse_seg_n1_dataset, // post_unet_dataset
                 create_post_output_name(output_dirname,
@@ -520,7 +520,7 @@ workflow prepare_n5_inputs {
             }
     }
 
-    unflattened_input_data.subscribe { log.info "prepare_n5_inputs: N5 input $it" }
+    unflattened_input_data.subscribe { log.debug "prepare_n5_inputs: N5 input $it" }
 
     def n5_stacks = unflattened_input_data
     | map {
@@ -538,7 +538,7 @@ workflow prepare_n5_inputs {
             output_dirname,
             stack_name,
         ]
-        log.info "input_stacks_to_n5 input: $d"
+        log.debug "input_stacks_to_n5 input: $d"
         d
     }
     | input_stacks_to_n5
@@ -565,7 +565,7 @@ workflow prepare_n5_inputs {
         [ output_dirname,  data_stacks ]
     } // [ output_dir, {<stack_name>: [<stack_n5_container>, <stack_dataset>, <stack_size>]} ]
 
-    n5_stacks.subscribe { log.info "prepare_n5_inputs: N5 stacks: $it" }
+    n5_stacks.subscribe { log.debug "prepare_n5_inputs: N5 stacks: $it" }
  
     emit:
     done = n5_stacks
@@ -600,17 +600,10 @@ workflow input_stacks_to_n5 {
         ]
     } // // [ parent_output_dir, stack_name, input_stack, output_stack, stack_volume_size ]
 
-    output_data.subscribe { log.info "input_stacks_to_n5: N5 stack: $it" }
+    output_data.subscribe { log.debug "input_stacks_to_n5: N5 stack: $it" }
 
     emit:
     done = output_data
-}
-
-def get_value_with_default_param(Map ps, String param, String default_param) {
-    if (ps[param])
-        ps[param]
-    else
-        ps[default_param]
 }
 
 def create_post_output_name(dirname, fname, threshold, perccentage) {
@@ -621,4 +614,15 @@ def create_post_output_name(dirname, fname, threshold, perccentage) {
 def get_container_fullpath(output_dir, container_dirname) {
     def container_path = new File("${output_dir}", "${container_dirname}")
     "${container_path.canonicalPath}"
+}
+
+def get_n5_container_name(container_key) {
+    get_value_with_default_param(params, container_key, 'working_container'),
+}
+
+def get_value_with_default_param(Map ps, String param, String default_param) {
+    if (ps[param])
+        ps[param]
+    else
+        ps[default_param]
 }
