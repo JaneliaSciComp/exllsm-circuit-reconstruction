@@ -85,15 +85,9 @@ workflow connect_regions_in_volume {
     postprocessing_cpus
     postprocessing_memory
     postprocessing_threads
-    skip_empty_mask
 
     main:
     def re_arranged_input_data = input_data
-    | filter {
-        def (in_image, in_dataset,
-             mask, mask_dataset) = it
-        !skip_empty_mask || mask
-    }
     | map {
         def (in_image, in_dataset,
              mask, mask_dataset,
@@ -269,7 +263,6 @@ workflow classify_and_connect_regions_in_volume {
         postprocessing_cpus,
         postprocessing_memory,
         postprocessing_threads,
-        false
     ) // [ unet_image, mask, post_unet_image, image_size, post_unet_csv ]
 
     post_classifier_results.subscribe { log.debug "Post U-Net results: $it" }

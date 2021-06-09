@@ -19,6 +19,8 @@ def synapse_params = final_params + [
 ]
 
 include {
+    classify_presynaptic_regions;
+    collocate_synaptic_regions;
     presynaptic_in_volume;
     presynaptic_n1_to_n2;
     presynaptic_n1_to_postsynaptic_n2;
@@ -30,8 +32,33 @@ workflow {
     def synapses_res;
     switch(synapse_params.pipeline) {
         case 'classify_synapses':
+            if (!synapse_params.pre_synapse_stack_dir) {
+                log.error "'--pre_synapse_stack_dir' must be defined"
+                exit(1)
+            }
+            synapses_res = classify_presynaptic_regions(
+                [
+                    synapse_params.pre_synapse_stack_dir,
+                    synapse_params.pre_synapse_in_dataset,
+                ],
+                pipeline_output_dir,
+            )
             break
-        case 'connect_synapses':
+        case 'collocate_synapses':
+            if (!synapse_params.pre_synapse_stack_dir ||
+                !synapse_params.n1_stack_dir) {
+                log.error "'--pre_synapse_stack_dir', '--n1_stack_dir' must be defined"
+                exit(1)
+            }
+            synapses_res = collocate_synaptic_regions(
+                [
+                    synapse_params.pre_synapse_stack_dir,
+                    synapse_params.pre_synapse_in_dataset,
+                    synapse_params.n1_stack_dir,
+                    synapse_params.n1_in_dataset,
+                ],
+                pipeline_output_dir,
+            )
             break
         case 'presynaptic_n1_to_n2':
             if (!synapse_params.pre_synapse_stack_dir ||
