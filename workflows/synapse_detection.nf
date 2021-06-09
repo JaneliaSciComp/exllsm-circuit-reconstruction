@@ -18,8 +18,8 @@ workflow presynaptic_in_volume {
     output_dir
 
     main:
-
     def presynaptic_stack_name = "pre_synapse"
+
     def n5_input_stacks = prepare_n5_inputs(
         presynaptic_stack_name,
         input_data,
@@ -133,7 +133,7 @@ workflow presynaptic_n1_to_n2 {
                     get_value_with_default_param(params, 'working_pre_synapse_seg_container', 'working_container')
                 ), // unet_n5_dir
                 params.working_pre_synapse_seg_dataset, // unet_dataset
-                n5_stacks[presynaptic_stack_name][2],
+                n5_stacks[presynaptic_stack_name][2], // input size
             ]
         },
         n5_input_stacks.map {
@@ -270,19 +270,31 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
         n5_input_stacks.map {
             def (output_dirname, n5_stacks) = it
             [
-                n5_stacks[presynaptic_stack_name][0],
-                "${output_dirname}/pre_synapse_seg.n5",
-                n5_stacks[presynaptic_stack_name][1],
+                n5_stacks[presynaptic_stack_name][0], // input n5 container
+                n5_stacks[presynaptic_stack_name][1], // input dataset
+                get_container_fullpath(
+                    output_dirname,
+                    get_value_with_default_param(params, 'working_pre_synapse_seg_container', 'working_container')
+                ), // unet_n5_dir
+                params.working_pre_synapse_seg_dataset, // unet_dataset
+                n5_stacks[presynaptic_stack_name][2], // input size
             ]
         },
         n5_input_stacks.map {
             def (output_dirname, n5_stacks) = it
             [
-                n5_stacks[neuron_stack_name][0],
-                create_post_output_name(output_dirname,
-                                        'pre_synapse_seg_n1',
-                                        params.presynaptic_stage2_threshold,
-                                        params.presynaptic_stage2_percentage),
+                n5_stacks[neuron_stack_name][0], // mask n5 container
+                n5_stacks[neuron_stack_name][1], // mask dataset
+                get_container_fullpath(
+                    output_dirname,
+                    get_value_with_default_param(params, 'working_pre_synapse_seg_n1_container', 'working_container')
+                ), // post_unet_n5_dir
+                params.working_pre_synapse_seg_n1_dataset, // post_unet_dataset
+                create_post_output_name(
+                    output_dirname,
+                    'pre_synapse_seg_n1',
+                    params.presynaptic_stage2_threshold,
+                    params.presynaptic_stage2_percentage), // post unet csv
             ]
         },
         params.synapse_model,
@@ -290,8 +302,8 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
         params.presynaptic_stage2_percentage,
     )
     | map {
-        def n5_file = file(it[0])
-        [ "${n5_file.parent}" ] + it
+        def csv_file = file(it[-1])
+        [ "${csv_file.parent}" ] + it
     } // [ output_dir, pre_synapse, n1, synapse_seg, synapse_seg_n1, size ]
 
     presynaptic_n1_results.subscribe { log.debug "presynaptic n1 results: $it" }
@@ -300,18 +312,19 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
     | join(presynaptic_n1_results, by:0)
     | map {
         def (output_dirname, n5_stacks,
-             presynaptic_stack, neuron_stack,
-             presynaptic_seg_stack, presynaptic_seg_n1_stack,
-             stack_size) = it
-        def d = [
+             presynaptic_container_dir, presynaptic_dataset, 
+             n1_container_dir, n1_dataset,
+             presynaptic_seg_container_dir, presynaptic_seg_dataset,
+             presynaptic_seg_n1_container_dir, presynaptic_seg_n1_dataset,
+             stack_size,
+             csv_results) = it
+        [
             output_dirname,
             n5_stacks + [
-                "pre_synapse_seg": [ presynaptic_seg_stack, stack_size ],
-                "pre_synapse_seg_n1": [ presynaptic_seg_n1_stack, stack_size ]
+                "pre_synapse_seg": [ presynaptic_seg_container_dir, presynaptic_seg_dataset, stack_size ],
+                "pre_synapse_seg_n1": [ presynaptic_seg_n1_container_dir, presynaptic_seg_n1_dataset, stack_size ]
             ]
         ]
-        log.debug "N5 stacks after presynaptic n1: $d"
-        d
     }
 
     // Segment postsynaptic volume and identify postsynaptic regions that colocalize with presynaptic neuron1
