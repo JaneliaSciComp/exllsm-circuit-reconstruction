@@ -80,12 +80,12 @@ def remove_small_piece(out_path, prefix, img, start, end, mask=None,
                                     percentage),
                             regionprop_img)
     else:
-        csv_rows = map(partial(process_region,
-                               label_img,
-                               mask, start, end, img.dtype,
-                               threshold,
-                               percentage),
-                       regionprop_img)
+        csv_rows = list(map(partial(process_region,
+                                    label_img,
+                                    mask, start, end, img.dtype,
+                                    threshold,
+                                    percentage),
+                            regionprop_img))
 
     if len(csv_rows) > 0:
         print('Writing to', csv_filepath)
