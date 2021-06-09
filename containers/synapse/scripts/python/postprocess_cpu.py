@@ -73,21 +73,19 @@ def remove_small_piece(out_path, prefix, img, start, end, mask=None,
 
     if mp_pool_size > 1:
         pool = ThreadPool(mp_pool_size)
-        csv_rows = filter(lambda x: x is not None,
-                          pool.map(partial(process_region,
-                                           label_img,
-                                           mask, start, end, img.dtype,
-                                           threshold,
-                                           percentage),
-                                   regionprop_img))
+        csv_rows = pool.map(partial(process_region,
+                                    label_img,
+                                    mask, start, end, img.dtype,
+                                    threshold,
+                                    percentage),
+                            regionprop_img)
     else:
-        csv_rows = filter(lambda x: x is not None,
-                          map(partial(process_region,
-                                      label_img,
-                                      mask, start, end, img.dtype,
-                                      threshold,
-                                      percentage),
-                              regionprop_img))
+        csv_rows = map(partial(process_region,
+                               label_img,
+                               mask, start, end, img.dtype,
+                               threshold,
+                               percentage),
+                       regionprop_img)
 
     if len(csv_rows) > 0:
         print('Writing to', csv_filepath)
@@ -98,8 +96,9 @@ def remove_small_piece(out_path, prefix, img, start, end, mask=None,
                              ' bbox x ', ' bbox y ', ' bbox z '])
             idx = 1
             for csv_row in csv_rows:
-                writer.writerow([idx] + csv_row)
-                idx = idx + 1
+                if csv_row is not None:
+                    writer.writerow([idx] + csv_row)
+                    idx = idx + 1
 
     img[img != 0] = 255
     print('Non-zero voxels:', np.count_nonzero(img))
