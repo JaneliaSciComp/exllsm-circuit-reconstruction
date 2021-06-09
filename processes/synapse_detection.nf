@@ -4,8 +4,8 @@ include {
 
 process unet_classifier {
     container { params.exm_synapse_container }
-    cpus { params.unet_cpus }
-    memory { params.unet_memory }
+    cpus { cpus }
+    memory { memory }
     accelerator 1
     label 'withGPU'
     containerOptions { create_container_options([
@@ -22,6 +22,8 @@ process unet_classifier {
           val(start_subvolume),
           val(end_subvolume)
     val(synapse_model)
+    val(cpus)
+    val(memory)
 
     output:
     tuple val(input_image),
@@ -54,8 +56,8 @@ process unet_classifier {
 
 process segmentation_postprocessing {
     container { params.exm_synapse_container }
-    cpus { params.postprocessing_cpus }
-    memory { params.postprocessing_memory }
+    cpus { cpus }
+    memory { memory }
     containerOptions { create_container_options([
         input_image,
         mask_image,
@@ -75,6 +77,9 @@ process segmentation_postprocessing {
           val(end_subvolume)
     val(threshold)
     val(percentage)
+    val(cpus)
+    val(memory)
+    val(postprocessing_threads)
 
     output:
     tuple val(input_image),
@@ -100,8 +105,8 @@ process segmentation_postprocessing {
         ? "--mask_data_set ${mask_dataset}"
         : '' 
     def mask_arg = mask_image ? "-m ${mask_image} ${mask_dataset_arg}" : ''
-    def nthreads_arg = params.postprocessing_cpus > 1
-        ? "--nthreads ${params.postprocessing_cpus}"
+    def nthreads_arg = postprocessing_threads > 1
+        ? "--nthreads ${postprocessing_threads}"
         : ''
     """
     mkdir -p ${output_csv_dir}

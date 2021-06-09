@@ -60,6 +60,7 @@ def synapse_params() {
         unet_memory: '3 G',
         postprocessing_cpus: 3,
         postprocessing_memory: '3 G',
+        postprocessing_threads: 3,
         presynaptic_stage2_threshold: 400,
         presynaptic_stage2_percentage: 0.5,
         postsynaptic_stage2_threshold: 200,

@@ -62,6 +62,11 @@ workflow presynaptic_in_volume {
         params.synapse_model,
         params.presynaptic_stage2_threshold,
         params.presynaptic_stage2_percentage,
+        params.unet_cpus,
+        params.unet_memory,
+        params.postprocessing_cpus,
+        params.postprocessing_memory,
+        params.postprocessing_threads,
     )
     | map {
         def csv_file = file(it[-1])
@@ -156,6 +161,11 @@ workflow presynaptic_n1_to_n2 {
         params.synapse_model,
         params.presynaptic_stage2_threshold,
         params.presynaptic_stage2_percentage,
+        params.unet_cpus,
+        params.unet_memory,
+        params.postprocessing_cpus,
+        params.postprocessing_memory,
+        params.postprocessing_threads,
     )
     | map {
         def csv_file = file(it[-1])
@@ -213,6 +223,9 @@ workflow presynaptic_n1_to_n2 {
         },
         params.postsynaptic_stage2_threshold,
         params.postsynaptic_stage2_percentage,
+        params.postprocessing_cpus,
+        params.postprocessing_memory,
+        params.postprocessing_threads,
     )
     | map {
         def csv_file = file(it[-1])
@@ -312,6 +325,11 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
         params.synapse_model,
         params.presynaptic_stage2_threshold,
         params.presynaptic_stage2_percentage,
+        params.unet_cpus,
+        params.unet_memory,
+        params.postprocessing_cpus,
+        params.postprocessing_memory,
+        params.postprocessing_threads,
     )
     | map {
         def csv_file = file(it[-1])
@@ -382,6 +400,11 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
         params.synapse_model,
         params.postsynaptic_stage2_threshold,
         params.postsynaptic_stage2_percentage,
+        params.unet_cpus,
+        params.unet_memory,
+        params.postprocessing_cpus,
+        params.postprocessing_memory,
+        params.postprocessing_threads,
     )
     | map {
         def csv_file = file(it[-1])
@@ -442,6 +465,9 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
         },
         params.postsynaptic_stage3_threshold,
         params.postsynaptic_stage3_percentage,
+        params.postprocessing_cpus,
+        params.postprocessing_memory,
+        params.postprocessing_threads,
     )
     | map {
         def csv_file = file(it[-1])

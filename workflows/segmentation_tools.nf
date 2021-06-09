@@ -23,6 +23,8 @@ workflow classify_regions_in_volume {
     take:
     input_data // [ input_image, input_dataset, output_image, output_dataset, size ]
     unet_model
+    unet_cpus
+    unet_memory
 
     main:
     def unet_inputs = input_data
@@ -54,7 +56,12 @@ workflow classify_regions_in_volume {
         }
     } // [ in_image, start_subvol, end_subvol, out_image, image_size ]
 
-    def unet_classifier_results = unet_classifier(unet_inputs, unet_model)
+    def unet_classifier_results = unet_classifier(
+        unet_inputs,
+        unet_model,
+        unet_cpus,
+        unet_memory,
+    )
     | groupTuple(by: [0,1,2,3,4]) // wait for all subvolumes to be done
     | map {
         def (in_image, in_dataset,
@@ -75,6 +82,9 @@ workflow connect_regions_in_volume {
     input_data // channel of [ input_image, input_dataset, mask, mask_dataset, output_image, output_dataset, size, output_csv ]
     threshold
     percentage
+    postprocessing_cpus
+    postprocessing_memory
+    postprocessing_threads
 
     main:
     def re_arranged_input_data = input_data
@@ -129,6 +139,9 @@ workflow connect_regions_in_volume {
         post_processing_inputs,
         threshold,
         percentage,
+        postprocessing_cpus,
+        postprocessing_memory,
+        postprocessing_threads
     )
     | groupTuple(by: [0,1,2,3,4,5,6,7]) // wait for all subvolumes to be done
     | map {
@@ -183,6 +196,11 @@ workflow classify_and_connect_regions_in_volume {
     unet_model
     threshold
     percentage
+    unet_cpus
+    unet_memory
+    postprocessing_cpus
+    postprocessing_memory
+    postprocessing_threads
 
     main:
     def input_data = index_channel(unet_input)
@@ -209,7 +227,9 @@ workflow classify_and_connect_regions_in_volume {
 
     def classifier_results = classify_regions_in_volume(
         unet_input,
-        unet_model
+        unet_model,
+        unet_cpus,
+        unet_memory,
     ) // [ input_image, input_dataset, unet_image, unet_dataset, image_size,  ]
 
     classifier_results.subscribe { log.debug "U-Net results: $it" }
@@ -237,7 +257,10 @@ workflow classify_and_connect_regions_in_volume {
     def post_classifier_results = connect_regions_in_volume(
         post_classifier_inputs,
         threshold,
-        percentage
+        percentage,
+        postprocessing_cpus,
+        postprocessing_memory,
+        postprocessing_threads,
     ) // [ unet_image, mask, post_unet_image, image_size, post_unet_csv ]
 
     post_classifier_results.subscribe { log.debug "Post U-Net results: $it" }
