@@ -122,7 +122,7 @@ workflow collocate_synapses {
         [
             output_dirname,
             n5_stacks + [
-                "pre_synapse_seg_n1": [
+                'pre_synapse_seg_n1': [
                     presynaptic_seg_n1_container,
                     presynaptic_seg_n1_dataset,
                     stack_size
@@ -352,8 +352,8 @@ workflow presynaptic_n1_to_n2 {
         presynaptic_to_n1_n5_stacks.map {
             def (output_dirname, n5_stacks) = it
             [
-                n5_stacks["pre_synapse_seg_n1"][0], // input n5
-                n5_stacks["pre_synapse_seg_n1"][1], // input dataset
+                n5_stacks['pre_synapse_seg_n1'][0], // input n5
+                n5_stacks['pre_synapse_seg_n1'][1], // input dataset
                 n5_stacks[n2_stack_name][0], // mask n5
                 n5_stacks[n2_stack_name][1], // mask dataset
                 get_container_fullpath(
@@ -361,7 +361,7 @@ workflow presynaptic_n1_to_n2 {
                     get_n5_container_name('working_pre_synapse_seg_n1_n2_container'),
                 ), // output n5
                 params.working_pre_synapse_seg_n1_n2_dataset, // output dataset
-                n5_stacks[n2_stack_name][2], // size
+                n5_stacks['pre_synapse_seg_n1'][2], // size
                 create_post_output_name(
                     output_dirname,
                     'pre_synapse_seg_n1_n2',
@@ -393,7 +393,7 @@ workflow presynaptic_n1_to_n2 {
         [
             output_dirname,
             n5_stacks + [
-                "pre_synapse_seg_n1_n2": [
+                'pre_synapse_seg_n1_n2': [
                     presynaptic_seg_n1_n2_container,
                     presynaptic_seg_n1_n2_dataset,
                     stack_size
@@ -416,9 +416,9 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
 
     main:
     // store all input stacks in n5 stores
-    def presynaptic_stack_name = "pre_synapse"
-    def neuron_stack_name = "neuron_mask"
-    def postsynaptic_stack_name = "post_synapse"
+    def presynaptic_stack_name = 'pre_synapse'
+    def neuron_stack_name = 'neuron_mask'
+    def postsynaptic_stack_name = 'post_synapse'
 
     def n5_input_stacks = prepare_n5_inputs(
         [
@@ -499,12 +499,12 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
         [
             output_dirname,
             n5_stacks + [
-                "pre_synapse_seg": [
+                'pre_synapse_seg': [
                     presynaptic_seg_container_dir,
                     presynaptic_seg_dataset,
                     stack_size
                 ],
-                "pre_synapse_seg_n1": [
+                'pre_synapse_seg_n1': [
                     presynaptic_seg_n1_container_dir,
                     presynaptic_seg_n1_dataset,
                     stack_size
@@ -532,8 +532,8 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
         presynaptic_to_n1_n5_stacks.map {
             def (output_dirname, n5_stacks) = it
             [
-                n5_stacks["pre_synapse_seg_n1"][0], // mask n5 container
-                n5_stacks["pre_synapse_seg_n1"][1], // mask dataset
+                n5_stacks['pre_synapse_seg_n1'][0], // mask n5 container
+                n5_stacks['pre_synapse_seg_n1'][1], // mask dataset
                 get_container_fullpath(
                     output_dirname,
                     get_n5_container_name('working_post_synapse_seg_n1_container')
@@ -574,12 +574,12 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
         def d = [
             output_dirname,
             n5_stacks + [
-                "post_synapse_seg": [
+                'post_synapse_seg': [
                     postsynaptic_seg_container,
                     postsynaptic_seg_dataset,
                     stack_size
                 ],
-                "post_synapse_seg_pre_synapse_seg_n1": [
+                'post_synapse_seg_pre_synapse_seg_n1': [
                     postsynaptic_seg_presynaptic_seg_n1_container,
                     postsynaptic_seg_presynaptic_seg_n1_dataset,
                     stack_size
@@ -595,16 +595,16 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
         postsynaptic_to_presynaptic_to_n1_n5_stacks.map {
             def (output_dirname, n5_stacks) = it
             [
-                n5_stacks["pre_synapse_seg_n1"][0], // input n5
-                n5_stacks["pre_synapse_seg_n1"][1], // input dataset
-                n5_stacks["post_synapse_seg_pre_synapse_seg_n1"][0], // mask n5
-                n5_stacks["post_synapse_seg_pre_synapse_seg_n1"][1], // mask dataset
+                n5_stacks['pre_synapse_seg_n1'][0], // input n5
+                n5_stacks['pre_synapse_seg_n1'][1], // input dataset
+                n5_stacks['post_synapse_seg_pre_synapse_seg_n1'][0], // mask n5
+                n5_stacks['post_synapse_seg_pre_synapse_seg_n1'][1], // mask dataset
                 get_container_fullpath(
                     output_dirname,
                     get_n5_container_name('working_pre_synapse_seg_post_synapse_seg_n1_container'),
                 ), // output n5
                 params.working_pre_synapse_seg_post_synapse_seg_n1_dataset, // output dataset
-                n5_stacks["post_synapse_seg_pre_synapse_seg_n1"][2], // size
+                n5_stacks['pre_synapse_seg_n1'][2], // size
                 create_post_output_name(output_dirname,
                                         'pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1',
                                         params.postsynaptic_stage3_threshold,
@@ -636,7 +636,7 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
         def d = [
             output_dirname,
             n5_stacks + [
-                "pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1": [
+                'pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1': [
                     pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1_container,
                     pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1_dataset,
                     stack_size
