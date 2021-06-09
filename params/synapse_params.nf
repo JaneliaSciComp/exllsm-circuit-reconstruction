@@ -58,7 +58,6 @@ def synapse_params() {
         n52tiff_memory: '3 G', // in fact it needs 126G for a 512x512x512 chunk size
         unet_cpus: 1,
         unet_memory: '3 G',
-        use_gpu_mem_growth: false,
         postprocessing_cpus: 3,
         postprocessing_memory: '3 G',
         presynaptic_stage2_threshold: 400,
