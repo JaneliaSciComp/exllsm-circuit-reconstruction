@@ -76,14 +76,14 @@ def remove_small_piece(out_path, prefix, img, start, end, mask=None,
                         pool.map(partial(process_region,
                                         label_img,
                                         mask,
-                                        img.type),
+                                        img.dtype),
                                 regionprop_img))
     else:
         csv_rows = filter(lambda x: x is not None,
                         map(partial(process_region,
                                         label_img,
                                         mask,
-                                        img.type),
+                                        img.dtype),
                             regionprop_img))
 
     if len(csv_rows) > 0:
