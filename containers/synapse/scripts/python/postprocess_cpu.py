@@ -76,14 +76,18 @@ def remove_small_piece(out_path, prefix, img, start, end, mask=None,
                         pool.map(partial(process_region,
                                         label_img,
                                         mask,
-                                        img.dtype),
+                                        img.dtype,
+                                        threshold,
+                                        percentage),
                                 regionprop_img))
     else:
         csv_rows = filter(lambda x: x is not None,
                         map(partial(process_region,
                                         label_img,
                                         mask,
-                                        img.dtype),
+                                        img.dtype,
+                                        threshold,
+                                        percentage),
                             regionprop_img))
 
     if len(csv_rows) > 0:
@@ -103,7 +107,8 @@ def remove_small_piece(out_path, prefix, img, start, end, mask=None,
     return img
 
 
-def process_region(label_img, mask, img_data_type, region):
+def process_region(label_img, mask, img_data_type,
+                   threshold, percentage, region):
     num_voxel = region.area
     print('num voxels: ', num_voxel)
     curr_obj = np.zeros(mask.shape, dtype=img_data_type)
