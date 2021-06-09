@@ -67,6 +67,7 @@ def remove_small_piece(out_path, prefix, img, start, end, mask=None, threshold=1
         '_z' + str(start[2]) + '_' + str(end[2]) + \
         '.csv'
 
+    csv_rows = []
     for props in regionprop_img:
         num_voxel = props.area
         print('num voxels: ', num_voxel)
@@ -115,10 +116,13 @@ def remove_small_piece(out_path, prefix, img, start, end, mask=None, threshold=1
 
             csv_row = [str(idx), str(num_voxel), str(center),
                        str(bbox_x), str(bbox_y), str(bbox_z)]
-            with open(csv_filepath, 'a') as csv_file:
-                writer = csv.writer(csv_file, delimiter=',',
-                                    quotechar='"', quoting=csv.QUOTE_MINIMAL)
-                writer.writerow(csv_row)
+            csv_rows.append(csv_row)
+
+    if len(csv_rows) > 0:
+        with open(csv_filepath, 'a') as csv_file:
+            writer = csv.writer(csv_file, delimiter=',',
+                                quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            writer.writerow(csv_row)
 
     img[img != 0] = 255
     print('Non-zero voxels:', np.count_nonzero(img))
