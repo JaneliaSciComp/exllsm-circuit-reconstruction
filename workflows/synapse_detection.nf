@@ -553,7 +553,9 @@ workflow prepare_n5_inputs {
                      working_container_with_dataset) = it
                 def (input_container_dir, input_dataset) = input_stack
                 def (working_container, working_dataset) = working_container_with_dataset
-                def input_container_dir_as_file = file(input_container_dir)
+                def input_container_dir_as_file = input_container_dir
+                    ? file(input_container_dir)
+                    : ''
                 [
                     "${output_dir_as_file}",
                     stack_name,
@@ -583,7 +585,7 @@ workflow prepare_n5_inputs {
             output_dirname,
             stack_name,
         ]
-        log.debug "input_stacks_to_n5 input: $d"
+        log.info "input_stacks_to_n5 input: $d"
         d
     }
     | input_stacks_to_n5
@@ -657,8 +659,12 @@ def create_post_output_name(dirname, fname, threshold, perccentage) {
 }
 
 def get_container_fullpath(output_dir, container_dirname) {
-    def container_path = new File("${output_dir}", "${container_dirname}")
-    "${container_path.canonicalPath}"
+    if (output_dir) {
+        def container_path = new File("${output_dir}", "${container_dirname}")
+        "${container_path.canonicalPath}"
+    } else {
+        ''
+    }
 }
 
 def get_n5_container_name(container_key) {
