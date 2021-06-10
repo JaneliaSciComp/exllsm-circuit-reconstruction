@@ -11,7 +11,7 @@ process compute_unet_scaling {
     ]) }
 
     input:
-    tuple val(input_image), val(input_dataset)
+    tuple val(input_image), val(input_dataset),
           val(start),
           val(end)
     val(n_tiles_for_scaling) // number of tiles used for computing the scaling
