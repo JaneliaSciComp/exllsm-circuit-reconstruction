@@ -45,17 +45,35 @@ include {
 } from './workflows/n5_tools' addParams(vvd_params)
 
 workflow {
-    def neuron_res = neuron_segmentation(
-        neuron_seg_params.neuron_stack_dir,
-        neuron_seg_params.output_dir,
-    );
+    def neuron_res
+    if (neuron_seg_params.skip_segmentation) {
+        neuron_res = Channel.of(
+            [
+                neuron_seg_params.neuron_stack_dir,
+                neuron_seg_params.neuron_input_dataset,
+                neuron_seg_params.output_dir,
+                neuron_seg_params.neuron_output_dataset,
+            ]
+        )
+    } else {
+        neuron_res = neuron_segmentation(
+            [
+                neuron_seg_params.neuron_stack_dir,
+                neuron_seg_params.neuron_input_dataset,
+            ],
+            [
+                neuron_seg_params.output_dir,
+                neuron_seg_params.neuron_output_dataset,
+            ]
+        );
+    }
     neuron_res.subscribe { log.debug "Neuron segmentation result: $it" }
 
     def connected_comps_res;
     if (neuron_seg_params.with_connected_comps) {
         connected_comps_res = connected_components(
-            neuron_res.map { it[1] },  // neuron segmented N5 dir
-            neuron_comp_params.neuron_output_dataset, // input sub dir
+            neuron_res.map { it[2] },  // neuron segmented N5 dir
+            neuron_res.map { it[3] },  // segmented neuron dataset
             neuron_comp_params.neuron_conn_comp_dataset, // sub dir for connected comp
             neuron_comp_params.app,
             neuron_comp_params.spark_conf,
@@ -72,7 +90,13 @@ workflow {
         log.info "Skip connected components step"
         connected_comps_res = neuron_res
         | map {
-            [ it[1], neuron_comp_params.neuron_output_dataset, neuron_comp_params.neuron_output_dataset ]
+            def (unsegmented_dir, unsegmented_dataset,
+                segmented_dir, segmented_dataset) = it
+            [
+                segmented_dir,
+                segmented_dataset,
+                segmented_dataset // same as segmented dataset since this was a no op
+            ]
         }
     }
     connected_comps_res.subscribe { log.debug "Neuron connected commponents: $it" }

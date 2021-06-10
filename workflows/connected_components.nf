@@ -103,12 +103,6 @@ workflow connected_components {
         spark_driver_deploy
     )
 
-/*
-    def connected_comps_res = connected_comps_args.map {
-        [ it[0], it[2] ]
-    }
-*/
-
     // terminate stitching cluster
     done = terminate_spark(
         connected_comps_res.map { it[1] },
@@ -123,7 +117,11 @@ workflow connected_components {
              current_input_dir,
              current_input_dataset,
              current_output_dataset) = it
-        def r = [ current_input_dir, current_input_dataset, current_output_dataset ]
+        def r = [
+            current_input_dir,
+            current_input_dataset,
+            current_output_dataset
+        ]
         log.info "Completed connected components: ${it} -> ${r}"
         r
     }

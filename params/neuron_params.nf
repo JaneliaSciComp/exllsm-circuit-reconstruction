@@ -5,6 +5,7 @@ include {
 def neuron_params() {
     [
         // neuron segmentation
+        skip_segmentation: false,
         neuron_scaling_cpus: 1,
         neuron_scaling_memory: '1 G',
         user_defined_scaling: '',

@@ -22,24 +22,26 @@ include {
 
 workflow neuron_segmentation {
     take:
-    input_dir
-    output_dir
+    in
+    out
 
     main:
-    def input_data = index_channel(input_dir)
-    | join (index_channel(output_dir), by: 0)
+    def input_data = index_channel(in)
+    | join (index_channel(out), by: 0)
     | map {
-        def (index, input_dirname, output_dirname) = it
+        def (index, input_stack, output_stack) = it
+        def (input_dirname, input_dataset) = input_stack
+        def (output_dirname, output_dataset) = output_stack
         [
-            input_dirname, params.neuron_input_dataset,
-            output_dirname, params.neuron_output_dataset,
+            input_dirname, input_dataset,
+            output_dirname, output_dataset,
         ]
     }
 
     def neuron_seg_inputs = tiff_to_n5_with_metadata(
         input_data,
         params.partial_volume,
-    )
+    ) // [ input_dir, input_dataset, output_dir, output_dataset, dims ]
 
     neuron_seg_inputs.subscribe { log.debug "Neuron N5 inputs: $it" }
 
@@ -50,7 +52,7 @@ workflow neuron_segmentation {
              sz) = it
         [ in_image, in_dataset, sz ]
     }
-    | neuron_scaling_factor
+    | neuron_scaling_factor // [ input, input_dataset, scaling_factor ]
 
     neuron_scaling_results.subscribe { log.debug "Neuron scaling results: $it" }
 
@@ -74,7 +76,7 @@ workflow neuron_segmentation {
             datatype,
         ]
     }
-    | create_n5_volume
+    | create_n5_volume // [ input_dir, input_dataset, output_dir, output_dataset ]
 
     neuron_seg_vol.subscribe { log.debug "New neuron segmmented volume: $it" }
 
@@ -100,15 +102,22 @@ workflow neuron_segmentation {
     }
     | unet_volume_segmentation
     | groupTuple(by: [0,1,2,3,4]) // wait for all subvolumes to be done
-
+    | map {
+        // drop the size and the list of subvolumes
+        def (in_image, in_dataset,
+            out_image, out_dataset) = it
+        def r = [ in_image, in_dataset, out_image, out_dataset ]
+        log.debug "Neuron segmentation result $it -> $r"
+        r
+    }
 
     emit:
-    done = neuron_seg_results
+    done = neuron_seg_results // [ in_image, in_dataset, out_image, out_dataset, sz ]
 }
 
 workflow neuron_scaling_factor {
     take:
-    input_data
+    input_data // [ input_dir, input_dataset, sz]
 
     main:
     if (params.neuron_scaling_tiles > 0 ||
@@ -144,13 +153,13 @@ workflow neuron_scaling_factor {
             }
         }
         def scaling_factor_results = compute_unet_scaling(
-            scaling_factor_inputs.map { it[0..2] },
+            scaling_factor_inputs.map { it[0..3] },
             0, // we always pass the tiles used for scaling as a percentage
-            scaling_factor_inputs.map { it[3] },
+            scaling_factor_inputs.map { it[4]] }, // percentage used
         )
-        | groupTuple(by: 0)
+        | groupTuple(by: [0,1])
         | map {
-            def (input_image, scaling_factors) = it
+            def (input_image, input_dataset, scaling_factors) = it
             // average the scaling factors
             log.debug "Compute mean scaling factor for ${input_image} from ${scaling_factors}"
             def valid_scaling_factors = scaling_factors
@@ -159,7 +168,11 @@ workflow neuron_scaling_factor {
             def scaling_factor = valid_scaling_factors 
                 ? (valid_scaling_factors.average() as String)
                 : 'null'
-            [ input_image, scaling_factor ]
+            [
+                input_image,
+                input_dataset,
+                scaling_factor
+            ]
         }
         scaling_factor_results.subscribe { log.debug "Scaling factor result: $it" }
 
@@ -168,8 +181,12 @@ workflow neuron_scaling_factor {
         // no scaling factor is calculated
         done = input_data
         | map {
-            def (image_filename) = it
-            [ image_filename, params.user_defined_scaling ]
+            def (image_container, image_dataset) = it
+            [
+                image_container,
+                image_dataset,
+                params.user_defined_scaling,
+            ]
         }
     }
 
