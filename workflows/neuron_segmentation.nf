@@ -31,7 +31,7 @@ workflow neuron_segmentation {
     | map {
         def (index, input_stack, output_stack) = it
         def (input_dirname, input_dataset) = input_stack
-        def (output_dirname, output_dataset) = output_stack
+        def (output_dirname, output_dataset, unsegmented_dataset) = output_stack
         [
             input_dirname, input_dataset,
             output_dirname, output_dataset,
