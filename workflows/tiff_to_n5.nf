@@ -37,7 +37,7 @@ workflow tiff_to_n5_with_metadata {
             n5_stack_dims
         ]
         log.info "tiff_to_n5_with_metadata result: $r"
-        return 
+        r
     }
 
     emit:
