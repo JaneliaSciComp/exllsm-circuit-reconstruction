@@ -79,7 +79,6 @@ process tiff_to_n5 {
     output:
     tuple env(n5_stack),
           val(input_dir), val(input_dataset),
-          val(output_dir), val(output_dataset), // expected output
           env(output_n5_dir), env(output_n5_dataset) // actual output
 
     script:
