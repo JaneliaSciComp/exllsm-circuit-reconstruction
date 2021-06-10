@@ -27,7 +27,7 @@ def neuron_params() {
         with_neuron_post_segmentation: true,
         use_gpu_mem_growth: true,
         neuron_model: '/groups/dickson/home/lillvisj/UNET_neuron/trained_models/neuron4_p2/neuron4_150.h5',
-        neuron_input_dataset: '/s0',
+        neuron_input_dataset: '',
         neuron_output_dataset: '/s0',
         unsegmented_dataset: '/raw/s0', // dataset used for the raw neuron volume if the neuron input is tiff
         neuron_mask_as_binary: false,
