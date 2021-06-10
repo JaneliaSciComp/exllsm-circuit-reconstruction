@@ -30,12 +30,16 @@ workflow tiff_to_n5_with_metadata {
     | map {
         def (n5_stack_used_4_dim, n5_stack_dims,
              input_dir, input_dataset,
+             expected_output_n5_dir, expected_output_dataset,
              output_n5_dir, output_dataset) = it
-        [
+        def r = [
             input_dir, input_dataset,
+            expected_output_n5_dir, expected_output_dataset,
             output_n5_dir, output_dataset,
             n5_stack_dims
         ]
+        log.info "tiff_to_n5_with_metadata result: $r"
+        return 
     }
 
     emit:

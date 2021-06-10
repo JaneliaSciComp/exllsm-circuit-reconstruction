@@ -41,7 +41,21 @@ workflow neuron_segmentation {
     def neuron_seg_inputs = tiff_to_n5_with_metadata(
         input_data,
         params.partial_volume,
-    ) // [ input_dir, input_dataset, output_dir, output_dataset, dims ]
+    ) 
+    | map {
+        def (input_stack, input_dataset,
+             expected_output_n5_dir, expected_output_dataset,
+             output_stack, output_dataset,
+             dims) = it
+        def r = [
+            input_stack, input_dataset,
+            output_stack, output_dataset,
+            dims
+        ]
+        log.debug "actual n5 stack $it -> $r"
+        r
+    }
+    // [ input_dir, input_dataset, output_dir, output_dataset, dims ]
 
     neuron_seg_inputs.subscribe { log.debug "Neuron N5 inputs: $it" }
 
@@ -81,7 +95,7 @@ workflow neuron_segmentation {
     neuron_seg_vol.subscribe { log.debug "New neuron segmmented volume: $it" }
 
     def neuron_seg_results = neuron_seg_vol
-    | join(neuron_seg_inputs, by:[0,1,2,3])
+    | join(neuron_seg_inputs, by:[0,1])
     | join(neuron_scaling_results, by:[0,1])
     | flatMap {
         def (in_image, in_dataset,
