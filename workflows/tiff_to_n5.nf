@@ -36,7 +36,7 @@ workflow tiff_to_n5_with_metadata {
             output_n5_dir, output_dataset,
             n5_stack_dims
         ]
-        log.info "tiff_to_n5_with_metadata result: $r"
+        log.debug "tiff_to_n5_with_metadata result: $r"
         r
     }
 
