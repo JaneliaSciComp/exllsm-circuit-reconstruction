@@ -18,12 +18,13 @@ def tif_series_to_n5_volume(input_path, output_path, data_set, compressor,
                             subvolume=None,
                             chunk_size=(512, 512, 512),
                             dtype='same',
+                            img_fname_pattern='*.tif',
                             overwrite=True):
     '''
     Convert TIFF slices into an n5 volume with given chunk size. 
     This method processes only one Z chunk at a time, to avoid overwhelming worker memory. 
     '''
-    images = read_tiff_stack(input_path+'/*.tif')
+    images = read_tiff_stack(input_path + '/' + img_fname_pattern)
     volume = images.rechunk(chunk_size)
 
     if dtype == 'same':
@@ -174,6 +175,10 @@ def main():
     parser.add_argument('-i', '--input', dest='input_path', type=str, required=True,
                         help='Path to the directory containing the TIFF series')
 
+    parser.add_argument('--input_name_pattern', dest='input_name_pattern',
+                        type=str, default='*.tif',
+                        help='Input file name pattern')
+
     parser.add_argument('-o', '--output', dest='output_path', type=str, required=True,
                         help='Path to the n5 directory')
 
@@ -239,7 +244,8 @@ def main():
                             subvolume=subvolume,
                             chunk_size=[int(c)
                                         for c in args.chunk_size.split(',')],
-                            dtype=args.dtype)
+                            dtype=args.dtype,
+                            img_fname_pattern=args.input_name_pattern)
 
 
 if __name__ == "__main__":

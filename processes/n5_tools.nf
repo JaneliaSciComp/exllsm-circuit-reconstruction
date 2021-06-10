@@ -83,6 +83,9 @@ process tiff_to_n5 {
 
     script:
     def input_stack_dir = file("${input_dir}/${input_dataset}")
+    def input_fname_pattern_arg = params.input_imgname_pattern
+        ? "--input_name_pattern \"${input_fname_pattern_arg}\""
+        : ''
     def output_dir_as_file = file("${output_dir}")
     def output_stack_dir = file("${output_dir}/${}")
     def chunk_size = params.block_size
@@ -107,9 +110,9 @@ process tiff_to_n5 {
         output_n5_dataset=${input_dataset}
     else
         # convert tiffs to n5
-        echo "Convert ${input_stack_dir} -> ${output_dir_as_file}:${n5_dataset}"
+        echo "Convert ${input_stack_dir} ${params.input_imgname_pattern} -> ${output_dir_as_file}:${n5_dataset}"
         /entrypoint.sh tif_to_n5 \
-        -i ${input_stack_dir} \
+        -i ${input_stack_dir} ${input_fname_pattern_arg} \
         -o ${output_dir} -d ${n5_dataset} \
         -c "${chunk_size}" \
         ${distributed_args} \
