@@ -783,11 +783,12 @@ workflow input_stacks_to_n5 {
         tiff_to_n5_inputs,
         params.partial_volume
     )
-    | join(input_data, by: [0,1]) // only join by inputs
+    | join(input_data, by: [0,1]) // only join by inputs because the outputs may differ if the input is already N5
     | map {
         def (input_stack, input_dataset,
              output_stack, output_dataset,
              dims,
+             expected_output_dirname, expected_output_dataset, // these come from input data
              output_dirname, stack_name) = it
         def r = [
             output_dirname, stack_name,
