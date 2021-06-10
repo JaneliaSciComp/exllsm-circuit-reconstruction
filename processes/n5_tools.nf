@@ -92,7 +92,7 @@ process tiff_to_n5 {
     }
     def subvol_arg = ''
     if (partial_volume) {
-        subvol_arg = "--subvol ${partial_volume}"
+        subvol_arg = "--subvol \"${partial_volume}\""
     }
     def n5_dataset = output_dataset
         ? "${output_dataset}"
@@ -111,7 +111,7 @@ process tiff_to_n5 {
         /entrypoint.sh tif_to_n5 \
         -i ${input_stack_dir} \
         -o ${output_dir} -d ${n5_dataset} \
-        -c ${chunk_size} \
+        -c "${chunk_size}" \
         ${distributed_args} \
         ${subvol_arg} \
         --compression ${params.n5_compression}
