@@ -79,7 +79,7 @@ process tiff_to_n5 {
     output:
     tuple env(n5_stack),
           val(input_dir), val(input_dataset),
-          val(output_dir), val(output_dataset)
+          env(output_n5_dir), env(output_n5_dataset)
 
     script:
     def input_stack_dir = file("${input_dir}/${input_dataset}")
@@ -100,9 +100,14 @@ process tiff_to_n5 {
     """
     mkdir -p ${output_dir_as_file.parent}
     if [[ -f "${input_stack_dir}/attributes.json" ]]; then
+        # there was no conversion
+        echo "No tiff to N5 conversion was necessary for ${input_stack_dir}"
         n5_stack=${input_stack_dir}
+        output_n5_dir=${input_dir}
+        output_n5_dataset=${input_dataset}
     else
         # convert tiffs to n5
+        echo "Convert ${input_stack_dir} -> ${output_dir_as_file}:${n5_dataset}"
         /entrypoint.sh tif_to_n5 \
         -i ${input_stack_dir} \
         -o ${output_dir} -d ${n5_dataset} \
@@ -112,6 +117,8 @@ process tiff_to_n5 {
         --compression ${params.n5_compression}
         # set the return value
         n5_stack="${output_dir_as_file}/${n5_dataset}"
+        output_n5_dir=${output_dir_as_file}
+        output_n5_dataset=${n5_dataset}
     fi
     """
 }

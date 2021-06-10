@@ -747,7 +747,7 @@ workflow prepare_n5_inputs {
         [ output_dirname,  data_stacks ]
     } // [ output_dir, {<stack_name>: [<stack_n5_container>, <stack_dataset>, <stack_size>]} ]
 
-    n5_stacks.subscribe { log.debug "prepare_n5_inputs: N5 stacks: $it" }
+    n5_stacks.subscribe { log.info "prepare_n5_inputs: N5 stacks: $it" }
  
     emit:
     done = n5_stacks
@@ -799,7 +799,7 @@ workflow input_stacks_to_n5 {
     | concat(empty_stacks)
 
 
-    output_data.subscribe { log.debug "input_stacks_to_n5: N5 stack: $it" }
+    output_data.subscribe { log.info "input_stacks_to_n5: N5 stack: $it" }
 
     emit:
     done = output_data
