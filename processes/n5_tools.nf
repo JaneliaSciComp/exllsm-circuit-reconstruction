@@ -84,7 +84,7 @@ process tiff_to_n5 {
     script:
     def input_stack_dir = file("${input_dir}/${input_dataset}")
     def input_fname_pattern_arg = params.input_imgname_pattern
-        ? "--input_name_pattern \"${input_fname_pattern_arg}\""
+        ? "--input_name_pattern \"${params.input_imgname_pattern}\""
         : ''
     def output_dir_as_file = file("${output_dir}")
     def output_stack_dir = file("${output_dir}/${}")
