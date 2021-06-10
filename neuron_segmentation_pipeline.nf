@@ -78,7 +78,11 @@ workflow {
             neuron_comp_params.neuron_conn_comp_dataset, // sub dir for connected comp
             neuron_comp_params.app,
             neuron_comp_params.spark_conf,
-            "${get_spark_working_dir(neuron_comp_params.spark_work_dir)}/connected_comps", // spark_working_dir
+            neuron_res.map {
+                // this is just so that it would not start the cluster before
+                // the segmentation completes
+                "${get_spark_working_dir(neuron_comp_params.spark_work_dir)}/connected_comps",
+            }, // spark_working_dir
             neuron_comp_params.workers,
             neuron_comp_params.worker_cores,
             neuron_comp_params.gb_per_core,
