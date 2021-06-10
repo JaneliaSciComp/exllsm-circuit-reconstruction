@@ -64,6 +64,7 @@ workflow {
             [
                 neuron_seg_params.output_dir,
                 neuron_seg_params.neuron_output_dataset,
+                neuron_seg_params.unsegmented_dataset,
             ]
         );
     }

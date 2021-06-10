@@ -29,6 +29,7 @@ def neuron_params() {
         neuron_model: '/groups/dickson/home/lillvisj/UNET_neuron/trained_models/neuron4_p2/neuron4_150.h5',
         neuron_input_dataset: '/s0',
         neuron_output_dataset: '/s0',
+        unsegmented_dataset: '/raw/s0', // dataset used for the raw neuron volume if the neuron input is tiff
         neuron_mask_as_binary: false,
         neuron_seg_unet_batch_sz: 1,
         neuron_seg_model_in_dims: '220,220,220',

@@ -35,28 +35,52 @@ workflow neuron_segmentation {
         [
             input_dirname, input_dataset,
             output_dirname, output_dataset,
+            unsegmented_dataset,
+        ]
+    }
+
+    def tiff_to_n5_inputs = input_data
+    | map {
+        def (input_dirname, input_dataset,
+             output_dirname, output_dataset,
+             unsegmented_dataset) = it
+        [
+            input_dirname, input_dataset,
+            output_dirname, unsegmented_dataset,
         ]
     }
 
     def neuron_seg_inputs = tiff_to_n5_with_metadata(
-        input_data,
+        tiff_to_n5_inputs,
         params.partial_volume,
     ) 
     | map {
         def (input_stack, input_dataset,
              output_stack, output_dataset,
-             dims) = it
+             sz) = it
         def r = [
             input_stack, input_dataset,
             output_stack, output_dataset,
-            dims
+            sz
         ]
-        log.debug "actual n5 stack $it -> $r"
+        log.info "actual n5 stack $it -> $r"
         r
+    }
+    | join(input_data, by:[0,1])
+    | map {
+        def (input_stack, input_dataset,
+            unsegmented_output_stack, unsegmented_output_dataset,
+            sz,
+            output_dirname, output_dataset) = it
+        [
+            unsegmented_output_stack, unsegmented_output_dataset,
+            output_dirname, output_dataset,
+            sz
+        ]
     }
     // [ input_dir, input_dataset, output_dir, output_dataset, dims ]
 
-    neuron_seg_inputs.subscribe { log.debug "Neuron N5 inputs: $it" }
+    neuron_seg_inputs.subscribe { log.info "Neuron N5 inputs: $it" }
 
     def neuron_scaling_results = neuron_seg_inputs
     | map {
@@ -82,12 +106,14 @@ workflow neuron_segmentation {
         def datatype = params.neuron_mask_as_binary
             ? 'uint8'
             : 'float32'
-        log.info "Volume size: $sz"
-        [
+        log.debug "Volume size: $sz"
+        def r = [
             in_image, in_dataset,
             out_image, out_dataset,
             datatype,
         ]
+        log.info "Create output N5 volume params: $r"
+        r
     }
     | create_n5_volume // [ input_dir, input_dataset, output_dir, output_dataset ]
 
