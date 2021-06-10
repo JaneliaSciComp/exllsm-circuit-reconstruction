@@ -155,7 +155,7 @@ workflow neuron_scaling_factor {
         def scaling_factor_results = compute_unet_scaling(
             scaling_factor_inputs.map { it[0..3] },
             0, // we always pass the tiles used for scaling as a percentage
-            scaling_factor_inputs.map { it[4]] }, // percentage used
+            scaling_factor_inputs.map { it[4] }, // percentage used
         )
         | groupTuple(by: [0,1])
         | map {
