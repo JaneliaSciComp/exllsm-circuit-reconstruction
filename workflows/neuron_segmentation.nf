@@ -63,7 +63,7 @@ workflow neuron_segmentation {
             output_stack, output_dataset,
             sz
         ]
-        log.info "actual n5 stack $it -> $r"
+        log.debug "actual n5 stack $it -> $r"
         r
     }
     | join(input_data, by:[0,1])
