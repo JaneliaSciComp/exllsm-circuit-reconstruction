@@ -78,7 +78,10 @@ workflow n5_to_vvd {
         }
         args_list << "-b ${params.block_size}"
         if (params.vvd_scale_levels) {
-            args_list << "-f ${params.vvd_scale_levels}"
+            args_list << get_vvd_downsize(params.vvd_scale_levels)
+                .inject('') {
+                    arg, item -> "${arg} -f ${item}"
+                }
         }
         [
             spark_uri,
@@ -120,3 +123,10 @@ workflow n5_to_vvd {
     done
 }
 
+def get_vvd_downsize(downsize_scales) {
+    if (!downsize_scales) {
+        ['1,1,1']
+    } else {
+        downsize_scales.tokenize(':').collect { it.trim() }
+    }
+}
