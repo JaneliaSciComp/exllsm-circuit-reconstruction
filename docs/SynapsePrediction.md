@@ -14,7 +14,7 @@ These parameters are required for all workflows:
 
 | Argument   | Description                                                                           |
 |------------|---------------------------------------------------------------------------------------|
-| --pipeline | Pipeline to run (valid options: presynaptic_n1_to_n2, presynaptic_n1_to_postsynaptic_n2, presynaptic_in_volume) |
+| --pipeline | Pipeline to run (valid options: presynaptic_n1_to_n2, presynaptic_n1_to_postsynaptic_n2, presynaptic_in_volume, classify_synapses, collocate_synapses) |
 | &#x2011;&#x2011;synapse_model | Path to trained synapse model in HDF5 format |
 
 ## Global Optional Parameters
@@ -99,4 +99,10 @@ This workflow ignores neurons and identifies all presynaptic sites in the given 
 | Argument   | Description                                                                           |
 |------------|---------------------------------------------------------------------------------------|
 | &#x2011;&#x2011;pre_synapse_stack_dir | Volume (TIFF series or n5) containing synaptic channel  |
-
+| &#x2011;&#x2011;n1_stack_dir | This is not a required parameter but if it is provided it will be used to mask the classified presynaptic regions, otherwise it will identify all regions in the volume and no mask will be used   |
+| &#x2011;&#x2011;working_pre_synapse_container | The N5 container used for the presynaptic segmentation result 
+| &#x2011;&#x2011;working_pre_synapse_dataset | The dataset inside the N5 container used for presynaptic segmentation |
+| &#x2011;&#x2011;working_post_synapse_seg_container | The N5 container used for the post processed presynaptic segmentation result if no mask is provided |
+| &#x2011;&#x2011;working_post_synapse_seg_dataset | The dataset inside the N5 container used for post processed presynaptic segmentation if no mask neuron is provided |
+| &#x2011;&#x2011;working_pre_synapse_seg_n1_container | The N5 container used for the post processed presynaptic segmentation result when neuron mask is used |
+| &#x2011;&#x2011;working_pre_synapse_seg_n1_dataset | The dataset inside the N5 container used for post processed presynaptic segmentation when a neuron mask is used |

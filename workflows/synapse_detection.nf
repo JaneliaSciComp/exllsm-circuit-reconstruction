@@ -1,6 +1,7 @@
 include {
     classify_and_connect_regions_in_volume as classify_presynaptic_regions;
     classify_and_connect_regions_in_volume as classify_postsynaptic_regions;
+    classify_regions_in_volume;
     connect_regions_in_volume;
 } from './segmentation_tools'
 
