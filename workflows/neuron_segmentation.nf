@@ -44,7 +44,6 @@ workflow neuron_segmentation {
     ) 
     | map {
         def (input_stack, input_dataset,
-             expected_output_n5_dir, expected_output_dataset,
              output_stack, output_dataset,
              dims) = it
         def r = [
@@ -95,7 +94,7 @@ workflow neuron_segmentation {
     neuron_seg_vol.subscribe { log.debug "New neuron segmmented volume: $it" }
 
     def neuron_seg_results = neuron_seg_vol
-    | join(neuron_seg_inputs, by:[0,1])
+    | join(neuron_seg_inputs, by:[0,1,2,3])
     | join(neuron_scaling_results, by:[0,1])
     | flatMap {
         def (in_image, in_dataset,
