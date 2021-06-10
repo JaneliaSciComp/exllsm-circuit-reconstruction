@@ -80,7 +80,7 @@ workflow neuron_segmentation {
     }
     // [ input_dir, input_dataset, output_dir, output_dataset, dims ]
 
-    neuron_seg_inputs.subscribe { log.info "Neuron N5 inputs: $it" }
+    neuron_seg_inputs.subscribe { log.debug "Neuron N5 inputs: $it" }
 
     def neuron_scaling_results = neuron_seg_inputs
     | map {
@@ -112,7 +112,7 @@ workflow neuron_segmentation {
             out_image, out_dataset,
             datatype,
         ]
-        log.info "Create output N5 volume params: $r"
+        log.debug "Create output N5 volume params: $r"
         r
     }
     | create_n5_volume // [ input_dir, input_dataset, output_dir, output_dataset ]
