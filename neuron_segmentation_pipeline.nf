@@ -81,7 +81,7 @@ workflow {
             neuron_res.map {
                 // this is just so that it would not start the cluster before
                 // the segmentation completes
-                "${get_spark_working_dir(neuron_comp_params.spark_work_dir)}/connected_comps",
+                "${get_spark_working_dir(neuron_comp_params.spark_work_dir)}/connected_comps"
             }, // spark_working_dir
             neuron_comp_params.workers,
             neuron_comp_params.worker_cores,
