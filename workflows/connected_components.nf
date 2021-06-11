@@ -78,6 +78,9 @@ workflow connected_components {
         args_list << "-s ${params.connected_pixels_shape}"
         if (params.connected_pixels_threshold > 0)
             args_list << "-t ${params.connected_pixels_threshold}"
+        def block_size = get_connected_comps_block_size()
+        if (block_size)
+            args_list << "-b ${block_size}"
         [
             spark_uri,
             args_list.join(' '),
@@ -172,3 +175,10 @@ workflow connected_components {
     done
 }
 
+def get_connected_comps_block_size() {
+    if (params.connected_comps_block_size instanceof String && params.connected_comps_block_size) {
+        returrn params.connected_comps_block_size
+    } else {
+        ''
+    }
+}
