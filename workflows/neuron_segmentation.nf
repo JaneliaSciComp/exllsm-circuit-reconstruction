@@ -94,9 +94,7 @@ workflow neuron_segmentation {
     neuron_scaling_results.subscribe { log.debug "Neuron scaling results: $it" }
 
     // get the partition size for calculating the scaling factor
-    def scaling_factor_chunk_sizes = params.neuron_scaling_partition_size
-                                        .tokenize(',')
-                                        .collect { it.trim() as int }
+    def neuron_segmentation_partition_size = params.volume_partition_size
 
     def neuron_seg_vol = neuron_seg_inputs
     | map {
@@ -129,15 +127,16 @@ workflow neuron_segmentation {
              neuron_scaling) = it
         def image_sz_str = "${image_size[0]},${image_size[1]},${image_size[2]}"
         def scaling_factor = neuron_scaling == 'null' ? '' : neuron_scaling
-        partition_volume(image_size, params.partial_volume, scaling_factor_chunk_sizes).collect {
-            def (start_subvol, end_subvol) = it
-            [
-                in_image, in_dataset,
-                out_image, out_dataset,
-                image_sz_str, start_subvol, end_subvol,
-                scaling_factor,
-            ]
-        }
+        partition_volume(image_size, params.partial_volume, neuron_segmentation_partition_size)
+            .collect {
+                def (start_subvol, end_subvol) = it
+                [
+                    in_image, in_dataset,
+                    out_image, out_dataset,
+                    image_sz_str, start_subvol, end_subvol,
+                    scaling_factor,
+                ]
+            }
     }
     | unet_volume_segmentation
     | groupTuple(by: [0,1,2,3,4]) // wait for all subvolumes to be done
@@ -182,14 +181,16 @@ workflow neuron_scaling_factor {
 
             def partition_size_for_scaling = (scaling_factor_chunk_sizes.min() *
                 Math.cbrt(params.max_scaling_tiles_per_job / percentage_used_for_scaling)) as int
-            partition_volume(image_size, params.partial_volume, partition_size_for_scaling).collect {
-                def (start_subvol, end_subvol) = it
-                [
-                    image_container, image_dataset,
-                    start_subvol, end_subvol,
-                    percentage_used_for_scaling
-                ]
-            }
+            log.debug "Partition size used for scaling: ${partition_size_for_scaling}"
+            partition_volume(image_size, params.partial_volume, partition_size_for_scaling)
+                .collect {
+                    def (start_subvol, end_subvol) = it
+                    [
+                        image_container, image_dataset,
+                        start_subvol, end_subvol,
+                        percentage_used_for_scaling
+                    ]
+                }
         }
         def scaling_factor_results = compute_unet_scaling(
             scaling_factor_inputs.map { it[0..3] },
