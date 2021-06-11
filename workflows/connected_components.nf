@@ -121,6 +121,7 @@ workflow connected_components {
             def args_list = []
             args_list << "-n ${currrent_input_dir}"
             args_list << "-i ${current_output_dataset}"
+            args_list << "-r ${params.resolution}"
             [
                 spark_uri,
                 args_list.join(' '),
