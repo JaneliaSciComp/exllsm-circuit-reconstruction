@@ -173,6 +173,7 @@ workflow connected_components {
 
     emit:
     done
+}
 
 def get_connected_comps_block_size() {
     if (params.connected_comps_block_size instanceof String && params.connected_comps_block_size) {
