@@ -157,9 +157,11 @@ def main():
     if args.scaling is None:
         # calculate scaling factor
         scalingFactor = calculateScalingFactor(img)
+        print(f'Calculated a scaling factor {scalingFactor}')
     else:
         # Use scaling factor arg
         scalingFactor = args.scaling
+        print(f'Using scaling factor {scalingFactor}')
 
     img = scaleImage(img, scalingFactor)
 
