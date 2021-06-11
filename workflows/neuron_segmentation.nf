@@ -146,7 +146,7 @@ workflow neuron_segmentation {
         def (in_image, in_dataset,
             out_image, out_dataset) = it
         def r = [ in_image, in_dataset, out_image, out_dataset ]
-        log.debug "Neuron segmentation result $it -> $r"
+        log.info "Completed neuron result $it -> $r"
         r
     }
 
