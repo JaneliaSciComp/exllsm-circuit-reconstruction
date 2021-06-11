@@ -1,6 +1,7 @@
 include {
     spark_cluster_start;
     run_spark_app_on_existing_cluster as run_connected_components;
+    run_spark_app_on_existing_cluster as run_downsample_components;
 } from '../external-modules/spark/lib/workflows'
 
 include {
@@ -103,9 +104,50 @@ workflow connected_components {
         spark_driver_deploy
     )
 
+    def downsampled_connected_res
+    if (params.downsample_connected_comps) {
+        def downsample_comps_args = indexed_data
+        | join(connected_comps_res, by: 1)
+        | map {
+            def (spark_work_dir,
+                idx,
+                spark_uri,
+                currrent_input_dir,
+                current_input_dataset,
+                current_output_dataset) = it
+            def args_list = []
+            args_list << "-n ${currrent_input_dir}"
+            args_list << "-i ${current_output_dataset}"
+            [
+                spark_uri,
+                args_list.join(' '),
+                spark_work_dir,
+            ]
+        }
+        def downsampled_connected_res = run_downsample_components(
+            downsample_comps_args.map { it[0] }, // spark uri
+            components_app,
+            'org.janelia.saalfeldlab.n5.spark.downsample.scalepyramid.N5NonIsotropicScalePyramidSpark',
+            downsample_comps_args.map { it[1] }, // args
+            'downsample_comps.log',
+            terminate_app_name,
+            spark_conf,
+            downsample_comps_args.map { it[2] }, // spark work dir
+            spark_workers,
+            spark_worker_cores,
+            spark_gbmem_per_core,
+            spark_driver_cores,
+            spark_driver_memory,
+            spark_driver_stack,
+            spark_driver_logconfig,
+            spark_driver_deploy
+        )
+    } else {
+        downsampled_connected_res = connected_comps_res
+    }
     // terminate stitching cluster
     done = terminate_spark(
-        connected_comps_res.map { it[1] },
+        downsampled_connected_res.map { it[1] },
         terminate_app_name
     )
     | join(indexed_data, by:1)
