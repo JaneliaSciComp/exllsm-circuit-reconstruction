@@ -127,7 +127,7 @@ workflow connected_components {
                 spark_work_dir,
             ]
         }
-        def downsampled_connected_res = run_downsample_components(
+        downsampled_connected_res = run_downsample_components(
             downsample_comps_args.map { it[0] }, // spark uri
             components_app,
             'org.janelia.saalfeldlab.n5.spark.downsample.scalepyramid.N5NonIsotropicScalePyramidSpark',
