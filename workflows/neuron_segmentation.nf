@@ -94,7 +94,7 @@ workflow neuron_segmentation {
     neuron_scaling_results.subscribe { log.debug "Neuron scaling results: $it" }
 
     // get the partition size for calculating the scaling factor
-    def neuron_segmentation_partition_size = params.volume_partition_size
+    def neuron_segmentation_partition_size = get_neuron_segmentation_partition_size()
 
     def neuron_seg_vol = neuron_seg_inputs
     | map {
@@ -127,6 +127,7 @@ workflow neuron_segmentation {
              neuron_scaling) = it
         def image_sz_str = "${image_size[0]},${image_size[1]},${image_size[2]}"
         def scaling_factor = neuron_scaling == 'null' ? '' : neuron_scaling
+        log.debug "Partition size used for neuron segmentation: ${neuron_segmentation_partition_size}"
         partition_volume(image_size, params.partial_volume, neuron_segmentation_partition_size)
             .collect {
                 def (start_subvol, end_subvol) = it
@@ -232,4 +233,14 @@ workflow neuron_scaling_factor {
 
     emit:
     done
+}
+
+def get_neuron_segmentation_partition_size() {
+    if (params.neuron_segmentation_partition_size) {
+        params.neuron_segmentation_partition_size
+            .tokenize(',')
+            .collect { it.trim() as int }
+    } else {
+        params.volume_partition_size
+    }
 }

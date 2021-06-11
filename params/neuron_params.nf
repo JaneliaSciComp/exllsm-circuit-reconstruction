@@ -13,6 +13,7 @@ def neuron_params() {
         neuron_scaling_tiles: 0,
         neuron_percent_scaling_tiles: 0,
         neuron_scaling_partition_size: '396,396,396',
+        neuron_segmentation_partition_size: '', // by default use volume_partition_size
         max_scaling_tiles_per_job: 40,
         neuron_scaling_plots_dir: '',
         with_connected_comps: true,
