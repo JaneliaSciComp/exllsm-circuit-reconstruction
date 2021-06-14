@@ -55,7 +55,7 @@ def neuron_connected_comps_spark_params(Map ps) {
         driver_cores: 1,
         gb_per_core: 1,
     ] +
-    spark_params() +
+    spark_params(ps) +
     [
         spark_container_name: 'n5-spark-tools',
         spark_container_version: '3.8.0',

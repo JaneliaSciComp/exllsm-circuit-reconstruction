@@ -33,7 +33,7 @@ def stitching_spark_params(Map ps) {
     def stitching_spark_cmdline_params = ps.stitching_spark
         ? ps.stitching_spark
         : [:]
-    spark_params() +
+    spark_params(ps) +
     [
         spark_container_name: 'stitching',
         spark_container_version: '1.9.0',
