@@ -207,7 +207,7 @@ workflow n5_to_tiff {
         n5_app,
         'org.janelia.saalfeldlab.n5.spark.N5ToSliceTiffSpark',
         n5_to_tiff_args.map { it[1] }, // args
-        'n5_to_vvd.log',
+        'n5_to_tiff.log',
         terminate_app_name,
         spark_conf,
         n5_to_tiff_args.map { it[2] }, // spark work dir
