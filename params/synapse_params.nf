@@ -51,11 +51,6 @@ def synapse_params() {
         working_pre_synapse_seg_post_synapse_seg_n1_container: '', // (pre-synapse seg + n1) + [ post-synapse seg + (pre-synapse seg + n1) ]
         working_pre_synapse_seg_post_synapse_seg_n1_dataset: 'pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1/s0',
 
-        tiff2n5_cpus: 3,
-        tiff2n5_memory: '3 G',
-        tiff2n5_workers: 0,
-        n52tiff_cpus: 4, // it needs 9 cores for a 512x512x512 chunk size on Janelia's LSF
-        n52tiff_memory: '3 G', // in fact it needs 126G for a 512x512x512 chunk size
         unet_cpus: 1,
         unet_memory: '3 G',
         postprocessing_cpus: 3,

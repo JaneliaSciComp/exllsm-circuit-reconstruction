@@ -44,5 +44,11 @@ def global_em_params() {
         // MIP creation params
         create_mip_cpus: 4,
         create_mip_mem_gb: 8,
+
+        tiff2n5_cpus: 3, // it needs 9 cores for a 512x512x512 chunk size on Janelia's LSF
+        tiff2n5_memory: '3 G', // in fact it needs 126G for a 512x512x512 chunk size
+        tiff2n5_workers: 0,
+        n52tiff_cpus: 4,
+        n52tiff_memory: '3 G',
     ]
 }

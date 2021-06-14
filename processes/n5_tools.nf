@@ -125,3 +125,27 @@ process tiff_to_n5 {
     fi
     """
 }
+
+process n5_to_tiff {
+    container { params.exm_synapse_dask_container }
+    cpus { params.n52tiff_cpus }
+    memory { params.n52tiff_memory }
+    containerOptions { create_container_options([
+        input_n5,
+    ]) }
+
+    input:
+    tuple val(input_n5), val(input_dataset), val(output_dir)
+
+    output:
+    tuple val(input_n5), val(input_dataset), val(output_dir)
+
+    script:
+    """
+    mkdir -p ${output_dir}
+    /entrypoint.sh n5_to_tif.py \
+        -i ${input_n5} \
+        -d ${input_dataset} \
+        -o ${output_dir}
+    """
+}
