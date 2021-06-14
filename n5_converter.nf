@@ -51,7 +51,7 @@ workflow {
             n5_2_tif_params.default_n5_dataset,  // N5 dataset
             n5_2_tif_params.app,
             n5_2_tif_params.spark_conf,
-            "${get_spark_working_dir(n5_2_tif_params.spark_work_dir)}/n5_downsample",
+            "${get_spark_working_dir(n5_2_tif_params.spark_work_dir)}/n5-downsample",
             n5_2_tif_params.workers,
             n5_2_tif_params.worker_cores,
             n5_2_tif_params.gb_per_core,
@@ -70,7 +70,7 @@ workflow {
                 n5_2_tif_params.tiff_output_dir, // output dir
                 n5_2_tif_params.app,
                 n5_2_tif_params.spark_conf,
-                "${get_spark_working_dir(n5_2_tif_params.spark_work_dir)}/n5_to_tiff",
+                "${get_spark_working_dir(n5_2_tif_params.spark_work_dir)}/n5-to-tiff",
                 n5_2_tif_params.workers,
                 n5_2_tif_params.worker_cores,
                 n5_2_tif_params.gb_per_core,
@@ -97,7 +97,7 @@ workflow {
             n5_2_tif_params.mips_output_dir, // output dir
             n5_2_tif_params.app,
             n5_2_tif_params.spark_conf,
-            "${get_spark_working_dir(n5_2_tif_params.spark_work_dir)}/n5_to_mips",
+            "${get_spark_working_dir(n5_2_tif_params.spark_work_dir)}/n5-to-mips",
             n5_2_tif_params.workers,
             n5_2_tif_params.worker_cores,
             n5_2_tif_params.gb_per_core,
@@ -116,7 +116,7 @@ workflow {
             vvd_params.vvd_output_dir, // output dir
             vvd_params.app,
             vvd_params.spark_conf,
-            "${get_spark_working_dir(vvd_params.spark_work_dir)}/n5_to_vvd",
+            "${get_spark_working_dir(vvd_params.spark_work_dir)}/n5-to-vvd",
             vvd_params.workers,
             vvd_params.worker_cores,
             vvd_params.gb_per_core,
