@@ -50,5 +50,9 @@ def global_em_params() {
         tiff2n5_workers: 0,
         n52tiff_cpus: 4,
         n52tiff_memory: '3 G',
+
+        tiff_output_dir: ''
+        use_n5_spark_tools: true,
+        vvd_output_dir: '',
     ]
 }

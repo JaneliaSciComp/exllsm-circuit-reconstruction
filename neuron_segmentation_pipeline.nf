@@ -4,9 +4,9 @@ nextflow.enable.dsl=2
 
 include {
     default_em_params;
-    get_value_or_default;
     exm_synapse_dask_container_param;
     exm_neuron_segmentation_container;
+    get_spark_working_dir;
 } from './param_utils'
 
 // app parameters
@@ -22,14 +22,14 @@ include {
 } from './workflows/neuron_segmentation' addParams(neuron_seg_params)
 
 include {
-    neuron_connected_comps_spark_params
+    neuron_connected_comps_spark_params;
 } from './params/neuron_params'
 
 def neuron_comp_params = neuron_seg_params +
                          neuron_connected_comps_spark_params(final_params) 
 
 include {
-    connected_components
+    connected_components;
 } from './workflows/connected_components' addParams(neuron_comp_params)
 
 
@@ -127,8 +127,4 @@ workflow {
             vvd_params.driver_logconfig
         )
     }
-}
-
-def get_spark_working_dir(base_dir) {
-    base_dir ? base_dir : '/tmp'
 }
