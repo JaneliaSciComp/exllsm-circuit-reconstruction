@@ -21,8 +21,8 @@ include {
 } from './params/vvd_params'
 
 include {
-    n52tif_spark_params
-} from './params/n52tif_params'
+    n5_2_tif_spark_params
+} from './params/n5_2_tif_params'
 
 def vvd_params = converter_params +
                  vvd_spark_params(final_params) 
@@ -31,41 +31,41 @@ include {
     n5_to_vvd;
 } from './workflows/n5_tools' addParams(vvd_params)
 
-def n52tif_params = converter_params +
-                    n52tif_spark_params(final_params)
+def n5_2_tif_params = converter_params +
+                      n5_2_tif_spark_params(final_params)
 
 include {
     n5_to_tiff as n5_to_tiff_using_spark;
-} from './workflows/n5_tools' addParams(n5_to_tiff_params)
+} from './workflows/n5_tools' addParams(n5_2_tif_params)
 
 include {
     n5_to_tiff as n5_to_tiff_using_dask;
-} from '../processes/n5_tools' addParams(n5_to_tiff_params)
+} from '../processes/n5_tools' addParams(n5_2_tif_params)
 
 workflow {
-    if (n52tif_params.tiff_output_dir) {
-        if (n52tif_params.use_n5_spark_tools) {
+    if (n5_2_tif_params.tiff_output_dir) {
+        if (n5_2_tif_params.use_n5_spark_tools) {
             def n5_to_tiff_res = n5_to_tiff_using_spark(
-                n52tif_params.images_dir,  // input N5 dir
-                n52tif_params.default_n5_dataset,  // N5 dataset
-                n52tif_params.tiff_output_dir, // output dir
-                n52tif_params.app,
-                n52tif_params.spark_conf,
-                "${get_spark_working_dir(n52tif_params.spark_work_dir)}/n5_to_tiff",
-                n52tif_params.workers,
-                n52tif_params.worker_cores,
-                n52tif_params.gb_per_core,
-                n52tif_params.driver_cores,
-                n52tif_params.driver_memory,
-                n52tif_params.driver_stack_size,
-                n52tif_params.driver_logconfig
+                n5_2_tif_params.images_dir,  // input N5 dir
+                n5_2_tif_params.default_n5_dataset,  // N5 dataset
+                n5_2_tif_params.tiff_output_dir, // output dir
+                n5_2_tif_params.app,
+                n5_2_tif_params.spark_conf,
+                "${get_spark_working_dir(n5_2_tif_params.spark_work_dir)}/n5_to_tiff",
+                n5_2_tif_params.workers,
+                n5_2_tif_params.worker_cores,
+                n5_2_tif_params.gb_per_core,
+                n5_2_tif_params.driver_cores,
+                n5_2_tif_params.driver_memory,
+                n5_2_tif_params.driver_stack_size,
+                n5_2_tif_params.driver_logconfig
             )
             n5_to_tiff_res.subscribe { log.debug "N5 to TIFF result using N5 spark tools: $it" }
         } else {
             def n5_to_tiff_res = n5_to_tiff_using_dask(
-                n52tif_params.images_dir,  // input N5 dir
-                n52tif_params.default_n5_dataset,  // N5 dataset
-                n52tif_params.tiff_output_dir, // output dir
+                n5_2_tif_params.images_dir,  // input N5 dir
+                n5_2_tif_params.default_n5_dataset,  // N5 dataset
+                n5_2_tif_params.tiff_output_dir, // output dir
             )
             n5_to_tiff_res.subscribe { log.debug "N5 to TIFF result using N5 dask tools: $it" }
         }
