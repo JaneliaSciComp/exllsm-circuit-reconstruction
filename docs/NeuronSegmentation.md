@@ -37,3 +37,9 @@ Usage:
 | --neuron_seg_small_region_size_th | 1000 | small region size threshold |
 | --neuron_segmentation_cpus | 1 | CPU resources required for each segmentation job |
 | --neuron_segmentation_memory | 1 G | Memory resources required for each segmentation job |
+| --with_connected_comps | true | If true runs the N5 Spark based connected components |
+| --connected_pixels_shape | diamond | Shape used for connected components |
+| --min_connected_pixels | 2000 | Min pixels threshold used to decide whether to keep the component or not |
+| --connected_pixels_threshold | 200 | threshold value for neuron segmentation binarization |
+| --neuron_conn_comp_dataset | c1/s0 | default dataset used for connected components |
+| --downsample_connected_comps | false | If true downsamples connected components |

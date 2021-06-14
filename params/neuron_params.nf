@@ -17,7 +17,7 @@ def neuron_params() {
         max_scaling_tiles_per_job: 40,
         neuron_scaling_plots_dir: '',
         with_connected_comps: true,
-        downsample_connected_comps: true,
+        downsample_connected_comps: false,
         connected_comps_block_size: '128,128,128', // block size used for generating connected comps
         neuron_vvd_output: '', // VVD output directorry
         vvd_scale_levels: '1,1,1:2,2,2',

@@ -7,15 +7,18 @@ See below for details about the workflows:
 * Workflow B: Neuron 1 Presynaptic to Neuron 2 and Neuron 2 Presynaptic to Neuron 1
 * Workflow C: Neuron 1 Presynaptic to Neuron 2 Restricted Postsynaptic 
 * Workflow D: Presynaptic in Volume
+* Synapse Segmentation: Apply the U-Net segmentation for a pre-synaptic channel
+* Synapse Segmentation Post Processing: Apply the watershed segmentation to a volume which already has the U-Net segmentation
+
+Each workflow generates intermediate data volumes that are typically stored in the same N5 container but in different N5 datasets. The default N5 container name for intermediate data is specified by the `--working_container` parameter and the parameters for the intermediate datasets with their default values are defined below in the '[Global Optional Parameters](#global_optional_parameters)' section
 
 ## Global Required Parameters
-
 These parameters are required for all workflows:
 
 | Argument   | Description                                                                           |
 |------------|---------------------------------------------------------------------------------------|
 | --pipeline | Pipeline to run (valid options: presynaptic_n1_to_n2, presynaptic_n1_to_postsynaptic_n2, presynaptic_in_volume, classify_synapses, collocate_synapses) |
-| &#x2011;&#x2011;synapse_model | Path to trained synapse model in HDF5 format |
+| --synapse_model | Path to trained synapse model in HDF5 format |
 
 ## Global Optional Parameters
 
@@ -32,7 +35,30 @@ These parameters are required for all workflows:
 | --postsynaptic_stage2_threshold | 200 | Same as above for stage 2 postsynaptic processing. | 
 | --postsynaptic_stage2_percentage | 0.001 | Same as above for stage 2 postsynaptic processing. | 
 | --postsynaptic_stage3_threshold | 400 | Same as above for stage 3 processing. | 
-| &#x2011;&#x2011;postsynaptic_stage3_percentage | 0.001 | Same as above for stage 3 processing. | 
+| --postsynaptic_stage3_percentage | 0.001 | Same as above for stage 3 processing. |
+| --working_container | `--pipeline` value | The default N5 container used for intermediate data |
+| --working_pre_synapse_container | Same as `--working_container` | The N5 pre synaptic container if the input is a TIFF stack; if the pre-synaptic data is already in N5 this is ignored |
+| --working_pre_synapse_dataset | 'pre_synapse/s0' | The N5 dataset if the input is a TIFF stack |
+| --working_n1_mask_container | Same as `--working_container` | The N5 neuron 1 mask container if the input is a TIFF stack; if the neuron 1 mask is already in N5 this is ignored |
+| --working_n1_mask_dataset | 'n1_mask/s0' | The N5 dataset if the input is a TIFF stack |
+| --working_n2_mask_container | Same as `--working_container` | The N5 neuron 2 mask container if the input is a TIFF stack; if the neuron 2 mask is already in N5 this is ignored |
+| --working_n2_mask_dataset | 'n2_mask/s0' | The N5 dataset if the input is a TIFF stack |
+| --working_post_synapse_container | Same as `--working_container` | The N5 post synaptic channel if the input is a TIFF stack; if the post-synaptic data is already in N5 this is ignored |
+| --working_post_synapse_dataset | 'post_synapse/s0' | The N5 dataset if the input is a TIFF stack |
+| --working_pre_synapse_seg_container | same as `--working_container` | Pre-synaptic segmentation N5 result |
+| --working_pre_synapse_seg_dataset | 'pre_synapse_seg/s0' | Pre-synaptic segmentation N5 dataset |
+| --working_post_synapse_seg_container | same as `--working_container` | Post-synaptic segmentation N5 result|
+| --working_post_synapse_seg_dataset | 'post_synapse_seg/s0' | Post-synaptic segmentation N5 dataset |
+| --working_pre_synapse_seg_post_container | same as `--working_container` | N5 container for pre-synaptic segmentation after post processing |
+| --working_pre_synapse_seg_post_dataset | 'pre_synapse_seg_post/s0' | N5 dataset for pre-synaptic segmentation after post processing |
+| --working_pre_synapse_seg_n1_container | same as `--working_container` | N5 container for pre-synaptic segmentation after post processing with N1 mask |
+| --working_pre_synapse_seg_n1_dataset | 'pre_synapse_seg_n1/s0' | N5 dataset for pre-synaptic segmentation after post processing N1 mask |
+| --working_pre_synapse_seg_n1_n2_container | same as `--working_container` | N5 container for pre-synaptic segmentation after post processing with N1 followed by post processing with N2 |
+| --working_pre_synapse_seg_n1_n2_dataset | 'pre_synapse_seg_n1_n2/s0' | N5 dataset for pre-synaptic segmentation after post processing with N1 followed by post processing with N2 |
+| --working_post_synapse_seg_n1_container | same as `--working_container` | N5 container for post-synaptic segmentation after post processing with pre-synaptic segmentation and N1 mask |
+| --working_post_synapse_seg_n1_dataset | 'post_synapse_seg_pre_synapse_seg_n1/s0' | N5 dataset for post-synaptic segmentation after post processing with pre-synaptic segmentation and N1 mask |
+| --working_pre_synapse_seg_post_synapse_seg_n1_container | same as `--working_container` | N5 container after post processing pre-synaptic segmentation with N1 and with post-synaptic segmentation |
+| --working_pre_synapse_seg_post_synapse_seg_n1_dataset | 'pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1/s0' | N5 datasset after post processing pre-synaptic segmentation with N1 and with post-synaptic segmentation |
 
 
 ## Workflow A: Neuron 1 Presynaptic to Neuron 2
@@ -50,8 +76,11 @@ This workflow depends on masked neuron channels obtained with one of the [Neuron
 | Argument   | Description                                                                           |
 |------------|---------------------------------------------------------------------------------------|
 | --n1_stack_dir | Volume (TIFF series or n5) containing Neuron #1 |
-| --n2_stack_dir | Volume (TIFF series or n5) containing Neuron #2 |
-| &#x2011;&#x2011;pre_synapse_stack_dir | Volume (TIFF series or n5) containing pre-synaptic channel  |
+| --n1_in_dataset | Neuron 1 dataset if the neuron input stack is an N5 container |
+| --n2_stack_dir | Volume (TIFF series or n5) containing Neuron #2 | If this is empty the post-processing with N2 mask should generate the same results as as pre-synaptic segmentation with N1 mask, but the operation will be performed |
+| --n2_in_dataset | Neuron 2 dataset if the neuron input stack is an N5 container |
+| --pre_synapse_stack_dir | Volume (TIFF series or n5) containing pre-synaptic channel  |
+| --pre_synapse_in_dataset | Pre-synaptic dataset if the input is N5  |
 
 
 ## Workflow B: Neuron 1 Presynaptic to Neuron 2 and Neuron 2 Presynaptic to Neuron 1
@@ -82,8 +111,12 @@ This workflow depends on masked neuron channels obtained with one of the [Neuron
 | Argument   | Description                                                                           |
 |------------|---------------------------------------------------------------------------------------|
 | --n1_stack_dir | Volume (TIFF series or n5) containing Neuron #1 |
+| --n1_in_dataset | Neuron 1 dataset if the neuron input stack is an N5 container |
 | --pre_synapse_stack_dir | Volume (TIFF series or n5) containing pre-synaptic channel  |
-| &#x2011;&#x2011;post_synapse_stack_dir |  Volume (TIFF series or n5) containing post-synaptic channel |
+| --pre_synapse_in_dataset | Pre-synaptic dataset if the input is N5  |
+| --post_synapse_stack_dir |  Volume (TIFF series or n5) containing post-synaptic channel |
+| --post_synapse_in_dataset | Post-synaptic dataset if the input is N5  |
+
 
 
 ## Workflow D: Presynaptic in Volume
@@ -98,11 +131,11 @@ This workflow ignores neurons and identifies all presynaptic sites in the given 
 
 | Argument   | Description                                                                           |
 |------------|---------------------------------------------------------------------------------------|
-| &#x2011;&#x2011;pre_synapse_stack_dir | Volume (TIFF series or n5) containing synaptic channel  |
-| &#x2011;&#x2011;n1_stack_dir | This is not a required parameter but if it is provided it will be used to mask the classified presynaptic regions, otherwise it will identify all regions in the volume and no mask will be used   |
-| &#x2011;&#x2011;working_pre_synapse_container | The N5 container used for the presynaptic segmentation result 
-| &#x2011;&#x2011;working_pre_synapse_dataset | The dataset inside the N5 container used for presynaptic segmentation |
-| &#x2011;&#x2011;working_post_synapse_seg_container | The N5 container used for the post processed presynaptic segmentation result if no mask is provided |
-| &#x2011;&#x2011;working_post_synapse_seg_dataset | The dataset inside the N5 container used for post processed presynaptic segmentation if no mask neuron is provided |
-| &#x2011;&#x2011;working_pre_synapse_seg_n1_container | The N5 container used for the post processed presynaptic segmentation result when neuron mask is used |
-| &#x2011;&#x2011;working_pre_synapse_seg_n1_dataset | The dataset inside the N5 container used for post processed presynaptic segmentation when a neuron mask is used |
+| --pre_synapse_stack_dir | Volume (TIFF series or n5) containing synaptic channel  |
+| --pre_synapse_in_dataset | Pre-synaptic dataset if the input is N5  |
+| --n1_stack_dir | This is not a required parameter but if it is provided it will be used to mask the classified presynaptic regions, otherwise it will identify all regions in the volume and no mask will be used   |
+| --n1_in_dataset | Neuron 1 dataset if the neuron input stack is an N5 container |
+| --working_post_synapse_seg_container | The N5 container used for the post processed presynaptic segmentation result if no mask is provided |
+| --working_post_synapse_seg_dataset | The dataset inside the N5 container used for post processed presynaptic segmentation if no mask neuron is provided |
+| --working_pre_synapse_seg_n1_container | The N5 container used for the post processed presynaptic segmentation result when neuron mask is used |
+| --working_pre_synapse_seg_n1_dataset | The dataset inside the N5 container used for post processed presynaptic segmentation when a neuron mask is used |
