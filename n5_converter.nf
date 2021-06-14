@@ -35,6 +35,7 @@ def n5_2_tif_params = converter_params +
                       n5_2_tif_spark_params(final_params)
 
 include {
+    downsample_n5;
     n5_to_tiff as n5_to_tiff_using_spark;
     n5_to_mips;
 } from './workflows/n5_tools' addParams(n5_2_tif_params)
@@ -44,6 +45,23 @@ include {
 } from './processes/n5_tools' addParams(n5_2_tif_params)
 
 workflow {
+    if (n5_2_tif_params.with_downsampling) {
+        def n5_downsample_res = downsample_n5(
+            n5_2_tif_params.images_dir,  // input N5 dir
+            n5_2_tif_params.default_n5_dataset,  // N5 dataset
+            n5_2_tif_params.app,
+            n5_2_tif_params.spark_conf,
+            "${get_spark_working_dir(n5_2_tif_params.spark_work_dir)}/n5_downsample",
+            n5_2_tif_params.workers,
+            n5_2_tif_params.worker_cores,
+            n5_2_tif_params.gb_per_core,
+            n5_2_tif_params.driver_cores,
+            n5_2_tif_params.driver_memory,
+            n5_2_tif_params.driver_stack_size,
+            n5_2_tif_params.driver_logconfig
+        )
+        n5_downsample_res.subscribe { log.debug "N5 downsample result: $it" }
+    }
     if (n5_2_tif_params.tiff_output_dir) {
         if (n5_2_tif_params.use_n5_spark_tools) {
             def n5_to_tiff_res = n5_to_tiff_using_spark(

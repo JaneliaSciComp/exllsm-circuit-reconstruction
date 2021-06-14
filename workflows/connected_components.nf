@@ -149,7 +149,7 @@ workflow connected_components {
     } else {
         downsampled_connected_res = connected_comps_res
     }
-    // terminate stitching cluster
+    // terminate spark cluster
     done = terminate_spark(
         downsampled_connected_res.map { it[1] },
         terminate_app_name
