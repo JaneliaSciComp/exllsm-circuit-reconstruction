@@ -40,7 +40,7 @@ include {
 
 include {
     n5_to_tiff as n5_to_tiff_using_dask;
-} from '../processes/n5_tools' addParams(n5_2_tif_params)
+} from './processes/n5_tools' addParams(n5_2_tif_params)
 
 workflow {
     if (n5_2_tif_params.tiff_output_dir) {
