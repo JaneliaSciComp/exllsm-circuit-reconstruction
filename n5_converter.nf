@@ -125,5 +125,6 @@ workflow {
             vvd_params.driver_stack_size,
             vvd_params.driver_logconfig
         )
+        n5_to_vvd_res.subscribe { log.debug "N5 to VVD results: $it" }
     }
 }

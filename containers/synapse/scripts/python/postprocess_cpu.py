@@ -74,6 +74,7 @@ def remove_small_piece(out_path, prefix, img, start, end, mask=None,
     if mp_pool_size > 1:
         pool = ThreadPool(mp_pool_size)
         csv_rows = pool.map(partial(process_region,
+                                    img,
                                     label_img,
                                     mask, start, end, img.dtype,
                                     threshold,
@@ -81,6 +82,7 @@ def remove_small_piece(out_path, prefix, img, start, end, mask=None,
                             regionprop_img)
     else:
         csv_rows = list(map(partial(process_region,
+                                    img,
                                     label_img,
                                     mask, start, end, img.dtype,
                                     threshold,
@@ -105,7 +107,7 @@ def remove_small_piece(out_path, prefix, img, start, end, mask=None,
     return img
 
 
-def process_region(label_img, mask, start, end, img_data_type,
+def process_region(img, label_img, mask, start, end, img_data_type,
                    threshold, percentage, region):
     num_voxel = region.area
     print('num voxels: ', num_voxel)
@@ -131,6 +133,7 @@ def process_region(label_img, mask, start, end, img_data_type,
 
     if exclude:
         print('  Excluding label', str(region.label), 'at', region.centroid)
+        img[label_img == region.label] = 0
         return None
     else:
         print('  Including label ', str(region.label), 'at', region.centroid)
