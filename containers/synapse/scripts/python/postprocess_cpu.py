@@ -33,7 +33,7 @@ def tif_write(im_array, file_name):
     and it writes it as (slices, rows, cols)
     """
     im = im_array.transpose(2, 1, 0)
-    skimage.io.imsave(file_name, im)
+    skimage.io.imsave(file_name, im, photometric='minisblack')
     return None
 
 
