@@ -381,26 +381,18 @@ workflow presynaptic_n1_to_n2 {
         params.postprocessing_cpus,
         params.postprocessing_memory,
         params.postprocessing_threads,
-    )
+    ) // [ synapse_seg_n1, n2, synapse_size, synapse_seg_n1_n2, synapse_seg_n1_n2_csv ]
     | map {
-        def csv_file = file(it[-1])
-        [ "${csv_file.parent}" ] + it
-    }  // [ output_dir, synapse_seg_n1, n2, synapse_size, synapse_seg_n1_n2, synapse_seg_n1_n2_csv ]
-
-    // prepare the final result
-    def final_n5_stacks = presynaptic_to_n1_n5_stacks
-    | join(synapse_n1_n2_results, by:0)
-    | map {
-        def (output_dirname, n5_stacks,
-             presynaptic_seg_n1_container, presynaptic_seg_n1_dataset,
+        def (presynaptic_seg_n1_container, presynaptic_seg_n1_dataset,
              n2_container, n2_dataset,
              presynaptic_seg_n1_n2_container, presynaptic_seg_n1_n2_dataset,
              stack_size,
              csv_results) = it
+        def csv_file = file(csv_results)
         [
-            output_dirname,
-            n5_stacks + [
-                'pre_synapse_seg_n1_n2': [
+            "${csv_file.parent}",
+            [
+                "pre_synapse_seg_n1_n2": [
                     presynaptic_seg_n1_n2_container,
                     presynaptic_seg_n1_n2_dataset,
                     stack_size
@@ -408,7 +400,11 @@ workflow presynaptic_n1_to_n2 {
             ]
         ]
     }
-    final_n5_stacks.subscribe { log.debug "final presynaptic n1 to n2 results: $it" }
+
+    // prepare the final result
+    def final_n5_stacks = presynaptic_to_n1_n5_stacks
+    | concat(synapse_n1_n2_results)
+    final_n5_stacks.subscribe { log.info "final presynaptic n1 to n2 results: $it" }
 
     emit:
     done = final_n5_stacks
