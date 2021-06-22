@@ -350,26 +350,32 @@ workflow presynaptic_n1_to_n2 {
 
     // Colocalize presynaptic n1 with n2
     def synapse_n1_n2_results = connect_regions_in_volume(
-        presynaptic_to_n1_n5_stacks.map {
-            def (output_dirname, n5_stacks) = it
-            [
-                n5_stacks['pre_synapse_seg_n1'][0], // input n5
-                n5_stacks['pre_synapse_seg_n1'][1], // input dataset
-                n5_stacks[n2_stack_name][0], // mask n5
-                n5_stacks[n2_stack_name][1], // mask dataset
-                get_container_fullpath(
-                    output_dirname,
-                    get_n5_container_name('working_pre_synapse_seg_n1_n2_container'),
-                ), // output n5
-                params.working_pre_synapse_seg_n1_n2_dataset, // output dataset
-                n5_stacks['pre_synapse_seg_n1'][2], // size
-                create_post_output_name(
-                    output_dirname,
-                    'pre_synapse_seg_n1_n2',
-                    params.postsynaptic_stage2_threshold,
-                    params.postsynaptic_stage2_percentage), // csv ouput
-            ]
-        },
+        presynaptic_to_n1_n5_stacks
+            .filter {
+                def (output_dirname, n5_stacks) = it
+                def m = n5_stacks[n2_stack_name][0] // mask n5
+                m ? true : false
+            }
+            .map {
+                def (output_dirname, n5_stacks) = it
+                [
+                    n5_stacks['pre_synapse_seg_n1'][0], // input n5
+                    n5_stacks['pre_synapse_seg_n1'][1], // input dataset
+                    n5_stacks[n2_stack_name][0], // mask n5
+                    n5_stacks[n2_stack_name][1], // mask dataset
+                    get_container_fullpath(
+                        output_dirname,
+                        get_n5_container_name('working_pre_synapse_seg_n1_n2_container'),
+                    ), // output n5
+                    params.working_pre_synapse_seg_n1_n2_dataset, // output dataset
+                    n5_stacks['pre_synapse_seg_n1'][2], // size
+                    create_post_output_name(
+                        output_dirname,
+                        'pre_synapse_seg_n1_n2',
+                        params.postsynaptic_stage2_threshold,
+                        params.postsynaptic_stage2_percentage), // csv ouput
+                ]
+            },
         params.postsynaptic_stage2_threshold,
         params.postsynaptic_stage2_percentage,
         params.postprocessing_cpus,
