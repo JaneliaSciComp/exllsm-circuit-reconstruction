@@ -353,8 +353,7 @@ workflow presynaptic_n1_to_n2 {
         presynaptic_to_n1_n5_stacks
             .filter {
                 def (output_dirname, n5_stacks) = it
-                def m = n5_stacks[n2_stack_name][0] // mask n5
-                m ? true : false
+                n5_stacks[n2_stack_name][0] ? true : false
             }
             .map {
                 def (output_dirname, n5_stacks) = it
@@ -390,7 +389,7 @@ workflow presynaptic_n1_to_n2 {
              csv_results) = it
         def csv_file = file(csv_results)
         [
-            "${csv_file.parent}",
+            "${csv_file.parent}" as String,
             [
                 "pre_synapse_seg_n1_n2": [
                     presynaptic_seg_n1_n2_container,
