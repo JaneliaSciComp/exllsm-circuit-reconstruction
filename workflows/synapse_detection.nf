@@ -352,6 +352,7 @@ workflow presynaptic_n1_to_n2 {
     def synapse_n1_n2_results = connect_regions_in_volume(
         presynaptic_to_n1_n5_stacks
             .filter {
+                // filter out stacks that do not have an n2 mask
                 def (output_dirname, n5_stacks) = it
                 n5_stacks[n2_stack_name][0] ? true : false
             }
@@ -413,8 +414,6 @@ workflow presynaptic_n1_to_n2 {
     }
 
     final_n5_stacks.subscribe { log.debug "final presynaptic n1 to n2 results: $it" }
-
-    final_n5_stacks | view
 
     emit:
     done = final_n5_stacks
