@@ -74,7 +74,7 @@ workflow classify_regions_in_volume {
         [ in_image, in_dataset, out_image, out_dataset, image_size, ]
     }
     if (params.with_downsampling) {
-        println "!!!! WITH DOWN SAMPLE"
+        println "!!!! WITH DOWN SAMPLE FOR UNET"
         // def n5_downsampled_res = downsample_n5(
         //     unet_classifier_results.map { it[2] },
         //     unet_classifier_results.map { it[3] },
@@ -194,6 +194,14 @@ workflow connect_regions_in_volume {
             size,
             output_csv_file
         ]
+    }
+
+    if (params.with_downsampling) {
+        println "!!!! WITH DOWN SAMPLE FOR POST"
+        // def n5_downsampled_res = downsample_n5(
+        //     unet_classifier_results.map { it[2] },
+        //     unet_classifier_results.map { it[3] },
+        // )
     }
 
     emit:
