@@ -404,6 +404,8 @@ workflow presynaptic_n1_to_n2 {
     // prepare the final result
     def final_n5_stacks = presynaptic_to_n1_n5_stacks
     | concat(synapse_n1_n2_results)
+    | groupTuple(by: 0)
+
     final_n5_stacks.subscribe { log.info "final presynaptic n1 to n2 results: $it" }
 
     emit:
