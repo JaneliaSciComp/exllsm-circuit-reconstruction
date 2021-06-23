@@ -14,6 +14,10 @@ include {
 } from '../utils/utils'
 
 include {
+    downsample_n5;
+} from './n5_tools'
+
+include {
     partition_volume;
 } from './segmentation_utils'
 
@@ -68,6 +72,13 @@ workflow classify_regions_in_volume {
              out_image, out_dataset,
              image_size) = it
         [ in_image, in_dataset, out_image, out_dataset, image_size, ]
+    }
+    if (params.with_downsampling) {
+        println "!!!! WITH DOWN SAMPLE"
+        // def n5_downsampled_res = downsample_n5(
+        //     unet_classifier_results.map { it[2] },
+        //     unet_classifier_results.map { it[3] },
+        // )
     }
 
     emit:
