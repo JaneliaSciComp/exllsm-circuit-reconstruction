@@ -16,6 +16,7 @@ FROM janeliascicomp/fiji-zulu-8:20201021-2016
 COPY --from=builder /buildinfo /
 COPY --from=builder /tmp/app/*/Fiji_plugins /app/fiji/Fiji.app/plugins
 COPY --from=builder /tmp/app/*/*.ijm /app/fiji/Fiji.app/macros
+COPY --from=builder /tmp/app/jars/* /app/fiji/Fiji.app/jars
 
 ENTRYPOINT [ "/app/fiji/entrypoint.sh", "--headless", "-macro" ]
 CMD [ "Mask_connectionGPU.ijm" ]
