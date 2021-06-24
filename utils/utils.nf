@@ -29,7 +29,8 @@ def data_to_json_text(data) {
     groovy.json.JsonOutput.toJson(data)
 }
 
-def create_container_options(dirs) {
+def create_container_options(dirList) {
+    def dirs = dirList.unique(false)
     if (workflow.containerEngine == 'singularity') {
         dirs
         .findAll { it != null && it != '' }
