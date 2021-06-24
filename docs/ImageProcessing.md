@@ -35,8 +35,8 @@ These parameters are required for all workflows:
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
-| --mask_connection_vx | 20 |  |
-| --mask_connection_time | 4 |  |
+| --mask_connection_distance | 20 |  |
+| --mask_connection_iterations | 4 |  |
 | --threshold_cpus | 4 | Number of CPUs to use for thresholding mask |
 | --threshold_mem_gb | 8 | Amount of memory (GB) to allocate for thresholding mask |
 | --convert_mask_cpus | 3 | Number of CPUs to use for importing mask |

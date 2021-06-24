@@ -4,6 +4,7 @@ def global_em_params() {
         exm_repo: 'registry.int.janelia.org/exm-analysis',
 
         // global parameters
+        clean_temp_dirs: true,
         partial_volume: '',
         volume_partition_size: 512,
         block_size: '512,512,512',
@@ -20,14 +21,14 @@ def global_em_params() {
 
         // 3D mask connection params
         threshold: 255,
-        mask_connection_vx: 20,
-        mask_connection_time: 4,
+        mask_connection_distance: 20,
+        mask_connection_iterations: 4,
         threshold_cpus: 4,
-        threshold_mem_gb: 8,
-        convert_mask_cpus: 3,
-        convert_mask_mem_gb: 45,
-        connect_mask_cpus: 32,
-        connect_mask_mem_gb: 192,
+        threshold_mem_gb: 60,
+        convert_mask_cpus: 8,
+        convert_mask_mem_gb: 120,
+        connect_mask_cpus: 1,
+        connect_mask_mem_gb: 10,
 
         // crosstalk subtraction params
         crosstalk_threshold: 255,
