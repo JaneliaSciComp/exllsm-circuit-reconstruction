@@ -25,6 +25,7 @@ These parameters are required for all workflows:
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
 | --n5_compression | gzip | Compression for N5 volumes |
+| --with_downsampling | false | If true it generates the downsample for all synapse results (both UNet and post-UNet results) |
 | --tiff2n5_cpus | 3 | Number of CPUs to use for converting TIFF to n5 |
 | --n52tiff_cpus | 3 | Number of CPUs to use for converting n5 to TIFF |
 | --unet_cpus | 4 | Number of CPUs to use for each U-NET prediction job |
