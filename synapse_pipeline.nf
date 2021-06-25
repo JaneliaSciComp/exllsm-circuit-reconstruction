@@ -12,10 +12,18 @@ include {
 // app parameters
 def final_params = default_em_params(params)
 
+include {
+    n5_tools_spark_params;
+} from './params/n5_tools_params'
+
+def downsample_params = final_params +
+                        n5_tools_spark_params(final_params)
+
 def synapse_params = final_params + [
     working_container: get_value_or_default(final_params, 'working_container', "${final_params.pipeline}.n5"),
     exm_synapse_container: exm_synapse_container_param(final_params),
     exm_synapse_dask_container: exm_synapse_dask_container_param(final_params),
+    downsample: downsample_params,
 ]
 
 include {

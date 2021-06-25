@@ -74,11 +74,22 @@ workflow classify_regions_in_volume {
         [ in_image, in_dataset, out_image, out_dataset, image_size, ]
     }
     if (params.with_downsampling) {
-        println "!!!! WITH DOWN SAMPLE FOR UNET"
-        // def n5_downsampled_res = downsample_n5(
-        //     unet_classifier_results.map { it[2] },
-        //     unet_classifier_results.map { it[3] },
-        // )
+        def n5_downsampled_res = downsample_n5(
+            unet_classifier_results.map { it[2] },
+            unet_classifier_results.map { it[3] },
+            params.downsample.app,
+            params.downsample.spark_conf,
+            unet_classifier_results.map {
+                get_spark_working_dir(params.downsample.spark_work_dir, 'unet', it[3])
+            },
+            params.downsample.workers,
+            params.downsample.worker_cores,
+            params.downsample.gb_per_core,
+            params.downsample.driver_cores,
+            params.downsample.driver_memory,
+            params.downsample.driver_stack_size,
+            params.downsample.driver_logconfig
+        )
     }
 
     emit:
@@ -175,6 +186,25 @@ workflow connect_regions_in_volume {
         r
     }
 
+    if (params.with_downsampling) {
+        def n5_downsampled_res = downsample_n5(
+            post_processing_results.map { it[6] }, // n5 dir
+            post_processing_results.map { it[7] }, // n5 dataset
+            params.downsample.app,
+            params.downsample.spark_conf,
+            post_processing_results.map {
+                get_spark_working_dir(params.downsample.spark_work_dir, 'post_unet', it[7])
+            },
+            params.downsample.workers,
+            params.downsample.worker_cores,
+            params.downsample.gb_per_core,
+            params.downsample.driver_cores,
+            params.downsample.driver_memory,
+            params.downsample.driver_stack_size,
+            params.downsample.driver_logconfig
+        )
+    }
+
     def final_post_processing_results = post_processing_results
     | map {
         it[0..1]
@@ -194,14 +224,6 @@ workflow connect_regions_in_volume {
             size,
             output_csv_file
         ]
-    }
-
-    if (params.with_downsampling) {
-        println "!!!! WITH DOWN SAMPLE FOR POST"
-        // def n5_downsampled_res = downsample_n5(
-        //     unet_classifier_results.map { it[2] },
-        //     unet_classifier_results.map { it[3] },
-        // )
     }
 
     emit:
@@ -325,4 +347,10 @@ workflow classify_and_connect_regions_in_volume {
 
     emit:
     done
+}
+
+def get_spark_working_dir(base_dir, step, target) {
+    def d = base_dir ? base_dir : '/tmp'
+    def target_file = file(target)
+    "${d}/${step}/${target_file.name}"
 }

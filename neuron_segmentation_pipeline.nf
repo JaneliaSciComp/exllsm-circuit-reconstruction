@@ -109,7 +109,7 @@ workflow {
     if (vvd_params.neuron_vvd_output) {
         def n52vvd_res = n5_to_vvd(
             connected_comps_res.map { it[0] }, // neuron segmented N5 dir
-            connected_comps_res.map { it[2] }, // sub dir for connected comp
+            connected_comps_res.map { it[2] }, // sub dir for VVD
             vvd_params.neuron_vvd_output,
             vvd_params.app,
             vvd_params.spark_conf,

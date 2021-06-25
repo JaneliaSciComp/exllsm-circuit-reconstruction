@@ -85,6 +85,16 @@ workflow n5_to_vvd {
                 .inject('') {
                     arg, item -> "${arg} -f ${item}"
                 }
+        } else {
+            if (params.vvd_pyramid_level > 0) {
+                args_list << "-l ${params.vvd_pyramid_level}"
+            }
+            if (params.vvd_min_scale_factor > 0) {
+                args_list << "-fmin ${params.vvd_min_scale_factor}"
+            }
+            if (params.vvd_max_scale_factor > 0) {
+                args_list << "-fmax ${params.vvd_max_scale_factor}"
+            }
         }
         [
             spark_uri,

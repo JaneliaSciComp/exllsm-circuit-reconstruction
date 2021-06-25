@@ -5,7 +5,10 @@ include {
 def vvd_params() {
     [
         // VVD conversion params
+        vvd_min_scale_factor: 0,
+        vvd_max_scale_factor: 10,
         vvd_pyramid_level: 5,
+        vvd_scale_levels: '',
         vvd_final_ratio: 10,
         vvd_min_threshold: 100,
         vvd_max_threshold: 2100,
