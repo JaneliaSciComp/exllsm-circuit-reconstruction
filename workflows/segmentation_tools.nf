@@ -15,7 +15,7 @@ include {
 
 include {
     downsample_n5;
-} from './n5_tools'
+} from './n5_tools' addParams(params + params.downsample_params)
 
 include {
     partition_volume;
@@ -77,18 +77,18 @@ workflow classify_regions_in_volume {
         def n5_downsampled_res = downsample_n5(
             unet_classifier_results.map { it[2] },
             unet_classifier_results.map { it[3] },
-            params.downsample.app,
-            params.downsample.spark_conf,
+            params.app,
+            params.spark_conf,
             unet_classifier_results.map {
-                get_spark_working_dir(params.downsample.spark_work_dir, 'unet', it[3])
+                get_spark_working_dir(params.spark_work_dir, 'unet', it[3])
             },
-            params.downsample.workers,
-            params.downsample.worker_cores,
-            params.downsample.gb_per_core,
-            params.downsample.driver_cores,
-            params.downsample.driver_memory,
-            params.downsample.driver_stack_size,
-            params.downsample.driver_logconfig
+            params.workers,
+            params.worker_cores,
+            params.gb_per_core,
+            params.driver_cores,
+            params.driver_memory,
+            params.driver_stack_size,
+            params.driver_logconfig
         )
     }
 
@@ -190,18 +190,18 @@ workflow connect_regions_in_volume {
         def n5_downsampled_res = downsample_n5(
             post_processing_results.map { it[6] }, // n5 dir
             post_processing_results.map { it[7] }, // n5 dataset
-            params.downsample.app,
-            params.downsample.spark_conf,
+            params.app,
+            params.spark_conf,
             post_processing_results.map {
-                get_spark_working_dir(params.downsample.spark_work_dir, 'post_unet', it[7])
+                get_spark_working_dir(params.spark_work_dir, 'post_unet', it[7])
             },
-            params.downsample.workers,
-            params.downsample.worker_cores,
-            params.downsample.gb_per_core,
-            params.downsample.driver_cores,
-            params.downsample.driver_memory,
-            params.downsample.driver_stack_size,
-            params.downsample.driver_logconfig
+            params.workers,
+            params.worker_cores,
+            params.gb_per_core,
+            params.driver_cores,
+            params.driver_memory,
+            params.driver_stack_size,
+            params.driver_logconfig
         )
     }
 
