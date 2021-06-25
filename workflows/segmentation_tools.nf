@@ -90,6 +90,7 @@ workflow classify_regions_in_volume {
             params.driver_stack_size,
             params.driver_logconfig
         )
+        n5_downsampled_res.subscribe { log.debug "UNET downsample result: $it" }
     }
 
     emit:
@@ -203,6 +204,7 @@ workflow connect_regions_in_volume {
             params.driver_stack_size,
             params.driver_logconfig
         )
+        n5_downsampled_res.subscribe { log.debug "Post UNET downsample result: $it" }
     }
 
     def final_post_processing_results = post_processing_results
@@ -349,8 +351,10 @@ workflow classify_and_connect_regions_in_volume {
     done
 }
 
-def get_spark_working_dir(base_dir, step, target) {
+def get_spark_working_dir(base_dir, step, target_dataset) {
     def d = base_dir ? base_dir : '/tmp'
-    def target_file = file(target)
-    "${d}/${step}/${target_file.name}"
+    def target_file = file(target_dataset)
+    // dataset typically is <synapse-workflow-stage>/s0 and
+    // I want to use the <synapse-workflow-stage> value
+    "${d}/${step}/${target_file.parent.name}"
 }
