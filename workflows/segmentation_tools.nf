@@ -246,7 +246,7 @@ workflow connect_regions_in_volume {
             params.vvd_params.app,
             params.vvd_params.spark_conf,
             post_processing_results.map {
-                get_spark_working_dir(params.vvd_params.spark_work_dir, 'vvd_unet', it[3])
+                get_spark_working_dir(params.vvd_params.spark_work_dir, 'vvd_post_unet', it[3])
             },
             params.vvd_params.workers,
             params.vvd_params.worker_cores,
