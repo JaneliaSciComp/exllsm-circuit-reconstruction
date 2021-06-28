@@ -18,6 +18,10 @@ include {
 } from './n5_tools' addParams(params + params.downsample_params)
 
 include {
+    n5_to_vvd;
+} from './n5_tools' addParams(params + params.vvd_params)
+
+include {
     partition_volume;
 } from './segmentation_utils'
 
@@ -75,22 +79,46 @@ workflow classify_regions_in_volume {
     }
     if (params.with_downsampling) {
         def n5_downsampled_res = downsample_n5(
-            unet_classifier_results.map { it[2] },
-            unet_classifier_results.map { it[3] },
-            params.app,
-            params.spark_conf,
+            unet_classifier_results.map { it[2] }, // UNet N5 container
+            unet_classifier_results.map { it[3] }, // UNet N5 dataset
+            params.downsample_params.app,
+            params.downsample_params.spark_conf,
             unet_classifier_results.map {
-                get_spark_working_dir(params.spark_work_dir, 'unet', it[3])
+                get_spark_working_dir(params.downsample_params.spark_work_dir, 'unet', it[3])
             },
-            params.workers,
-            params.worker_cores,
-            params.gb_per_core,
-            params.driver_cores,
-            params.driver_memory,
-            params.driver_stack_size,
-            params.driver_logconfig
+            params.downsample_params.workers,
+            params.downsample_params.worker_cores,
+            params.downsample_params.gb_per_core,
+            params.downsample_params.driver_cores,
+            params.downsample_params.driver_memory,
+            params.downsample_params.driver_stack_size,
+            params.downsample_params.driver_logconfig
         )
         n5_downsampled_res.subscribe { log.debug "UNET downsample result: $it" }
+    }
+    if (params.with_vvd) {
+        def vvd_res = n5_to_vvd(
+            unet_classifier_results.map { it[2] }, // N5 container
+            unet_classifier_results.map { it[3] }, // N5 dataset
+            unet_classifier_results.map {
+                get_vvd_output_dir(
+                    params.vvd_output_dir ? params.vvd_output_dir :it[2],
+                    it[3])
+            }, // VVD output dir
+            params.vvd_params.app,
+            params.vvd_params.spark_conf,
+            unet_classifier_results.map {
+                get_spark_working_dir(params.vvd_params.spark_work_dir, 'vvd_unet', it[3])
+            },
+            params.vvd_params.workers,
+            params.vvd_params.worker_cores,
+            params.vvd_params.gb_per_core,
+            params.vvd_params.driver_cores,
+            params.vvd_params.driver_memory,
+            params.vvd_params.driver_stack_size,
+            params.vvd_params.driver_logconfig
+        )
+        vvd_res.subscribe { log.debug "UNET VVD result: $it" }
     }
 
     emit:
@@ -191,20 +219,44 @@ workflow connect_regions_in_volume {
         def n5_downsampled_res = downsample_n5(
             post_processing_results.map { it[6] }, // n5 dir
             post_processing_results.map { it[7] }, // n5 dataset
-            params.app,
-            params.spark_conf,
+            params.downsample_params.app,
+            params.downsample_params.spark_conf,
             post_processing_results.map {
-                get_spark_working_dir(params.spark_work_dir, 'post_unet', it[7])
+                get_spark_working_dir(params.downsample_params.spark_work_dir, 'post_unet', it[7])
             },
-            params.workers,
-            params.worker_cores,
-            params.gb_per_core,
-            params.driver_cores,
-            params.driver_memory,
-            params.driver_stack_size,
-            params.driver_logconfig
+            params.downsample_params.workers,
+            params.downsample_params.worker_cores,
+            params.downsample_params.gb_per_core,
+            params.downsample_params.driver_cores,
+            params.downsample_params.driver_memory,
+            params.downsample_params.driver_stack_size,
+            params.downsample_params.driver_logconfig
         )
         n5_downsampled_res.subscribe { log.debug "Post UNET downsample result: $it" }
+    }
+    if (params.with_vvd) {
+        def vvd_res = n5_to_vvd(
+            post_processing_results.map { it[6] }, // N5 container
+            post_processing_results.map { it[7] }, // N5 dataset
+            post_processing_results.map {
+                get_vvd_output_dir(
+                    params.vvd_output_dir ? params.vvd_output_dir :it[6],
+                    it[7])
+            }, // VVD output dir
+            params.vvd_params.app,
+            params.vvd_params.spark_conf,
+            post_processing_results.map {
+                get_spark_working_dir(params.vvd_params.spark_work_dir, 'vvd_unet', it[3])
+            },
+            params.vvd_params.workers,
+            params.vvd_params.worker_cores,
+            params.vvd_params.gb_per_core,
+            params.vvd_params.driver_cores,
+            params.vvd_params.driver_memory,
+            params.vvd_params.driver_stack_size,
+            params.vvd_params.driver_logconfig
+        )
+        vvd_res.subscribe { log.debug "Post UNET VVD result: $it" }
     }
 
     def final_post_processing_results = post_processing_results
@@ -357,4 +409,12 @@ def get_spark_working_dir(base_dir, step, target_dataset) {
     // dataset typically is <synapse-workflow-stage>/s0 and
     // I want to use the <synapse-workflow-stage> value
     "${d}/${step}/${target_file.parent.name}"
+}
+
+def get_vvd_output_dir(vvd_output_dir, target_dataset) {
+    def target_file = file(target_dataset)
+    // dataset typically is <synapse-workflow-stage>/s0 and
+    // I want to use the <synapse-workflow-stage> value
+    "${vvd_output_dir}/${target_file.parent.name}"
+
 }
