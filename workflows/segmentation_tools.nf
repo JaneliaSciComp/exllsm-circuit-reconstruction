@@ -102,7 +102,7 @@ workflow classify_regions_in_volume {
             unet_classifier_results.map { it[3] }, // N5 dataset
             unet_classifier_results.map {
                 get_vvd_output_dir(
-                    params.vvd_output_dir ? params.vvd_output_dir :it[2],
+                    params.vvd_output_dir ? params.vvd_output_dir : "${it[2]}/vvd",
                     it[3])
             }, // VVD output dir
             params.vvd_params.app,
@@ -240,7 +240,7 @@ workflow connect_regions_in_volume {
             post_processing_results.map { it[7] }, // N5 dataset
             post_processing_results.map {
                 get_vvd_output_dir(
-                    params.vvd_output_dir ? params.vvd_output_dir :it[6],
+                    params.vvd_output_dir ? params.vvd_output_dir : "${it[6]}/vvd",
                     it[7])
             }, // VVD output dir
             params.vvd_params.app,
