@@ -54,6 +54,7 @@ def global_em_params() {
         with_downsampling: false,
         tiff_output_dir: '',
         use_n5_spark_tools: true,
+        with_vvd: false,
         vvd_output_dir: '',
         mips_output_dir: '',
         mips_step: '',

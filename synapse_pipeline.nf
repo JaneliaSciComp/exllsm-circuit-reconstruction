@@ -16,13 +16,19 @@ include {
     n5_tools_spark_params;
 } from './params/n5_tools_params'
 
+include {
+    vvd_spark_params;
+} from './params/vvd_params'
+
 def downsample_params = n5_tools_spark_params(final_params)
+def vvd_params = vvd_spark_params(final_params)
 
 def synapse_params = final_params + [
     working_container: get_value_or_default(final_params, 'working_container', "${final_params.pipeline}.n5"),
     exm_synapse_container: exm_synapse_container_param(final_params),
     exm_synapse_dask_container: exm_synapse_dask_container_param(final_params),
     downsample_params: downsample_params,
+    vvd_params: vvd_params,
 ]
 
 include {
@@ -31,7 +37,7 @@ include {
     presynaptic_in_volume;
     presynaptic_n1_to_n2;
     presynaptic_n1_to_postsynaptic_n2;
-} from './workflows/synapse_detection' addParams(synapse_params + downsample_params)
+} from './workflows/synapse_detection' addParams(synapse_params)
 
 pipeline_output_dir = synapse_params.output_dir
 
