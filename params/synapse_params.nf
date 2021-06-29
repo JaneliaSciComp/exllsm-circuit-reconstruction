@@ -56,7 +56,7 @@ def synapse_params() {
         postprocessing_cpus: 3,
         postprocessing_memory: '3 G',
         postprocessing_threads: 3,
-        presynaptic_stage2_threshold: 400,
+        presynaptic_stage2_threshold: 300,
         presynaptic_stage2_percentage: 0.5,
         postsynaptic_stage2_threshold: 200,
         postsynaptic_stage2_percentage: 0.001,

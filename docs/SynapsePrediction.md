@@ -25,17 +25,16 @@ These parameters are required for all workflows:
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
 | --n5_compression | gzip | Compression for N5 volumes |
-| --with_downsampling | false | If true it generates the downsample for all synapse results (both UNet and post-UNet results) |
 | --tiff2n5_cpus | 3 | Number of CPUs to use for converting TIFF to n5 |
 | --n52tiff_cpus | 3 | Number of CPUs to use for converting n5 to TIFF |
 | --unet_cpus | 4 | Number of CPUs to use for each U-NET prediction job |
 | --postprocessing_cpus | 3 | Number of CPUs to use for post-processing (e.g. image closing, watershed, quantification, etc.) |
 | --volume_partition_size | 512 | Size of sub-volumes to process in parallel. Should be a multiple of --block_size. |
-| --presynaptic_stage2_threshold | 400 | Voxel threshold (smallest blob to include), for stage 2 presynaptic processing. | 
-| --presynaptic_stage2_percentage | 0.5 | Threshold to remove the object if it falls in the mask less than a percentage. If percentage is >=1, criteria will be whether the centroid falls within the mask. | 
-| --postsynaptic_stage2_threshold | 200 | Same as above for stage 2 postsynaptic processing. | 
-| --postsynaptic_stage2_percentage | 0.001 | Same as above for stage 2 postsynaptic processing. | 
-| --postsynaptic_stage3_threshold | 400 | Same as above for stage 3 processing. | 
+| --presynaptic_stage2_threshold | 300 | Voxel threshold (smallest blob to include), for stage 2 presynaptic processing. |
+| --presynaptic_stage2_percentage | 0.5 | Threshold to remove the object if it falls in the mask less than a percentage. If percentage is >=1, criteria will be whether the centroid falls within the mask. |
+| --postsynaptic_stage2_threshold | 200 | Same as above for stage 2 postsynaptic processing. |
+| --postsynaptic_stage2_percentage | 0.001 | Same as above for stage 2 postsynaptic processing. |
+| --postsynaptic_stage3_threshold | 400 | Same as above for stage 3 processing. |
 | --postsynaptic_stage3_percentage | 0.001 | Same as above for stage 3 processing. |
 | --working_container | `--pipeline` value | The default N5 container used for intermediate data |
 | --working_pre_synapse_container | Same as `--working_container` | The N5 pre synaptic container if the input is a TIFF stack; if the pre-synaptic data is already in N5 this is ignored |
@@ -60,7 +59,7 @@ These parameters are required for all workflows:
 | --working_post_synapse_seg_n1_dataset | 'post_synapse_seg_pre_synapse_seg_n1/s0' | N5 dataset for post-synaptic segmentation after post processing with pre-synaptic segmentation and N1 mask |
 | --working_pre_synapse_seg_post_synapse_seg_n1_container | same as `--working_container` | N5 container after post processing pre-synaptic segmentation with N1 and with post-synaptic segmentation |
 | --working_pre_synapse_seg_post_synapse_seg_n1_dataset | 'pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1/s0' | N5 datasset after post processing pre-synaptic segmentation with N1 and with post-synaptic segmentation |
-| --with_downsampling | false | If set it generates the downsampling pyramid for the UNet and Post-UNet results |
+| --with_downsampling | true | If set it generates the downsampling pyramid for all UNet and Post-UNet results |
 | --with_vvd | false | If set it converts the UNet and Post-UNet results to VVD. The base VVD output dir is set by --vvd_output_dir |
 | --vvd_output_dir | | base VVD output dir. If this is not set but --with_vvd is set then the default VVD output dir will be the 'vvd' sub-directory under the N5 container dir. The name of the VVD volume is based on the stage that created the volume: 'pre_synapse_seg', or 'pre_synapse_seg_n1', or 'pre_synapse_seg_n1_n2'. The current implementation is an all or nothing - it does not support to generate VVD files only for certain stages. |
 
