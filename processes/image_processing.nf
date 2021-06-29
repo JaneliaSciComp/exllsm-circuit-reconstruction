@@ -83,7 +83,7 @@ process connect_tiff {
     label 'withGPU'
 
     container { params.fiji_macro_container }
-    containerOptions { create_container_options([ connect_dir ]) }
+    containerOptions { create_container_options([ connect_dir, "/etc/OpenCL" ]) }
 
     cpus { params.connect_mask_cpus }
     memory { "${params.connect_mask_mem_gb} GB" }
@@ -96,6 +96,7 @@ process connect_tiff {
 
     script:
     """
+    export CL_LOG_ERRORS=stdout
     /app/fiji/entrypoint.sh --headless -macro Mask_connectionGPU.ijm "${brick},${params.mask_connection_distance},${params.mask_connection_iterations}"
     """
 }
@@ -134,7 +135,7 @@ process complete_mask {
     """
     rsync -a ${threshold_dir}/ ${output_dir}/
     if [[ "${params.clean_temp_dirs}" == "true" ]]; then
-        rm -rf ${params.clean_temp_dirs}
+        rm -rf ${params.shared_temp_dir}
     fi
     """
 }
