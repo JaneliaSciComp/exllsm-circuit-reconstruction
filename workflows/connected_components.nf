@@ -1,6 +1,7 @@
 include {
     spark_cluster_start;
     run_spark_app_on_existing_cluster as run_connected_components;
+    run_spark_app_on_existing_cluster as run_change_n5_type;
     run_spark_app_on_existing_cluster as run_downsample_components;
 } from '../external-modules/spark/lib/workflows'
 
@@ -73,7 +74,11 @@ workflow connected_components {
         def args_list = []
         args_list << "-n ${currrent_input_dir}"
         args_list << "-i ${current_input_dataset}"
-        args_list << "-o ${current_output_dataset}"
+        if (params.connected_comps_type) {
+            args_list << "-o ${current_output_dataset}.tmp"
+        } else {
+            args_list << "-o ${current_output_dataset}"
+        }
         args_list << "-m ${params.min_connected_pixels}"
         args_list << "-s ${params.connected_pixels_shape}"
         if (params.connected_pixels_threshold > 0)
@@ -107,10 +112,54 @@ workflow connected_components {
         spark_driver_deploy
     )
 
+    def comps_with_changed_type_res;
+    if (params.connected_comps_type) {
+        def change_n5_type_args = indexed_data
+        | join(connected_comps_res, by: 1)
+        | map {
+            def (spark_work_dir,
+                idx,
+                spark_uri,
+                currrent_input_dir,
+                current_input_dataset,
+                current_output_dataset) = it
+            def args_list = []
+            args_list << "-ni ${currrent_input_dir}"
+            args_list << "-i ${current_output_dataset}.tmp"
+            args_list << "-o ${current_output_dataset}"
+            args_list << "-t ${params.connected_comps_type}"
+            [
+                spark_uri,
+                args_list.join(' '),
+                spark_work_dir,
+            ]
+        }
+        comps_with_changed_type_res = run_change_n5_type(
+            change_n5_type_args.map { it[0] }, // spark uri
+            components_app,
+            'org.janelia.saalfeldlab.n5.spark.N5ConvertSpark',
+            change_n5_type_args.map { it[1] }, // args
+            'change_n5_comps_type.log',
+            terminate_app_name,
+            spark_conf,
+            change_n5_type_args.map { it[2] }, // spark work dir
+            spark_workers,
+            spark_worker_cores,
+            spark_gbmem_per_core,
+            spark_driver_cores,
+            spark_driver_memory,
+            spark_driver_stack,
+            spark_driver_logconfig,
+            spark_driver_deploy
+        )
+    } else {
+        comps_with_changed_type_res = connected_comps_res;
+    }
+
     def downsampled_connected_res
     if (params.downsample_connected_comps) {
         def downsample_comps_args = indexed_data
-        | join(connected_comps_res, by: 1)
+        | join(comps_with_changed_type_res, by: 1)
         | map {
             def (spark_work_dir,
                 idx,
@@ -147,7 +196,7 @@ workflow connected_components {
             spark_driver_deploy
         )
     } else {
-        downsampled_connected_res = connected_comps_res
+        downsampled_connected_res = comps_with_changed_type_res
     }
     // terminate spark cluster
     done = terminate_spark(
