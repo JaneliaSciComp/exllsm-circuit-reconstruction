@@ -74,7 +74,7 @@ workflow connected_components {
         def args_list = []
         args_list << "-n ${currrent_input_dir}"
         args_list << "-i ${current_input_dataset}"
-        if (params.connected_comps_type) {
+        if (is_connected_comps_type_set()) {
             args_list << "-o ${current_output_dataset}.tmp"
         } else {
             args_list << "-o ${current_output_dataset}"
@@ -113,7 +113,7 @@ workflow connected_components {
     )
 
     def comps_with_changed_type_res;
-    if (params.connected_comps_type) {
+    if (is_connected_comps_type_set() ) {
         def change_n5_type_args = indexed_data
         | join(connected_comps_res, by: 1)
         | map {
@@ -231,4 +231,8 @@ def get_connected_comps_block_size() {
     } else {
         ''
     }
+}
+
+def is_connected_comps_type_set() {
+    return (params.connected_comps_type instanceof String) && params.connected_comps_type
 }

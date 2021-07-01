@@ -17,7 +17,8 @@ def neuron_params() {
         max_scaling_tiles_per_job: 40,
         neuron_scaling_plots_dir: '',
         with_connected_comps: true,
-        downsample_connected_comps: false,
+        downsample_connected_comps: true,
+        connected_comps_type: 'uint32', // final connected components type
         connected_comps_block_size: '128,128,128', // block size used for generating connected comps
         neuron_vvd_output: '', // VVD output directorry
         min_connected_pixels: 2000, // minimum pixels in a connected component to be kept
