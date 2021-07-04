@@ -19,12 +19,12 @@ def neuron_params() {
         with_connected_comps: true,
         downsample_connected_comps: false,
         connected_comps_block_size: '128,128,128', // block size used for generating connected comps
-        neuron_vvd_output: '', // VVD output directorry
         min_connected_pixels: 2000, // minimum pixels in a connected component to be kept
         connected_pixels_shape: "diamond", // shape of neighborhood (default "diamond", option "box")
         connected_pixels_threshold: 0.8, // threshold for connected components - the segmented image is a probability array so
                                          // the probability must be higher than .8 (in this case)
         neuron_conn_comp_dataset: '/c1/s0',
+        neuron_vvd_output: '', // VVD output directory
 
         neuron_segmentation_cpus: 1,
         neuron_segmentation_memory: '1 G',

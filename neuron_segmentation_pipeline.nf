@@ -32,7 +32,6 @@ include {
     connected_components;
 } from './workflows/connected_components' addParams(neuron_comp_params)
 
-
 include {
     vvd_spark_params
 } from './params/vvd_params'
