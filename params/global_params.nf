@@ -13,9 +13,11 @@ def global_em_params() {
         default_n5_dataset: 's0',
         use_gpu_mem_growth: true,
 
-        images_dir: '',
+        input_dir: '',
         output_dir: '',
+        input_dataset: '/s0',
         output_dataset: '/s0',
+        connected_dataset: '/connected/s0',
 
         // image processing
         fiji_macro_container: 'registry.int.janelia.org/exm-analysis/exm-tools-fiji:1.0.1',
@@ -51,8 +53,9 @@ def global_em_params() {
         tiff2n5_memory: '3 G', // in fact it needs 126G for a 512x512x512 chunk size
         tiff2n5_workers: 0,
         n52tiff_cpus: 4,
-        n52tiff_memory: '3 G',
+        n52tiff_memory: '6 G',
 
+        multiscale_pyramid: false,
         with_pyramid: true,
         tiff_output_dir: '',
         use_n5_spark_tools: true,

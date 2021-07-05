@@ -4,7 +4,7 @@
 Parameters:
     input_n5
     input_dataset
-    output_dataset
+    connected_dataset
     min_connected_pixels
     connected_pixels_shape
     connected_pixels_threshold
@@ -43,7 +43,7 @@ workflow {
     connected_comps_res = connected_components(
         neuron_comp_params.input_n5, // n5 input
         neuron_comp_params.input_dataset, // n5 container sub-dir (c0/s0)
-        neuron_comp_params.output_dataset, // sub dir for connected comp
+        neuron_comp_params.connected_dataset, // sub dir for connected comp
         neuron_comp_params.app,
         neuron_comp_params.spark_conf,
         "${get_spark_working_dir(neuron_comp_params.spark_work_dir)}/connected-comps",

@@ -1,5 +1,15 @@
 #!/usr/bin/env nextflow
 
+/*
+Parameters:
+    input_dir
+    input_dataset
+    with_pyramid - if true, generate multiscale pyramid inside the input_dir
+    tiff_output_dir - if set, convert n5 to tiff and save it to this directory
+    mips_output_dir - if set, generates MIPs and save them to this directory
+    vvd_output_dir - if set, convert n5 to VVD format and save to this directory
+*/
+
 nextflow.enable.dsl=2
 
 include {
@@ -45,10 +55,10 @@ include {
 } from '../processes/n5_tools' addParams(n5_tools_params)
 
 workflow {
-    if (n5_tools_params.with_pyramid) {
+    if (n5_tools_params.multiscale_pyramid) {
         def n5_pyramid_res = n5_scale_pyramid_nonisotropic(
-            n5_tools_params.images_dir,  // input N5 dir
-            n5_tools_params.default_n5_dataset,  // N5 dataset
+            n5_tools_params.input_dir,  // input N5 dir
+            n5_tools_params.input_dataset,  // N5 dataset
             n5_tools_params.app,
             n5_tools_params.spark_conf,
             "${get_spark_working_dir(n5_tools_params.spark_work_dir)}/n5-pyramid",
@@ -65,8 +75,8 @@ workflow {
     if (n5_tools_params.tiff_output_dir) {
         if (n5_tools_params.use_n5_spark_tools) {
             def n5_to_tiff_res = n5_to_tiff_using_spark(
-                n5_tools_params.images_dir,  // input N5 dir
-                n5_tools_params.default_n5_dataset,  // N5 dataset
+                n5_tools_params.input_dir,  // input N5 dir
+                n5_tools_params.input_dataset,  // N5 dataset
                 n5_tools_params.tiff_output_dir, // output dir
                 n5_tools_params.app,
                 n5_tools_params.spark_conf,
@@ -82,9 +92,11 @@ workflow {
             n5_to_tiff_res.subscribe { log.debug "N5 to TIFF result using N5 spark tools: $it" }
         } else {
             def n5_to_tiff_res = n5_to_tiff_using_dask(
-                n5_tools_params.images_dir,  // input N5 dir
-                n5_tools_params.default_n5_dataset,  // N5 dataset
-                n5_tools_params.tiff_output_dir, // output dir
+                Channel.of([
+                    n5_tools_params.input_dir,  // input N5 dir
+                    n5_tools_params.input_dataset,  // N5 dataset
+                    n5_tools_params.tiff_output_dir // output dir
+                ])
             )
             n5_to_tiff_res.subscribe { log.debug "N5 to TIFF result using N5 dask tools: $it" }
         }
@@ -92,8 +104,8 @@ workflow {
 
     if (n5_tools_params.mips_output_dir) {
         def n5_to_mips_res = n5_to_mips(
-            n5_tools_params.images_dir,  // input N5 dir
-            n5_tools_params.default_n5_dataset,  // N5 dataset
+            n5_tools_params.input_dir,  // input N5 dir
+            n5_tools_params.input_dataset,  // N5 dataset
             n5_tools_params.mips_output_dir, // output dir
             n5_tools_params.app,
             n5_tools_params.spark_conf,
@@ -111,8 +123,8 @@ workflow {
 
     if (vvd_params.vvd_output_dir) {
         def n5_to_vvd_res = n5_to_vvd(
-            vvd_params.images_dir,  // input N5 dir
-            vvd_params.default_n5_dataset,  // N5 dataset
+            vvd_params.input_dir,  // input N5 dir
+            vvd_params.input_dataset,  // N5 dataset
             vvd_params.vvd_output_dir, // output dir
             vvd_params.app,
             vvd_params.spark_conf,
