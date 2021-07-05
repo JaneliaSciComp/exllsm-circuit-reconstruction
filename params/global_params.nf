@@ -15,6 +15,7 @@ def global_em_params() {
 
         images_dir: '',
         output_dir: '',
+        output_dataset: '/s0',
 
         // image processing
         fiji_macro_container: 'registry.int.janelia.org/exm-analysis/exm-tools-fiji:1.0.1',
