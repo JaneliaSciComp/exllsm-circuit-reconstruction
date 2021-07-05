@@ -143,7 +143,7 @@ process n5_to_tiff {
     script:
     """
     mkdir -p ${output_dir}
-    /entrypoint.sh n5_to_tif.py \
+    /entrypoint.sh n5_to_tif \
         -i ${input_n5} \
         -d ${input_dataset} \
         -o ${output_dir}
