@@ -7,7 +7,7 @@ include {
     exm_synapse_dask_container_param;
     exm_neuron_segmentation_container;
     get_spark_working_dir;
-} from './param_utils'
+} from '../param_utils'
 
 // app parameters
 def final_params = default_em_params(params)
@@ -18,18 +18,18 @@ def converter_params = final_params + [
 
 include {
     vvd_spark_params;
-} from './params/vvd_params'
+} from '../params/vvd_params'
 
 include {
     n5_tools_spark_params;
-} from './params/n5_tools_params'
+} from '../params/n5_tools_params'
 
 def vvd_params = converter_params +
                  vvd_spark_params(final_params) 
 
 include {
     n5_to_vvd;
-} from './workflows/n5_tools' addParams(vvd_params)
+} from '../workflows/n5_tools' addParams(vvd_params)
 
 def n5_tools_params = converter_params +
                       n5_tools_spark_params(final_params)
@@ -38,11 +38,11 @@ include {
     n5_scale_pyramid_nonisotropic;
     n5_to_tiff as n5_to_tiff_using_spark;
     n5_to_mips;
-} from './workflows/n5_tools' addParams(n5_tools_params)
+} from '../workflows/n5_tools' addParams(n5_tools_params)
 
 include {
     n5_to_tiff as n5_to_tiff_using_dask;
-} from './processes/n5_tools' addParams(n5_tools_params)
+} from '../processes/n5_tools' addParams(n5_tools_params)
 
 workflow {
     if (n5_tools_params.with_pyramid) {
