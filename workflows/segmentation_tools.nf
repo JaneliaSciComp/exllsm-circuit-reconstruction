@@ -14,8 +14,8 @@ include {
 } from '../utils/utils'
 
 include {
-    downsample_n5;
-} from './n5_tools' addParams(params + params.downsample_params)
+    n5_scale_pyramid_nonisotropic;
+} from './n5_tools' addParams(params + params.pyramid_params)
 
 include {
     n5_to_vvd;
@@ -77,24 +77,24 @@ workflow classify_regions_in_volume {
              image_size) = it
         [ in_image, in_dataset, out_image, out_dataset, image_size, ]
     }
-    if (params.with_downsampling) {
-        def n5_downsampled_res = downsample_n5(
+    if (params.with_pyramid) {
+        def n5_pyramid_res = n5_scale_pyramid_nonisotropic(
             unet_classifier_results.map { it[2] }, // UNet N5 container
             unet_classifier_results.map { it[3] }, // UNet N5 dataset
-            params.downsample_params.app,
-            params.downsample_params.spark_conf,
+            params.pyramid_params.app,
+            params.pyramid_params.spark_conf,
             unet_classifier_results.map {
-                get_spark_working_dir(params.downsample_params.spark_work_dir, 'unet', it[3])
+                get_spark_working_dir(params.pyramid_params.spark_work_dir, 'unet', it[3])
             },
-            params.downsample_params.workers,
-            params.downsample_params.worker_cores,
-            params.downsample_params.gb_per_core,
-            params.downsample_params.driver_cores,
-            params.downsample_params.driver_memory,
-            params.downsample_params.driver_stack_size,
-            params.downsample_params.driver_logconfig
+            params.pyramid_params.workers,
+            params.pyramid_params.worker_cores,
+            params.pyramid_params.gb_per_core,
+            params.pyramid_params.driver_cores,
+            params.pyramid_params.driver_memory,
+            params.pyramid_params.driver_stack_size,
+            params.pyramid_params.driver_logconfig
         )
-        n5_downsampled_res.subscribe { log.debug "UNET downsample result: $it" }
+        n5_pyramid_res.subscribe { log.debug "UNET pyramid result: $it" }
     }
     if (params.with_vvd) {
         def vvd_res = n5_to_vvd(
@@ -215,24 +215,24 @@ workflow connect_regions_in_volume {
         r
     }
 
-    if (params.with_downsampling) {
-        def n5_downsampled_res = downsample_n5(
+    if (params.with_pyramid) {
+        def n5_pyramid_res = n5_scale_pyramid_nonisotropic(
             post_processing_results.map { it[6] }, // n5 dir
             post_processing_results.map { it[7] }, // n5 dataset
-            params.downsample_params.app,
-            params.downsample_params.spark_conf,
+            params.pyramid_params.app,
+            params.pyramid_params.spark_conf,
             post_processing_results.map {
-                get_spark_working_dir(params.downsample_params.spark_work_dir, 'post_unet', it[7])
+                get_spark_working_dir(params.pyramid_params.spark_work_dir, 'post_unet', it[7])
             },
-            params.downsample_params.workers,
-            params.downsample_params.worker_cores,
-            params.downsample_params.gb_per_core,
-            params.downsample_params.driver_cores,
-            params.downsample_params.driver_memory,
-            params.downsample_params.driver_stack_size,
-            params.downsample_params.driver_logconfig
+            params.pyramid_params.workers,
+            params.pyramid_params.worker_cores,
+            params.pyramid_params.gb_per_core,
+            params.pyramid_params.driver_cores,
+            params.pyramid_params.driver_memory,
+            params.pyramid_params.driver_stack_size,
+            params.pyramid_params.driver_logconfig
         )
-        n5_downsampled_res.subscribe { log.debug "Post UNET downsample result: $it" }
+        n5_pyramid_res.subscribe { log.debug "Post UNET pyramid result: $it" }
     }
     if (params.with_vvd) {
         def vvd_res = n5_to_vvd(

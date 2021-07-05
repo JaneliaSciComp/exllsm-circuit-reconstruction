@@ -1,7 +1,7 @@
 include {
     spark_cluster_start;
     run_spark_app_on_existing_cluster as run_connected_components;
-    run_spark_app_on_existing_cluster as run_downsample_components;
+    run_spark_app_on_existing_cluster as run_n5_pyramid;
 } from '../external-modules/spark/lib/workflows'
 
 include {
@@ -107,9 +107,9 @@ workflow connected_components {
         spark_driver_deploy
     )
 
-    def downsampled_connected_res
-    if (params.downsample_connected_comps) {
-        def downsample_comps_args = indexed_data
+    def pyramid_res
+    if (params.connected_comps_pyramid) {
+        def pyramid_args = indexed_data
         | join(connected_comps_res, by: 1)
         | map {
             def (spark_work_dir,
@@ -128,15 +128,15 @@ workflow connected_components {
                 spark_work_dir,
             ]
         }
-        downsampled_connected_res = run_downsample_components(
-            downsample_comps_args.map { it[0] }, // spark uri
+        pyramid_res = run_n5_pyramid(
+            pyramid_args.map { it[0] }, // spark uri
             components_app,
             'org.janelia.saalfeldlab.n5.spark.downsample.scalepyramid.N5NonIsotropicScalePyramidSpark',
-            downsample_comps_args.map { it[1] }, // args
-            'downsample_comps.log',
+            pyramid_args.map { it[1] }, // args
+            'comps_pyramid.log',
             terminate_app_name,
             spark_conf,
-            downsample_comps_args.map { it[2] }, // spark work dir
+            pyramid_args.map { it[2] }, // spark work dir
             spark_workers,
             spark_worker_cores,
             spark_gbmem_per_core,
@@ -147,11 +147,11 @@ workflow connected_components {
             spark_driver_deploy
         )
     } else {
-        downsampled_connected_res = connected_comps_res
+        pyramid_res = connected_comps_res
     }
     // terminate spark cluster
     done = terminate_spark(
-        downsampled_connected_res.map { it[1] },
+        pyramid_res.map { it[1] },
         terminate_app_name
     )
     | join(indexed_data, by:1)

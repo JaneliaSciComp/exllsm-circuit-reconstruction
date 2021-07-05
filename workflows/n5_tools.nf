@@ -1,6 +1,6 @@
 include {
     spark_cluster_start;
-    run_spark_app_on_existing_cluster as run_n5_downsample;
+    run_spark_app_on_existing_cluster as run_n5_pyramid;
     run_spark_app_on_existing_cluster as run_n5_to_vvd;
     run_spark_app_on_existing_cluster as run_n5_to_tiff;
     run_spark_app_on_existing_cluster as run_n5_to_mips;
@@ -354,7 +354,7 @@ workflow n5_to_mips {
     done
 }
 
-workflow downsample_n5 {
+workflow n5_scale_pyramid_nonisotropic {
     take:
     input_dir // n5 dir
     input_dataset // n5 container sub-dir
@@ -371,7 +371,7 @@ workflow downsample_n5 {
 
     main:
     def spark_driver_deploy = ''
-    def terminate_app_name = 'terminate-n5-downsample'
+    def terminate_app_name = 'terminate-n5-pyramid'
 
     // index inputs so that I can pair inputs with the corresponding spark URI and/or spark working dir
     def indexed_input_dir = index_channel(input_dir)
@@ -401,7 +401,7 @@ workflow downsample_n5 {
         | join(indexed_input_dir)
         | join(indexed_input_dataset)
 
-    def n5_downsample_args = indexed_data
+    def n5_pyramid_args = indexed_data
     | map {
         def (idx,
              spark_work_dir,
@@ -419,15 +419,15 @@ workflow downsample_n5 {
         ]
     }
 
-    def n5_downsample_res = run_n5_downsample(
-        n5_downsample_args.map { it[0] }, // spark uri
+    def n5_pyramid_res = run_n5_pyramid(
+        n5_pyramid_args.map { it[0] }, // spark uri
         n5_app,
         'org.janelia.saalfeldlab.n5.spark.downsample.scalepyramid.N5NonIsotropicScalePyramidSpark',
-        n5_downsample_args.map { it[1] }, // args
-        'n5_downsample.log',
+        n5_pyramid_args.map { it[1] }, // args
+        'n5_pyramid.log',
         terminate_app_name,
         spark_conf,
-        n5_downsample_args.map { it[2] }, // spark work dir
+        n5_pyramid_args.map { it[2] }, // spark work dir
         spark_workers,
         spark_worker_cores,
         spark_gbmem_per_core,
@@ -440,7 +440,7 @@ workflow downsample_n5 {
 
     // terminate spark cluster
     done = terminate_spark(
-        n5_downsample_res.map { it[1] },
+        n5_pyramid_res.map { it[1] },
         terminate_app_name
     )
     | join(indexed_data, by:1)

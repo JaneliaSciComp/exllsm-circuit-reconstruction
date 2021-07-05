@@ -59,7 +59,7 @@ These parameters are required for all workflows:
 | --working_post_synapse_seg_n1_dataset | 'post_synapse_seg_pre_synapse_seg_n1/s0' | N5 dataset for post-synaptic segmentation after post processing with pre-synaptic segmentation and N1 mask |
 | --working_pre_synapse_seg_post_synapse_seg_n1_container | same as `--working_container` | N5 container after post processing pre-synaptic segmentation with N1 and with post-synaptic segmentation |
 | --working_pre_synapse_seg_post_synapse_seg_n1_dataset | 'pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1/s0' | N5 datasset after post processing pre-synaptic segmentation with N1 and with post-synaptic segmentation |
-| --with_downsampling | true | If set it generates the downsampling pyramid for all UNet and Post-UNet results |
+| --with_pyramid | true | If set it generates the downsampling pyramid for all UNet and Post-UNet results |
 | --with_vvd | false | If set it converts the UNet and Post-UNet results to VVD. The base VVD output dir is set by --vvd_output_dir |
 | --vvd_output_dir | | base VVD output dir. If this is not set but --with_vvd is set then the default VVD output dir will be the 'vvd' sub-directory under the N5 container dir. The name of the VVD volume is based on the stage that created the volume: 'pre_synapse_seg', or 'pre_synapse_seg_n1', or 'pre_synapse_seg_n1_n2'. The current implementation is an all or nothing - it does not support to generate VVD files only for certain stages. |
 

@@ -20,14 +20,14 @@ include {
     vvd_spark_params;
 } from './params/vvd_params'
 
-def downsample_params = n5_tools_spark_params(final_params)
+def pyramid_params = n5_tools_spark_params(final_params)
 def vvd_params = vvd_spark_params(final_params)
 
 def synapse_params = final_params + [
     working_container: get_value_or_default(final_params, 'working_container', "${final_params.pipeline}.n5"),
     exm_synapse_container: exm_synapse_container_param(final_params),
     exm_synapse_dask_container: exm_synapse_dask_container_param(final_params),
-    downsample_params: downsample_params,
+    pyramid_params: pyramid_params,
     vvd_params: vvd_params,
 ]
 

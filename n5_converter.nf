@@ -35,7 +35,7 @@ def n5_tools_params = converter_params +
                       n5_tools_spark_params(final_params)
 
 include {
-    downsample_n5;
+    n5_scale_pyramid_nonisotropic;
     n5_to_tiff as n5_to_tiff_using_spark;
     n5_to_mips;
 } from './workflows/n5_tools' addParams(n5_tools_params)
@@ -45,13 +45,13 @@ include {
 } from './processes/n5_tools' addParams(n5_tools_params)
 
 workflow {
-    if (n5_tools_params.with_downsampling) {
-        def n5_downsample_res = downsample_n5(
+    if (n5_tools_params.with_pyramid) {
+        def n5_pyramid_res = n5_scale_pyramid_nonisotropic(
             n5_tools_params.images_dir,  // input N5 dir
             n5_tools_params.default_n5_dataset,  // N5 dataset
             n5_tools_params.app,
             n5_tools_params.spark_conf,
-            "${get_spark_working_dir(n5_tools_params.spark_work_dir)}/n5-downsample",
+            "${get_spark_working_dir(n5_tools_params.spark_work_dir)}/n5-pyramid",
             n5_tools_params.workers,
             n5_tools_params.worker_cores,
             n5_tools_params.gb_per_core,
@@ -60,7 +60,7 @@ workflow {
             n5_tools_params.driver_stack_size,
             n5_tools_params.driver_logconfig
         )
-        n5_downsample_res.subscribe { log.debug "N5 downsample result: $it" }
+        n5_pyramid_res.subscribe { log.debug "N5 downsample result: $it" }
     }
     if (n5_tools_params.tiff_output_dir) {
         if (n5_tools_params.use_n5_spark_tools) {

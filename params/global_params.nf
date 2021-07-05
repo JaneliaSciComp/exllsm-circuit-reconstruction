@@ -53,7 +53,7 @@ def global_em_params() {
         n52tiff_cpus: 4,
         n52tiff_memory: '3 G',
 
-        with_downsampling: true,
+        with_pyramid: true,
         tiff_output_dir: '',
         use_n5_spark_tools: true,
         with_vvd: false,
