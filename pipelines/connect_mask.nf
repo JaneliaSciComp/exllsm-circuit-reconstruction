@@ -5,7 +5,6 @@ Parameters:
     input_dir
     output_dir
     shared_temp_dir
-    threshold
     mask_connection_distance
     mask_connection_iterations
 */
@@ -21,7 +20,6 @@ def final_params = default_em_params(params)
 
 include {
     prepare_mask_dirs;
-    threshold_mask;
     convert_from_mask;
     append_brick_files;
     connect_tiff;
@@ -35,7 +33,6 @@ workflow connect_mask {
 
     main:
     connected_tiff = prepare_mask_dirs(input_vals) 
-                    | threshold_mask
                     | convert_from_mask
                     | append_brick_files
                     | flatMap {
