@@ -1,15 +1,16 @@
 # Stitching Workflow
 
 The distributed stitching workflows ingests expansion microscopy data as a TIFF slice series and runs the following processing:
+
 - Conversion to n5
 - Flatfield correction
 - Deconvolution
 - Stitching
 - Export to n5 and TIFF slice series
 
-All steps besides deconvolution use the [stitching-spark](https://github.com/saalfeldlab/stitching-spark) code from the Saalfeld Lab at Janelia. 
+All steps besides deconvolution use the [stitching-spark](https://github.com/saalfeldlab/stitching-spark) code from the Saalfeld Lab at Janelia.
 
-Deconvolution uses a MATLAB script (details TBD). 
+Deconvolution uses a MATLAB script (details TBD).
 
 Usage ([example](../examples/stitching.sh)):
 
@@ -20,7 +21,7 @@ Usage ([example](../examples/stitching.sh)):
 | Argument   | Description                                                                           |
 |------------|---------------------------------------------------------------------------------------|
 | --images_dir | Path to directory containing TIFF slices and the ImageList.csv file |
-| --output_dir | Path to output directory | 
+| --output_dir | Path to output directory |
 | --psf_dir | Path to a point-spread functions for your microscope (details TBD) |
 
 ## Optional Parameters
@@ -28,15 +29,16 @@ Usage ([example](../examples/stitching.sh)):
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
 | --spark_container_repo | registry.int.janelia.org/exm-analysis | Docker registry and repository for the spark container |
-| --spark_container_name | stitching | Name for the container in the spark_container_repo | 
+| --spark_container_name | stitching | Name for the container in the spark_container_repo |
 | &#x2011;&#x2011;spark_container_version | 1.8.1 | Version for the container in the spark_container_repo |
+| --spark_work_dir | | Path to directory containing Spark working files and logs during stitching |
 | --stitching_app | /app/app.jar | Path to the JAR file containing the stitching application. |
 | --skip | | Specifies the steps to be skipped. The valid values are:  `prestitching, deconvolution, stitch, fuse, tiff-export`. See  [Tweaking the stitching process](#tweaking-the-stitching-process) how to use this |
 | --stitching_json_inputs | 488nm-decon,560nm-decon,642nm-decon | Default JSON inputs for the stich step. See  [Tweaking the stitching process](#tweaking-the-stitching-process) how to use this. |
 | --fuse_to_n5_json_inputs | 488nm-decon-final,560nm-decon-final,642nm-decon-final | Default JSON inputs for the fuse and export step. See  [Tweaking the stitching process](#tweaking-the-stitching-process) how to use this |
 | --workers | 4 | Number of Spark workers to use for stitching |
 | --worker_cores | 4 | Number of cores allocated to each Spark worker |
-| --gb_per_core | 15 | Size of memory (in GB) that is allocated for each core of a Spark worker. The total memory usage for stitching will be workers * worker_cores * gb_per_core. | 
+| --gb_per_core | 15 | Size of memory (in GB) that is allocated for each core of a Spark worker. The total memory usage for stitching will be workers * worker_cores * gb_per_core. |
 | --driver_memory | 15g | Amount of memory to allocate for the Spark driver |
 | --driver_stack | 128m | Amount of stack space to allocate for the Spark driver |
 | --stitching_output | | Output directory for stitching (relative to --output_dir) |

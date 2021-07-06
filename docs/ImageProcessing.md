@@ -1,10 +1,14 @@
 # Image Processing
 
 This set of workflows includes various image processing tasks:
-* 3D mask connection
+
 * ROI cropping
+* 3D mask connection
 * Thresholding
-* MIP creation
+* Connected components
+* Multiscale pyramid generation
+* MIP generation
+* TIFF<->n5 conversion
 * VVD file creation
 
 ## Global Optional Parameters
@@ -12,23 +16,198 @@ This set of workflows includes various image processing tasks:
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
 | --fiji_macro_container | registry.int.janelia.org/exm-analysis/exm-tools-fiji:1.0.1 | Docker container for image processing Fiji macros |
+| --exm_synapse_dask_container | registry.int.janelia.org/exm-analysis/synapse-dask:1.3.1 | Docker container for Dask-based processing scripts |
+| &#x2011;&#x2011;exm_neuron_segmentation_container | registry.int.janelia.org/exm-analysis/neuron-segmentation:1.0.0 | Docker container for neuron segmentation scripts |
+| --spark_work_dir | | Path to directory containing Spark working files and logs during stitching |
+| --workers | 4 | Number of Spark workers to use for Spark jobs |
+| --worker_cores | 4 | Number of cores allocated to each Spark worker |
+| --gb_per_core | 15 | Size of memory (in GB) that is allocated for each core of a Spark worker. The total memory usage for Spark jobs will be workers * worker_cores * gb_per_core. |
+| --driver_memory | 15g | Amount of memory to allocate for the Spark driver |
+| --driver_stack_size | 128m | Amount of stack space to allocate for the Spark driver |
 
+## ROI cropping
 
-## 3D mask connection
+Usage:
 
-Usage: 
-
-    ./connect_pipeline.nf --input_mask_dir INPUT_MASK_DIR --shared_temp_dir SHARED_TEMP_DIR --output_dir OUTPUT_DIR
-
-The 3D mask connection workflow consists of a thresholding step, followed by a conversion into a block-based format, then connection, and then conversion back to TIFF.
+    ./pipelines/crop_tiff.nf --input_dir INPUT_DIR --output_dir OUTPUT_DIR --roi_dir ROI_DIR --crop_start_slice START_SLICE --crop_end_slice END_SLICE --crop_format uncompressedTIFF
 
 ### Required Parameters
 
 | Argument   | Description                                                                           |
 |------------|---------------------------------------------------------------------------------------|
-| --input_mask_dir | Path to directory containing your neuron mask |
+| --input_dir | Directory containing input TIFF slices |
+| --output_dir | Directory where output TIFF slices will be saved |
+| --roi_dir | Directory containing the region-of-interest in [Fiji ROI format](https://github.com/imagej/imagej1/blob/master/ij/io/RoiDecoder.java) |
+| --crop_start_slice | Index of first Z slice to include in the output |
+| --crop_end_slice | Index of the last Z slice to include in the output |
+
+### Optional Parameters
+
+| Argument   | Default | Description                                                                           |
+|------------|---------|---------------------------------------------------------------------------------------|
+| --crop_format | TIFFPackBits_8bit | Output format, one of: ZIP, uncompressedTIFF, TIFFPackBits_8bit, or LZW |
+| --crop_cpus | 4 | Number of CPUs to use for cropping process |
+| --crop_mem_gb | 8 | Amount of memory (GB) to allocate for cropping process |
+
+## 3D mask connection
+
+Converts an input TIFF series into a block-based format, then runs a connection algorithm, and then converts back to TIFF series.
+
+Usage:
+
+    ./pipelines/connect_mask.nf --input_dir INPUT_MASK_DIR --shared_temp_dir SHARED_TEMP_DIR --output_dir OUTPUT_DIR
+
+### Required Parameters
+
+| Argument   | Description                                                                           |
+|------------|---------------------------------------------------------------------------------------|
+| --input_dir | Path to directory containing your neuron mask |
 | --shared_temp_dir | Path to a directory for temporary data (shared with all cluster nodes) |
 | --output_dir | Path where the final fully-connected mask should be generated |
+
+### Optional Parameters
+
+| Argument   | Default | Description                                                                           |
+|------------|---------|---------------------------------------------------------------------------------------|
+| --mask_connection_distance | 20 | Connection distance  |
+| --mask_connection_iterations | 4 | Number of iterations |
+| --convert_mask_cpus | 3 | Number of CPUs to use for importing mask |
+| --convert_mask_mem_gb | 45 | Amount of memory (GB) to allocate for importing mask |
+| --connect_mask_cpus | 32 | Number of CPUs to use for connecting mask |
+| --connect_mask_mem_gb | 192 | Amount of memory (GB) to allocate for connecting mask |
+
+## Thresholding
+
+Applies a thresholding operation to a TIFF series.
+
+Usage:
+
+    ./pipelines/thresholding.nf --input_dir INPUT_DIR --output_dir OUTPUT_DIR --threshold THRESHOLD
+
+### Required Parameters
+
+| Argument   | Description                                                                           |
+|------------|---------------------------------------------------------------------------------------|
+| --input_dir | Directory containing input TIFF slices |
+| --output_dir | Directory where output TIFF slices will be saved |
+| --threshold | Intensity threshold |
+
+### Optional Parameters
+
+| Argument   | Default | Description                                                                           |
+|------------|---------|---------------------------------------------------------------------------------------|
+| --threshold_cpus | 4 | Number of CPUs to use for thresholding mask |
+| --threshold_mem_gb | 8 | Amount of memory (GB) to allocate for thresholding mask |
+
+## Connected Components
+
+Uses [n5-spark](https://github.com/saalfeldlab/n5-spark) to find and label all connected components in a binary mask extracted from the input N5 dataset, and save the relabeled dataset as an uint64 output dataset.
+
+Usage:
+
+    ./pipelines/connected_components.nf --runtime_opts="-B INPUT_DIR" --input_n5 INPUT_N5 --input_dataset /c0/s0 --connected_dataset /connected/s0
+
+### Required Parameters
+
+| Argument   | Description                                                                           |
+|------------|---------------------------------------------------------------------------------------|
+| --input_n5 | Path to input N5 |
+
+
+### Optional Parameters
+
+| Argument   | Default | Description                                                                           |
+|------------|---------|---------------------------------------------------------------------------------------|
+| --input_dataset | /s0 | Input data set to process |
+| --connected_dataset | /connected/s0 | Output data set |
+
+## TIFF to n5 conversion
+
+Exports an N5 image to VVD format, for easier copying and faster loading in VVD.
+
+Usage:
+
+    ./pipelines/tif_to_n5.nf --input_dir INPUT_DIR --output_n5 OUTPUT_N5
+
+### Required Parameters
+
+| Argument   | Description                                                                           |
+|------------|---------------------------------------------------------------------------------------|
+| --input_dir | Directory containing input TIFF slices  |
+| --output_n5 | Path where output N5 will be saved |
+
+### Optional Parameters
+
+| Argument   | Default | Description                                                                           |
+|------------|---------|---------------------------------------------------------------------------------------|
+| --output_dataset | /s0 | N5 data set |
+| --partial_volume | | Comma delimited coordinates defining a bounding box for the partial volume. If set, only this partial volume is processed. |
+
+## N5 Converter
+
+The N5 converter pipeline operates on N5 containers, and converts the data in various ways. All of the options can be enabled at once if desired. Note that any Spark-based tool still requires the bind mounts to be set explicitly using `--runtime_opts`.
+
+Usage:
+
+Add a multiscale pyramid to an existing n5:
+
+    ./pipelines/n5_converter.nf --runtime_opts="-B INPUT_DIR" --input_dir INPUT_N5 --multiscale_pyramid=true
+
+Convert n5 to TIFF:
+
+    ./pipelines/n5_converter.nf --runtime_opts="-B INPUT_DIR" --input_dir INPUT_N5 --tiff_output_dir OUTPUT_DIR
+
+Generate MIPs, saving the MIPs inside the n5 container:
+
+    ./pipelines/n5_converter.nf --runtime_opts="-B INPUT_N5" --input_dir INPUT_N5 --mips_output_dir INPUT_N5/mips
+
+Convert n5 to VVD, saving the VVD files inside the n5 container:
+
+    ./pipelines/n5_converter.nf --runtime_opts="-B INPUT_N5" --input_dir INPUT_N5 --vvd_output_dir INPUT_N5/vvd
+
+
+### Required Parameters
+
+| Argument   | Description                                                                           |
+|------------|---------------------------------------------------------------------------------------|
+| --input_dir | Path to input N5 |
+
+### Optional Parameters
+
+| Argument   | Default | Description                                                                           |
+|------------|---------|---------------------------------------------------------------------------------------|
+| --input_dataset | /s0 | N5 data set to process |
+| --multiscale_pyramid | false | Generate multiscale pyramid (i.e. /s1, /s2, etc.) |
+| --tiff_output_dir | | Directory where output TIFF slices will be saved |
+| --mips_output_dir | | Directory where MIPs will be saved |
+| --vvd_output_dir | | Directory where output VVD files will be saved |
+| --use_n5_spark_tools | true | Set to false to use Dask tools when possible. They're much faster than the Spark tools, but not as well tested. |
+| --vvd_min_scale_factor | 0 | |
+| &#x2011;&#x2011;vvd_max_scale_factor | 10 | |
+| --vvd_pyramid_level | 5 | |
+| --vvd_scale_levels | | |
+| --vvd_final_ratio | 10 | |
+| --vvd_min_threshold | 100 | |
+| --vvd_max_threshold | 2100 | |
+| --n52tiff_cpus | 4 | Number of CPUs to use for Dask-based n5 to TIFF (only used if `--use_n5_spark_tools=false`) |
+| --n52tiff_memory | 6 | Amount of memory (GB) to allocate for Dask-based n5 to TIFF (only used if `--use_n5_spark_tools=false`) |
+
+## Post-VVD Semi-automatic Neuron Segmentation
+
+Usage:
+
+    ./pipelines/post_vvd_workflow.nf --input_dir INPUT_MASK_DIR --shared_temp_dir SHARED_TEMP_DIR --output_dir OUTPUT_DIR
+
+This is the post-VVD Viewer semi-automatic neuron segmentation workflow. Runs thresholding, 3D mask connection, TIFF to n5 conversion, and n5 connected components.
+
+### Required Parameters
+
+| Argument   | Description                                                                           |
+|------------|---------------------------------------------------------------------------------------|
+| --input_dir | Path to directory containing your neuron mask |
+| --shared_temp_dir | Path to a directory for temporary data (shared with all cluster nodes) |
+| --output_dir | Path where the final fully-connected mask should be generated |
+| --threshold | Intensity threshold |
 
 ### Optional Parameters
 
@@ -42,105 +221,3 @@ The 3D mask connection workflow consists of a thresholding step, followed by a c
 | --convert_mask_mem_gb | 45 | Amount of memory (GB) to allocate for importing mask |
 | --connect_mask_cpus | 32 | Number of CPUs to use for connecting mask |
 | --connect_mask_mem_gb | 192 | Amount of memory (GB) to allocate for connecting mask |
-
-
-## ROI cropping
-
-Usage:
-
-    ./pipelines/crop_tiff.nf --input_dir INPUT_DIR --output_dir OUTPUT_DIR --roi_dir= ROI_DIR --crop_start_slice=START_SLICE --crop_end_slice=END_SLICE --crop_format=uncompressedTIFF
-
-### Required Parameters
-
-| Argument   | Description                                                                           |
-|------------|---------------------------------------------------------------------------------------|
-| --input_dir | Directory containing input TIFF slices | 
-| --output_dir | Directory where output TIFF slices will be saved |
-| --roi_dir | Directory containing the region-of-interest in [Fiji ROI format](https://github.com/imagej/imagej1/blob/master/ij/io/RoiDecoder.java) | 
-| --crop_start_slice | Index of first Z slice to include in the output |
-| --crop_end_slice | Index of the last Z slice to include in the output |
-
-### Optional Parameters
-
-| Argument   | Default | Description                                                                           |
-|------------|---------|---------------------------------------------------------------------------------------|
-| --crop_format | TIFFPackBits_8bit | Output format, one of: ZIP, uncompressedTIFF, TIFFPackBits_8bit, or LZW |
-| --crop_cpus | 4 | Number of CPUs to use for cropping process |
-| --crop_mem_gb | 8 | Amount of memory (GB) to allocate for cropping process |
-
-
-## Thresholding
-
-Usage:
-
-    ./pipelines/thresholding.nf --input_dir=INPUT_DIR --output_dir=OUTPUT_DIR --threshold=THRESHOLD
-
-### Required Parameters
-
-| Argument   | Description                                                                           |
-|------------|---------------------------------------------------------------------------------------|
-| --input_dir | Directory containing input TIFF slices | 
-| --output_dir | Directory where output TIFF slices will be saved |
-| --threshold | Intensity threshold |
-
-### Optional Parameters
-
-| Argument   | Default | Description                                                                           |
-|------------|---------|---------------------------------------------------------------------------------------|
-| --threshold_cpus | 4 | Number of CPUs to use for thresholding mask |
-| --threshold_mem_gb | 8 | Amount of memory (GB) to allocate for thresholding mask |
-
-
-## MIP creation
-
-Generates MIPs for an N5 image.
-
-Usage:
-
-    ./n5_converter.nf TBD
-
-### Required Parameters
-
-| Argument   | Description                                                                           |
-|------------|---------------------------------------------------------------------------------------|
-| --images_dir | Path to input N5 | 
-| --output_dir | Directory where output TIFF slices will be saved |
-| --mips_output_dir | Directory where MIPs will be saved |
-
-### Optional Parameters
-
-| Argument   | Default | Description                                                                           |
-|------------|---------|---------------------------------------------------------------------------------------|
-| --create_mip_cpus | 4 | Number of CPUs to use for MIP creation process |
-| --create_mip_mem_gb | 8 | Amount of memory (GB) to allocate for MIP creation process |
-
-
-## VVD file creation
-
-Exports an N5 to VVD format.
-
-Usage:
-
-    ./n5_converter.nf TBD
-
-### Required Parameters
-
-| Argument   | Description                                                                           |
-|------------|---------------------------------------------------------------------------------------|
-| --images_dir | Path to input N5 | 
-| --default_n5_dataset | N5 data set | 
-| --vvd_output_dir | Directory where output VVD files will be saved |
-
-### Optional Parameters
-
-| Argument   | Default | Description                                                                           |
-|------------|---------|---------------------------------------------------------------------------------------|
-| --vvd_min_scale_factor | 0 | |
-| --vvd_max_scale_factor | 10 | |
-| --vvd_pyramid_level | 5 | |
-| --vvd_scale_levels | | |
-| --vvd_final_ratio | 10 | |
-| --vvd_min_threshold | 100 | |
-| --vvd_max_threshold | 2100 | |
-| --vvd_export_cpus | 32 | |
-| --vvd_export_mem_gb | 192 | |
