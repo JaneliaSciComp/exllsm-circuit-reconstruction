@@ -1,15 +1,12 @@
 maru_version: 0.1.1
-name: stitching
-version: 3.9.0
+name: n5-spark-tools
+version: 3.10.1
 remotes:
 - registry.int.janelia.org/exm-analysis
 build_args:
-  STITCHING_SPARK_GIT_TAG: $version
+  STITCHING_SPARK_GIT_TAG: exm-$version
 template_args:
   flavor: java_maven
   build:
     repo_url: https://github.com/JaneliaSciComp/n5-spark.git
     command: mvn package
-  java_maven:
-    jdk_version: "8"
-    main_class: org.myapp.MyClass

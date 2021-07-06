@@ -24,7 +24,7 @@ def vvd_spark_params(Map ps) {
     spark_params(ps) +
     [
         spark_container_name: 'n5-spark-tools',
-        spark_container_version: '3.9.0',
+        spark_container_version: '3.10.0',
     ] +
     vvd_spark_cmdline_params
 }
