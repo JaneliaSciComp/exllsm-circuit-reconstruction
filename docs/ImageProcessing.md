@@ -21,7 +21,7 @@ This set of workflows includes various image processing tasks:
 | --spark_work_dir | | Path to directory containing Spark working files and logs during stitching |
 | --workers | 4 | Number of Spark workers to use for Spark jobs |
 | --worker_cores | 4 | Number of cores allocated to each Spark worker |
-| --gb_per_core | 15 | Size of memory (in GB) that is allocated for each core of a Spark worker. The total memory usage for Spark jobs will be workers * worker_cores * gb_per_core. |
+| --gb_per_core | 15 | Size of memory (in GB) that is allocated for each core of a Spark worker. The total memory usage for Spark jobs will be workers *worker_cores* gb_per_core. |
 | --driver_memory | 15g | Amount of memory to allocate for the Spark driver |
 | --driver_stack_size | 128m | Amount of stack space to allocate for the Spark driver |
 
@@ -113,7 +113,6 @@ Usage:
 |------------|---------------------------------------------------------------------------------------|
 | --input_n5 | Path to input N5 |
 
-
 ### Optional Parameters
 
 | Argument   | Default | Description                                                                           |
@@ -164,7 +163,6 @@ Generate MIPs, saving the MIPs inside the n5 container:
 Convert n5 to VVD, saving the VVD files inside the n5 container:
 
     ./pipelines/n5_converter.nf --runtime_opts="-B INPUT_N5" --input_dir INPUT_N5 --vvd_output_dir INPUT_N5/vvd
-
 
 ### Required Parameters
 

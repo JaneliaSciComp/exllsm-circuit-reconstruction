@@ -8,9 +8,8 @@ automatic neuron segmentation.
 The automatic neuron segmentation is based on running a 3D U-Net classification followed by an optional post-processing step that eliminates small regions. The pipeline also includes an optional step to precompute a scaling factor for each tile.
 
 Usage:
-```
+
     ./neuron_segmentation_pipeline.nf [arguments]
-```
 
 ## Neuron Segmentation Parameters
 
@@ -33,7 +32,7 @@ Usage:
 | --neuron_seg_model_out_dims | 132,132,132 | Model output shape |
 | --neuron_seg_high_th | 0.98 | high confidence threshold for post process flood filling |
 | --neuron_seg_low_th | 0.2 | low confidence threshold for post process flood filling |
-| --neuron_seg_small_region_prob_th | 0.9 | small region probability threshold |
+| &#x2011;&#x2011;neuron_seg_small_region_prob_th | 0.9 | small region probability threshold |
 | --neuron_seg_small_region_size_th | 1000 | small region size threshold |
 | --neuron_segmentation_cpus | 1 | CPU resources required for each segmentation job |
 | --neuron_segmentation_memory | 1 G | Memory resources required for each segmentation job |
