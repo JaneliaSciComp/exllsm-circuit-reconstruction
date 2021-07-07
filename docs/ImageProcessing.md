@@ -8,8 +8,9 @@ This set of workflows includes various image processing tasks:
 * Connected components
 * Multiscale pyramid generation
 * MIP generation
-* TIFF<->n5 conversion
-* VVD file creation
+* TIFF to N5/VVD conversion
+* N5 to TIFF/VVD conversion
+* N5 resaving
 
 ## Global Optional Parameters
 
@@ -120,13 +121,19 @@ Usage:
 | --input_dataset | /s0 | Input data set to process |
 | --connected_dataset | /connected/s0 | Output data set |
 
-## TIFF to n5 conversion
+## TIFF to N5 conversion
 
 Exports an N5 image to VVD format, for easier copying and faster loading in VVD.
 
 Usage:
 
-    ./pipelines/tif_to_n5.nf --input_dir INPUT_DIR --output_n5 OUTPUT_N5
+Convert from TIFF to N5 format:
+
+    ./pipelines/tiff_converter.nf --input_dir INPUT_DIR --output_n5 OUTPUT_N5 --output_dataset /s0
+
+Convert from TIFF to VVD format:
+
+    ./pipelines/tiff_converter.nf --input_dir INPUT_DIR --vvd_output_dir OUTPUT_DIR
 
 ### Required Parameters
 
@@ -134,6 +141,7 @@ Usage:
 |------------|---------------------------------------------------------------------------------------|
 | --input_dir | Directory containing input TIFF slices  |
 | --output_n5 | Path where output N5 will be saved |
+| --vvd_output_dir | | Directory where output VVD files will be saved |
 
 ### Optional Parameters
 
@@ -148,19 +156,19 @@ The N5 converter pipeline operates on N5 containers, and converts the data in va
 
 Usage:
 
-Add a multiscale pyramid to an existing n5:
+Add a multiscale pyramid to an existing N5:
 
     ./pipelines/n5_converter.nf --runtime_opts="-B INPUT_DIR" --input_dir INPUT_N5 --multiscale_pyramid=true
 
-Convert n5 to TIFF:
+Convert N5 to TIFF:
 
     ./pipelines/n5_converter.nf --runtime_opts="-B INPUT_DIR" --input_dir INPUT_N5 --tiff_output_dir OUTPUT_DIR
 
-Generate MIPs, saving the MIPs inside the n5 container:
+Generate MIPs, saving the MIPs inside the N5 container:
 
     ./pipelines/n5_converter.nf --runtime_opts="-B INPUT_N5" --input_dir INPUT_N5 --mips_output_dir INPUT_N5/mips
 
-Convert n5 to VVD, saving the VVD files inside the n5 container:
+Convert N5 to VVD, saving the VVD files inside the N5 container:
 
     ./pipelines/n5_converter.nf --runtime_opts="-B INPUT_N5" --input_dir INPUT_N5 --vvd_output_dir INPUT_N5/vvd
 
