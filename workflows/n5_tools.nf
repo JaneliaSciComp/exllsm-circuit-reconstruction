@@ -197,6 +197,9 @@ workflow n5_to_vvd {
         if (params.n5_compression) {
             args_list << "-c ${params.n5_compression}"
         }
+        if (params.vvd_data_type) {
+            args_list << "-t ${params.vvd_data_type}"
+        }
         args_list << "-b ${params.block_size}"
         if (params.vvd_scale_levels) {
             args_list << get_vvd_downsize(params.vvd_scale_levels)

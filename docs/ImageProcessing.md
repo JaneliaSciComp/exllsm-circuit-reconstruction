@@ -188,13 +188,11 @@ Convert N5 to VVD, saving the VVD files inside the N5 container:
 | --mips_output_dir | | Directory where MIPs will be saved |
 | --vvd_output_dir | | Directory where output VVD files will be saved |
 | --use_n5_spark_tools | true | Set to false to use Dask tools when possible. They're much faster than the Spark tools, but not as well tested. |
-| --vvd_min_scale_factor | 0 | |
-| &#x2011;&#x2011;vvd_max_scale_factor | 10 | |
-| --vvd_pyramid_level | 5 | |
-| --vvd_scale_levels | | |
-| --vvd_final_ratio | 10 | |
-| --vvd_min_threshold | 100 | |
-| --vvd_max_threshold | 2100 | |
+| --vvd_data_type | uint16 | Coerced data type for the VVD output. You can set this to the empty string to use the input data type, but VVD cannot read certain data types like uin64, which is why the default here is uint16. |
+| --vvd_min_scale_factor | 0 | Minimum downsampling factor for the VVD multiscale pyramid. |
+| &#x2011;&#x2011;vvd_max_scale_factor | 10 | Maximum downsampling factor for the VVD multiscale pyramid. |
+| --vvd_pyramid_level | 5 | Number of levels in the multiscale pyramid. |
+| --vvd_scale_levels | | Explicit downsampling factors, delimited by colons (`:`). When specifying multiple factors, each factor builds on the last. This cannot be used with `--vvd_min_scale_factor`, `--vvd_max_scale_factor`, and `--vvd_pyramid_level`. |
 | --n52tiff_cpus | 4 | Number of CPUs to use for Dask-based n5 to TIFF (only used if `--use_n5_spark_tools=false`) |
 | --n52tiff_memory | 6 | Amount of memory (GB) to allocate for Dask-based n5 to TIFF (only used if `--use_n5_spark_tools=false`) |
 
