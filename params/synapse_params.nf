@@ -4,17 +4,17 @@ def synapse_params() {
         pipeline: 'presynaptic_in_volume',
         synapse_model: '/groups/dickson/dicksonlab/lillvis/ExM/Ding-Ackerman/crops-for-training_Oct2018/DING/model_DNN/saved_unet_model_2020/unet_model_synapse2020_6/unet_model_synapse2020_6.whole.h5',
 
-        pre_synapse_stack_dir: '',
-        pre_synapse_in_dataset: '',
+        presynapse: '',
+        presynapse_in_dataset: '',
 
-        n1_stack_dir: '',
+        n1: '',
         n1_in_dataset: '',
 
-        n2_stack_dir: '',
+        n2: '',
         n2_in_dataset: '',
 
-        post_synapse_stack_dir: '',
-        post_synapse_in_dataset: '',
+        postsynapse: '',
+        postsynapse_in_dataset: '',
 
         working_container: '', // default N5 container name
 
@@ -60,7 +60,7 @@ def synapse_params() {
         presynaptic_stage2_percentage: 0.5,
         postsynaptic_stage2_threshold: 200,
         postsynaptic_stage2_percentage: 0.001,
-        postsynaptic_stage3_threshold: 400,
+        postsynaptic_stage3_threshold: 300,
         postsynaptic_stage3_percentage: 0.001,
     ]
 }

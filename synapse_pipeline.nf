@@ -45,82 +45,82 @@ workflow {
     def synapses_res;
     switch(synapse_params.pipeline) {
         case 'classify_synapses':
-            if (!synapse_params.pre_synapse_stack_dir) {
-                log.error "'--pre_synapse_stack_dir' must be defined"
+            if (!synapse_params.presynapse) {
+                log.error "'--presynapse' must be defined"
                 exit(1)
             }
             synapses_res = classify_synapses(
                 [
-                    synapse_params.pre_synapse_stack_dir,
-                    synapse_params.pre_synapse_in_dataset,
+                    synapse_params.presynapse,
+                    synapse_params.presynapse_in_dataset,
                 ],
                 pipeline_output_dir,
             )
             break
         case 'collocate_synapses':
-            if (!synapse_params.pre_synapse_stack_dir ||
-                !synapse_params.n1_stack_dir) {
-                log.error "'--pre_synapse_stack_dir', '--n1_stack_dir' must be defined"
+            if (!synapse_params.presynapse ||
+                !synapse_params.n1) {
+                log.error "'--presynapse', '--n1' must be defined"
                 exit(1)
             }
             synapses_res = collocate_synapses(
                 [
-                    synapse_params.pre_synapse_stack_dir,
-                    synapse_params.pre_synapse_in_dataset,
-                    synapse_params.n1_stack_dir,
+                    synapse_params.presynapse,
+                    synapse_params.presynapse_in_dataset,
+                    synapse_params.n1,
                     synapse_params.n1_in_dataset,
                 ],
                 pipeline_output_dir,
             )
             break
         case 'presynaptic_n1_to_n2':
-            if (!synapse_params.pre_synapse_stack_dir ||
-                !synapse_params.n1_stack_dir) {
-                log.error "'--pre_synapse_stack_dir', '--n1_stack_dir' must be defined; '--n2_stack_dir' is optional"
+            if (!synapse_params.presynapse ||
+                !synapse_params.n1) {
+                log.error "'--presynapse', '--n1' must be defined; '--n2' is optional"
                 exit(1)
             }
             synapses_res = presynaptic_n1_to_n2(
                 [
-                    synapse_params.pre_synapse_stack_dir,
-                    synapse_params.pre_synapse_in_dataset,
-                    synapse_params.n1_stack_dir,
+                    synapse_params.presynapse,
+                    synapse_params.presynapse_in_dataset,
+                    synapse_params.n1,
                     synapse_params.n1_in_dataset,
-                    synapse_params.n2_stack_dir,
+                    synapse_params.n2,
                     synapse_params.n2_in_dataset,
                 ],
                 pipeline_output_dir,
             )
             break
         case 'presynaptic_n1_to_postsynaptic_n2':
-            if (!synapse_params.pre_synapse_stack_dir ||
-                !synapse_params.n1_stack_dir ||
-                !synapse_params.post_synapse_stack_dir) {
-                log.error "'--pre_synapse_stack_dir', '--n1_stack_dir','--post_synapse_stack_dir' must be defined"
+            if (!synapse_params.presynapse ||
+                !synapse_params.n1 ||
+                !synapse_params.postsynapse) {
+                log.error "'--presynapse', '--n1','--postsynapse' must be defined"
                 exit(1)
             }
             synapses_res = presynaptic_n1_to_postsynaptic_n2(
                 [
-                    synapse_params.pre_synapse_stack_dir,
-                    synapse_params.pre_synapse_in_dataset,
-                    synapse_params.n1_stack_dir,
+                    synapse_params.presynapse,
+                    synapse_params.presynapse_in_dataset,
+                    synapse_params.n1,
                     synapse_params.n1_in_dataset,
-                    synapse_params.post_synapse_stack_dir,
-                    synapse_params.post_synapse_in_dataset,
+                    synapse_params.postsynapse,
+                    synapse_params.postsynapse_in_dataset,
                 ],
                 pipeline_output_dir,
             )
             break
         case 'presynaptic_in_volume':
         default:
-            if (!synapse_params.pre_synapse_stack_dir) {
-                log.error "'--pre_synapse_stack_dir' must be defined"
+            if (!synapse_params.presynapse) {
+                log.error "'--presynapse' must be defined"
                 exit(1)
             }
             synapses_res = presynaptic_in_volume(
                 [
-                    synapse_params.pre_synapse_stack_dir,
-                    synapse_params.pre_synapse_in_dataset,
-                    synapse_params.n1_stack_dir,
+                    synapse_params.presynapse,
+                    synapse_params.presynapse_in_dataset,
+                    synapse_params.n1,
                     synapse_params.n1_in_dataset,
                 ],
                 pipeline_output_dir,

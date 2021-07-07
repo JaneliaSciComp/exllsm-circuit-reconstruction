@@ -30,9 +30,9 @@ mkdir -p $RES_DIR
         --block_size "500,500,500" \
         --volume_partition_size "500" \
         --synapse_model "$MODEL" \
-        --n1_stack_dir "$NEURON" \
-        --post_synapse_stack_dir "$POST" \
-        --pre_synapse_stack_dir "$PRE" \
+        --n1 "$NEURON" \
+        --postsynapse "$POST" \
+        --presynapse "$PRE" \
         --output_dir "${RES_DIR}/presynaptic_n1_to_postsynaptic_n2" \
         --presynaptic_stage2_threshold "400" \
         --presynaptic_stage2_percentage "0.5" \

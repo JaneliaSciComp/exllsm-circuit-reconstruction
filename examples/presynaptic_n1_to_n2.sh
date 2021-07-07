@@ -20,9 +20,9 @@ PROJECT_CODE="dickson"
          --block_size '500,500,500' \
          --volume_partition_size 500 \
          --synapse_model $MODEL \
-         --pre_synapse_stack_dir ${RES_DIR}/stitching/slice-tiff-s0/ch0 \
-         --n1_stack_dir ${RES_DIR}/stitching/slice-tiff-s0/ch1 \
-         --n2_stack_dir ${RES_DIR}/stitching/slice-tiff-s0/ch2 \
+         --presynapse ${RES_DIR}/stitching/slice-tiff-s0/ch0 \
+         --n1 ${RES_DIR}/stitching/slice-tiff-s0/ch1 \
+         --n2 ${RES_DIR}/stitching/slice-tiff-s0/ch2 \
          --output_dir ${RES_DIR}/presynaptic_n1_to_n2 \
          -with-tower http://nextflow.int.janelia.org/api "$@"
 

@@ -79,12 +79,12 @@ This workflow depends on masked neuron channels obtained with one of the [Neuron
 
 | Argument   | Description                                                                           |
 |------------|---------------------------------------------------------------------------------------|
-| --n1_stack_dir | Volume (TIFF series or n5) containing Neuron #1 |
+| --n1 | Volume (TIFF series or n5) containing Neuron #1 |
 | --n1_in_dataset | Neuron 1 dataset if the neuron input stack is an N5 container |
-| --n2_stack_dir | Volume (TIFF series or n5) containing Neuron #2 | If this is empty the post-processing with N2 mask should generate the same results as as pre-synaptic segmentation with N1 mask, but the operation will be performed |
+| --n2 | Volume (TIFF series or n5) containing Neuron #2 | If this is empty the post-processing with N2 mask should generate the same results as as pre-synaptic segmentation with N1 mask, but the operation will be performed |
 | --n2_in_dataset | Neuron 2 dataset if the neuron input stack is an N5 container |
-| --pre_synapse_stack_dir | Volume (TIFF series or n5) containing pre-synaptic channel  |
-| --pre_synapse_in_dataset | Pre-synaptic dataset if the input is N5  |
+| --presynapse | Volume (TIFF series or n5) containing pre-synaptic channel  |
+| --presynapse_in_dataset | Pre-synaptic dataset if the input is N5  |
 
 
 ## Workflow B: Neuron 1 Presynaptic to Neuron 2 and Neuron 2 Presynaptic to Neuron 1
@@ -93,7 +93,7 @@ Usage:
 
     ./synapse_pipeline.nf --pipeline presynaptic_n1_to_n2 [arguments]
 
-This is the same as Workflow A but you would also reverse `--n1_stack_dir` and `--n2_stack_dir`.
+This is the same as Workflow A but you would also reverse `--n1` and `--n2`.
 
 
 ## Workflow C: Neuron 1 Presynaptic to Neuron 2 Restricted Postsynaptic 
@@ -114,12 +114,12 @@ This workflow depends on masked neuron channels obtained with one of the [Neuron
 
 | Argument   | Description                                                                           |
 |------------|---------------------------------------------------------------------------------------|
-| --n1_stack_dir | Volume (TIFF series or n5) containing Neuron #1 |
+| --n1 | Volume (TIFF series or n5) containing Neuron #1 |
 | --n1_in_dataset | Neuron 1 dataset if the neuron input stack is an N5 container |
-| --pre_synapse_stack_dir | Volume (TIFF series or n5) containing pre-synaptic channel  |
-| --pre_synapse_in_dataset | Pre-synaptic dataset if the input is N5  |
-| --post_synapse_stack_dir |  Volume (TIFF series or n5) containing post-synaptic channel |
-| --post_synapse_in_dataset | Post-synaptic dataset if the input is N5  |
+| --presynapse | Volume (TIFF series or n5) containing pre-synaptic channel  |
+| --presynapse_in_dataset | Pre-synaptic dataset if the input is N5  |
+| --postsynapse |  Volume (TIFF series or n5) containing post-synaptic channel |
+| --postsynapse_in_dataset | Post-synaptic dataset if the input is N5  |
 
 
 
@@ -135,9 +135,9 @@ This workflow ignores neurons and identifies all presynaptic sites in the given 
 
 | Argument   | Description                                                                           |
 |------------|---------------------------------------------------------------------------------------|
-| --pre_synapse_stack_dir | Volume (TIFF series or n5) containing synaptic channel  |
-| --pre_synapse_in_dataset | Pre-synaptic dataset if the input is N5  |
-| --n1_stack_dir | This is not a required parameter but if it is provided it will be used to mask the classified presynaptic regions, otherwise it will identify all regions in the volume and no mask will be used   |
+| --presynapse | Volume (TIFF series or n5) containing synaptic channel  |
+| --presynapse_in_dataset | Pre-synaptic dataset if the input is N5  |
+| --n1 | This is not a required parameter but if it is provided it will be used to mask the classified presynaptic regions, otherwise it will identify all regions in the volume and no mask will be used   |
 | --n1_in_dataset | Neuron 1 dataset if the neuron input stack is an N5 container |
 | --working_post_synapse_seg_container | The N5 container used for the post processed presynaptic segmentation result if no mask is provided |
 | --working_post_synapse_seg_dataset | The dataset inside the N5 container used for post processed presynaptic segmentation if no mask neuron is provided |
