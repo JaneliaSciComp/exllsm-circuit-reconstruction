@@ -6,7 +6,6 @@ include {
     default_em_params;
     exm_synapse_dask_container_param;
     exm_neuron_segmentation_container;
-    get_spark_working_dir;
 } from './param_utils'
 
 // app parameters
@@ -80,7 +79,7 @@ workflow {
             neuron_res.map {
                 // this is just so that it would not start the cluster before
                 // the segmentation completes
-                "${get_spark_working_dir(neuron_comp_params.spark_work_dir)}/connected-comps"
+                "${neuron_comp_params.spark_work_dir}/connected-comps"
             }, // spark_working_dir
             neuron_comp_params.workers,
             neuron_comp_params.worker_cores,
@@ -115,7 +114,7 @@ workflow {
             connected_comps_res.map {
                 // this is just so that it would not start the cluster before
                 // the conneccted components completes
-                "${get_spark_working_dir(vvd_params.spark_work_dir)}/n5-2-vvd"
+                "${vvd_params.spark_work_dir}/n5-2-vvd"
             }, // spark_working_dir
             vvd_params.workers,
             vvd_params.worker_cores,

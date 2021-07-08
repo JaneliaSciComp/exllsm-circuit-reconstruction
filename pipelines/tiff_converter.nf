@@ -14,7 +14,6 @@ include {
     default_em_params;
     exm_synapse_dask_container_param;
     exm_neuron_segmentation_container;
-    get_spark_working_dir;
 } from '../param_utils'
 
 def final_params = default_em_params(params)
@@ -60,7 +59,7 @@ workflow {
             vvd_params.vvd_output_dir, // output dir
             vvd_params.app,
             vvd_params.spark_conf,
-            "${get_spark_working_dir(vvd_params.spark_work_dir)}/tiff-to-vvd",
+            "${vvd_params.spark_work_dir}/tiff-to-vvd",
             vvd_params.workers,
             vvd_params.worker_cores,
             vvd_params.gb_per_core,

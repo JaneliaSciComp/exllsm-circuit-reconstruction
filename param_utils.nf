@@ -84,7 +84,3 @@ def exm_neuron_segmentation_container(Map ps) {
     else
         exm_neuron_segmentation_container
 }
-
-def get_spark_working_dir(base_dir) {
-    base_dir ? base_dir : '/tmp'
-}

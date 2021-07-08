@@ -16,7 +16,6 @@ include {
     default_em_params;
     exm_synapse_dask_container_param;
     exm_neuron_segmentation_container;
-    get_spark_working_dir;
 } from '../param_utils'
 
 // app parameters
@@ -46,7 +45,7 @@ workflow {
         neuron_comp_params.connected_dataset, // sub dir for connected comp
         neuron_comp_params.app,
         neuron_comp_params.spark_conf,
-        "${get_spark_working_dir(neuron_comp_params.spark_work_dir)}/connected-comps",
+        "${neuron_comp_params.spark_work_dir}/connected-comps",
         neuron_comp_params.workers,
         neuron_comp_params.worker_cores,
         neuron_comp_params.gb_per_core,

@@ -16,7 +16,6 @@ include {
     default_em_params;
     exm_synapse_dask_container_param;
     exm_neuron_segmentation_container;
-    get_spark_working_dir;
 } from '../param_utils'
 
 def em_params = default_em_params(params)
@@ -95,7 +94,7 @@ workflow connect_mask {
             n5_export.map {
                 // this is just so that it would not start the cluster before
                 // the n5 export completes
-                "${get_spark_working_dir(app_params.spark_work_dir)}/connected-comps"
+                "${app_params.spark_work_dir}/connected-comps"
             }, // spark_working_dir
             app_params.workers,
             app_params.worker_cores,

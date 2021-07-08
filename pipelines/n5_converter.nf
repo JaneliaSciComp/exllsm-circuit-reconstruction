@@ -16,7 +16,6 @@ include {
     default_em_params;
     exm_synapse_dask_container_param;
     exm_neuron_segmentation_container;
-    get_spark_working_dir;
 } from '../param_utils'
 
 // app parameters
@@ -61,7 +60,7 @@ workflow {
             n5_tools_params.input_dataset,  // N5 dataset
             n5_tools_params.app,
             n5_tools_params.spark_conf,
-            "${get_spark_working_dir(n5_tools_params.spark_work_dir)}/n5-pyramid",
+            "${n5_tools_params.spark_work_dir}/n5-pyramid",
             n5_tools_params.workers,
             n5_tools_params.worker_cores,
             n5_tools_params.gb_per_core,
@@ -80,7 +79,7 @@ workflow {
                 n5_tools_params.tiff_output_dir, // output dir
                 n5_tools_params.app,
                 n5_tools_params.spark_conf,
-                "${get_spark_working_dir(n5_tools_params.spark_work_dir)}/n5-to-tiff",
+                "${n5_tools_params.spark_work_dir}/n5-to-tiff",
                 n5_tools_params.workers,
                 n5_tools_params.worker_cores,
                 n5_tools_params.gb_per_core,
@@ -109,7 +108,7 @@ workflow {
             n5_tools_params.mips_output_dir, // output dir
             n5_tools_params.app,
             n5_tools_params.spark_conf,
-            "${get_spark_working_dir(n5_tools_params.spark_work_dir)}/n5-to-mips",
+            "${n5_tools_params.spark_work_dir}/n5-to-mips",
             n5_tools_params.workers,
             n5_tools_params.worker_cores,
             n5_tools_params.gb_per_core,
@@ -128,7 +127,7 @@ workflow {
             vvd_params.vvd_output_dir, // output dir
             vvd_params.app,
             vvd_params.spark_conf,
-            "${get_spark_working_dir(vvd_params.spark_work_dir)}/n5-to-vvd",
+            "${vvd_params.spark_work_dir}/n5-to-vvd",
             vvd_params.workers,
             vvd_params.worker_cores,
             vvd_params.gb_per_core,
