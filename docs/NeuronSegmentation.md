@@ -15,7 +15,7 @@ Usage:
 
 | Argument | Default | Description |
 |----------|---------|-------------|
-| --neuron_scaling_partition_size | '396,396,396' | Sub-volume partition size for running the U-Net model. This should be a multiple of the neuron model output shape | 
+| --neuron_scaling_partition_size | '396,396,396' | Sub-volume partition size for running the U-Net model. This should be a multiple of the neuron model output shape |
 | --neuron_scaling_tiles| 0 (None) | Number of tiles randomly sampled from the entire volume to be used for calculating the scaling factor. The scaling factor used for segmentation will be the average of all values computed for the sampled tiles. This value takes precedence over the `neuron_percent_scaling_tiles` |
 | --neuron_percent_scaling_tiles | 0 (None) | Percentage of the tiles randomly sampled from the volume to calculate the scaling factor. If there's no number of tiles specified for scaling factor the scaling factor will be computed for each sub-volume |
 | --user_defined_scaling | | User defined scaling factor if one doesn't want the scaling to be comnputed for each tile |
@@ -37,8 +37,9 @@ Usage:
 | --neuron_segmentation_cpus | 1 | CPU resources required for each segmentation job |
 | --neuron_segmentation_memory | 1 G | Memory resources required for each segmentation job |
 | --with_connected_comps | true | If true runs the N5 Spark based connected components |
+| --neuron_conn_comp_dataset | c1/s0 | default dataset used for connected components |
 | --connected_pixels_shape | diamond | Shape used for connected components |
 | --min_connected_pixels | 2000 | Min pixels threshold used to decide whether to keep the component or not |
 | --connected_pixels_threshold | .8 | threshold value for neuron connected components. It is a double value < 1 because the result of the segmentation is a probability array. |
-| --neuron_conn_comp_dataset | c1/s0 | default dataset used for connected components |
+| --connected_comps_block_size | 128,128,128 | Block size used for generating connected comps |
 | --connected_comps_pyramid | false | If true generates multiscale pyramids for connected components |

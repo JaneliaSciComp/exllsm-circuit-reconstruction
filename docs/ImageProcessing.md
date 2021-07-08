@@ -71,7 +71,7 @@ Usage:
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
 | --mask_connection_distance | 20 | Connection distance  |
-| --mask_connection_iterations | 4 | Number of iterations |
+| &#x2011;&#x2011;mask_connection_iterations | 4 | Number of iterations |
 | --convert_mask_cpus | 3 | Number of CPUs to use for importing mask |
 | --convert_mask_mem_gb | 45 | Amount of memory (GB) to allocate for importing mask |
 | --connect_mask_cpus | 32 | Number of CPUs to use for connecting mask |
@@ -120,6 +120,11 @@ Usage:
 |------------|---------|---------------------------------------------------------------------------------------|
 | --input_dataset | /s0 | Input data set to process |
 | --connected_dataset | /connected/s0 | Output data set |
+| --connected_pixels_shape | diamond | Shape used for connected components |
+| --min_connected_pixels | 2000 | Min pixels threshold used to decide whether to keep the component or not |
+| --connected_pixels_threshold | .8 | threshold value for neuron connected components. It is a double value < 1 because the result of the segmentation is a probability array. |
+| &#x2011;&#x2011;connected_comps_block_size | 128,128,128 | Block size used for generating connected comps |
+| --connected_comps_pyramid | false | If true generates multiscale pyramids for connected components |
 
 ## TIFF to N5 conversion
 
@@ -209,7 +214,7 @@ This is the post-VVD Viewer semi-automatic neuron segmentation workflow. Runs th
 | Argument   | Description                                                                           |
 |------------|---------------------------------------------------------------------------------------|
 | --input_dir | Path to directory containing your neuron mask |
-| --shared_temp_dir | Path to a directory for temporary data (shared with all cluster nodes) |
+| &#x2011;&#x2011;shared_temp_dir | Path to a directory for temporary data (shared with all cluster nodes) |
 | --output_dir | Path where the final fully-connected mask should be generated |
 | --threshold | Intensity threshold |
 
@@ -218,7 +223,7 @@ This is the post-VVD Viewer semi-automatic neuron segmentation workflow. Runs th
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
 | --mask_connection_distance | 20 | Connection distance  |
-| --mask_connection_iterations | 4 | Number of iterations |
+| &#x2011;&#x2011;mask_connection_iterations | 4 | Number of iterations |
 | --threshold_cpus | 4 | Number of CPUs to use for thresholding mask |
 | --threshold_mem_gb | 8 | Amount of memory (GB) to allocate for thresholding mask |
 | --convert_mask_cpus | 3 | Number of CPUs to use for importing mask |
