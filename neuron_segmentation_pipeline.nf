@@ -73,7 +73,7 @@ workflow {
         connected_comps_res = connected_components(
             neuron_res.map { it[2] },  // neuron segmented N5 dir
             neuron_res.map { it[3] },  // segmented neuron dataset
-            neuron_comp_params.neuron_conn_comp_dataset, // sub dir for connected comp
+            neuron_comp_params.connected_dataset, // sub dir for connected comp
             neuron_comp_params.app,
             neuron_comp_params.spark_conf,
             neuron_res.map {

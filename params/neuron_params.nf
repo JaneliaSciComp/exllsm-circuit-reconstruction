@@ -23,7 +23,6 @@ def neuron_params() {
         connected_pixels_shape: "diamond", // shape of neighborhood (default "diamond", option "box")
         connected_pixels_threshold: 0.8, // threshold for connected components - the segmented image is a probability array so
                                          // the probability must be higher than .8 (in this case)
-        neuron_conn_comp_dataset: '/c1/s0',
         neuron_vvd_output: '', // VVD output directory
 
         neuron_segmentation_cpus: 1,
