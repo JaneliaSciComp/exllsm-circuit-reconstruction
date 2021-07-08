@@ -216,6 +216,12 @@ workflow n5_to_vvd {
             if (params.vvd_max_scale_factor > 0) {
                 args_list << "-fmax ${params.vvd_max_scale_factor}"
             }
+            if (params.vvd_min_threshold > 0) {
+                args_list << "-min ${params.vvd_min_threshold}"
+            }
+            if (params.vvd_max_threshold > 0) {
+                args_list << "-max ${params.vvd_max_threshold}"
+            }
         }
         [
             spark_uri,
