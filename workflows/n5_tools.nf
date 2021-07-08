@@ -1,5 +1,5 @@
 include {
-    spark_cluster_start;
+    spark_cluster;
     run_spark_app_on_existing_cluster as run_n5_pyramid;
     run_spark_app_on_existing_cluster as run_n5_to_vvd;
     run_spark_app_on_existing_cluster as run_n5_to_tiff;
@@ -39,7 +39,7 @@ workflow tiff_to_vvd {
     def indexed_spark_work_dir = index_channel(spark_work_dir)
 
     // start a spark cluster
-    def spark_cluster_res = spark_cluster_start(
+    def spark_cluster_res = spark_cluster(
         spark_conf,
         spark_work_dir,
         spark_workers,
@@ -159,7 +159,7 @@ workflow n5_to_vvd {
     def indexed_spark_work_dir = index_channel(spark_work_dir)
 
     // start a spark cluster
-    def spark_cluster_res = spark_cluster_start(
+    def spark_cluster_res = spark_cluster(
         spark_conf,
         spark_work_dir,
         spark_workers,
@@ -293,7 +293,7 @@ workflow n5_to_tiff {
     def indexed_spark_work_dir = index_channel(spark_work_dir)
 
     // start a spark cluster
-    def spark_cluster_res = spark_cluster_start(
+    def spark_cluster_res = spark_cluster(
         spark_conf,
         spark_work_dir,
         spark_workers,
@@ -396,7 +396,7 @@ workflow n5_to_mips {
     def indexed_spark_work_dir = index_channel(spark_work_dir)
 
     // start a spark cluster
-    def spark_cluster_res = spark_cluster_start(
+    def spark_cluster_res = spark_cluster(
         spark_conf,
         spark_work_dir,
         spark_workers,
@@ -500,7 +500,7 @@ workflow n5_scale_pyramid_nonisotropic {
     def indexed_spark_work_dir = index_channel(spark_work_dir)
 
     // start a spark cluster
-    def spark_cluster_res = spark_cluster_start(
+    def spark_cluster_res = spark_cluster(
         spark_conf,
         spark_work_dir,
         spark_workers,

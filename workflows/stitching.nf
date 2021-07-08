@@ -1,5 +1,5 @@
 include {
-    spark_cluster_start;
+    spark_cluster;
     run_spark_app_on_existing_cluster as run_stitching;
     run_spark_app_on_existing_cluster as run_fuse;
     run_spark_app_on_existing_cluster as run_export;
@@ -58,7 +58,7 @@ workflow stitching {
     def indexed_spark_work_dir = index_channel(spark_work_dir)
 
     // start a spark cluster
-    def spark_cluster_res = spark_cluster_start(
+    def spark_cluster_res = spark_cluster(
         spark_conf,
         spark_work_dir,
         spark_workers,

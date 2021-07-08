@@ -1,5 +1,5 @@
 include {
-    spark_cluster_start;
+    spark_cluster;
     run_spark_app_on_existing_cluster as run_parse_tiles;
     run_spark_app_on_existing_cluster as run_tiff2n5;
     run_spark_app_on_existing_cluster as run_flatfield_correction;
@@ -46,7 +46,7 @@ workflow prepare_tiles_for_stitching {
     def indexed_spark_work_dir = index_channel(spark_work_dir)
 
     // start a spark cluster
-    def spark_cluster_res = spark_cluster_start(
+    def spark_cluster_res = spark_cluster(
         spark_conf,
         spark_work_dir,
         spark_workers,

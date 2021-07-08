@@ -1,5 +1,5 @@
 include {
-    spark_cluster_start;
+    spark_cluster;
     run_spark_app_on_existing_cluster as run_connected_components;
     run_spark_app_on_existing_cluster as run_n5_pyramid;
 } from '../external-modules/spark/lib/workflows'
@@ -39,7 +39,7 @@ workflow connected_components {
     def indexed_spark_work_dir = index_channel(spark_work_dir)
 
     // start a spark cluster
-    def spark_cluster_res = spark_cluster_start(
+    def spark_cluster_res = spark_cluster(
         spark_conf,
         spark_work_dir,
         spark_workers,
