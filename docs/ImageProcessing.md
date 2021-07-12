@@ -126,7 +126,7 @@ Usage:
 | &#x2011;&#x2011;connected_comps_block_size | 128,128,128 | Block size used for generating connected comps |
 | --connected_comps_pyramid | false | If true generates multiscale pyramids for connected components |
 
-## TIFF to N5 conversion
+## TIFF to N5 conversion -- uses spark -- update below
 
 Exports an N5 image to VVD format, for easier copying and faster loading in VVD.
 
