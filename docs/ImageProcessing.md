@@ -46,9 +46,9 @@ Usage:
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
-| --crop_format | TIFFPackBits_8bit | Output format, one of: ZIP, uncompressedTIFF, TIFFPackBits_8bit, or LZW |
-| --crop_cpus | 4 | Number of CPUs to use for cropping process |
-| --crop_mem_gb | 8 | Amount of memory (GB) to allocate for cropping process |
+| --crop_format | uncompressedTIFF | Output format, one of: ZIP, uncompressedTIFF, TIFFPackBits_8bit, or LZW |
+| --crop_cpus | 24 | Number of CPUs to use for cropping process |
+| --crop_mem_gb | 16 | Amount of memory (GB) to allocate for cropping process |
 
 ## 3D mask connection
 
@@ -97,8 +97,8 @@ Usage:
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
-| --threshold_cpus | 4 | Number of CPUs to use for thresholding mask |
-| --threshold_mem_gb | 8 | Amount of memory (GB) to allocate for thresholding mask |
+| --threshold_cpus | 24 | Number of CPUs to use for thresholding mask |
+| --threshold_mem_gb | 16 | Amount of memory (GB) to allocate for thresholding mask |
 
 ## Connected Components
 

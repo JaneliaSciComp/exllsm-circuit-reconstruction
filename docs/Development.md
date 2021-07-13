@@ -2,7 +2,15 @@
 
 ## Working with the submodules
 
-To update the external modules, you need to pull from Git with a special flag:
+Clone the repository with submodules:
+
+    git clone --recursive https://github.com/JaneliaSciComp/expansion-microscopy-pipeline.git
+
+If you have already cloned the repository, run this after cloning to fetch the submodules:
+
+    git submodule update --init --recursive
+
+To update the external modules:
 
     git pull --recurse-submodules
 

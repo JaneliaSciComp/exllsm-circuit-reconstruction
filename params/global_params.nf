@@ -26,8 +26,8 @@ def global_em_params() {
         threshold: 255,
         mask_connection_distance: 20,
         mask_connection_iterations: 4,
-        threshold_cpus: 5,
-        threshold_mem_gb: 75,
+        threshold_cpus: 24,
+        threshold_mem_gb: 16,
         convert_mask_cpus: 8,
         convert_mask_mem_gb: 120,
         connect_mask_cpus: 1,
@@ -39,11 +39,11 @@ def global_em_params() {
         crosstalk_subtraction_mem_gb: 8,
 
         // ROI cropping params
-        crop_format: "TIFFPackBits_8bit", // "ZIP", "uncompressedTIFF", "TIFFPackBits_8bit", "LZW"
+        crop_format: "uncompressedTIFF", // "ZIP", "uncompressedTIFF", "TIFFPackBits_8bit", "LZW"
         crop_start_slice: -1,
         crop_end_slice: -1,
-        crop_cpus: 4,
-        crop_mem_gb: 8,
+        crop_cpus: 24,
+        crop_mem_gb: 16,
 
         // MIP creation params
         create_mip_cpus: 4,
