@@ -9,7 +9,7 @@ def n5_tools_spark_params(Map ps) {
     spark_params(ps) +
     [
         spark_container_name: 'n5-spark-tools',
-        spark_container_version: '3.10.1',
+        spark_container_version: '3.10.2',
     ] +
     n5_tools_spark_cmdline_params
 }
