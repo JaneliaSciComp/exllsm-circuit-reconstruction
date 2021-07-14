@@ -38,6 +38,7 @@ include {
 } from '../workflows/connected_components' addParams(neuron_comp_params)
 
 workflow {
+    def cluster_id = UUID.randomUUID()
 
     connected_comps_res = connected_components(
         neuron_comp_params.input_n5, // n5 input
@@ -45,7 +46,7 @@ workflow {
         neuron_comp_params.connected_dataset, // sub dir for connected comp
         neuron_comp_params.app,
         neuron_comp_params.spark_conf,
-        "${neuron_comp_params.spark_work_dir}/connected-comps",
+        "${neuron_comp_params.spark_work_dir}/${cluster_id}/connected-comps",
         neuron_comp_params.workers,
         neuron_comp_params.worker_cores,
         neuron_comp_params.gb_per_core,

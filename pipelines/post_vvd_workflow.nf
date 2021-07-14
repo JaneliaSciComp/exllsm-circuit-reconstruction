@@ -85,6 +85,7 @@ workflow connect_mask {
     n5_export.subscribe { log.debug "N5 export: $it" }
     
     if (app_params.with_connected_comps) {
+        def cluster_id = UUID.randomUUID()
         connected_comps_res = connected_components(
             n5_export.map { it[3] }, // n5 input
             n5_export.map { it[4] }, // n5 container sub-dir (e.g. /s0)
@@ -94,7 +95,7 @@ workflow connect_mask {
             n5_export.map {
                 // this is just so that it would not start the cluster before
                 // the n5 export completes
-                "${app_params.spark_work_dir}/connected-comps"
+                "${app_params.spark_work_dir}/${cluster_id}/connected-comps"
             }, // spark_working_dir
             app_params.workers,
             app_params.worker_cores,

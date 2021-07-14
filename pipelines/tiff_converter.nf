@@ -54,12 +54,14 @@ workflow {
     }
 
     if (vvd_params.vvd_output_dir) {
+        def cluster_id = UUID.randomUUID()
+        def cluster_work_dir = "${vvd_params.spark_work_dir}/${cluster_id}/tiff-to-vvd"
         def tiff_to_vvd_res = tiff_to_vvd(
             vvd_params.input_dir,  // input TIFF dir
             vvd_params.vvd_output_dir, // output dir
             vvd_params.app,
             vvd_params.spark_conf,
-            "${vvd_params.spark_work_dir}/tiff-to-vvd",
+            cluster_work_dir,
             vvd_params.workers,
             vvd_params.worker_cores,
             vvd_params.gb_per_core,
