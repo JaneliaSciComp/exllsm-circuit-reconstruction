@@ -194,10 +194,10 @@ workflow n5_to_vvd {
         args_list << "-ni ${currrent_input_dir}"
         args_list << "-i ${current_input_dataset}"
         args_list << "-o ${current_output_dir}"
-        if (params.containsKey('n5_compression')) {
+        if (params.n5_compression) {
             args_list << "-c ${params.n5_compression}"
         }
-        if (params.containsKey('vvd_data_type')) {
+        if (params.vvd_data_type) {
             args_list << "-t ${params.vvd_data_type}"
         }
         args_list << "-b ${params.block_size}"
@@ -206,7 +206,7 @@ workflow n5_to_vvd {
             args_list << "-min ${params.vvd_min_threshold}"
             args_list << "-max ${params.vvd_max_threshold}"
         }
-        if (params.containsKey('vvd_scale_levels')) {
+        if (params.vvd_scale_levels) {
             args_list << get_vvd_downsize(params.vvd_scale_levels)
                 .inject('') {
                     arg, item -> "${arg} -f ${item}"
