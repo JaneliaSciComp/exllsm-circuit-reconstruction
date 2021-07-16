@@ -143,7 +143,7 @@ process complete_mask {
 process crosstalk_subtraction {
 
     container { params.fiji_macro_container }
-    containerOptions { create_container_options([ input_dir, output_dir ]) }
+    containerOptions { create_container_options([ input_dir, file(output_dir).parent ]) }
 
     cpus { params.crosstalk_subtraction_cpus }
     memory { "${params.crosstalk_subtraction_mem_gb} GB" }
@@ -156,6 +156,7 @@ process crosstalk_subtraction {
 
     script:
     """
+    mkdir -p "${output_dir}"
     /app/fiji/entrypoint.sh --headless -macro subtracting_multithread.ijm "${params.crosstalk_subtraction_cpus},${input_dir}/,${output_dir}/,${params.crosstalk_threshold}"
     """
 }
@@ -163,7 +164,7 @@ process crosstalk_subtraction {
 process crop_tiff {
 
     container { params.fiji_macro_container }
-    containerOptions { create_container_options([ input_dir, output_dir, roi_path ]) }
+    containerOptions { create_container_options([ input_dir, file(output_dir).parent, roi_path ]) }
 
     cpus { params.crop_cpus }
     memory { "${params.crop_mem_gb} GB" }
@@ -176,6 +177,7 @@ process crop_tiff {
 
     script:
     """
+    mkdir -p "${output_dir}"
     /app/fiji/entrypoint.sh --headless -macro ROI_Crop_multithread.ijm "${params.crop_format},${params.crop_cpus},${params.crop_start_slice},${params.crop_end_slice},${input_dir}/,${output_dir}/,${roi_path}/"
     """
 }
@@ -183,7 +185,7 @@ process crop_tiff {
 process threshold_tiff {
 
     container { params.fiji_macro_container }
-    containerOptions { create_container_options([ input_dir, output_dir ]) }
+    containerOptions { create_container_options([ input_dir, file(output_dir).parent ]) }
 
     cpus { params.threshold_cpus }
     memory { "${params.threshold_mem_gb} GB" }
@@ -196,6 +198,7 @@ process threshold_tiff {
 
     script:
     """
+    mkdir -p "${output_dir}"
     /app/fiji/entrypoint.sh --headless -macro thresholding_multithread.ijm "${params.threshold_cpus},${input_dir}/,${output_dir}/,${params.threshold}"
     """
 }
@@ -203,7 +206,7 @@ process threshold_tiff {
 process create_mip {
 
     container { params.fiji_macro_container }
-    containerOptions { create_container_options([ input_dir, output_dir ]) }
+    containerOptions { create_container_options([ input_dir, file(output_dir).parent ]) }
 
     cpus { params.create_mip_cpus }
     memory { "${params.create_mip_mem_gb} GB" }
@@ -216,6 +219,7 @@ process create_mip {
 
     script:
     """
+    mkdir -p "${output_dir}"
     /app/fiji/entrypoint.sh --headless -macro MIPmultithread.ijm "${params.create_mip_cpus},${input_dir}/,${output_dir}/"
     """
 }
