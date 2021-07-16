@@ -70,7 +70,7 @@ workflow post_vvd {
                                 ? "${app_params.output_n5}" 
                                 : "${output_dir}/export.n5"
                             def n5_dataset = app_params.output_dataset
-                                ? "${output_dataset}"
+                                ? "${app_params.output_dataset}"
                                 : "${params.default_n5_dataset}"
                             [ output_dir, "", output_n5, n5_dataset ]
                         }

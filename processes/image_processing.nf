@@ -16,6 +16,7 @@ process prepare_mask_dirs {
     connect_dir = "${shared_temp_dir}/connect"
     """
     umask 0002
+    rm -rf "${shared_temp_dir}/*"
     mkdir -p "${shared_temp_dir}"
     mkdir -p "${output_dir}"
     """
@@ -36,14 +37,15 @@ process threshold_mask {
     tuple val(input_dir), val(output_dir), val(shared_temp_dir), val(threshold_dir), val(connect_dir)
 
     script:
-    if (params.containsKey('threshold')) 
+    if (params.threshold) 
     """
     mkdir -p "${threshold_dir}"
     /app/fiji/entrypoint.sh --headless -macro thresholding_multithread.ijm "${params.threshold_cpus},${input_dir}/,${threshold_dir}/,${params.threshold}"
     """
     else
     """
-    ln -s "${input_dir}" "${threshold_dir}"
+    mkdir -p "${threshold_dir}"
+    cp "${input_dir}"/*.tif "${threshold_dir}"
     """ 
 }
 
@@ -51,7 +53,7 @@ process convert_from_mask {
     label 'withAVX2'
 
     container { params.fiji_macro_container }
-    containerOptions { create_container_options([ threshold_dir, file(connect_dir).parent ]) }
+    containerOptions { create_container_options([ input_dir, threshold_dir, file(connect_dir).parent ]) }
 
     cpus { params.convert_mask_cpus }
     memory { "${params.convert_mask_mem_gb} GB" }

@@ -214,7 +214,7 @@ Convert N5 to VVD, saving the VVD files inside the N5 container:
 
 Usage:
 
-    ./pipelines/post_vvd_workflow.nf --input_dir INPUT_MASK_DIR --shared_temp_dir SHARED_TEMP_DIR --output_dir OUTPUT_DIR
+    ./pipelines/post_vvd_workflow.nf --input_dir INPUT_MASK_DIR --shared_temp_dir SHARED_TEMP_DIR --output_dir OUTPUT_DIR --mask_connection_distance=20 --mask_connection_iterations=4 --connect_mask_mem_gb=100 --output_n5 OUTPUT_N5 --with_connected_comps=true --runtime_opts="-B <OUTPUT_DIR> -B <parent of OUTPUT_N5>"
 
 This is the post-VVD Viewer semi-automatic neuron segmentation workflow. Runs thresholding, 3D mask connection, TIFF to n5 conversion, and n5 connected components.
 
@@ -224,14 +224,14 @@ This is the post-VVD Viewer semi-automatic neuron segmentation workflow. Runs th
 |------------|---------------------------------------------------------------------------------------|
 | --input_dir | Path to directory containing your neuron mask |
 | &#x2011;&#x2011;shared_temp_dir | Path to a directory for temporary data (shared with all cluster nodes) |
-| --output_dir | Path where the final fully-connected mask should be generated |
-| --output_n5 | Path where final n5 should be generated |
-| --with_connected_comps | Generated connected components (see *Connected Components* pipeline for other parameters) |
+| --output_dir | Path where the final fully-connected mask should be generated as a TIFF series |
+| --output_n5 | Path where final n5 should be generated (if this is empty, no N5 will be generated which means connected components will not run) |
 
 ### Optional Parameters
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
+| --with_connected_comps | Generated connected components (see *Connected Components* pipeline for other parameters). Accepted valued: true or false |
 | --mask_connection_distance | 20 | Connection distance  |
 | &#x2011;&#x2011;mask_connection_iterations | 4 | Number of iterations |
 | --threshold | | Optional intensity threshold to apply before connecting mask |

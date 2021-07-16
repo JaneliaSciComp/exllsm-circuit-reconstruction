@@ -22,7 +22,7 @@ def global_em_params() {
         fiji_macro_container: 'registry.int.janelia.org/exm-analysis/exm-tools-fiji:1.1.0',
 
         // 3D mask connection params
-        threshold: 255,
+        threshold: '',
         mask_connection_distance: 20,
         mask_connection_iterations: 4,
         clean_temp_dirs: true,
