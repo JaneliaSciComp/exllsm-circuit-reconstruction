@@ -16,10 +16,10 @@ This set of workflows includes various image processing tasks:
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
-| --fiji_macro_container | registry.int.janelia.org/exm-analysis/exm-tools-fiji:1.0.1 | Docker container for image processing Fiji macros |
+| --fiji_macro_container | registry.int.janelia.org/exm-analysis/exm-tools-fiji:1.1.0 | Docker container for image processing Fiji macros |
 | --exm_synapse_dask_container | registry.int.janelia.org/exm-analysis/synapse-dask:1.3.1 | Docker container for Dask-based processing scripts |
 | &#x2011;&#x2011;exm_neuron_segmentation_container | registry.int.janelia.org/exm-analysis/neuron-segmentation:1.0.0 | Docker container for neuron segmentation scripts |
-| --spark_work_dir | | Path to directory containing Spark working files and logs during stitching |
+| --spark_work_dir | $workDir/spark | Path to directory containing Spark working files and logs |
 | --workers | 4 | Number of Spark workers to use for Spark jobs |
 | --worker_cores | 4 | Number of cores allocated to each Spark worker |
 | --gb_per_core | 15 | Size of memory (in GB) that is allocated for each core of a Spark worker. The total memory usage for Spark jobs will be workers *worker_cores* gb_per_core. |
@@ -72,6 +72,8 @@ Usage:
 |------------|---------|---------------------------------------------------------------------------------------|
 | --mask_connection_distance | 20 | Connection distance  |
 | &#x2011;&#x2011;mask_connection_iterations | 4 | Number of iterations |
+| --threshold | | Optional intensity threshold to apply before connecting mask |
+| --clean_temp_dirs | true | Remove temporary files created inside `--shared_temp_dir` after a successful pipeline run |
 | --convert_mask_cpus | 3 | Number of CPUs to use for importing mask |
 | --convert_mask_mem_gb | 45 | Amount of memory (GB) to allocate for importing mask |
 | --connect_mask_cpus | 32 | Number of CPUs to use for connecting mask |
@@ -126,27 +128,32 @@ Usage:
 | &#x2011;&#x2011;connected_comps_block_size | 128,128,128 | Block size used for generating connected comps |
 | --connected_comps_pyramid | false | If true generates multiscale pyramids for connected components |
 
-## TIFF to N5 conversion -- uses spark -- update below
+## TIFF Converter
 
 Exports an N5 image to VVD format, for easier copying and faster loading in VVD.
 
 Usage:
 
+Generate a MIP:
+
+    ./pipelines/tiff_converter.nf --input_dir INPUT_TIFF_DIR --mips_output_dir OUTPUT_DIR
+
 Convert from TIFF to N5 format:
 
-    ./pipelines/tiff_converter.nf --input_dir INPUT_DIR --output_n5 OUTPUT_N5 --output_dataset /s0
+    ./pipelines/tiff_converter.nf --input_dir INPUT_TIFF_DIR --output_n5 OUTPUT_N5 --output_dataset /s0
 
-Convert from TIFF to VVD format:
+Convert from TIFF to VVD format (uses a fork of [n5-spark](https://github.com/JaneliaSciComp/n5-spark) -- see [Global Optional Parameters](#global-optional-parameters) for Spark-specific parameters):
 
-    ./pipelines/tiff_converter.nf --input_dir INPUT_DIR --vvd_output_dir OUTPUT_DIR
+    ./pipelines/tiff_converter.nf --input_dir INPUT_TIFF_DIR --vvd_output_dir OUTPUT_DIR 
 
 ### Required Parameters
 
 | Argument   | Description                                                                           |
 |------------|---------------------------------------------------------------------------------------|
-| --input_dir | Directory containing input TIFF slices  |
+| --input_dir | Directory containing input TIFF slices |
 | --output_n5 | Path where output N5 will be saved |
-| --vvd_output_dir | | Directory where output VVD files will be saved |
+| --mips_output_dir | Directory where MIPs will be saved |
+| --vvd_output_dir | Directory where output VVD files will be saved |
 
 ### Optional Parameters
 
@@ -218,7 +225,8 @@ This is the post-VVD Viewer semi-automatic neuron segmentation workflow. Runs th
 | --input_dir | Path to directory containing your neuron mask |
 | &#x2011;&#x2011;shared_temp_dir | Path to a directory for temporary data (shared with all cluster nodes) |
 | --output_dir | Path where the final fully-connected mask should be generated |
-| --threshold | Intensity threshold |
+| --output_n5 | Path where final n5 should be generated |
+| --with_connected_comps | Generated connected components (see *Connected Components* pipeline for other parameters) |
 
 ### Optional Parameters
 
@@ -226,6 +234,7 @@ This is the post-VVD Viewer semi-automatic neuron segmentation workflow. Runs th
 |------------|---------|---------------------------------------------------------------------------------------|
 | --mask_connection_distance | 20 | Connection distance  |
 | &#x2011;&#x2011;mask_connection_iterations | 4 | Number of iterations |
+| --threshold | | Optional intensity threshold to apply before connecting mask |
 | --threshold_cpus | 4 | Number of CPUs to use for thresholding mask |
 | --threshold_mem_gb | 8 | Amount of memory (GB) to allocate for thresholding mask |
 | --convert_mask_cpus | 3 | Number of CPUs to use for importing mask |

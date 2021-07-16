@@ -5,6 +5,7 @@ Parameters:
     input_dir
     output_dir
     shared_temp_dir
+    threshold
     mask_connection_distance
     mask_connection_iterations
 */
@@ -20,8 +21,9 @@ def final_params = default_em_params(params)
 
 include {
     prepare_mask_dirs;
+    threshold_mask;
     convert_from_mask;
-    append_brick_files;
+    get_brick_files;
     connect_tiff;
     convert_to_mask;
     complete_mask;
@@ -32,9 +34,10 @@ workflow connect_mask {
     input_vals
 
     main:
-    connected_tiff = prepare_mask_dirs(input_vals) 
+    connected_tiff = prepare_mask_dirs(input_vals)
+                    | threshold_mask
                     | convert_from_mask
-                    | append_brick_files
+                    | get_brick_files
                     | flatMap {
                         def (input_dir, output_dir, shared_temp_dir, threshold_dir, connect_dir, bricks) = it
                         bricks.tokenize(' ').collect { brick_file ->

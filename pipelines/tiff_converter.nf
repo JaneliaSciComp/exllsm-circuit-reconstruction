@@ -27,8 +27,12 @@ include {
 } from '../processes/n5_tools' addParams(app_params)
 
 include {
+    tiff_to_mips;
+} from '../processes/image_processing' addParams(app_params)
+
+include {
     vvd_spark_params;
-} from '../params/vvd_params'
+} from '../params/vvd_params' addParams(app_params)
 
 def vvd_params = app_params +
                  vvd_spark_params(final_params) 
@@ -51,6 +55,18 @@ workflow {
             app_params.partial_volume
         ) 
         tiff_to_n5_res.subscribe { log.debug "TIFF to N5 results: $it" }
+    }
+
+    if (app_params.mips_output_dir) {
+        def tiff_to_mips_res = tiff_to_mips(
+            Channel.of(
+                [
+                    app_params.input_dir,
+                    app_params.mips_output_dir
+                ]
+            )
+        )
+        tiff_to_mips_res.subscribe { log.debug "TIFF to MIPs result: $it" }
     }
 
     if (vvd_params.vvd_output_dir) {

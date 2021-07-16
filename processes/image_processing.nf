@@ -17,8 +17,6 @@ process prepare_mask_dirs {
     """
     umask 0002
     mkdir -p "${shared_temp_dir}"
-    mkdir -p "${threshold_dir}"
-    mkdir -p "${connect_dir}"
     mkdir -p "${output_dir}"
     """
 }
@@ -26,7 +24,7 @@ process prepare_mask_dirs {
 process threshold_mask {
 
     container { params.fiji_macro_container }
-    containerOptions { create_container_options([ input_dir, threshold_dir ]) }
+    containerOptions { create_container_options([ input_dir, file(threshold_dir).parent ]) }
 
     cpus { params.threshold_cpus }
     memory { "${params.threshold_mem_gb} GB" }
@@ -38,16 +36,22 @@ process threshold_mask {
     tuple val(input_dir), val(output_dir), val(shared_temp_dir), val(threshold_dir), val(connect_dir)
 
     script:
+    if (params.containsKey('threshold')) 
     """
+    mkdir -p "${threshold_dir}"
     /app/fiji/entrypoint.sh --headless -macro thresholding_multithread.ijm "${params.threshold_cpus},${input_dir}/,${threshold_dir}/,${params.threshold}"
     """
+    else
+    """
+    ln -s "${input_dir}" "${threshold_dir}"
+    """ 
 }
 
 process convert_from_mask {
     label 'withAVX2'
 
     container { params.fiji_macro_container }
-    containerOptions { create_container_options([ threshold_dir, connect_dir ]) }
+    containerOptions { create_container_options([ threshold_dir, file(connect_dir).parent ]) }
 
     cpus { params.convert_mask_cpus }
     memory { "${params.convert_mask_mem_gb} GB" }
@@ -60,11 +64,12 @@ process convert_from_mask {
 
     script:
     """
+    mkdir -p "${connect_dir}"
     /app/fiji/entrypoint.sh --headless -macro ExpandMask_ExM.ijm "${threshold_dir}/,${connect_dir}/,${params.convert_mask_cpus}"
     """
 }
 
-process append_brick_files {
+process get_brick_files {
     label 'preferLocal'
 
     input:
@@ -133,7 +138,7 @@ process complete_mask {
 
     script:
     """
-    rsync -a ${threshold_dir}/ ${output_dir}/
+    cp ${connect_dir}/*.tif ${output_dir}/
     if [[ "${params.clean_temp_dirs}" == "true" ]]; then
         rm -rf ${params.shared_temp_dir}
     fi
@@ -203,7 +208,7 @@ process threshold_tiff {
     """
 }
 
-process create_mip {
+process tiff_to_mips {
 
     container { params.fiji_macro_container }
     containerOptions { create_container_options([ input_dir, file(output_dir).parent ]) }

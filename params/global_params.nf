@@ -4,7 +4,6 @@ def global_em_params() {
         exm_repo: 'registry.int.janelia.org/exm-analysis',
 
         // global parameters
-        clean_temp_dirs: true,
         partial_volume: '',
         volume_partition_size: 512,
         block_size: '512,512,512',
@@ -20,12 +19,13 @@ def global_em_params() {
         connected_dataset: '/connected/s0',
 
         // image processing
-        fiji_macro_container: 'registry.int.janelia.org/exm-analysis/exm-tools-fiji:1.0.1',
+        fiji_macro_container: 'registry.int.janelia.org/exm-analysis/exm-tools-fiji:1.1.0',
 
         // 3D mask connection params
         threshold: 255,
         mask_connection_distance: 20,
         mask_connection_iterations: 4,
+        clean_temp_dirs: true,
         threshold_cpus: 24,
         threshold_mem_gb: 16,
         convert_mask_cpus: 8,
