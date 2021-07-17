@@ -223,7 +223,7 @@ This is the post-VVD Viewer semi-automatic neuron segmentation workflow. Runs th
 | Argument   | Description                                                                           |
 |------------|---------------------------------------------------------------------------------------|
 | --input_dir | Path to directory containing your neuron mask |
-| &#x2011;&#x2011;shared_temp_dir | Path to a directory for temporary data (shared with all cluster nodes) |
+| &#x2011;&#x2011;shared_temp_dir | Path to a directory for temporary data (shared with all cluster nodes) -- THIS WILL BE DELETED SO BE SURE TO MAKE A UNIQUE DIRECTORY FOR TEMP FILES|
 | --output_dir | Path where the final fully-connected mask should be generated as a TIFF series |
 | --output_n5 | Path where final n5 should be generated (if this is empty, no N5 will be generated which means connected components will not run) |
 
