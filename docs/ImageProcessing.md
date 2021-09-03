@@ -210,7 +210,7 @@ Convert N5 to VVD, saving the VVD files inside the N5 container:
 | --n52tiff_cpus | 4 | Number of CPUs to use for Dask-based n5 to TIFF (only used if `--use_n5_spark_tools=false`) |
 | --n52tiff_memory | 6 | Amount of memory (GB) to allocate for Dask-based n5 to TIFF (only used if `--use_n5_spark_tools=false`) |
 
-## Post-VVD Semi-automatic Neuron Segmentation
+## Post-VVD Semi-automatic Neuron Segmentation --- NEED TO ADD SIZE FILTER AND VOXEL SHAPE PARAMETERS TO N5 CONNECTED COMPONENTS
 
 Usage:
 
