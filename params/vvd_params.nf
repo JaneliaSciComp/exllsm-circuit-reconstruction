@@ -12,6 +12,7 @@ def vvd_params() {
         vvd_scale_levels: '',
         vvd_export_cpus: 32,
         vvd_export_mem_gb: 192,
+        vvd_block_size: 256,256,256
     ]
 }
 
@@ -25,8 +26,7 @@ def vvd_spark_params(Map ps) {
         spark_container_version: '3.11.0',
         workers: 8,
         worker_cores: 16,
-        gb_per_core: 14,
-        block_size 256,256,256
+        gb_per_core: 14
     ] +
     vvd_spark_cmdline_params
 }

@@ -161,6 +161,7 @@ Convert from TIFF to VVD format (uses a fork of [n5-spark](https://github.com/Ja
 |------------|---------|---------------------------------------------------------------------------------------|
 | --output_dataset | /s0 | N5 data set |
 | --partial_volume | | Comma delimited coordinates defining a bounding box for the partial volume. If set, only this partial volume is processed. |
+| --vvd_block_size | 256,256,256 | Block size to use for VVD output. |
 
 ## N5 Converter
 
@@ -200,6 +201,7 @@ Convert N5 to VVD, saving the VVD files inside the N5 container:
 | --mips_output_dir | | Directory where MIPs will be saved |
 | --vvd_output_dir | | Directory where output VVD files will be saved |
 | --use_n5_spark_tools | true | Set to false to use Dask tools when possible. They're much faster than the Spark tools, but not as well tested. |
+| --vvd_block_size | 256,256,256 | Block size to use for VVD output. |
 | --vvd_data_type | uint16 | Coerced data type for the VVD output. You can set this to the empty string to use the input data type, but VVD cannot read certain data types like uin64, which is why the default here is uint16. |
 | --vvd_min_threshold | | Minimum value of the input range to be used for the conversion (default is min type value for integer types, or 0 for real types) |
 | --vvd_max_threshold | | Maximum value of the input range to be used for the conversion (default is max type value for integer types, or 1 for real types). |
