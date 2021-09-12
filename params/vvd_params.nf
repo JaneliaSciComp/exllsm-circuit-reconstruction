@@ -12,7 +12,7 @@ def vvd_params() {
         vvd_scale_levels: '',
         vvd_export_cpus: 32,
         vvd_export_mem_gb: 192,
-        vvd_block_size: 256,256,256
+        vvd_block_size: '256,256,256'
     ]
 }
 
