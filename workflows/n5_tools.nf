@@ -71,6 +71,9 @@ workflow tiff_to_vvd {
         def args_list = []
         args_list << "-i ${currrent_input_dir}"
         args_list << "-o ${current_output_dir}"
+        if (params.n5_compression) {
+            args_list << "-c ${params.n5_compression}"
+        }
         if (params.vvd_data_type) {
             args_list << "-t ${params.vvd_data_type}"
         }
