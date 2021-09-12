@@ -14,8 +14,8 @@ This set of workflows includes various image processing tasks:
 
 ## Global Optional Parameters
 
-| Argument   | Default | Description                                                                           |
-|------------|---------|---------------------------------------------------------------------------------------|
+| Argument   | Default | Description                                                                 |
+|------------|---------|-----------------------------------------------------------------------------|
 | --fiji_macro_container | registry.int.janelia.org/exm-analysis/exm-tools-fiji:1.1.0 | Docker container for image processing Fiji macros |
 | --exm_synapse_dask_container | registry.int.janelia.org/exm-analysis/synapse-dask:1.3.1 | Docker container for Dask-based processing scripts |
 | &#x2011;&#x2011;exm_neuron_segmentation_container | registry.int.janelia.org/exm-analysis/neuron-segmentation:1.0.0 | Docker container for neuron segmentation scripts |
@@ -44,8 +44,8 @@ Usage:
 
 ### Optional Parameters
 
-| Argument   | Default | Description                                                                           |
-|------------|---------|---------------------------------------------------------------------------------------|
+| Argument   | Default | Description                                                                 |
+|------------|---------|-----------------------------------------------------------------------------|
 | --crop_format | uncompressedTIFF | Output format, one of: ZIP, uncompressedTIFF, TIFFPackBits_8bit, or LZW |
 | --crop_cpus | 24 | Number of CPUs to use for cropping process |
 | --crop_mem_gb | 16 | Amount of memory (GB) to allocate for cropping process |
@@ -68,8 +68,8 @@ Usage:
 
 ### Optional Parameters
 
-| Argument   | Default | Description                                                                           |
-|------------|---------|---------------------------------------------------------------------------------------|
+| Argument   | Default | Description                                                                 |
+|------------|---------|-----------------------------------------------------------------------------|
 | --mask_connection_distance | 20 | Connection distance  |
 | &#x2011;&#x2011;mask_connection_iterations | 4 | Number of iterations |
 | --threshold | | Optional intensity threshold to apply before connecting mask |
@@ -97,8 +97,8 @@ Usage:
 
 ### Optional Parameters
 
-| Argument   | Default | Description                                                                           |
-|------------|---------|---------------------------------------------------------------------------------------|
+| Argument   | Default |                                                                             |
+|------------|---------|-----------------------------------------------------------------------------|
 | --threshold_cpus | 24 | Number of CPUs to use for thresholding mask |
 | --threshold_mem_gb | 16 | Amount of memory (GB) to allocate for thresholding mask |
 
@@ -118,8 +118,8 @@ Usage:
 
 ### Optional Parameters
 
-| Argument   | Default | Description                                                                           |
-|------------|---------|---------------------------------------------------------------------------------------|
+| Argument   | Default | Description                                                                 |
+|------------|---------|-----------------------------------------------------------------------------|
 | --input_dataset | /s0 | Input data set to process |
 | --connected_dataset | /connected/s0 | Output data set |
 | --connected_pixels_shape | diamond | Shape used for connected components |
@@ -157,11 +157,18 @@ Convert from TIFF to VVD format (uses a fork of [n5-spark](https://github.com/Ja
 
 ### Optional Parameters
 
-| Argument   | Default | Description                                                                           |
-|------------|---------|---------------------------------------------------------------------------------------|
+| Argument   | Default | Description                                                                 |
+|------------|---------|-----------------------------------------------------------------------------|
 | --output_dataset | /s0 | N5 data set |
 | --partial_volume | | Comma delimited coordinates defining a bounding box for the partial volume. If set, only this partial volume is processed. |
 | --vvd_block_size | 256,256,256 | Block size to use for VVD output. |
+| --vvd_data_type | uint16 | Coerced data type for the VVD output. You can set this to the empty string to use the input data type, but VVD cannot read certain data types like uin64, which is why the default here is uint16. |
+| --vvd_min_threshold | | Minimum value of the input range to be used for the conversion (default is min type value for integer types, or 0 for real types) |
+| --vvd_max_threshold | | Maximum value of the input range to be used for the conversion (default is max type value for integer types, or 1 for real types). |
+| --vvd_min_scale_factor | 0 | Minimum downsampling factor for the VVD multiscale pyramid. |
+| &#x2011;&#x2011;vvd_max_scale_factor | 10 | Maximum downsampling factor for the VVD multiscale pyramid. |
+| --vvd_pyramid_level | 5 | Number of levels in the multiscale pyramid. |
+| --vvd_scale_levels | | Explicit downsampling factors, delimited by colons (`:`). When specifying multiple factors, each factor builds on the last. This cannot be used with `--vvd_min_scale_factor`, `--vvd_max_scale_factor`, and `--vvd_pyramid_level`. |
 
 ## N5 Converter
 
@@ -193,8 +200,8 @@ Convert N5 to VVD, saving the VVD files inside the N5 container:
 
 ### Optional Parameters
 
-| Argument   | Default | Description                                                                           |
-|------------|---------|---------------------------------------------------------------------------------------|
+| Argument   | Default | Description                                                                 |
+|------------|---------|-----------------------------------------------------------------------------|
 | --input_dataset | /s0 | N5 data set to process |
 | --multiscale_pyramid | false | Generate multiscale pyramid (i.e. /s1, /s2, etc.) |
 | --tiff_output_dir | | Directory where output TIFF slices will be saved |
@@ -231,8 +238,8 @@ This is the post-VVD Viewer semi-automatic neuron segmentation workflow. Runs th
 
 ### Optional Parameters
 
-| Argument   | Default | Description                                                                           |
-|------------|---------|---------------------------------------------------------------------------------------|
+| Argument   | Default | Description                                                                 |
+|------------|---------|-----------------------------------------------------------------------------|
 | --with_connected_comps | Generated connected components (see *Connected Components* pipeline for other parameters). Accepted valued: true or false |
 | --mask_connection_distance | 20 | Connection distance  |
 | &#x2011;&#x2011;mask_connection_iterations | 4 | Number of iterations |
