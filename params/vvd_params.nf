@@ -23,6 +23,10 @@ def vvd_spark_params(Map ps) {
     [
         spark_container_name: 'n5-spark-tools',
         spark_container_version: '3.11.0',
+        workers: 8,
+        worker_cores: 16,
+        gb_per_core: 14,
+        block_size 256,256,256
     ] +
     vvd_spark_cmdline_params
 }
