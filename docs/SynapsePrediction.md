@@ -1,13 +1,17 @@
 # Synapse Prediction
 
-Synapse prediction can be run in multiple workflows, depending on the experimental design and data available.
+Synapse prediction can be run in multiple workflows, depending on the experimental design and data available. When running synapse prediction on large image volumes, the volume is partitioned into sub-volumes. The workflow is run on each sub-volume and reassembled.
 
-See below for details about the workflows:
-* Workflow A: Neuron 1 Presynaptic to Neuron 2
-* Workflow B: Neuron 1 Presynaptic to Neuron 2 Restricted Postsynaptic 
-* Workflow C: Presynaptic in Volume
-* Synapse Segmentation: Apply the U-Net segmentation for a pre-synaptic channel
-* Synapse Segmentation Post Processing: Apply the watershed segmentation to a volume which already has the U-Net segmentation
+See below for details about each workflow:
+
+* Synapse Segmentation: Synaptic structures are detected using a 3D U-Net convolutional neural network.
+* Synapse Segmentation Post-processing: Applies watershed segmentation, optional size filter, and optional colocalization analysis with a neuron mask to Synapse Segmentation results. 
+
+The following workflows integrate Synapse Segmentation and Synapse Segmentation Post-processing. 
+
+*Workflow A: Quantifies neuron 1 presynaptic sites and connections from neuron 1 to neuron 2. Requires a presynaptic channel and masks for neuron 1 and neuron 2.
+*Workflow B: Quantifies neuron 1 presynaptic sites and connections from neuron 1 to neuron 2. Requires a presynaptic channel, a postsynaptic channel restricted to neuron 2, and a neuron 1 mask.
+*Workflow C: Quantifies synaptic sites in a volume. No neuron information is needed, but synaptic sites in a neuron can be quantified. Requires a synaptic channel with optional neuron mask. 
 
 Each workflow generates intermediate data volumes that are typically stored in the same N5 container but in different N5 datasets. The default N5 container name for intermediate data is specified by the `--working_container` parameter and the parameters for the intermediate datasets with their default values are defined below in the '[Global Optional Parameters](#global_optional_parameters)' section
 
