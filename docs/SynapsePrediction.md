@@ -17,7 +17,7 @@ The following workflows integrate Synapse Segmentation and Synapse Segmentation 
 
 Details on methods to generate neurons masks for ExLLSM images can be found in the [Neuron Segmentation](NeuronSegmentation.md) and [Image Processing](ImageProcessing.md) sections.
 
-Each workflow generates intermediate data volumes that are typically stored in the same N5 container but in different N5 datasets. The default N5 container name for intermediate data is specified by the `--working_container` parameter and the parameters for the intermediate datasets with their default values are defined below in the '[Global Optional Parameters](#global-optional-parameters)' section
+Each workflow generates intermediate data volumes that are typically stored in the same N5 container but in different N5 datasets. The default N5 container name for intermediate data is specified by the `--working_container` parameter and the parameters for the intermediate datasets with their default values are defined below in the [Global Optional Parameters](#global-optional-parameters) section
 
 ## Global Required Parameters
 These parameters are required for all workflows:
