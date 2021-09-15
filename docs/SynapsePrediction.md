@@ -58,7 +58,7 @@ Usage ([example](../examples/presynaptic_n1_to_n2.sh)):
 
     ./synapse_pipeline.nf --pipeline=presynaptic_n1_to_n2 [arguments]
 
-See illustration of Workflow A(#ExLLSM-synapseworkflows) above.
+See [illustration of Workflow A](#ExLLSM-synapseworkflows) above.
 This workflow:
 
 1) detects presynaptic sites using a 3D U-Net convolutional neural network
