@@ -3,7 +3,7 @@
 Segmentation of neurons can be automated or semi-automated. This document describes how to run the
 automatic neuron segmentation.
 
-## Automated Pipeline
+## Automatic Pipeline
 
 The automatic neuron segmentation is based on running a 3D U-Net classification followed by an optional post-processing step that eliminates small regions. The pipeline also includes an optional step to precompute a scaling factor for each tile.
 
@@ -44,6 +44,6 @@ Usage:
 | --connected_comps_block_size | 128,128,128 | Block size used for generating connected comps |
 | --connected_comps_pyramid | false | If true generates multiscale pyramids for connected components |
 
-## [Postprocessing for user-guided semi-automatic VVD Viewer segmentation](./ImageProcessing.md#post-vvd-semi-automatic-neuron-segmentation)
+## [Semi-automatic Pipeline](./ImageProcessing.md#post-vvd-semi-automatic-neuron-segmentation)
 
-Workflow to threshold, 3D connect, and size filter neuron masks generated in VVD Viewer. 
+VVD Viewer allows semi-automatic, user-guided neuron segmentation of ExLLSM images. Large ExLLSM image volumes are first converted to VVD Viewer pyramid files. Neurons and are segmented in VVD Viewer and saved as a TIFF series. A postprocessing workflow is required to convert the TIFF series to the finalized neuron mask used to [analyze connectivity](./SynapsePrediction.md). These postprocessing steps include pixel intensity thresholding, 3D component connecting, N5 component analysis, voxel shape conversion, and size filtering. Each step is described in [Image Processing](./ImageProcessing.md) and we have generated a [Post-VVD Neuron Segmentation Workflow](./ImageProcessing.md#post-vvd-semi-automatic-neuron-segmentation) to run the entire postprocessing pipeline in sequence.
