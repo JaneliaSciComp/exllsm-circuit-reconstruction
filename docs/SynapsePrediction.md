@@ -40,7 +40,7 @@ Frequently used parameters:
 | --unet_cpus | 4 | Number of CPUs to use for each U-NET prediction job |
 | --postprocessing_cpus | 3 | Number of CPUs to use for post-processing (e.g. image closing, watershed, quantification, etc.) |
 | --volume_partition_size | 512 | Size of sub-volumes to process in parallel. Should be a multiple of --block_size. |
-| --presynaptic_stage2_threshold | 300 | Minimum voxel size of each presynaptic site in stage 2 of Workflows A-C. |
+| --presynaptic_stage2_threshold | 300 | Minimum voxel size of each synaptic site in stage 2 of Workflows A-C. |
 | --presynaptic_stage2_percentage | 0.5 | Minimum presynaptic site % overlap with neuron 1 in order to be assigned to neuron 1 in stage 2 of Workflows A-C. Objects below this threshold are removed. 1 = whether the centroid falls within the mask. |
 | --postsynaptic_stage2_threshold | 200 | Minimum voxel size of the postsynaptic site in stage 3 of Workflow B. |
 | --postsynaptic_stage2_percentage | 0.001 | Minimum synaptic site % overlap with synaptic partner to be assigned a connection. Stage 3 in Workflows A-B (see Workflow specifics below). Objects below this threshold are removed. 1 = whether the centroid falls within the mask. |
@@ -63,20 +63,20 @@ Rarely used parameters to change the name of working_containers and working_dats
 | --working_n2_mask_dataset | 'n2_mask/s0' | The N5 dataset if the input is a TIFF stack |
 | --working_post_synapse_container | Same as `--working_container` | The N5 post synaptic channel if the input is a TIFF stack; if the post-synaptic data is already in N5 this is ignored |
 | --working_post_synapse_dataset | 'post_synapse/s0' | The N5 dataset if the input is a TIFF stack |
-| --working_pre_synapse_seg_container | same as `--working_container` | Pre-synaptic segmentation N5 result |
-| --working_pre_synapse_seg_dataset | 'pre_synapse_seg/s0' | Pre-synaptic segmentation N5 dataset |
-| --working_post_synapse_seg_container | same as `--working_container` | Post-synaptic segmentation N5 result|
-| --working_post_synapse_seg_dataset | 'post_synapse_seg/s0' | Post-synaptic segmentation N5 dataset |
-| --working_pre_synapse_seg_post_container | same as `--working_container` | N5 container for pre-synaptic segmentation after post processing |
-| --working_pre_synapse_seg_post_dataset | 'pre_synapse_seg_post/s0' | N5 dataset for pre-synaptic segmentation after post processing |
-| --working_pre_synapse_seg_n1_container | same as `--working_container` | N5 container for pre-synaptic segmentation after post processing with N1 mask |
-| --working_pre_synapse_seg_n1_dataset | 'pre_synapse_seg_n1/s0' | N5 dataset for pre-synaptic segmentation after post processing N1 mask |
-| --working_pre_synapse_seg_n1_n2_container | same as `--working_container` | N5 container for pre-synaptic segmentation after post processing with N1 followed by post processing with N2 |
-| --working_pre_synapse_seg_n1_n2_dataset | 'pre_synapse_seg_n1_n2/s0' | N5 dataset for pre-synaptic segmentation after post processing with N1 followed by post processing with N2 |
-| --working_post_synapse_seg_n1_container | same as `--working_container` | N5 container for post-synaptic segmentation after post processing with pre-synaptic segmentation and N1 mask |
-| --working_post_synapse_seg_n1_dataset | 'post_synapse_seg_pre_synapse_seg_n1/s0' | N5 dataset for post-synaptic segmentation after post processing with pre-synaptic segmentation and N1 mask |
-| --working_pre_synapse_seg_post_synapse_seg_n1_container | same as `--working_container` | N5 container after post processing pre-synaptic segmentation with N1 and with post-synaptic segmentation |
-| --working_pre_synapse_seg_post_synapse_seg_n1_dataset | 'pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1/s0' | N5 datasset after post processing pre-synaptic segmentation with N1 and with post-synaptic segmentation |
+| --working_pre_synapse_seg_container | same as `--working_container` | Presynaptic segmentation N5 result |
+| --working_pre_synapse_seg_dataset | 'pre_synapse_seg/s0' | Presynaptic segmentation N5 dataset |
+| --working_post_synapse_seg_container | same as `--working_container` | Postsynaptic segmentation N5 result|
+| --working_post_synapse_seg_dataset | 'post_synapse_seg/s0' | Postsynaptic segmentation N5 dataset |
+| --working_pre_synapse_seg_post_container | same as `--working_container` | N5 container for presynaptic segmentation after post processing |
+| --working_pre_synapse_seg_post_dataset | 'pre_synapse_seg_post/s0' | N5 dataset for presynaptic segmentation after post processing |
+| --working_pre_synapse_seg_n1_container | same as `--working_container` | N5 container for presynaptic segmentation after post processing with N1 mask |
+| --working_pre_synapse_seg_n1_dataset | 'pre_synapse_seg_n1/s0' | N5 dataset for presynaptic segmentation after post processing N1 mask |
+| --working_pre_synapse_seg_n1_n2_container | same as `--working_container` | N5 container for presynaptic segmentation after post processing with N1 followed by post processing with N2 |
+| --working_pre_synapse_seg_n1_n2_dataset | 'pre_synapse_seg_n1_n2/s0' | N5 dataset for presynaptic segmentation after post processing with N1 followed by post processing with N2 |
+| --working_post_synapse_seg_n1_container | same as `--working_container` | N5 container for postsynaptic segmentation after post processing with pre-synaptic segmentation and N1 mask |
+| --working_post_synapse_seg_n1_dataset | 'post_synapse_seg_pre_synapse_seg_n1/s0' | N5 dataset for postsynaptic segmentation after post processing with pre-synaptic segmentation and N1 mask |
+| --working_pre_synapse_seg_post_synapse_seg_n1_container | same as `--working_container` | N5 container after post processing presynaptic segmentation with N1 and with post-synaptic segmentation |
+| --working_pre_synapse_seg_post_synapse_seg_n1_dataset | 'pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1/s0' | N5 datasset after post processing presynaptic segmentation with N1 and with post-synaptic segmentation |
 
 ## Workflow A: Neuron 1 Presynaptic to Neuron 2
 
