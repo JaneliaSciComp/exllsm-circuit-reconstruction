@@ -121,7 +121,7 @@ This workflow:
 ### Required Parameters
 
 | Argument   | Default | Description                                                                 |
-|------------|---------------------------------------------------------------------------------------|
+|------------|---------|-----------------------------------------------------------------------------|
 | --presynapse | | Volume (TIFF series or n5) containing synaptic channel  |
 | --presynapse_in_dataset | | Pre-synaptic dataset if the input is N5  |
 | --presynaptic_stage2_threshold | 300 | This is not a required parameter, but if it is provided will specify the minimum voxel size of each synaptic site in stage 2. This works with or without a neuron mask. |
