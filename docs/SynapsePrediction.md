@@ -5,7 +5,7 @@ Synapse prediction can be run in multiple workflows, depending on the experiment
 See below for details about each workflow:
 
 * Synapse Segmentation: Synaptic structures are detected using a 3D U-Net convolutional neural network.
-* Synapse Segmentation Post-processing: Applies watershed segmentation, optional size filter, and optional colocalization analysis to Synapse Segmentation results. 
+* Synapse Segmentation Post-processing: Applies image closing, watershed segmentation, optional size filter, and optional colocalization analysis to Synapse Segmentation results. 
 
 The following workflows integrate Synapse Segmentation and Synapse Segmentation Post-processing. 
 
@@ -22,26 +22,26 @@ These parameters are required for all workflows:
 
 | Argument   | Description                                                                           |
 |------------|---------------------------------------------------------------------------------------|
-| --pipeline | Pipeline to run (valid options: presynaptic_n1_to_n2, presynaptic_n1_to_postsynaptic_n2, presynaptic_in_volume, classify_synapses, collocate_synapses) |
+| --pipeline | Pipeline to run. Valid options: presynaptic_n1_to_n2, presynaptic_n1_to_postsynaptic_n2, presynaptic_in_volume, classify_synapses, collocate_synapses |
 | --synapse_model | Path to trained synapse model in HDF5 format |
 
 ## Global Optional Parameters
 
-Common use parameters
+Frequently used parameters
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
-| --output_dir | |output directory for results
+| --output_dir | | Output directory for results |
 | --n5_compression | gzip | Compression for N5 volumes |
 | --tiff2n5_cpus | 3 | Number of CPUs to use for converting TIFF to n5 |
 | --n52tiff_cpus | 3 | Number of CPUs to use for converting n5 to TIFF |
 | --unet_cpus | 4 | Number of CPUs to use for each U-NET prediction job |
 | --postprocessing_cpus | 3 | Number of CPUs to use for post-processing (e.g. image closing, watershed, quantification, etc.) |
 | --volume_partition_size | 512 | Size of sub-volumes to process in parallel. Should be a multiple of --block_size. |
-| --presynaptic_stage2_threshold | 300 | Voxel threshold (smallest blob to include), for stage 2 presynaptic processing. |
-| --presynaptic_stage2_percentage | 0.5 | Threshold to remove the object if it falls in the mask less than a percentage. If percentage is >=1, criteria will be whether the centroid falls within the mask. |
-| --postsynaptic_stage2_threshold | 200 | Same as above for stage 2 postsynaptic processing. |
-| --postsynaptic_stage2_percentage | 0.001 | Same as above for stage 2 postsynaptic processing. |
+| --presynaptic_stage2_threshold | 300 | Minimum voxel size of each presynaptic site in Workflows A-C. specifically, voxel threshold (smallest blob to include), for stage 2 presynaptic processing |
+| --presynaptic_stage2_percentage | 0.5 | minimum synaptic site % overlap with neuron 1 in order to be assigned to neuron 1. objects below this threshold are removed. 1 = whether the centroid falls within the mask. |
+| --postsynaptic_stage2_threshold | 200 | minimum voxel size of the postsynaptic site in Workflow B. |
+| --postsynaptic_stage2_percentage | 0.001 | minimum neuron 1 presynaptic site % overlap with neuron 2 in order to be assigned a connection in Workflow A. objects below this threshold are removed. 1 = whether the centroid falls within the mask.Same as above for stage 2 postsynaptic processing. |
 | --postsynaptic_stage3_threshold | 400 | Same as above for stage 3 processing. |
 | --postsynaptic_stage3_percentage | 0.001 | Same as above for stage 3 processing. |
 | --with_pyramid | true | If set it generates the downsampling pyramid for all UNet and Post-UNet results |
