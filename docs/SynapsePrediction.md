@@ -44,7 +44,6 @@ Common use parameters
 | --postsynaptic_stage2_percentage | 0.001 | Same as above for stage 2 postsynaptic processing. |
 | --postsynaptic_stage3_threshold | 400 | Same as above for stage 3 processing. |
 | --postsynaptic_stage3_percentage | 0.001 | Same as above for stage 3 processing. |
-
 | --with_pyramid | true | If set it generates the downsampling pyramid for all UNet and Post-UNet results |
 | --with_vvd | false | If set it converts the UNet and Post-UNet results to VVD. The base VVD output dir is set by --vvd_output_dir |
 | --vvd_output_dir | | base VVD output dir. If this is not set but --with_vvd is set then the default VVD output dir will be the 'vvd' sub-directory under the N5 container dir. The name of the VVD volume is based on the stage that created the volume: 'pre_synapse_seg', or 'pre_synapse_seg_n1', or 'pre_synapse_seg_n1_n2'. The current implementation is an all or nothing - it does not support to generate VVD files only for certain stages. |
