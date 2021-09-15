@@ -13,6 +13,9 @@ The following workflows integrate Synapse Segmentation and Synapse Segmentation 
 * Workflow B: Quantifies neuron 1 presynaptic sites and connections from neuron 1 to neuron 2. Requires a presynaptic channel, a postsynaptic channel restricted to neuron 2, and a neuron 1 mask.
 * Workflow C: Quantifies synaptic sites in a volume. No neuron information is needed, but synaptic sites in a neuron can be quantified. Requires a synaptic channel with optional neuron mask. 
 
+![ExLLSM_synapseworkflows](https://user-images.githubusercontent.com/8125635/133476417-7252c10b-75e8-48a3-af30-05e9d5ae1eb5.png)s=200
+
+
 Details on methods to generate neurons masks for ExLLSM images can be found in the [Neuron Segmentation](NeuronSegmentation.md) and [Image Processing](ImageProcessing.md) sections.
 
 Each workflow generates intermediate data volumes that are typically stored in the same N5 container but in different N5 datasets. The default N5 container name for intermediate data is specified by the `--working_container` parameter and the parameters for the intermediate datasets with their default values are defined below in the '[Global Optional Parameters](#global_optional_parameters)' section
