@@ -120,7 +120,7 @@ This workflow:
 
 ### Required Parameters
 
-| Argument   | Default | Description                                                                           |
+| Argument   | Default | Description                                                                 |
 |------------|---------------------------------------------------------------------------------------|
 | --presynapse | | Volume (TIFF series or n5) containing synaptic channel  |
 | --presynapse_in_dataset | | Pre-synaptic dataset if the input is N5  |
