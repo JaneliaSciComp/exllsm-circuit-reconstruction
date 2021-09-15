@@ -7,7 +7,7 @@ See below for details about each workflow:
 * Synapse Segmentation: Synaptic structures are detected using a 3D U-Net convolutional neural network.
 * Synapse Segmentation Post-processing: Applies image closing, watershed segmentation, optional size filter, and optional colocalization analysis to Synapse Segmentation results. 
 
-The following workflows integrate Synapse Segmentation and Synapse Segmentation Post-processing. 
+The following workflows integrate Synapse Segmentation and Synapse Segmentation Post-processing steps to automatically run frequently used analyses in sequence. 
 
 * Workflow A: Quantifies neuron 1 presynaptic sites and connections from neuron 1 to neuron 2. Requires a presynaptic channel and masks for neuron 1 and neuron 2.
 * Workflow B: Quantifies neuron 1 presynaptic sites and connections from neuron 1 to neuron 2. Requires a presynaptic channel, a postsynaptic channel restricted to neuron 2, and a neuron 1 mask.
@@ -58,19 +58,14 @@ Usage ([example](../examples/presynaptic_n1_to_n2.sh)):
 
     ./synapse_pipeline.nf --pipeline=presynaptic_n1_to_n2 [arguments]
 
-See [illustration of Workflow A](#synapse-prediction) above.
-This workflow:
+See the [schematic of Workflow A](#synapse-prediction) above. This workflow requires a presynaptic channel and neuron mask channels. If only one neuron mask is included, it will identify synaptic sites in that neuron. If two neuron masks are included it will identify presynaptic sites in one neuron mask and connections between the two neuron masks. This workflow:
 
 1) detects presynaptic sites using a 3D U-Net convolutional neural network
-2) 
-3)  presynaptic and postsynaptic channels
-4) identify presynaptic that colocalizes with neuron channel ("neuron 1 presynaptic")
-5) identify postsynaptic that colocalizes with neuron 1 presynaptic
-6) identify neuron 1 presynaptic that colocalizes with neuron 2 postsynaptic
+2) runs post-processing steps on this result which includes image closing, watershed segmentation and a size filter
+3) identifies post-processed presynaptic sites that colocalize with neuron 1
+4) identifies connections between neuron 1 and neuron 2 based on neuron 1 presyaptic site colocalization with neuron 2
 
-Assigns presynaptic sites to neuron 1 based on site colocalization with the neuron 1 mask and assigns connections between neuron 1 and neuron 2 based on neuron 1 presynaptic site colocalization with the neuron 2 mask.
-
-This workflow depends on masked neuron channels obtained with one of the [Neuron Segmentation Workflows](NeuronSegmentation.md). 
+This workflow requires on masked neuron channels obtained with one of the [Neuron Segmentation Workflows](NeuronSegmentation.md). 
 
 ### Required Parameters
 
@@ -89,6 +84,8 @@ This workflow depends on masked neuron channels obtained with one of the [Neuron
 Usage ([example](../examples/presynaptic_n1_to_postsynaptic_n2.sh)):
 
     ./synapse_pipeline.nf --pipeline presynaptic_n1_to_postsynaptic_n2 [arguments]
+
+See the [schematic of Workflow B](#synapse-prediction) above. This workflow requires a presynaptic channel, a postsynaptic channel, and a neuron mask channel. This workflow:
 
 When pre/postsynaptic sites are expressed in a neuron-specific manner, e.g. through the use of driver line, this workflow can:
 1) segment presynaptic and postsynaptic channels
