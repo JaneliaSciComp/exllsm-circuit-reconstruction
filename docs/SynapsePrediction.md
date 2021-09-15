@@ -58,7 +58,17 @@ Usage ([example](../examples/presynaptic_n1_to_n2.sh)):
 
     ./synapse_pipeline.nf --pipeline=presynaptic_n1_to_n2 [arguments]
 
-Assigns presynaptic sites to neurons based on site colocalization with neuron masks.
+See illustration of Workflow A(#ExLLSM-synapseworkflows) above.
+This workflow:
+
+1) detects presynaptic sites using a 3D U-Net convolutional neural network
+2) 
+3)  presynaptic and postsynaptic channels
+4) identify presynaptic that colocalizes with neuron channel ("neuron 1 presynaptic")
+5) identify postsynaptic that colocalizes with neuron 1 presynaptic
+6) identify neuron 1 presynaptic that colocalizes with neuron 2 postsynaptic
+
+Assigns presynaptic sites to neuron 1 based on site colocalization with the neuron 1 mask and assigns connections between neuron 1 and neuron 2 based on neuron 1 presynaptic site colocalization with the neuron 2 mask.
 
 This workflow depends on masked neuron channels obtained with one of the [Neuron Segmentation Workflows](NeuronSegmentation.md). 
 
