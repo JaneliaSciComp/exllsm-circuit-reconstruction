@@ -27,6 +27,10 @@ These parameters are required for all workflows:
 
 ## Global Optional Parameters
 
+Common use parameters
+
+Optional parameters to change the name of working_containers and working_datsets
+
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
 | --output_dir | |output directory for results
@@ -42,6 +46,15 @@ These parameters are required for all workflows:
 | --postsynaptic_stage2_percentage | 0.001 | Same as above for stage 2 postsynaptic processing. |
 | --postsynaptic_stage3_threshold | 400 | Same as above for stage 3 processing. |
 | --postsynaptic_stage3_percentage | 0.001 | Same as above for stage 3 processing. |
+
+| --with_pyramid | true | If set it generates the downsampling pyramid for all UNet and Post-UNet results |
+| --with_vvd | false | If set it converts the UNet and Post-UNet results to VVD. The base VVD output dir is set by --vvd_output_dir |
+| --vvd_output_dir | | base VVD output dir. If this is not set but --with_vvd is set then the default VVD output dir will be the 'vvd' sub-directory under the N5 container dir. The name of the VVD volume is based on the stage that created the volume: 'pre_synapse_seg', or 'pre_synapse_seg_n1', or 'pre_synapse_seg_n1_n2'. The current implementation is an all or nothing - it does not support to generate VVD files only for certain stages. |
+
+Optional parameters to change the name of working_containers and working_datsets
+
+| Argument   | Default | Description                                                                           |
+|------------|---------|---------------------------------------------------------------------------------------|
 | --working_container | `--pipeline` value | The default N5 container used for intermediate data |
 | --working_pre_synapse_container | Same as `--working_container` | The N5 pre synaptic container if the input is a TIFF stack; if the pre-synaptic data is already in N5 this is ignored |
 | --working_pre_synapse_dataset | 'pre_synapse/s0' | The N5 dataset if the input is a TIFF stack |
@@ -65,11 +78,6 @@ These parameters are required for all workflows:
 | --working_post_synapse_seg_n1_dataset | 'post_synapse_seg_pre_synapse_seg_n1/s0' | N5 dataset for post-synaptic segmentation after post processing with pre-synaptic segmentation and N1 mask |
 | --working_pre_synapse_seg_post_synapse_seg_n1_container | same as `--working_container` | N5 container after post processing pre-synaptic segmentation with N1 and with post-synaptic segmentation |
 | --working_pre_synapse_seg_post_synapse_seg_n1_dataset | 'pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1/s0' | N5 datasset after post processing pre-synaptic segmentation with N1 and with post-synaptic segmentation |
-| --with_pyramid | true | If set it generates the downsampling pyramid for all UNet and Post-UNet results |
-| --with_vvd | false | If set it converts the UNet and Post-UNet results to VVD. The base VVD output dir is set by --vvd_output_dir |
-| --vvd_output_dir | | base VVD output dir. If this is not set but --with_vvd is set then the default VVD output dir will be the 'vvd' sub-directory under the N5 container dir. The name of the VVD volume is based on the stage that created the volume: 'pre_synapse_seg', or 'pre_synapse_seg_n1', or 'pre_synapse_seg_n1_n2'. The current implementation is an all or nothing - it does not support to generate VVD files only for certain stages. |
-
-
 
 ## Workflow A: Neuron 1 Presynaptic to Neuron 2
 
