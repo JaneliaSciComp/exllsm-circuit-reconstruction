@@ -29,7 +29,7 @@ These parameters are required for all workflows:
 
 ## Frequently used Global Optional Parameters
 
-Aadditional rarely used Global Optional Parameters related to container naming are listed at the bottom of the page.
+Rarely used Global Optional Parameters related to container naming are listed at the bottom of the page.
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
