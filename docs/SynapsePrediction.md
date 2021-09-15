@@ -29,8 +29,6 @@ These parameters are required for all workflows:
 
 Common use parameters
 
-Optional parameters to change the name of working_containers and working_datsets
-
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
 | --output_dir | |output directory for results
