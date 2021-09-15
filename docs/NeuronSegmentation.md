@@ -44,6 +44,6 @@ Usage:
 | --connected_comps_block_size | 128,128,128 | Block size used for generating connected comps |
 | --connected_comps_pyramid | false | If true generates multiscale pyramids for connected components |
 
-## [Postprocessing for user-guided semi-automatic VVD Viewer segmentation](#post-vvd-semi-automatic-neuron-segmentation)
+## [Postprocessing for user-guided semi-automatic VVD Viewer segmentation](#image-processing.md/post-vvd-semi-automatic-neuron-segmentation)
 
 Workflow to threshold, 3D connect, and size filter neuron masks generated in VVD Viewer. 
