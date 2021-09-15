@@ -135,7 +135,7 @@ Usage:
 
     ./synapse_pipeline.nf --pipeline classify_synapses [arguments]
 
-Workflows A-C may not be suitable for all data and analysis needs. Synapse Segmentation and Synapse Segmentation Post-processing can be run independently to allow maximum flexibility and to reduce running redundant processes when analying connecitivty between multiple neuron pairs in a volume ([see below](#synapse-segmentation-post-processing). 
+Workflows A-C may not be suitable for all data and analysis needs. Synapse Segmentation and Synapse Segmentation Post-processing can be run independently to allow maximum flexibility and to reduce running redundant processes when analying connecitivty between multiple neuron pairs in a volume ([see below](#synapse-segmentation-post-processing)). 
 
 This will detect synaptic sites using a 3D U-Net convolutional neural network. 
 
