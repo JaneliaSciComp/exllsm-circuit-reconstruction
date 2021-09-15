@@ -58,12 +58,11 @@ Usage ([example](../examples/presynaptic_n1_to_n2.sh)):
 
     ./synapse_pipeline.nf --pipeline=presynaptic_n1_to_n2 [arguments]
 
-See the [schematic of Workflow A](#synapse-prediction) above. This workflow requires a presynaptic channel and neuron mask channels. If only one neuron mask is included, it will identify synaptic sites in that neuron. If two neuron masks are included it will identify presynaptic sites in one neuron mask and connections between the two neuron masks. This workflow:
+See the [schematic of Workflow A](#synapse-prediction) above. This workflow requires a presynaptic channel and neuron mask channels. If only one neuron mask is provided, it will identify synaptic sites in that neuron. If two neuron masks are included it will identify presynaptic sites in one neuron mask and connections between the two neuron masks. This workflow:
 
 1) detects presynaptic sites using a 3D U-Net convolutional neural network
-2) runs post-processing steps on this result which includes image closing, watershed segmentation and a size filter
-3) identifies post-processed presynaptic sites that colocalize with neuron 1
-4) identifies connections between neuron 1 and neuron 2 based on neuron 1 presyaptic site colocalization with neuron 2
+2) runs post-processing steps on this result (image closing, watershed segmentation and a size filter) and identifies post-processed presynaptic sites that colocalize with neuron 1
+3) identifies connections between neuron 1 and neuron 2 based on neuron 1 presyaptic site colocalization with neuron 2
 
 This workflow requires on masked neuron channels obtained with one of the [Neuron Segmentation Workflows](NeuronSegmentation.md). 
 
@@ -85,13 +84,12 @@ Usage ([example](../examples/presynaptic_n1_to_postsynaptic_n2.sh)):
 
     ./synapse_pipeline.nf --pipeline presynaptic_n1_to_postsynaptic_n2 [arguments]
 
-See the [schematic of Workflow B](#synapse-prediction) above. This workflow requires a presynaptic channel, a postsynaptic channel, and a neuron mask channel. This workflow:
+See the [schematic of Workflow B](#synapse-prediction) above. This workflow requires a presynaptic channel, a postsynaptic channel, and a neuron mask channel. It is designed to analyze postsynaptic data that is genetically restricted to identified neurons, but can be utilized in other ways. This workflow:
 
-When pre/postsynaptic sites are expressed in a neuron-specific manner, e.g. through the use of driver line, this workflow can:
-1) segment presynaptic and postsynaptic channels
-2) identify presynaptic that colocalizes with neuron channel ("neuron 1 presynaptic")
-3) identify postsynaptic that colocalizes with neuron 1 presynaptic
-4) identify neuron 1 presynaptic that colocalizes with neuron 2 postsynaptic
+1) detects presynaptic and postsynaptic sites using a 3D U-Net convolutional neural network
+2) runs post-processing steps on the presynaptic channel result (image closing, watershed segmentation and a size filter) and identifies post-processed presynaptic sites that colocalize with neuron 1
+3) runs post-processing steps on the postsynaptic channel result (image closing, watershed segmentation and a size filter) and identifies connections as post-processed postsynaptic sites that colocalize with neuron 1 presynaptic sites  
+4) identifies presynpatic sites that colocalize with stage 3 results
 
 This workflow depends on masked neuron channels obtained with one of the [Neuron Segmentation Workflows](NeuronSegmentation.md). 
 
@@ -107,14 +105,18 @@ This workflow depends on masked neuron channels obtained with one of the [Neuron
 | --postsynapse_in_dataset | Post-synaptic dataset if the input is N5  |
 
 
-
 ## Workflow C: Presynaptic in Volume
 
 Usage: 
 
     ./synapse_pipeline.nf --pipeline presynaptic_in_volume [arguments]
 
-This workflow ignores neurons and identifies all presynaptic sites in the given volume.
+This workflow ignores neurons and identifies all presynaptic sites in the given volume. However, if a neuron mask is included, it will identify synaptic sites in that neuron.
+
+This workflow:
+
+1) detects presynaptic sites using a 3D U-Net convolutional neural network
+2) runs post-processing steps on this result (image closing, watershed segmentation and a size filter)
 
 ### Required Parameters
 
@@ -122,12 +124,11 @@ This workflow ignores neurons and identifies all presynaptic sites in the given 
 |------------|---------------------------------------------------------------------------------------|
 | --presynapse | Volume (TIFF series or n5) containing synaptic channel  |
 | --presynapse_in_dataset | Pre-synaptic dataset if the input is N5  |
+
+| --presynaptic_stage2_threshold | 300 | This is not a required parameter, but if it is provided will specify the minimum voxel size of each synaptic site in stage 2. This works with or without a neuron mask |
 | --n1 | This is not a required parameter but if it is provided it will be used to mask the classified presynaptic regions, otherwise it will identify all regions in the volume and no mask will be used   |
 | --n1_in_dataset | Neuron 1 dataset if the neuron input stack is an N5 container |
-| --working_post_synapse_seg_container | The N5 container used for the post processed presynaptic segmentation result if no mask is provided |
-| --working_post_synapse_seg_dataset | The dataset inside the N5 container used for post processed presynaptic segmentation if no mask neuron is provided |
-| --working_pre_synapse_seg_n1_container | The N5 container used for the post processed presynaptic segmentation result when neuron mask is used |
-| --working_pre_synapse_seg_n1_dataset | The dataset inside the N5 container used for post processed presynaptic segmentation when a neuron mask is used |
+| --presynaptic_stage2_percentage | 0.5 | This is not a required parameter, but if it is provided will specify the minimum presynaptic site % overlap with neuron 1 in order to be assigned to neuron 1 in stage 2. Objects below this threshold are removed. 1 = whether the centroid falls within the mask. |
 
 ### Rarely used Global Optional Parameters 
 
