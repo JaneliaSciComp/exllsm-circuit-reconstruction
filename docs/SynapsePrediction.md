@@ -111,7 +111,7 @@ Usage:
 
     ./synapse_pipeline.nf --pipeline presynaptic_in_volume [arguments]
 
-This workflow ignores neurons and identifies all presynaptic sites in the given volume. However, if a neuron mask is included, it will identify synaptic sites in that neuron.
+See the [schematic of Workflow C](#synapse-prediction) above. This workflow ignores neurons and identifies all synaptic sites labeled in a single channel in the given volume. However, if a neuron mask is included, it will identify synaptic sites in that neuron.
 
 This workflow:
 
@@ -124,7 +124,6 @@ This workflow:
 |------------|---------------------------------------------------------------------------------------|
 | --presynapse | Volume (TIFF series or n5) containing synaptic channel  |
 | --presynapse_in_dataset | Pre-synaptic dataset if the input is N5  |
-
 | --presynaptic_stage2_threshold | 300 | This is not a required parameter, but if it is provided will specify the minimum voxel size of each synaptic site in stage 2. This works with or without a neuron mask |
 | --n1 | This is not a required parameter but if it is provided it will be used to mask the classified presynaptic regions, otherwise it will identify all regions in the volume and no mask will be used   |
 | --n1_in_dataset | Neuron 1 dataset if the neuron input stack is an N5 container |
