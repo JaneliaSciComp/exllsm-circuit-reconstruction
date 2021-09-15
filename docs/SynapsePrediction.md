@@ -120,13 +120,13 @@ This workflow:
 
 ### Required Parameters
 
-| Argument   | Description                                                                           |
+| Argument   | Default | Description                                                                           |
 |------------|---------------------------------------------------------------------------------------|
-| --presynapse | Volume (TIFF series or n5) containing synaptic channel  |
-| --presynapse_in_dataset | Pre-synaptic dataset if the input is N5  |
+| --presynapse | | |Volume (TIFF series or n5) containing synaptic channel  |
+| --presynapse_in_dataset || | Pre-synaptic dataset if the input is N5  |
 | --presynaptic_stage2_threshold | 300 | This is not a required parameter, but if it is provided will specify the minimum voxel size of each synaptic site in stage 2. This works with or without a neuron mask. |
-| --n1 | This is not a required parameter but if it is provided, only synaptic sites that colocalize with this mask will be identified. |
-| --n1_in_dataset | Neuron 1 dataset if the neuron input stack is an N5 container |
+| --n1 || | This is not a required parameter but if it is provided, only synaptic sites that colocalize with this mask will be identified. |
+| --n1_in_dataset || | Neuron 1 dataset if the neuron input stack is an N5 container |
 | --presynaptic_stage2_percentage | 0.5 | This is not a required parameter, but if it is provided will specify the minimum presynaptic site % overlap with neuron 1 in order to be assigned to neuron 1 in stage 2. Objects below this threshold are removed. 1 = whether the centroid falls within the mask. |
 
 ### Rarely used Global Optional Parameters 
