@@ -29,7 +29,7 @@ These parameters are required for all workflows:
 
 ## Frequently used Global Optional Parameters
 
-[Rarely used Global Optional Parameters](#rarely-used-global-optional-parameters) related to container naming are listed at the bottom of the page.
+These parameters specify computation parameters and key aspects of data analysis. [Rarely used Global Optional Parameters](#rarely-used-global-optional-parameters) related to container naming are listed at the bottom of the page.
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
@@ -74,16 +74,7 @@ This workflow depends on masked neuron channels obtained with one of the [Neuron
 | --presynapse_in_dataset | Pre-synaptic dataset if the input is N5  |
 
 
-## Workflow B: Neuron 1 Presynaptic to Neuron 2 and Neuron 2 Presynaptic to Neuron 1
-
-Usage:
-
-    ./synapse_pipeline.nf --pipeline presynaptic_n1_to_n2 [arguments]
-
-This is the same as Workflow A but you would also reverse `--n1` and `--n2`.
-
-
-## Workflow C: Neuron 1 Presynaptic to Neuron 2 Restricted Postsynaptic 
+## Workflow B: Neuron 1 Presynaptic to Neuron 2 Restricted Postsynaptic 
 
 Usage ([example](../examples/presynaptic_n1_to_postsynaptic_n2.sh)):
 
@@ -110,7 +101,7 @@ This workflow depends on masked neuron channels obtained with one of the [Neuron
 
 
 
-## Workflow D: Presynaptic in Volume
+## Workflow C: Presynaptic in Volume
 
 Usage: 
 
