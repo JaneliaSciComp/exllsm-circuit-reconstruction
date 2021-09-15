@@ -1,7 +1,14 @@
 # Neuron Segmentation Workflows
 
-Segmentation of neurons can be automated or semi-automated. This document describes how to run the
-automatic neuron segmentation.
+Segmentation of neurons can be semi-automatic or automatic. This document describes a part of the semi-automatic workflow and describes how to run the
+automatic neuron segmentation workflow.
+
+## Semi-automatic Pipeline
+
+[VVD Viewer](https://github.com/JaneliaSciComp/VVDViewer) is an open-source interactive rendering tool for light microscopy data visualization and analysis. We have developed VVD Viewer to allow user-guided, semi-automatic neuron segmentation of large ExLLSM image volumes. 
+
+ExLLSM image volumes are first [converted to VVD Viewer pyramid files](./ImageProcessing.md). Neurons and are then semi-automatically segmented in VVD Viewer and saved as a TIFF series. A postprocessing workflow is required to convert the TIFF series to the final neuron mask used to [analyze connectivity](./SynapsePrediction.md). These postprocessing steps include pixel intensity thresholding, 3D component connecting, N5 component analysis, voxel shape conversion, and component size filtering. Each step is described in [Image Processing](./ImageProcessing.md) and we have generated a [VVD Neuron Segmentation Postprocessing Workflow](./ImageProcessing.md#vvd-neuron-segmentation-postprocessing-workflow) to run the entire postprocessing pipeline in sequence.
+
 
 ## Automatic Pipeline
 
@@ -44,8 +51,4 @@ Usage:
 | --connected_comps_block_size | 128,128,128 | Block size used for generating connected comps |
 | --connected_comps_pyramid | false | If true generates multiscale pyramids for connected components |
 
-## Semi-automatic Pipeline
 
-[VVD Viewer](https://github.com/JaneliaSciComp/VVDViewer) is an open-source interactive rendering tool for light microscopy data visualization and analysis. We have developed VVD Viewer to allow user-guided, semi-automatic neuron segmentation of large ExLLSM image volumes. 
-
-ExLLSM image volumes are first [converted to VVD Viewer pyramid files](./ImageProcessing.md). Neurons and are then semi-automatically segmented in VVD Viewer and saved as a TIFF series. A postprocessing workflow is required to convert the TIFF series to the final neuron mask used to [analyze connectivity](./SynapsePrediction.md). These postprocessing steps include pixel intensity thresholding, 3D component connecting, N5 component analysis, voxel shape conversion, and component size filtering. Each step is described in [Image Processing](./ImageProcessing.md) and we have generated a [VVD Neuron Segmentation Postprocessing Workflow](./ImageProcessing.md#post-vvd-semi-automatic-neuron-segmentation) to run the entire postprocessing pipeline in sequence.
