@@ -52,7 +52,7 @@ These parameters specify computation parameters and key aspects of data analysis
 
 
 
-## Workflow A: Neuron 1 Presynaptic to Neuron 2
+## Workflow A
 
 Usage ([example](../examples/presynaptic_n1_to_n2.sh)):
 
@@ -78,13 +78,13 @@ This workflow requires on masked neuron channels obtained with one of the [Neuro
 | --presynapse_in_dataset | Pre-synaptic dataset if the input is N5; i.e. c2/s0  |
 
 
-## Workflow B: Neuron 1 Presynaptic to Neuron 2 Restricted Postsynaptic 
+## Workflow B
 
 Usage ([example](../examples/presynaptic_n1_to_postsynaptic_n2.sh)):
 
     ./synapse_pipeline.nf --pipeline presynaptic_n1_to_postsynaptic_n2 [arguments]
 
-See the [schematic of Workflow B](#synapse-prediction) above. This workflow requires a presynaptic channel, a postsynaptic channel, and a neuron mask channel. It is designed to analyze postsynaptic data that is genetically restricted to identified neurons, but can be utilized in other ways. This workflow:
+See the [schematic of Workflow B](#synapse-prediction) above. This workflow requires a presynaptic channel, a postsynaptic channel, and a neuron mask channel. It is designed to analyze postsynaptic data that is genetically restricted to identified neurons, but can be utilized in other ways. It will identify presynaptic sites in the neuron mask and connections between the neuron 1 presnaptic sites and the postsynaptic sites. This workflow:
 
 1) detects presynaptic and postsynaptic sites using a 3D U-Net convolutional neural network
 2) runs post-processing steps on the presynaptic channel result (image closing, watershed segmentation and a size filter) and identifies post-processed presynaptic sites that colocalize with neuron 1
@@ -105,7 +105,7 @@ This workflow depends on masked neuron channels obtained with one of the [Neuron
 | --postsynapse_in_dataset | Post-synaptic dataset if the input is N5; i.e. c2/s0  |
 
 
-## Workflow C: Presynaptic in Volume
+## Workflow C
 
 Usage: 
 
