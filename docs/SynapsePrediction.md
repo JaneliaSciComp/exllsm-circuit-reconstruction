@@ -29,7 +29,7 @@ These parameters are required for all workflows:
 
 ## Global Optional Parameters
 
-Frequently used parameters
+Frequently used parameters:
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
@@ -40,17 +40,17 @@ Frequently used parameters
 | --unet_cpus | 4 | Number of CPUs to use for each U-NET prediction job |
 | --postprocessing_cpus | 3 | Number of CPUs to use for post-processing (e.g. image closing, watershed, quantification, etc.) |
 | --volume_partition_size | 512 | Size of sub-volumes to process in parallel. Should be a multiple of --block_size. |
-| --presynaptic_stage2_threshold | 300 | Minimum voxel size of each presynaptic site in Workflows A-C. specifically, voxel threshold (smallest blob to include), for stage 2 presynaptic processing |
-| --presynaptic_stage2_percentage | 0.5 | minimum synaptic site % overlap with neuron 1 in order to be assigned to neuron 1. objects below this threshold are removed. 1 = whether the centroid falls within the mask. |
-| --postsynaptic_stage2_threshold | 200 | minimum voxel size of the postsynaptic site in Workflow B. |
-| --postsynaptic_stage2_percentage | 0.001 | minimum neuron 1 presynaptic site % overlap with neuron 2 in order to be assigned a connection in Workflow A. objects below this threshold are removed. 1 = whether the centroid falls within the mask.Same as above for stage 2 postsynaptic processing. |
-| --postsynaptic_stage3_threshold | 400 | Same as above for stage 3 processing. |
-| --postsynaptic_stage3_percentage | 0.001 | Same as above for stage 3 processing. |
-| --with_pyramid | true | If set it generates the downsampling pyramid for all UNet and Post-UNet results |
-| --with_vvd | false | If set it converts the UNet and Post-UNet results to VVD. The base VVD output dir is set by --vvd_output_dir |
-| --vvd_output_dir | | base VVD output dir. If this is not set but --with_vvd is set then the default VVD output dir will be the 'vvd' sub-directory under the N5 container dir. The name of the VVD volume is based on the stage that created the volume: 'pre_synapse_seg', or 'pre_synapse_seg_n1', or 'pre_synapse_seg_n1_n2'. The current implementation is an all or nothing - it does not support to generate VVD files only for certain stages. |
+| --presynaptic_stage2_threshold | 300 | Minimum voxel size of each presynaptic site in stage 2 of Workflows A-C. |
+| --presynaptic_stage2_percentage | 0.5 | Minimum presynaptic site % overlap with neuron 1 in order to be assigned to neuron 1 in stage 2 of Workflows A-C. Objects below this threshold are removed. 1 = whether the centroid falls within the mask. |
+| --postsynaptic_stage2_threshold | 200 | Minimum voxel size of the postsynaptic site in stage 3 of Workflow B. |
+| --postsynaptic_stage2_percentage | 0.001 | Minimum synaptic site % overlap with synaptic partner to be assigned a connections. Stage 3 in Workflows A-B (see Workflow specifics below). Objects below this threshold are removed. 1 = whether the centroid falls within the mask. |
+| --postsynaptic_stage3_threshold | 400 | Minimum voxel size of each presynaptic site in Stage 4 of Workflow B. |
+| --postsynaptic_stage3_percentage | 0.001 | Minimum presynaptic site % overlap with postsynaptic partner to be assigned a connections. Stage 4 in Workflow B. Objects below this threshold are removed. 1 = whether the centroid falls within the mask. |
+| --with_pyramid | true | If set it generates the downsampling N5 pyramid for all UNet and Post-processing results. |
+| --with_vvd | false | If set it creates VVD files of the UNet and Post-processing results. The base VVD output dir is set by --vvd_output_dir |
+| --vvd_output_dir | | base VVD output dir. If this is not set but --with_vvd is set then the default VVD output dir will be the 'vvd' sub-directory under the N5 container dir. The name of the VVD volume is based on the stage that created the volume: 'pre_synapse_seg', or 'pre_synapse_seg_n1', or 'pre_synapse_seg_n1_n2'. The current implementation is an all or nothing - it does not support generating VVD files only for certain stages. |
 
-Optional parameters to change the name of working_containers and working_datsets
+Rarely used parameters to change the name of working_containers and working_datsets:
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
