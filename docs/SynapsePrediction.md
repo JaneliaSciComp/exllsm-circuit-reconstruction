@@ -131,7 +131,9 @@ This workflow:
 
 ## Synapse Segmentation
 
-Usage: ./synapse_pipeline.nf --pipeline classify_synapses
+Usage: 
+
+    ./synapse_pipeline.nf --pipeline classify_synapses [arguments]
 
 Workflows A-C may not be suitable for all data and analysis needs. Synapse Segmentation and Synapse Segmentation Post-processing can be run independently to allow maximum flexibility and to reduce running redundant processes when analying connecitivty between multiple neuron pairs in a volume ([see below](#synapse-segmentation-post-processing). 
 
@@ -146,7 +148,9 @@ This will detect synaptic sites using a 3D U-Net convolutional neural network.
 
 ## Synapse Segmentation Post-processing
 
-Usage ./synapse_pipeline.nf --pipeline collocate_synapses
+Usage:
+
+    ./synapse_pipeline.nf --pipeline collocate_synapses [arguments]
 
 Workflows A-C may not be suitable for all data and analysis needs. Synapse Segmentation and Synapse Segmentation Post-processing can be run independently to allow maximum flexibility and to reduce running redundant processes when analying connecitivty between multiple neuron pairs in a volume. For example, imagine you wanted to quantify connectivity reciprocally between two neurons (instead of quantifying connectivity between two neurons in just one direction as described in Workflow A). Using only Workflow A to do this would unecessarily run Synapse Segmentation on the same presynaptic data twice. 
 
