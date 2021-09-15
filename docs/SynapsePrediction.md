@@ -4,9 +4,8 @@ Synapse prediction can be run in multiple workflows, depending on the experiment
 
 See below for details about the workflows:
 * Workflow A: Neuron 1 Presynaptic to Neuron 2
-* Workflow B: Neuron 1 Presynaptic to Neuron 2 and Neuron 2 Presynaptic to Neuron 1
-* Workflow C: Neuron 1 Presynaptic to Neuron 2 Restricted Postsynaptic 
-* Workflow D: Presynaptic in Volume
+* Workflow B: Neuron 1 Presynaptic to Neuron 2 Restricted Postsynaptic 
+* Workflow C: Presynaptic in Volume
 * Synapse Segmentation: Apply the U-Net segmentation for a pre-synaptic channel
 * Synapse Segmentation Post Processing: Apply the watershed segmentation to a volume which already has the U-Net segmentation
 
