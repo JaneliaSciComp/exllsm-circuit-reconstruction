@@ -4,14 +4,14 @@ Synapse prediction can be run in multiple workflows, depending on the experiment
 
 See below for details about each workflow:
 
-* [Synapse Segmentation](synapse-segmentation): Synaptic structures are detected using a 3D U-Net convolutional neural network.
-* [Synapse Segmentation Post-processing](synapse-segmentation-post-processing): Applies image closing, watershed segmentation, optional size filter, and optional colocalization analysis to Synapse Segmentation results. 
+* [Synapse Segmentation](#synapse-segmentation): Synaptic structures are detected using a 3D U-Net convolutional neural network.
+* [Synapse Segmentation Post-processing](#synapse-segmentation-post-processing): Applies image closing, watershed segmentation, optional size filter, and optional colocalization analysis to Synapse Segmentation results. 
 
 The following workflows integrate Synapse Segmentation and Synapse Segmentation Post-processing steps to automatically run frequently used analyses in sequence. 
 
-* [Workflow A](workflow-a): Quantifies neuron 1 presynaptic sites and connections from neuron 1 to neuron 2. Requires a presynaptic channel and masks for neuron 1 and neuron 2.
-* [Workflow B](workflow-b): Quantifies neuron 1 presynaptic sites and connections from neuron 1 to neuron 2. Requires a presynaptic channel, a postsynaptic channel restricted to neuron 2, and a neuron 1 mask.
-* [Workflow C](workflow-c): Quantifies synaptic sites in a volume. No neuron information is needed, but synaptic sites in a neuron can be quantified. Requires a synaptic channel with optional neuron mask. 
+* [Workflow A](#workflow-a): Quantifies neuron 1 presynaptic sites and connections from neuron 1 to neuron 2. Requires a presynaptic channel and masks for neuron 1 and neuron 2.
+* [Workflow B](#workflow-b): Quantifies neuron 1 presynaptic sites and connections from neuron 1 to neuron 2. Requires a presynaptic channel, a postsynaptic channel restricted to neuron 2, and a neuron 1 mask.
+* [Workflow C](#workflow-c): Quantifies synaptic sites in a volume. No neuron information is needed, but synaptic sites in a neuron can be quantified. Requires a synaptic channel with optional neuron mask. 
 
 ![ExLLSM_synapseworkflows](https://user-images.githubusercontent.com/8125635/133482088-9c448f84-2d21-42fd-99f5-107ae576b4ff.png)
 
