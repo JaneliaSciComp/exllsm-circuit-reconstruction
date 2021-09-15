@@ -5,7 +5,7 @@ Synapse prediction can be run in multiple workflows, depending on the experiment
 See below for details about each workflow:
 
 * Synapse Segmentation: Synaptic structures are detected using a 3D U-Net convolutional neural network.
-* Synapse Segmentation Post-processing: Applies watershed segmentation, optional size filter, and optional colocalization analysis with a neuron mask to Synapse Segmentation results. 
+* Synapse Segmentation Post-processing: Applies watershed segmentation, optional size filter, and optional colocalization analysis to Synapse Segmentation results. 
 
 The following workflows integrate Synapse Segmentation and Synapse Segmentation Post-processing. 
 
