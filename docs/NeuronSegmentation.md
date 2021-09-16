@@ -10,7 +10,9 @@ ExLLSM image volumes are first [converted to VVD Viewer pyramid files](./ImagePr
 
 ## Automatic Pipeline
 
-The automatic neuron segmentation workflow runs 3D U-Net classification followed by an optional post-processing steps. The output of the U-Net is a probability array with voxel values between 0 and 1. The optional postprocessing steps include voxel intensity thresholding to remove low confidence voxels, a voxel shape change, and a voxel size threshold to remove small components. When running neuron segmentation on large image volumes, the volume is partitioned into sub-volumes. The U-Net is run on each sub-volume and reassembled. Postprocessing steps are run on the assembled volume. The pipeline also includes an optional step to precompute a scaling factor for each tile. The alternative is to compuate a scaling factor on each tile (recommended).
+The automatic neuron segmentation workflow runs 3D U-Net classification followed by an optional post-processing steps. 
+
+The output of the U-Net is a probability array with voxel values between 0 and 1. The optional postprocessing steps include voxel intensity thresholding to remove low confidence voxels, a voxel shape change, and a voxel size threshold to remove small components. When running neuron segmentation on large image volumes, the volume is partitioned into sub-volumes. The U-Net is run on each sub-volume and reassembled. Postprocessing steps are run on the assembled volume. The pipeline also includes an optional step to precompute a scaling factor for each tile. The alternative is to compuate a scaling factor on each tile (recommended).
 
 Usage:
 
