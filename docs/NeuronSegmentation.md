@@ -10,7 +10,7 @@ ExLLSM image volumes are first [converted to VVD Viewer pyramid files](./ImagePr
 
 ## Automatic Pipeline
 
-The automatic neuron segmentation workflow runs 3D U-Net classification followed by an optional post-processing steps. 
+The automatic neuron segmentation workflow runs 3D U-Net classification followed by optional post-processing steps. 
 
 The output of the U-Net is a probability array with voxel values between 0 and 1. The optional postprocessing steps include voxel intensity thresholding to remove low confidence voxels, a voxel shape change, and a voxel size threshold to remove small components. When running neuron segmentation on large image volumes, the volume is partitioned into sub-volumes. The U-Net is run on each sub-volume and reassembled. Postprocessing steps are run on the assembled volume. The pipeline also includes an optional step to precompute a scaling factor for each tile. The alternative is to compuate a scaling factor on each tile (recommended).
 
@@ -29,26 +29,26 @@ Usage:
 | --max_scaling_tiles_per_job | 40 | This is the value used for parallelizing the scaling factor computation so that in each job there will not be more than the specified number of tiles used to to compute the scaling factor. The final scaling factor will average the values returned by each individual job |
 | --neuron_scaling_plots_dir | | If this is set the scaling factor jobs will output the 'Huber Regression' plots in this directory, for all tiles used for scaling factor computation |
 | --neuron_scaling_cpus | 1 | CPU resources required for calculating the scaling factor |
-| --neuron_scaling_memory| 1 GB | memory resources needed for scaling factor jobs; for larger `neuron_scaling_partition_size` you may have to increase the memory required by each job |
-| --neuron_mask_as_binary | false | flag to output the neuron mask as binary |
-| --with_neuron_post_segmentation | true | if set run neuron segmentation post-processing |
+| --neuron_scaling_memory| 1 GB | Memory resources needed for scaling factor jobs; for larger `neuron_scaling_partition_size` you may have to increase the memory required by each job |
+| --neuron_mask_as_binary | false | Flag to output the neuron mask as binary |
+| --with_neuron_post_segmentation | true | If set run neuron segmentation post-processing |
 | --neuron_model| | location of the U-Net model |
-| --neuron_input_dataset | /s0 | default N5 dataset used for segmentation |
-| --neuron_output_dataset | /s0 | default N5 dataset of the result of the segmentation |
+| --neuron_input_dataset | /s0 | N5 dataset to segmentation |
+| --neuron_output_dataset | /s0 | Output N5 dataset of the segmentation result |
 | --neuron_seg_model_in_dims | 220,220,220 | Model input shape |
 | --neuron_seg_model_out_dims | 132,132,132 | Model output shape |
-| --neuron_seg_high_th | 0.98 | high confidence threshold for post process flood filling |
-| --neuron_seg_low_th | 0.2 | low confidence threshold for post process flood filling |
+| --neuron_seg_high_th | 0.98 | High confidence threshold for post process flood filling |
+| --neuron_seg_low_th | 0.2 | Low confidence threshold for post process flood filling |
 | &#x2011;&#x2011;neuron_seg_small_region_prob_th | 0.9 | small region probability threshold |
 | --neuron_seg_small_region_size_th | 1000 | small region size threshold |
 | --neuron_segmentation_cpus | 1 | CPU resources required for each segmentation job |
 | --neuron_segmentation_memory | 1 G | Memory resources required for each segmentation job |
-| --with_connected_comps | true | If true runs the N5 Spark based connected components |
+| --with_connected_comps | true | If true runs the N5 Spark based component analysis. This is necessary to change voxel shape, apply a voxel intensity threhsold, and a component size filter. |
 | --connected_dataset | c1/s0 | default dataset used for connected components |
-| --connected_pixels_shape | diamond | Shape used for connected components |
-| --min_connected_pixels | 2000 | Min pixels threshold used to decide whether to keep the component or not |
-| --connected_pixels_threshold | .8 | threshold value for neuron connected components. It is a double value < 1 because the result of the segmentation is a probability array. |
-| --connected_comps_block_size | 128,128,128 | Block size used for generating connected comps |
-| --connected_comps_pyramid | false | If true generates multiscale pyramids for connected components |
+| --connected_pixels_shape | diamond | Shape used for connected components. Alternative option is 'box' |
+| --min_connected_pixels | 2000 | Components below this size are discarded from final result. |
+| --connected_pixels_threshold | .8 | Pixel intensity threshold value for neuron component analysis. It is a double value < 1 because the result of the segmentation is a probability array. |
+| --connected_comps_block_size | 128,128,128 | Block size used for generating component analysis results. |
+| --connected_comps_pyramid | false | If true generates multiscale N5 pyramids for component analysis results. |
 
 
