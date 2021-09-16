@@ -37,13 +37,13 @@ Usage:
 | --neuron_output_dataset | /s0 | Output N5 dataset of the segmentation result |
 | --neuron_seg_model_in_dims | 220,220,220 | Model input shape |
 | --neuron_seg_model_out_dims | 132,132,132 | Model output shape |
-| --neuron_seg_high_th | 0.98 | High confidence threshold for post process flood filling |
-| --neuron_seg_low_th | 0.2 | Low confidence threshold for post process flood filling |
-| &#x2011;&#x2011;neuron_seg_small_region_prob_th | 0.9 | small region probability threshold |
-| --neuron_seg_small_region_size_th | 1000 | small region size threshold |
+| --neuron_seg_high_th | 0.98 | If --with_neuron_post_segmentation = true: High confidence threshold for postprocess flood filling step. |
+| --neuron_seg_low_th | 0.2 | If --with_neuron_post_segmentation = true: Low confidence threshold for postprocess flood filling step. |
+| &#x2011;&#x2011;neuron_seg_small_region_prob_th | 0.9 | If --with_neuron_post_segmentation = true: Small region probability threshold |
+| --neuron_seg_small_region_size_th | 1000 | If --with_neuron_post_segmentation = true: Small region size threshold |
 | --neuron_segmentation_cpus | 1 | CPU resources required for each segmentation job |
 | --neuron_segmentation_memory | 1 G | Memory resources required for each segmentation job |
-| --with_connected_comps | true | If true runs the N5 Spark based component analysis. This is necessary to change voxel shape, apply a voxel intensity threhsold, and a component size filter. |
+| --with_connected_comps | true | If true runs the N5 spark based component analysis. This is necessary to change voxel shape, apply a voxel intensity threhsold on the U-Net probability array, and a component size filter. |
 | --connected_dataset | c1/s0 | default dataset used for connected components |
 | --connected_pixels_shape | diamond | Shape used for connected components. Alternative option is 'box' |
 | --min_connected_pixels | 2000 | Components below this size are discarded from final result. |
