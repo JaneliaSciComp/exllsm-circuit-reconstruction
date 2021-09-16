@@ -12,7 +12,11 @@ ExLLSM image volumes are first [converted to VVD Viewer pyramid files](./ImagePr
 
 The automatic neuron segmentation workflow runs 3D U-Net classification followed by optional post-processing steps. 
 
-The output of the U-Net is a probability array with voxel values between 0 and 1. The optional postprocessing steps include voxel intensity thresholding to remove low confidence voxels, a voxel shape change, and a voxel size threshold to remove small components. When running neuron segmentation on large image volumes, the volume is partitioned into sub-volumes. The U-Net is run on each sub-volume and reassembled. Postprocessing steps are run on the assembled volume. The pipeline also includes an optional step to precompute a scaling factor for each tile. The alternative is to compuate a scaling factor on each tile (recommended).
+The output of the U-Net is a probability array with voxel values between 0 and 1. The optional postprocessing steps include voxel intensity thresholding to remove low confidence voxels, a voxel shape change, and a voxel size threshold to remove small components. 
+
+There are multiple methods to run the postprocessing steps. Based on testing, the current recommendation is to set --with_neuron_post_segmentation to false and --with_connected_comps to true. Then use N5 connected components to apply a voxel intensity threhsold on the U-Net probability array, change voxel shape, and to apply a component size filter. 
+
+When running neuron segmentation on large image volumes, the volume is partitioned into sub-volumes. The U-Net is run on each sub-volume and reassembled. Postprocessing steps are run on the assembled volume. The pipeline also includes an optional step to precompute a scaling factor for each tile. The alternative is to compuate a scaling factor on each tile (recommended).
 
 Usage:
 
@@ -43,7 +47,7 @@ Usage:
 | --neuron_seg_small_region_size_th | 1000 | If --with_neuron_post_segmentation = true: Small region size threshold |
 | --neuron_segmentation_cpus | 1 | CPU resources required for each segmentation job |
 | --neuron_segmentation_memory | 1 G | Memory resources required for each segmentation job |
-| --with_connected_comps | true | If true runs the N5 spark based component analysis. This is necessary to change voxel shape, apply a voxel intensity threhsold on the U-Net probability array, and a component size filter. |
+| --with_connected_comps | true | If true runs the N5 spark based connected components analysis. This is necessary to change voxel shape, apply a voxel intensity threhsold on the U-Net probability array, and a component size filter. |
 | --connected_dataset | c1/s0 | default dataset used for connected components |
 | --connected_pixels_shape | diamond | Shape used for connected components. Alternative option is 'box' |
 | --min_connected_pixels | 2000 | Components below this size are discarded from final result. |
