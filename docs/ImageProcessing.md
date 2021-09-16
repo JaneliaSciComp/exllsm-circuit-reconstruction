@@ -2,15 +2,18 @@
 
 This set of workflows includes various image processing tasks:
 
-* ROI cropping
-* 3D mask connection
-* Thresholding
-* Connected components
-* Multiscale pyramid generation
-* MIP generation
-* TIFF to N5/VVD conversion
-* N5 to TIFF/VVD conversion
-* N5 resaving
+* [ROI cropping](#roi-cropping)
+* [3D component connection](#3d-component-connection)
+* [Pixel intensity thresholding](#pixel-intensity-thresholding)
+* [Connected components analysis](#connected-components-analysis)
+* [Pixel shape change](#connected-components-analysis)
+* [Pixel size thresholding](#connected-components-analysis)
+* [MIP generation](#tiff-converter)
+* [TIFF to N5/VVD conversion](#tiff-converter)
+* [N5 to TIFF/VVD conversion](#n5-converter)
+* [N5 multiscale pyramid generation](#n5-converter)
+* [N5 resaving](#n5-converter)
+* [VVD Neuron Segmentation Postprocessing Workflow](#vvd-neuron-segmentation-postprocessing-workflow)
 
 ## Global Optional Parameters
 
@@ -50,7 +53,7 @@ Usage:
 | --crop_cpus | 24 | Number of CPUs to use for cropping process |
 | --crop_mem_gb | 16 | Amount of memory (GB) to allocate for cropping process |
 
-## 3D mask connection
+## 3D component connection
 
 Converts an input TIFF series into a block-based format, then runs a connection algorithm, and then converts back to TIFF series.
 
@@ -79,7 +82,7 @@ Usage:
 | --connect_mask_cpus | 32 | Number of CPUs to use for connecting mask |
 | --connect_mask_mem_gb | 192 | Amount of memory (GB) to allocate for connecting mask |
 
-## Thresholding
+## Pixel intensity thresholding
 
 Applies a thresholding operation to a TIFF series.
 
@@ -102,7 +105,7 @@ Usage:
 | --threshold_cpus | 24 | Number of CPUs to use for thresholding mask |
 | --threshold_mem_gb | 16 | Amount of memory (GB) to allocate for thresholding mask |
 
-## Connected Components
+## Connected Components Analysis
 
 Uses [n5-spark](https://github.com/saalfeldlab/n5-spark) to find and label all connected components in a binary mask extracted from the input N5 dataset, and save the relabeled dataset as an uint64 output dataset.
 
