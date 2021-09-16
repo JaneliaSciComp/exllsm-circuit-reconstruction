@@ -16,7 +16,7 @@ The output of the U-Net is a probability array with voxel values between 0 and 1
 
 There are multiple methods to run the postprocessing steps. Based on testing, the current recommendation is to set --with_neuron_post_segmentation to false and --with_connected_comps to true. Then use N5 connected components to apply a voxel intensity threhsold on the U-Net probability array, change voxel shape, and to apply a component size filter. 
 
-When running neuron segmentation on large image volumes, the volume is partitioned into sub-volumes. The U-Net is run on each sub-volume and reassembled. Postprocessing steps are run on the assembled volume. The pipeline also includes an optional step to precompute a scaling factor for each tile. The alternative is to compuate a scaling factor on each tile (recommended).
+When running neuron segmentation on large image volumes, the volume is partitioned into sub-volumes. The U-Net is run on each sub-volume and reassembled. Postprocessing steps are run on the assembled volume. The pipeline also includes an optional step to precompute a scaling factor to be used on all tiles. The alternative is to compuate the scaling factor on each tile (recommended).
 
 Usage:
 
