@@ -1,7 +1,6 @@
 # Neuron Segmentation Workflows
 
-Segmentation of neurons can be semi-automatic or automatic. This document describes a part of the semi-automatic workflow and describes how to run the
-automatic neuron segmentation workflow.
+Neuron segmentation can be accomplished using semi-automatic or automatic workflows. This document describes a part of the semi-automatic workflow and describes how to run the automatic neuron segmentation workflow.
 
 ## Semi-automatic Pipeline
 
@@ -9,10 +8,9 @@ automatic neuron segmentation workflow.
 
 ExLLSM image volumes are first [converted to VVD Viewer pyramid files](./ImageProcessing.md). Neurons and are then semi-automatically segmented in VVD Viewer and saved as a TIFF series. A postprocessing workflow is required to convert the TIFF series to the final neuron mask used to [analyze connectivity](./SynapsePrediction.md). These postprocessing steps include pixel intensity thresholding, 3D component connecting, N5 component analysis, voxel shape conversion, and component size filtering. Each step is described in [Image Processing](./ImageProcessing.md) and we have generated a [VVD Neuron Segmentation Postprocessing Workflow](./ImageProcessing.md#vvd-neuron-segmentation-postprocessing-workflow) to run the entire postprocessing pipeline in sequence.
 
-
 ## Automatic Pipeline
 
-The automatic neuron segmentation is based on running a 3D U-Net classification followed by an optional post-processing step that eliminates small regions. The pipeline also includes an optional step to precompute a scaling factor for each tile.
+The automatic neuron segmentation workflow runs 3D U-Net classification followed by an optional post-processing steps. The output of the U-Net is a probability array with voxel values between 0 and 1.  that eliminates small regions. The pipeline also includes an optional step to precompute a scaling factor for each tile.
 
 Usage:
 
