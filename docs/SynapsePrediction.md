@@ -64,7 +64,7 @@ See the [schematic of Workflow A](#synapse-prediction) above. This workflow requ
 2) runs post-processing steps on this result (image closing, watershed segmentation and a size filter) and identifies post-processed presynaptic sites that colocalize with neuron 1
 3) identifies connections between neuron 1 and neuron 2 based on neuron 1 presyaptic site colocalization with neuron 2
 
-This workflow requires on masked neuron channels obtained with one of the [Neuron Segmentation Workflows](NeuronSegmentation.md). 
+This workflow requires masked neuron channels (see [Neuron Segmentation Workflows](NeuronSegmentation.md)). 
 
 ### Required Parameters
 
@@ -91,7 +91,7 @@ See the [schematic of Workflow B](#synapse-prediction) above. This workflow requ
 3) runs post-processing steps on the postsynaptic channel result (image closing, watershed segmentation and a size filter) and identifies connections as post-processed postsynaptic sites that colocalize with neuron 1 presynaptic sites  
 4) identifies presynpatic sites that colocalize with stage 3 results
 
-This workflow depends on masked neuron channels obtained with one of the [Neuron Segmentation Workflows](NeuronSegmentation.md). 
+This workflow requires masked neuron channels (see [Neuron Segmentation Workflows](NeuronSegmentation.md)). 
 
 ### Required Parameters
 
@@ -111,7 +111,7 @@ Usage:
 
     ./synapse_pipeline.nf --pipeline presynaptic_in_volume [arguments]
 
-See the [schematic of Workflow C](#synapse-prediction) above. This workflow ignores neurons and identifies all synaptic sites labeled in a single channel in the given volume. However, if a neuron mask is included, it will identify synaptic sites in that neuron.
+See the [schematic of Workflow C](#synapse-prediction) above. This workflow ignores neurons and identifies all synaptic sites labeled in a single channel in the given volume. However, if a neuron mask is included (see [Neuron Segmentation Workflows](NeuronSegmentation.md)), it will identify synaptic sites in that neuron.
 
 This workflow:
 
