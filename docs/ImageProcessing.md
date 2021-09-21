@@ -13,7 +13,7 @@ This set of workflows includes various image processing tasks:
 * [N5 to TIFF/VVD conversion](#n5-converter)
 * [N5 multiscale pyramid generation](#n5-converter)
 * [N5 resaving](#n5-converter)
-* [VVD Neuron Segmentation Postprocessing Workflow](#vvd-neuron-segmentation-postprocessing-workflow)
+* [Post VVD Neuron Segmentation Processing Workflow](#post-vvd-neuron-segmentation-processing-workflow)
 
 ## Global Optional Parameters
 
@@ -30,6 +30,8 @@ This set of workflows includes various image processing tasks:
 | --driver_stack_size | 128m | Amount of stack space to allocate for the Spark driver |
 
 ## ROI cropping
+
+Crops a TIFF series in x/y/z based on an x/y ROI and start and end z slices.
 
 Usage:
 
@@ -73,9 +75,9 @@ Usage:
 
 | Argument   | Default | Description                                                                 |
 |------------|---------|-----------------------------------------------------------------------------|
-| --mask_connection_distance | 20 | Connection distance  |
-| &#x2011;&#x2011;mask_connection_iterations | 4 | Number of iterations |
-| --threshold | | Optional intensity threshold to apply before connecting mask |
+| --mask_connection_distance | 20 | Connection distance in voxels  |
+| &#x2011;&#x2011;mask_connection_iterations | 4 | Number of connection interations (i.e. connect components 20 vx apart four times) |
+| --threshold | | Optional pixel intensity threshold to apply before connecting mask |
 | --clean_temp_dirs | true | Remove temporary files created inside `--shared_temp_dir` after a successful pipeline run |
 | --convert_mask_cpus | 3 | Number of CPUs to use for importing mask |
 | --convert_mask_mem_gb | 45 | Amount of memory (GB) to allocate for importing mask |
@@ -84,7 +86,7 @@ Usage:
 
 ## Pixel intensity thresholding
 
-Applies a thresholding operation to a TIFF series.
+Applies an intensity thresholding operation to a TIFF series.
 
 Usage:
 
@@ -107,7 +109,7 @@ Usage:
 
 ## Connected Components Analysis
 
-Uses [n5-spark](https://github.com/saalfeldlab/n5-spark) to find and label all connected components in a binary mask extracted from the input N5 dataset, and save the relabeled dataset as an uint64 output dataset.
+Uses [n5-spark](https://github.com/saalfeldlab/n5-spark) to find and label all connected components in a binary mask extracted from the input N5 dataset, and saves the relabeled dataset as an uint64 output dataset. This process also saves statistics on the component sizes. Includes options to change the pixel shape (diamond or box), to apply an intensity threshold, and to apply a component size threshold.
 
 Usage:
 
@@ -125,19 +127,19 @@ Usage:
 |------------|---------|-----------------------------------------------------------------------------|
 | --input_dataset | /s0 | Input data set to process |
 | --connected_dataset | /connected/s0 | Output data set |
-| --connected_pixels_shape | diamond | Shape used for connected components |
-| --min_connected_pixels | 2000 | Min pixels threshold used to decide whether to keep the component or not |
-| --connected_pixels_threshold | .8 | threshold value for neuron connected components. It is a double value < 1 because the result of the segmentation is a probability array. |
-| &#x2011;&#x2011;connected_comps_block_size | 128,128,128 | Block size used for generating connected comps |
+| --connected_pixels_shape | diamond | Shape used for connected components (alternative: box) |
+| --min_connected_pixels | 2000 | Components below this number of pixels are removed |
+| --connected_pixels_threshold | .8 | Intensity threshold. Pixels below this threshold are discarded. This process is applied before size thresholding. |
+| &#x2011;&#x2011;connected_comps_block_size | 128,128,128 | Block size used for generating connected components |
 | --connected_comps_pyramid | false | If true generates multiscale pyramids for connected components |
 
 ## TIFF Converter
 
-Exports an N5 image to VVD format, for easier copying and faster loading in VVD.
+The TIFF converter pipeline operates on TIFF series, and converts the data in various ways. Note that any Spark-based tool still requires the bind mounts to be set explicitly using `--runtime_opts`.
 
 Usage:
 
-Generate a MIP:
+Generate a maximum intensity projection (MIP):
 
     ./pipelines/tiff_converter.nf --input_dir INPUT_TIFF_DIR --mips_output_dir OUTPUT_DIR
 
@@ -222,7 +224,7 @@ Convert N5 to VVD, saving the VVD files inside the N5 container:
 | --n52tiff_cpus | 4 | Number of CPUs to use for Dask-based n5 to TIFF (only used if `--use_n5_spark_tools=false`) |
 | --n52tiff_memory | 6 | Amount of memory (GB) to allocate for Dask-based n5 to TIFF (only used if `--use_n5_spark_tools=false`) |
 
-## VVD Neuron Segmentation Postprocessing Workflow
+## Post VVD Neuron Segmentation Processing Workflow
 
 Usage:
 
