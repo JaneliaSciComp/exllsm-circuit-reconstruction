@@ -1,7 +1,9 @@
 maru_version: 0.1.1
 name: synapse
-version: 1.3.1
+version: 1.4.0
 remotes:
-    - registry.int.janelia.org/exm-analysis
+- registry.int.janelia.org/exm-analysis
+build_args:
+  SYNAPSE_DETECTOR_GIT_TAG: $version
 template_args:
   flavor: custom
