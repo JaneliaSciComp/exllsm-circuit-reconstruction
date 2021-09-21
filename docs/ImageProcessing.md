@@ -5,9 +5,9 @@ This set of workflows includes various image processing tasks:
 * [ROI cropping](#roi-cropping)
 * [3D component connection](#3d-component-connection)
 * [Pixel intensity thresholding](#pixel-intensity-thresholding)
-* [Connected components analysis](#connected-components-analysis,-pixel-shape-change,-pixel-intensity-thresholding,-component-size-thresholding)
-* [Pixel shape change](#connected-components-analysis,-pixel-shape-change,-pixel-intensity-thresholding,-component-size-thresholding)
-* [Component size thresholding](#connected-components-analysis,-pixel-shape-change,-pixel-intensity-thresholding,-component-size-thresholding)
+* [Connected components analysis](#connected-components-analysis)
+* [Pixel shape change](#connected-components-analysis)
+* [Component size thresholding](#connected-components-analysis)
 * [MIP generation](#tiff-converter)
 * [TIFF to N5/VVD conversion](#tiff-converter)
 * [N5 to TIFF/VVD conversion](#n5-converter)
@@ -107,9 +107,9 @@ Usage:
 | --threshold_cpus | 24 | Number of CPUs to use for thresholding mask |
 | --threshold_mem_gb | 16 | Amount of memory (GB) to allocate for thresholding mask |
 
-## Connected Components Analysis, Pixel Shape Change, Pixel Intensity Thresholding, Component Size Thresholding
+## Connected Components Analysis
 
-Uses [n5-spark](https://github.com/saalfeldlab/n5-spark) to find and label all connected components in a binary mask extracted from the input N5 dataset, and saves the relabeled dataset as an uint64 output dataset. This process also saves statistics on the component sizes. Includes options to change the pixel shape (diamond or box), to apply an intensity threshold, and to apply a component size threshold.
+Uses [n5-spark](https://github.com/saalfeldlab/n5-spark) to find and label all connected components in a binary mask extracted from the input N5 dataset, and saves the relabeled dataset as an uint64 output dataset. This process also saves statistics on the component sizes. Includes options to **Change the Pixel Shape** (diamond or box), to **Apply a Pixel Intensity Threshold**, and to **Apply a Component Size Threshold**.
 
 Usage:
 
