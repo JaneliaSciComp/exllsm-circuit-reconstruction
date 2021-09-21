@@ -107,7 +107,7 @@ Usage:
 | --threshold_cpus | 24 | Number of CPUs to use for thresholding mask |
 | --threshold_mem_gb | 16 | Amount of memory (GB) to allocate for thresholding mask |
 
-## Connected Components Analysis
+## Connected Components Analysis, Pixel Shape Change, Pixel Intensity Thresholding, Component Size Thresholding
 
 Uses [n5-spark](https://github.com/saalfeldlab/n5-spark) to find and label all connected components in a binary mask extracted from the input N5 dataset, and saves the relabeled dataset as an uint64 output dataset. This process also saves statistics on the component sizes. Includes options to change the pixel shape (diamond or box), to apply an intensity threshold, and to apply a component size threshold.
 
