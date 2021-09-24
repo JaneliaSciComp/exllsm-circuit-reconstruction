@@ -30,7 +30,7 @@ These parameters are required for all workflows:
 
 ## Frequently used Global Optional Parameters
 
-These parameters specify computation parameters and key aspects of data analysis. [Rarely used Global Optional Parameters](#rarely-used-global-optional-parameters) related to container naming are listed at the bottom of the page.
+These parameters specify computation parameters and key aspects of data analysis. [Rarely used Global Optional Parameters](#rarely-used-global-optional-parameters) related to container naming are listed at the bottom of the page. They can be used with any of the workflows (A, B, C, D)
 
 | Argument   | Default | Description                                                                           |
 |------------|---------|---------------------------------------------------------------------------------------|
@@ -52,7 +52,7 @@ These parameters specify computation parameters and key aspects of data analysis
 
 
 
-## Workflow A
+## Workflow A (Neuron1 Presynaptic to Neuron2)
 
 Usage ([example](../examples/presynaptic_n1_to_n2.sh)):
 
@@ -78,7 +78,27 @@ This workflow requires masked neuron channels (see [Neuron Segmentation Workflow
 | --presynapse_in_dataset | Pre-synaptic dataset if the input is N5; i.e. c2/s0  |
 
 
-## Workflow B
+## Workflow B (Neuron1 Presynaptic to Neuron2 and Neuron2 Presynaptic to Neuron1)
+
+There is no specific command to run this workflow so it essentiall consists in running Workflow A twice first with `--n1` parameter referencing Neuron 1 data and `--n2` parameter referencing Neuron 2 data and then the other way around: `--n1` pointing to Neuron 2 and `--n2` pointing to Neuron 1. Since the `--presynapse` parameter is the same sometimes it may be more efficient and faster to run two consecutive collocate or post processing steps after Workflow A with N1 and N2 is completed.
+
+Option 1: Run Workflow C twice:
+```
+    ./synapse_pipeline.nf --pipeline=presynaptic_n1_to_n2 --presynapse <PresynapseData> --n1 <Neuron1Data> --n2 <Neuron2Data>
+
+    ./synapse_pipeline.nf --pipeline=presynaptic_n1_to_n2 --presynapse <PresynapseData> --n1 <Neuron2Data> --n2 <Neuron1Data>
+```
+
+Option 2: Run Workflow C once followed by to post-process invocations:
+```
+    ./synapse_pipeline.nf --pipeline=presynaptic_n1_to_n2 --presynapse <PresynapseData> --n1 <Neuron1Data> --n2 <Neuron2Data>
+
+    ./synapse_pipeline.nf --pipeline=collocate_synapses --presynapse <PresynapseResultsGeneratedBy presynaptic_n1_to_n2> --n1 <Neuron2Data>
+
+    ./synapse_pipeline.nf --pipeline=collocate_synapses --presynapse <ResultsGeneratedByPrevious collocate_synapses> --n1 <Neuron2Data>
+```
+
+## Workflow C (Neuron1 Presynaptic to Neuron2 Restricted Postsynaptic)
 
 Usage ([example](../examples/presynaptic_n1_to_postsynaptic_n2.sh)):
 
@@ -105,13 +125,13 @@ This workflow requires masked neuron channels (see [Neuron Segmentation Workflow
 | --postsynapse_in_dataset | Post-synaptic dataset if the input is N5; i.e. c2/s0  |
 
 
-## Workflow C
+## Workflow D (Presynaptic in Volume)
 
 Usage: 
 
     ./synapse_pipeline.nf --pipeline presynaptic_in_volume [arguments]
 
-See the [schematic of Workflow C](#synapse-prediction) above. This workflow ignores neurons and identifies all synaptic sites labeled in a single channel in the given volume. However, if a neuron mask is included (see [Neuron Segmentation Workflows](NeuronSegmentation.md)), it will identify synaptic sites in that neuron.
+See the [schematic of Workflow A](#synapse-prediction) above. This workflow ignores neurons and identifies all synaptic sites labeled in a single channel in the given volume. However, if a neuron mask is included (see [Neuron Segmentation Workflows](NeuronSegmentation.md)), it will identify synaptic sites in that neuron.
 
 This workflow:
 
@@ -124,10 +144,8 @@ This workflow:
 |------------|---------|-----------------------------------------------------------------------------|
 | --presynapse | | Volume (TIFF series or n5) containing synaptic channel  |
 | --presynapse_in_dataset | | synaptic dataset if the input is N5; i.e. c0/s0  |
-| --presynaptic_stage2_threshold | 300 | This is not a required parameter, but if it is provided will specify the minimum voxel size of each synaptic site in stage 2. This works with or without a neuron mask. |
-| --n1 | | This is not a required parameter but if it is provided, only synaptic sites that colocalize with this mask will be identified. Volume (TIFF series or n5) containing Neuron #1 |
-| --n1_in_dataset | | Neuron 1 dataset if the neuron input stack is an N5 container; i.e. c1/s0 |
-| --presynaptic_stage2_percentage | 0.5 | This is not a required parameter, but if it is provided will specify the minimum synaptic site % overlap with neuron 1 in order to be assigned to neuron 1 in stage 2. Objects below this threshold are removed. 1 = whether the centroid falls within the mask. |
+| --n1 | | This is not a required parameter. If it is provided it specifies the mask used for presynaptic sites. Volume (TIFF series or n5) containing the mask |
+| --n1_in_dataset | | Specifies the mask dataset if the neuron input stack is an N5 container; i.e. c1/s0 |
 
 ## Synapse Segmentation
 
@@ -164,9 +182,9 @@ Below parameters that would produce the result desribed above are indicated.
 |------------|---------|-----------------------------------------------------------------------------|
 | --presynapse | | Volume (TIFF series or n5) containing synaptic channel analysed by Synapse Segmentation; i.e. presynaptic_n1_to_n2.n5 from the Workflow A run  |
 | --presynapse_in_dataset | | segmented synaptic dataset if the input is N5; i.e. pre_synapse_seg/s0 from the Workflow A run |
-| --presynaptic_stage2_threshold | 300 | Specifies the minimum voxel size of each synaptic site in stage 2 (as in Workflows A-B). |
 | --n1 | | Volume (TIFF series or n5) containing Neuron #1. In the example described above n1 would now be what was called n2 in the initial Workflow A run. |
 | --n1_in_dataset | | Neuron 1 dataset if the neuron input stack is an N5 container. In the example described above n1 would now be what was called n2 in the initial Workflow A run. |
+| --presynaptic_stage2_threshold | 300 | Specifies the minimum voxel size of each synaptic site in stage 2 (as in Workflows A-B). |
 | --presynaptic_stage2_percentage | 0.5 | Specifies the minimum synaptic site % overlap with neuron 1 in order to be assigned to neuron 1 in stage 2 (as in Workflows A-B). Objects below this threshold are removed. 1 = whether the centroid falls within the mask. |
 
 The above would identify the presynaptic sites in neuron 2. To find the connections from neuron 2 to neuron 1, run --pipeline collocate_synapses again, this time replacing --presynapse with the N5 directory generated in the previous step, --presynapse_in_dataset with pre_synapse_seg_n1/s0 data generated in the previous step, --n1 with the original Workflow A n1 (here the postsynaptic neuron), and --presynaptic_stage2_percentage with 0.001. These steps would generate the reciprocal to the data generated in Workflow A. 
