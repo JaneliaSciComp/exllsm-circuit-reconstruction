@@ -42,10 +42,10 @@ These parameters specify computation parameters and key aspects of data analysis
 | --volume_partition_size | 512 | Size of sub-volumes to process in parallel. Should be a multiple of --block_size. |
 | --presynaptic_stage2_threshold | 300 | Minimum voxel size of each synaptic site in stage 2 of Workflows A-C. |
 | --presynaptic_stage2_percentage | 0.5 | Minimum presynaptic site % overlap with neuron 1 in order to be assigned to neuron 1 in stage 2 of Workflows A-C. Objects below this threshold are removed. 1 = whether the centroid falls within the mask. |
-| --postsynaptic_stage2_threshold | 200 | Minimum voxel size of the postsynaptic site in stage 3 of Workflow B. |
-| --postsynaptic_stage2_percentage | 0.001 | Minimum synaptic site % overlap with synaptic partner to be assigned a connection. Stage 3 in Workflows A-B (see Workflow specifics below). Objects below this threshold are removed. 1 = whether the centroid falls within the mask. |
-| --postsynaptic_stage3_threshold | 400 | Minimum voxel size of each presynaptic site in Stage 4 of Workflow B. |
-| --postsynaptic_stage3_percentage | 0.001 | Minimum presynaptic site % overlap with postsynaptic partner to be assigned a connection. Stage 4 in Workflow B. Objects below this threshold are removed. 1 = whether the centroid falls within the mask. |
+| --postsynaptic_stage3_threshold | 200 | Minimum voxel size of the postsynaptic site in stage 3 of Workflow B. |
+| --postsynaptic_stage3_percentage | 0.001 | Minimum synaptic site % overlap with synaptic partner to be assigned a connection. Stage 3 in Workflows A-B (see Workflow specifics below). Objects below this threshold are removed. 1 = whether the centroid falls within the mask. |
+| --postsynaptic_stage4_threshold | 400 | Minimum voxel size of each presynaptic site in Stage 4 of Workflow B. |
+| --postsynaptic_stage4_percentage | 0.001 | Minimum presynaptic site % overlap with postsynaptic partner to be assigned a connection. Stage 4 in Workflow B. Objects below this threshold are removed. 1 = whether the centroid falls within the mask. |
 | --with_pyramid | true | If set it generates the downsampling N5 pyramid for all UNet and Post-processing results. |
 | --with_vvd | false | If set it creates VVD files of the UNet and Post-processing results. The base VVD output dir is set by --vvd_output_dir |
 | --vvd_output_dir | | base VVD output dir. If this is not set but --with_vvd is set then the default VVD output dir will be the 'vvd' sub-directory under the N5 container dir. The name of the VVD volume is based on the stage that created the volume: 'pre_synapse_seg', or 'pre_synapse_seg_n1', or 'pre_synapse_seg_n1_n2'. The current implementation is an all or nothing - it does not support generating VVD files only for certain stages. |

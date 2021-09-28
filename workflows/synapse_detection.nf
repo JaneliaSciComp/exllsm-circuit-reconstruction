@@ -372,12 +372,12 @@ workflow presynaptic_n1_to_n2 {
                     create_post_output_name(
                         output_dirname,
                         'pre_synapse_seg_n1_n2',
-                        params.postsynaptic_stage2_threshold,
-                        params.postsynaptic_stage2_percentage), // csv ouput
+                        params.postsynaptic_stage3_threshold,
+                        params.postsynaptic_stage3_percentage), // csv ouput
                 ]
             },
-        params.postsynaptic_stage2_threshold,
-        params.postsynaptic_stage2_percentage,
+        params.postsynaptic_stage3_threshold,
+        params.postsynaptic_stage3_percentage,
         params.postprocessing_cpus,
         params.postprocessing_memory,
         params.postprocessing_threads,
@@ -553,13 +553,13 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
                 params.working_post_synapse_seg_n1_dataset, // post_unet_dataset
                 create_post_output_name(output_dirname,
                                         'post_synapse_seg_pre_synapse_seg_n1',
-                                        params.postsynaptic_stage2_threshold,
-                                        params.postsynaptic_stage2_percentage),
+                                        params.postsynaptic_stage3_threshold,
+                                        params.postsynaptic_stage3_percentage),
             ]
         },
         params.synapse_model,
-        params.postsynaptic_stage2_threshold,
-        params.postsynaptic_stage2_percentage,
+        params.postsynaptic_stage3_threshold,
+        params.postsynaptic_stage3_percentage,
         params.unet_cpus,
         params.unet_memory,
         params.postprocessing_cpus,
@@ -619,12 +619,12 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
                 n5_stacks['pre_synapse_seg_n1'][2], // size
                 create_post_output_name(output_dirname,
                                         'pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1',
-                                        params.postsynaptic_stage3_threshold,
-                                        params.postsynaptic_stage3_percentage), // csv output
+                                        params.postsynaptic_stage4_threshold,
+                                        params.postsynaptic_stage4_percentage), // csv output
             ]
         },
-        params.postsynaptic_stage3_threshold,
-        params.postsynaptic_stage3_percentage,
+        params.postsynaptic_stage4_threshold,
+        params.postsynaptic_stage4_percentage,
         params.postprocessing_cpus,
         params.postprocessing_memory,
         params.postprocessing_threads,
