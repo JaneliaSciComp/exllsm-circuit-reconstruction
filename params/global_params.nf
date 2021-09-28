@@ -56,7 +56,7 @@ def global_em_params() {
         n52tiff_memory: '6 G',
 
         multiscale_pyramid: false,
-        with_pyramid: true,
+        with_pyramid: false,
         tiff_output_dir: '',
         use_n5_spark_tools: true,
         with_vvd: false,
