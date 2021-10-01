@@ -123,14 +123,14 @@ This workflow:
 
 ### Required Parameters
 
-| Argument   | Default | Description                                                                 |
+| Argument   | Description                                                                           |
 |------------|---------|-----------------------------------------------------------------------------|
 | --synapse_model | Path to trained synapse model in HDF5 format |
 | --output_dir | Output directory for results |
-| --presynapse | | Volume (TIFF series or n5) containing synaptic channel  |
-| --presynapse_in_dataset | | synaptic dataset if the input is N5; i.e. c0/s0  |
-| --n1 | | This is not a required parameter. If it is provided it specifies the mask used for presynaptic sites. Volume (TIFF series or n5) containing the mask |
-| --n1_in_dataset | | Specifies the mask dataset if the neuron input stack is an N5 container; i.e. c1/s0 |
+| --presynapse | Volume (TIFF series or n5) containing synaptic channel  |
+| --presynapse_in_dataset | synaptic dataset if the input is N5; i.e. c0/s0  |
+| --n1 | This is not a required parameter. If it is provided it specifies the mask used for presynaptic sites. Volume (TIFF series or n5) containing the mask |
+| --n1_in_dataset | Specifies the mask dataset if the neuron input stack is an N5 container; i.e. c1/s0 |
 
 ## Synapse Segmentation
 
@@ -165,15 +165,13 @@ Below parameters that would produce the result desribed above are indicated.
 
 ### Required Parameters
 
-| Argument   | Default | Description                                                                 |
+| Argument   |           Description                                                                 |
 |------------|---------|-----------------------------------------------------------------------------|
 | --output_dir | Output directory for results |
-| --presynapse | | Volume (TIFF series or n5) containing synaptic channel analysed by Synapse Segmentation; i.e. presynaptic_n1_to_n2.n5 from the Workflow A run  |
-| --presynapse_in_dataset | | segmented synaptic dataset if the input is N5; i.e. pre_synapse_seg/s0 from the Workflow A run |
-| --n1 | | Volume (TIFF series or n5) containing Neuron #1. In the example described above n1 would now be what was called n2 in the initial Workflow A run. |
-| --n1_in_dataset | | Neuron 1 dataset if the neuron input stack is an N5 container. In the example described above n1 would now be what was called n2 in the initial Workflow A run. |
-| --presynaptic_stage2_threshold | 400 | Specifies the minimum voxel size of each synaptic site in stage 2 (as in Workflows A-B). |
-| --presynaptic_stage2_percentage | 0.5 | Specifies the minimum synaptic site % overlap with neuron 1 in order to be assigned to neuron 1 in stage 2 (as in Workflows A-B). Objects below this threshold are removed. 1 = whether the centroid falls within the mask. |
+| --presynapse | Volume (TIFF series or n5) containing synaptic channel analysed by Synapse Segmentation; i.e. presynaptic_n1_to_n2.n5 from the Workflow A run  |
+| --presynapse_in_dataset | segmented synaptic dataset if the input is N5; i.e. pre_synapse_seg/s0 from the Workflow A run |
+| --n1 | Volume (TIFF series or n5) containing Neuron #1. In the example described above n1 would now be what was called n2 in the initial Workflow A run. |
+| --n1_in_dataset | Neuron 1 dataset if the neuron input stack is an N5 container. In the example described above n1 would now be what was called n2 in the initial Workflow A run. |
 
 The above would identify the presynaptic sites in neuron 2. To find the connections from neuron 2 to neuron 1, run --pipeline collocate_synapses again, this time replacing --presynapse with the N5 directory generated in the previous step, --presynapse_in_dataset with pre_synapse_seg_n1/s0 data generated in the previous step, --n1 with the original Workflow A n1 (here the postsynaptic neuron), and --presynaptic_stage2_percentage with 0.001. These steps would generate the reciprocal to the data generated in Workflow A. 
 
