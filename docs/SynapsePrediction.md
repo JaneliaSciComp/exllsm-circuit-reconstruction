@@ -40,13 +40,13 @@ These parameters specify computation parameters and key aspects of data analysis
 | --unet_cpus | 4 | Number of CPUs to use for each U-NET prediction job |
 | --postprocessing_cpus | 3 | Number of CPUs to use for post-processing (e.g. image closing, watershed, quantification, etc.) |
 | --volume_partition_size | 512 | Size of sub-volumes to process in parallel. Should be a multiple of --block_size. |
-| --presynaptic_stage2_threshold | 300 | Minimum voxel size of each synaptic site in stage 2 of Workflows A-C. |
+| --presynaptic_stage2_threshold | 400 | Minimum voxel size of each synaptic site in stage 2 of Workflows A-C. |
 | --presynaptic_stage2_percentage | 0.5 | Minimum presynaptic site % overlap with neuron 1 in order to be assigned to neuron 1 in stage 2 of Workflows A-C. Objects below this threshold are removed. 1 = whether the centroid falls within the mask. |
 | --postsynaptic_stage3_threshold | 200 | Minimum voxel size of the postsynaptic site in stage 3 of Workflow B. |
 | --postsynaptic_stage3_percentage | 0.001 | Minimum synaptic site % overlap with synaptic partner to be assigned a connection. Stage 3 in Workflows A-B (see Workflow specifics below). Objects below this threshold are removed. 1 = whether the centroid falls within the mask. |
 | --postsynaptic_stage4_threshold | 400 | Minimum voxel size of each presynaptic site in Stage 4 of Workflow B. |
 | --postsynaptic_stage4_percentage | 0.001 | Minimum presynaptic site % overlap with postsynaptic partner to be assigned a connection. Stage 4 in Workflow B. Objects below this threshold are removed. 1 = whether the centroid falls within the mask. |
-| --with_pyramid | true | If set it generates the downsampling N5 pyramid for all UNet and Post-processing results. |
+| --with_pyramid | false | If set it generates the downsampling N5 pyramid for all UNet and Post-processing results. |
 | --with_vvd | false | If set it creates VVD files of the UNet and Post-processing results. The base VVD output dir is set by --vvd_output_dir |
 | --vvd_output_dir | | base VVD output dir. If this is not set but --with_vvd is set then the default VVD output dir will be the 'vvd' sub-directory under the N5 container dir. The name of the VVD volume is based on the stage that created the volume: 'pre_synapse_seg', or 'pre_synapse_seg_n1', or 'pre_synapse_seg_n1_n2'. The current implementation is an all or nothing - it does not support generating VVD files only for certain stages. |
 
@@ -56,7 +56,7 @@ These parameters specify computation parameters and key aspects of data analysis
 
 Usage ([example](../examples/presynaptic_n1_to_n2.sh)):
 
-    ./synapse_pipeline.nf --pipeline=presynaptic_n1_to_n2 [arguments]
+    ./synapse_pipeline.nf --pipeline presynaptic_n1_to_n2 --output /directory/nextflowresults/log.log --synapse_model /directory/synapse.h5 --n1 /directory/export.n5  --n1_in_dataset n1/s0 --n2 /directory/export.n5 --n2_in_dataset n2/s0 --presynapse /directory/export.n5 --presynapse_in_dataset presynapse/s0 --presynaptic_stage2_threshold 400 --presynaptic_stage2_percentage 0.5
 
 See the [schematic of Workflow A](#synapse-prediction) above. This workflow requires a presynaptic channel and neuron mask channels. If only one neuron mask is provided, it will identify synaptic sites in that neuron. If two neuron masks are included it will identify presynaptic sites in one neuron mask and connections between the two neuron masks. This workflow:
 
@@ -81,7 +81,7 @@ This workflow requires masked neuron channels (see [Neuron Segmentation Workflow
 
 Usage ([example](../examples/presynaptic_n1_to_postsynaptic_n2.sh)):
 
-    ./synapse_pipeline.nf --pipeline presynaptic_n1_to_postsynaptic_n2 [arguments]
+    ./synapse_pipeline.nf --pipeline presynaptic_n1_to_postsynaptic_n2 
 
 See the [schematic of Workflow B](#synapse-prediction) above. This workflow requires a presynaptic channel, a postsynaptic channel, and a neuron mask channel. It is designed to analyze postsynaptic data that is genetically restricted to identified neurons, but can be utilized in other ways. It will identify presynaptic sites in the neuron mask and connections between the neuron 1 presnaptic sites and the postsynaptic sites. This workflow:
 
