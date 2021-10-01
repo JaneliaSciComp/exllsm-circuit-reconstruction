@@ -124,7 +124,7 @@ This workflow:
 ### Required Parameters
 
 | Argument   | Description                                                                           |
-|------------|---------|-----------------------------------------------------------------------------|
+|------------|---------------------------------------------------------------------------------------|
 | --synapse_model | Path to trained synapse model in HDF5 format |
 | --output_dir | Output directory for results |
 | --presynapse | Volume (TIFF series or n5) containing synaptic channel  |
