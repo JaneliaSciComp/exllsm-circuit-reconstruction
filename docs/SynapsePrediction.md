@@ -166,7 +166,7 @@ Below parameters that would produce the result desribed above are indicated.
 ### Required Parameters
 
 | Argument   |           Description                                                                 |
-|------------|---------|-----------------------------------------------------------------------------|
+|------------|---------------------------------------------------------------------------------------|
 | --output_dir | Output directory for results |
 | --presynapse | Volume (TIFF series or n5) containing synaptic channel analysed by Synapse Segmentation; i.e. presynaptic_n1_to_n2.n5 from the Workflow A run  |
 | --presynapse_in_dataset | segmented synaptic dataset if the input is N5; i.e. pre_synapse_seg/s0 from the Workflow A run |
