@@ -134,7 +134,7 @@ This workflow:
 
 ## Synapse Segmentation
 
-Workflows A-C may not be suitable for all data and analysis needs. Synapse Segmentation and Synapse Segmentation Post-processing can be run independently to allow maximum flexibility and to reduce running redundant processes. [See below for a usage example to quantify connectivity reciprocally between two neurons](#use-case-for-running-synapse-segmentation-and-synapse-segmentation-post-processing-independently). 
+Workflows A-C may not be suitable for all data and analysis needs. Synapse Segmentation and Synapse Segmentation Post-processing can be run independently to allow maximum flexibility and to reduce running redundant processes. [See below for a usage example to quantify connectivity reciprocally between two neurons](#use-case-for-running-synapse-segmentation-post-processing-independently). 
 
 Running the --classify_synapses pipeline will grossly classify all synaptic sites in a volume using a trained 3D U-Net convolutional neural network. This will not run post-processing or segmentation to identify individual synaptic sites.  
 
@@ -153,7 +153,7 @@ Usage:
 
 ## Synapse Segmentation Post-processing
 
-Workflows A-C may not be suitable for all data and analysis needs. Synapse Segmentation and Synapse Segmentation Post-processing can be run independently to allow maximum flexibility and to reduce running redundant processes. [See below for a usage example to quantify connectivity reciprocally between two neurons](#use-case-for-running-synapse-segmentation-and-synapse-segmentation-post-processing-independently). 
+Workflows A-C may not be suitable for all data and analysis needs. Synapse Segmentation and Synapse Segmentation Post-processing can be run independently to allow maximum flexibility and to reduce running redundant processes. [See below for a usage example to quantify connectivity reciprocally between two neurons](#use-case-for-running-synapse-segmentation-post-processing-independently). 
 
 Running the --collocate_synapses pipeline will run the Synapse Segmentation Post-processing steps (image closing, watershed segmentation, size filering) and colocalization analysis with a neuron mask.
 
