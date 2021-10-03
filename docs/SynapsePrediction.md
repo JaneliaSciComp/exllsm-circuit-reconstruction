@@ -134,9 +134,9 @@ This workflow:
 
 ## Synapse Segmentation
 
-Workflows A-C may not be suitable for all data and analysis needs. Synapse Segmentation and Synapse Segmentation Post-processing can be run independently to allow maximum flexibility and to reduce running redundant processes when analying connecitivty between multiple neuron pairs in a volume ([see below](#synapse-segmentation-post-processing)). 
+Workflows A-C may not be suitable for all data and analysis needs. Synapse Segmentation and Synapse Segmentation Post-processing can be run independently to allow maximum flexibility and to reduce running redundant processes. [See below for a usage example when quantifying connectivity reciprocally between two neurons](#synapse-segmentation-post-processing)). 
 
-This will only detect synaptic sites using a trained 3D U-Net convolutional neural network. 
+This will grossly classify all synaptic sites in a volume using a trained 3D U-Net convolutional neural network. This will not run post-processing or segmentation to identify individual synaptic sites.  
 
 Usage: 
 
