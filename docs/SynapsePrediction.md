@@ -134,9 +134,9 @@ This workflow:
 
 ## Synapse Segmentation
 
-Workflows A-C may not be suitable for all data and analysis needs. Synapse Segmentation and Synapse Segmentation Post-processing can be run independently to allow maximum flexibility and to reduce running redundant processes. [See below for a usage example when quantifying connectivity reciprocally between two neurons](#synapse-segmentation-post-processing)). 
+Workflows A-C may not be suitable for all data and analysis needs. Synapse Segmentation and Synapse Segmentation Post-processing can be run independently to allow maximum flexibility and to reduce running redundant processes. [See below for a usage example to quantify connectivity reciprocally between two neurons](#use-case-for-running-synapse-segmentation-and-synapse-segmentation-post-processing-independently). 
 
-This will grossly classify all synaptic sites in a volume using a trained 3D U-Net convolutional neural network. This will not run post-processing or segmentation to identify individual synaptic sites.  
+Running --classify_synapses pipeline will grossly classify all synaptic sites in a volume using a trained 3D U-Net convolutional neural network. This will not run post-processing or segmentation to identify individual synaptic sites.  
 
 Usage: 
 
@@ -153,9 +153,9 @@ Usage:
 
 ## Synapse Segmentation Post-processing
 
-Workflows A-C may not be suitable for all data and analysis needs. Synapse Segmentation and Synapse Segmentation Post-processing can be run independently to allow maximum flexibility and to reduce running redundant processes when, for example, analying connecitivty between multiple neuron pairs in a volume ([see below](#use-case-for-running-synapse-segmentation-and-synapse-segmentation-post-processing-independently)). 
+Workflows A-C may not be suitable for all data and analysis needs. Synapse Segmentation and Synapse Segmentation Post-processing can be run independently to allow maximum flexibility and to reduce running redundant processes. [See below for a usage example to quantify connectivity reciprocally between two neurons](#use-case-for-running-synapse-segmentation-and-synapse-segmentation-post-processing-independently). 
 
-This will only run the Synapse Segmentation Post-processing steps (image closing, watershed segmentation, size filering) and colocalization analysis with a neuron mask.
+Running the --collocate_synapses pipeline will run the Synapse Segmentation Post-processing steps (image closing, watershed segmentation, size filering) and colocalization analysis with a neuron mask.
 
 Usage:
 
@@ -171,11 +171,11 @@ Usage:
 | --n1 | Volume (TIFF series or n5) containing Neuron #1. In the example described above n1 would now be what was called n2 in the initial Workflow A run. |
 | --n1_in_dataset | Neuron 1 dataset if the neuron input stack is an N5 container. In the example described above n1 would now be what was called n2 in the initial Workflow A run. |
 
-## Use case for running Synapse Segmentation and Synapse Segmentation Post-processing independently
+## Use case for running Synapse Segmentation Post-processing independently
 
-Workflows A-C may not be suitable for all data and analysis needs. Synapse Segmentation and Synapse Segmentation Post-processing can be run independently to allow maximum flexibility and to reduce running redundant processes when analying connecitivty between multiple neuron pairs in a volume. These tools can also be used to quantify connectivity using data types beyond those described here (e.g. genetically restricted presynaptic sites with ubiquitous postsynaptic sites and a neuron  mask).
+Workflows A-C may not be suitable for all data and analysis needs. Synapse Segmentation and Synapse Segmentation Post-processing can be run independently to allow maximum flexibility and to reduce running redundant processes when, for example, analyzing connecitivty between multiple neuron pairs in a volume. These tools can also be used to quantify connectivity using data types beyond those described here (e.g. genetically restricted presynaptic sites with ubiquitous postsynaptic sites and a neuron  mask).
 
-For example, imagine you wanted to quantify connectivity reciprocally between two neurons (instead of quantifying connectivity between two neurons in just one direction as described in Workflow A). Using only Workflow A to do this would run Synapse Segmentation on the same presynaptic data twice. Fortuantely, this unecessary computation time and expense can be avoided. 
+For example, imagine you want to quantify connectivity reciprocally between two neurons (instead of quantifying connectivity between two neurons in just one direction as described in Workflow A). Using only Workflow A to do this would run Synapse Segmentation on the same presynaptic data twice. Fortuantely, this unecessary computation time and expense can be avoided. 
 
 First, run Workflow A. This will run Synapse Segmentation on the presynaptic sites in the volume, identify presynaptic sites in neuron 1 and identify putative connections to neuron 2.
 
