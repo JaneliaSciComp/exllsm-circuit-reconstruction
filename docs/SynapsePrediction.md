@@ -171,7 +171,7 @@ Usage:
 | --n1 | Volume (TIFF series or n5) containing Neuron #1. In the example described above n1 would now be what was called n2 in the initial Workflow A run. |
 | --n1_in_dataset | Neuron 1 dataset if the neuron input stack is an N5 container. In the example described above n1 would now be what was called n2 in the initial Workflow A run. |
 
-# Use case for running Synapse Segmentation Post-processing independently
+### Use case for running Synapse Segmentation Post-processing independently
 
 Workflows A-C may not be suitable for all data and analysis needs. Synapse Segmentation and Synapse Segmentation Post-processing can be run independently to allow maximum flexibility and to reduce running redundant processes when, for example, analyzing connecitivty between multiple neuron pairs in a volume. These tools can also be used to quantify connectivity using data types beyond those described here (e.g. genetically restricted presynaptic sites with ubiquitous postsynaptic sites and a neuron  mask).
 
