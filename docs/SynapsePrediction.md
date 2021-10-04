@@ -40,13 +40,13 @@ These parameters specify computation parameters and key aspects of data analysis
 | --unet_cpus | 4 | Number of CPUs to use for each U-NET prediction job |
 | --postprocessing_cpus | 3 | Number of CPUs to use for post-processing (e.g. image closing, watershed, quantification, etc.) |
 | --volume_partition_size | 512 | Size of sub-volumes to process in parallel. Should be a multiple of --block_size. |
-| --presynaptic_stage2_threshold | 300 | Minimum voxel size of each synaptic site in stage 2 of Workflows A-C. |
+| --presynaptic_stage2_threshold | 400 | Minimum voxel size of each synaptic site in stage 2 of Workflows A-C. |
 | --presynaptic_stage2_percentage | 0.5 | Minimum presynaptic site % overlap with neuron 1 in order to be assigned to neuron 1 in stage 2 of Workflows A-C. Objects below this threshold are removed. 1 = whether the centroid falls within the mask. |
 | --postsynaptic_stage3_threshold | 200 | Minimum voxel size of the postsynaptic site in stage 3 of Workflow B. |
 | --postsynaptic_stage3_percentage | 0.001 | Minimum synaptic site % overlap with synaptic partner to be assigned a connection. Stage 3 in Workflows A-B (see Workflow specifics below). Objects below this threshold are removed. 1 = whether the centroid falls within the mask. |
 | --presynaptic_stage4_threshold | 400 | Minimum voxel size of each presynaptic site in Stage 4 of Workflow B. |
 | --presynaptic_stage4_percentage | 0.001 | Minimum presynaptic site % overlap with postsynaptic partner to be assigned a connection. Stage 4 in Workflow B. Objects below this threshold are removed. 1 = whether the centroid falls within the mask. |
-| --with_pyramid | true | If set it generates the downsampling N5 pyramid for all UNet and Post-processing results. |
+| --with_pyramid | false | If set it generates the downsampling N5 pyramid for all UNet and Post-processing results. |
 | --with_vvd | false | If set it creates VVD files of the UNet and Post-processing results. The base VVD output dir is set by --vvd_output_dir |
 | --vvd_output_dir | | base VVD output dir. If this is not set but --with_vvd is set then the default VVD output dir will be the 'vvd' sub-directory under the N5 container dir. The name of the VVD volume is based on the stage that created the volume: 'pre_synapse_seg', or 'pre_synapse_seg_n1', or 'pre_synapse_seg_n1_n2'. The current implementation is an all or nothing - it does not support generating VVD files only for certain stages. |
 
@@ -56,7 +56,7 @@ These parameters specify computation parameters and key aspects of data analysis
 
 Usage ([example](../examples/presynaptic_n1_to_n2.sh)):
 
-    ./synapse_pipeline.nf --pipeline=presynaptic_n1_to_n2 [arguments]
+    ./synapse_pipeline.nf --pipeline presynaptic_n1_to_n2 --output /OUTPUT_DIR/LOGNAME.log --synapse_model /SYNAPSEMODEL_DIR/SYNAPSEMODELNAME.h5 --n1 /N5_DIR/N5NAME.n5  --n1_in_dataset N1NAME/s0 --n2 /N5_DIR/N5NAME.n5 --n2_in_dataset N2NAME/s0 --presynapse /PRESYNAPSE_DIR/N5NAME.n5 --presynapse_in_dataset PRESYNAPSENAME/s0 --output_dir /OUTPUT_DIR --presynaptic_stage2_threshold 400 --presynaptic_stage2_percentage 0.5 --postsynaptic_stage3_percentae 0.001
 
 See the [schematic of Workflow A](#synapse-prediction) above. This workflow requires a presynaptic channel and neuron mask channels. If only one neuron mask is provided, it will identify synaptic sites in that neuron. If two neuron masks are included it will identify presynaptic sites in one neuron mask and connections between the two neuron masks. This workflow:
 
@@ -70,6 +70,8 @@ This workflow requires masked neuron channels (see [Neuron Segmentation Workflow
 
 | Argument   | Description                                                                           |
 |------------|---------------------------------------------------------------------------------------|
+| --synapse_model | Path to trained synapse model in HDF5 format |
+| --output_dir | Output directory for results |
 | --n1 | Volume (TIFF series or n5) containing Neuron #1 |
 | --n1_in_dataset | Neuron 1 dataset if the neuron input stack is an N5 container; i.e. c0/s0 |
 | --n2 | Volume (TIFF series or n5) containing Neuron #2 | If this is empty the post-processing with N2 mask should generate the same results as as pre-synaptic segmentation with N1 mask, but the operation will be performed |
@@ -81,8 +83,8 @@ This workflow requires masked neuron channels (see [Neuron Segmentation Workflow
 
 Usage ([example](../examples/presynaptic_n1_to_postsynaptic_n2.sh)):
 
-    ./synapse_pipeline.nf --pipeline presynaptic_n1_to_postsynaptic_n2 [arguments]
-
+    ./synapse_pipeline.nf --pipeline presynaptic_n1_to_postsynaptic_n2 --output /OUTPUT_DIR/LOGNAME.log --synapse_model /SYNAPSEMODEL_DIR/SYNAPSEMODELNAME.h5 --n1 /N5_DIR/N5NAME.n5  --n1_in_dataset N1NAME/s0 --postsynapse /N5_DIR/N5NAME.n5 --postsynapse_in_dataset POSTSYNAPSENAME/s0 --presynapse /PRESYNAPSE_DIR/N5NAME.n5 --presynapse_in_dataset PRESYNAPSENAME/s0 --output_dir /OUTPUT_DIR --presynaptic_stage2_threshold 400 --presynaptic_stage2_percentage 0.5 --postsynaptic_stage3_threshold 200 --postsynaptic_stage3_percentae 0.001 --postsynaptic_stage4_percentage 0.001
+    
 See the [schematic of Workflow B](#synapse-prediction) above. This workflow requires a presynaptic channel, a postsynaptic channel, and a neuron mask channel. It is designed to analyze postsynaptic data that is genetically restricted to identified neurons, but can be utilized in other ways. It will identify presynaptic sites in the neuron mask and connections between the neuron 1 presnaptic sites and the postsynaptic sites. This workflow:
 
 1) detects presynaptic and postsynaptic sites using a 3D U-Net convolutional neural network
@@ -96,6 +98,8 @@ This workflow requires masked neuron channels (see [Neuron Segmentation Workflow
 
 | Argument   | Description                                                                           |
 |------------|---------------------------------------------------------------------------------------|
+| --synapse_model | Path to trained synapse model in HDF5 format |
+| --output_dir | Output directory for results |
 | --n1 | Volume (TIFF series or n5) containing Neuron #1 |
 | --n1_in_dataset | Neuron 1 dataset if the neuron input stack is an N5 container; i.e. c0/s0 |
 | --presynapse | Volume (TIFF series or n5) containing pre-synaptic channel  |
@@ -108,7 +112,7 @@ This workflow requires masked neuron channels (see [Neuron Segmentation Workflow
 
 Usage: 
 
-    ./synapse_pipeline.nf --pipeline presynaptic_in_volume [arguments]
+    ./synapse_pipeline.nf --pipeline presynaptic_in_volume --output /OUTPUT_DIR/LOGNAME.log --synapse_model /SYNAPSEMODEL_DIR/SYNAPSEMODELNAME.h5 --presynapse /PRESYNAPSE_DIR/N5NAME.n5 --presynapse_in_dataset PRESYNAPSENAME/s0 --output_dir /OUTPUT_DIR --presynaptic_stage2_threshold 400
 
 See the [schematic of Workflow C](#synapse-prediction) above. This workflow ignores neurons and identifies all synaptic sites labeled in a single channel in the given volume. However, if a neuron mask is included (see [Neuron Segmentation Workflows](NeuronSegmentation.md)), it will identify synaptic sites in that neuron.
 
@@ -119,54 +123,79 @@ This workflow:
 
 ### Required Parameters
 
-| Argument   | Default | Description                                                                 |
-|------------|---------|-----------------------------------------------------------------------------|
-| --presynapse | | Volume (TIFF series or n5) containing synaptic channel  |
-| --presynapse_in_dataset | | synaptic dataset if the input is N5; i.e. c0/s0  |
-| --n1 | | This is not a required parameter. If it is provided it specifies the mask used for presynaptic sites. Volume (TIFF series or n5) containing the mask |
-| --n1_in_dataset | | Specifies the mask dataset if the neuron input stack is an N5 container; i.e. c1/s0 |
+| Argument   | Description                                                                           |
+|------------|---------------------------------------------------------------------------------------|
+| --synapse_model | Path to trained synapse model in HDF5 format |
+| --output_dir | Output directory for results |
+| --presynapse | Volume (TIFF series or n5) containing synaptic channel  |
+| --presynapse_in_dataset | synaptic dataset if the input is N5; i.e. c0/s0  |
+| --n1 | This is not a required parameter. If it is provided it specifies the mask used for presynaptic sites. Volume (TIFF series or n5) containing the mask |
+| --n1_in_dataset | Specifies the mask dataset if the neuron input stack is an N5 container; i.e. c1/s0 |
 
 ## Synapse Segmentation
 
+Workflows A-C may not be suitable for all data and analysis needs. Synapse Segmentation and Synapse Segmentation Post-processing can be run independently to allow maximum flexibility and to reduce running redundant processes. [See below for a usage example to quantify connectivity reciprocally between two neurons](#use-case-for-running-synapse-segmentation-post-processing-independently). 
+
+Running the --classify_synapses pipeline will grossly classify all synaptic sites in a volume using a trained 3D U-Net convolutional neural network. This will not run post-processing or segmentation to identify individual synaptic sites.  
+
 Usage: 
 
-    ./synapse_pipeline.nf --pipeline classify_synapses [arguments]
-
-Workflows A-C may not be suitable for all data and analysis needs. Synapse Segmentation and Synapse Segmentation Post-processing can be run independently to allow maximum flexibility and to reduce running redundant processes when analying connecitivty between multiple neuron pairs in a volume ([see below](#synapse-segmentation-post-processing)). 
-
-This will detect synaptic sites using a 3D U-Net convolutional neural network. 
+    ./synapse_pipeline.nf --pipeline classify_synapses --output /OUTPUT_DIR/LOGNAME.log --synapse_model /SYNAPSEMODEL_DIR/SYNAPSEMODELNAME.h5 --presynapse /PRESYNAPSE_DIR/N5NAME.n5 --presynapse_in_dataset PRESYNAPSENAME/s0  --output_dir /OUTPUT_DIR
 
 ### Required Parameters
 
 | Argument   | Description                                                                           |
 |------------|---------------------------------------------------------------------------------------|
+| --synapse_model | Path to trained synapse model in HDF5 format |
+| --output_dir | Output directory for results |
 | --presynapse | Volume (TIFF series or n5) containing synaptic channel  |
 | --presynapse_in_dataset | synaptic dataset if the input is N5; i.e. c0/s0  |
 
 ## Synapse Segmentation Post-processing
 
+Workflows A-C may not be suitable for all data and analysis needs. Synapse Segmentation and Synapse Segmentation Post-processing can be run independently to allow maximum flexibility and to reduce running redundant processes. [See below for a usage example to quantify connectivity reciprocally between two neurons](#use-case-for-running-synapse-segmentation-post-processing-independently). 
+
+Running the --collocate_synapses pipeline will run the Synapse Segmentation Post-processing steps (image closing, watershed segmentation, size filering) and colocalization analysis with a neuron mask.
+
 Usage:
 
-    ./synapse_pipeline.nf --pipeline collocate_synapses [arguments]
-
-Workflows A-C may not be suitable for all data and analysis needs. Synapse Segmentation and Synapse Segmentation Post-processing can be run independently to allow maximum flexibility and to reduce running redundant processes when analying connecitivty between multiple neuron pairs in a volume. For example, imagine you wanted to quantify connectivity reciprocally between two neurons (instead of quantifying connectivity between two neurons in just one direction as described in Workflow A). Using only Workflow A to do this would run Synapse Segmentation on the same presynaptic data twice. 
-
-To avoid this unecessary computation time and expense, you can use --pipeline collocate_synapses. This will run only the Synapse Segmentation Post-processing steps (image closing, watershed segmentation, size filering) and colocalization analysis. Thus, you can run Workflow A once to quantify connections from neuron 1 to neuron 2. Then run --pipeline collocate_synapses to quantify presynaptic sites in neuron 2. Then run --pipeline collocate_synapses again to quantify connections from neuron 2 to neuron 1. This requires additional user input, but avoids running Synapse Segmentation twice on the same data. These tools can also be used to quantify connectivity using data types beyond those described here (e.g. genetically restricted presynaptic sites with ubiquitous postsynaptic sites and a neuron  mask).
-
-Below parameters that would produce the result desribed above are indicated.
-
+    ./synapse_pipeline.nf --pipeline collocate_synapses --output /OUTPUT_DIR/LOGNAME.log --n1 /N5_DIR/N5NAME.n5  --n1_in_dataset N1NAME/s0 --presynapse /PRESYNAPSE_DIR/N5NAME.n5 --presynapse_in_dataset PRESYNAPSENAME/s0 --output_dir /OUTPUT/DIR --presynaptic_stage2_threshold 400 --presynaptic_stage2_percentage 0.5     
+  
 ### Required Parameters
 
-| Argument   | Default | Description                                                                 |
-|------------|---------|-----------------------------------------------------------------------------|
-| --presynapse | | Volume (TIFF series or n5) containing synaptic channel analysed by Synapse Segmentation; i.e. presynaptic_n1_to_n2.n5 from the Workflow A run  |
-| --presynapse_in_dataset | | segmented synaptic dataset if the input is N5; i.e. pre_synapse_seg/s0 from the Workflow A run |
-| --n1 | | Volume (TIFF series or n5) containing Neuron #1. In the example described above n1 would now be what was called n2 in the initial Workflow A run. |
-| --n1_in_dataset | | Neuron 1 dataset if the neuron input stack is an N5 container. In the example described above n1 would now be what was called n2 in the initial Workflow A run. |
-| --presynaptic_stage2_threshold | 400 | Specifies the minimum voxel size of each synaptic site in stage 2 (as in Workflows A-B). |
-| --presynaptic_stage2_percentage | 0.5 | Specifies the minimum synaptic site % overlap with neuron 1 in order to be assigned to neuron 1 in stage 2 (as in Workflows A-B). Objects below this threshold are removed. 1 = whether the centroid falls within the mask. |
+| Argument   |           Description                                                                 |
+|------------|---------------------------------------------------------------------------------------|
+| --output_dir | Output directory for results |
+| --presynapse | Volume (TIFF series or n5) containing synaptic channel analysed by Synapse Segmentation; i.e. presynaptic_n1_to_n2.n5 from the Workflow A run  |
+| --presynapse_in_dataset | segmented synaptic dataset if the input is N5; i.e. pre_synapse_seg/s0 from the Workflow A run |
+| --n1 | Volume (TIFF series or n5) containing Neuron #1. In the example described above n1 would now be what was called n2 in the initial Workflow A run. |
+| --n1_in_dataset | Neuron 1 dataset if the neuron input stack is an N5 container. In the example described above n1 would now be what was called n2 in the initial Workflow A run. |
 
-The above would identify the presynaptic sites in neuron 2. To find the connections from neuron 2 to neuron 1, run --pipeline collocate_synapses again, this time replacing --presynapse with the N5 directory generated in the previous step, --presynapse_in_dataset with pre_synapse_seg_n1/s0 data generated in the previous step, --n1 with the original Workflow A n1 (here the postsynaptic neuron), and --presynaptic_stage2_percentage with 0.001. These steps would generate the reciprocal to the data generated in Workflow A. 
+### Use case for running Synapse Segmentation Post-processing independently
+
+Workflows A-C may not be suitable for all data and analysis needs. Synapse Segmentation and Synapse Segmentation Post-processing can be run independently to allow maximum flexibility and to reduce running redundant processes when, for example, analyzing connecitivty between multiple neuron pairs in a volume. These tools can also be used to quantify connectivity using data types beyond those described here (e.g. genetically restricted presynaptic sites with ubiquitous postsynaptic sites and a neuron  mask).
+
+For example, imagine you want to quantify connectivity reciprocally between two neurons (instead of quantifying connectivity between two neurons in just one direction as described in Workflow A). Using only Workflow A to do this would run Synapse Segmentation on the same presynaptic data twice. Fortuantely, this unecessary computation time and expense can be avoided. 
+
+First, run Workflow A. This will run Synapse Segmentation on the presynaptic sites in the volume, identify presynaptic sites in neuron 1 and identify putative connections to neuron 2.
+
+Usage:
+
+    ./synapse_pipeline.nf --pipeline presynaptic_n1_to_n2 --output /OUTPUT_DIR/LOGNAME.log --synapse_model /SYNAPSEMODEL_DIR/SYNAPSEMODELNAME.h5 --n1 /N5_DIR/N5NAME.n5  --n1_in_dataset N1NAME/s0 --n2 /N5_DIR/N5NAME.n5 --n2_in_dataset N2NAME/s0 --presynapse /PRESYNAPSE_DIR/N5NAME.n5 --presynapse_in_dataset PRESYNAPSENAME/s0 --output_dir /OUTPUT_DIR/N1_TO_N2 --presynaptic_stage2_threshold 400 --presynaptic_stage2_percentage 0.5 --postsynaptic_stage3_percentae 0.001
+
+This will output an N5 directory called /presynaptic_n1_to_n2.n5 with the following datasets: pre_synapse_seg (U-Net result of presynaptic sites in volume), pre_synapse_seg_n1 (neuron 1 presynaptic sites), and pre_synapse_seg_n1_n2 (putative neuron 1 to neuron 2 connections). Next, to identify the presynaptic sites in neuron 2, use the collocate synapses pipeline. Here, you will point to neuron 2 where it asks for neuron 1.
+
+Usage:
+
+    ./synapse_pipeline.nf --pipeline collocate_synapses --output /OUTPUT_DIR/LOGNAME.log --n1 /N5_DIR/N5NAME.n5  --n1_in_dataset N2NAME/s0 --presynapse /OUTPUT_DIR/N1_TO_N2/presyaptic_n1_to_n2.n5 /OUTPUT_DIR/N2_PRE --presynapse_in_dataset pre_synapse_seg/s0 --presynaptic_stage2_threshold 400 --presynaptic_stage2_percentage 0.5 
+
+This will output an N5 directory called /collocate_synapse.5 with the pre_synapse_seg_n1 dataset. Here, this shows the neuron 2 presynaptic sites. Finally, to quantify the putative connections from neuron 2 to neuron 1, run the collocate synapses pipeline again. This time, using the last result as the presynapse and neuron 1 as the neuron 1 mask (here, the postsynaptic mask). 
+
+Usage:
+
+    ./synapse_pipeline.nf --pipeline collocate_synapses --output /OUTPUT_DIR/LOGNAME.log --n1 /N5_DIR/N5NAME.n5  --n1_in_dataset N1NAME/s0 --presynapse /OUTPUT_DIR/N2_PRE/collocate_synapses.n5 --output_dir /OUTPUT_DIR/N2_TO_N1 --presynapse_in_dataset pre_synapse_seg_n1/s0 --presynaptic_stage2_percentage 0.001
+    
+This will output an N5 directory called /collocate_synapse.5 with the pre_synapse_seg_n1 dataset. Here, this shows the putative neuron 2 to neuron 1 connections. 
 
 ### Rarely used Global Optional Parameters 
 
