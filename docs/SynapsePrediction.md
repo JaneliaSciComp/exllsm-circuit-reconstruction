@@ -83,7 +83,7 @@ This workflow requires masked neuron channels (see [Neuron Segmentation Workflow
 
 Usage ([example](../examples/presynaptic_n1_to_postsynaptic_n2.sh)):
 
-    ./synapse_pipeline.nf --pipeline presynaptic_n1_to_postsynaptic_n2 --output /OUTPUT_DIR/LOGNAME.log --synapse_model /SYNAPSEMODEL_DIR/SYNAPSEMODELNAME.h5 --n1 /N5_DIR/N5NAME.n5  --n1_in_dataset N1NAME/s0 --postsynapse /N5_DIR/N5NAME.n5 --postsynapse_in_dataset POSTSYNAPSENAME/s0 --presynapse /PRESYNAPSE_DIR/N5NAME.n5 --presynapse_in_dataset PRESYNAPSENAME/s0 --output_dir /OUTPUT_DIR --presynaptic_stage2_threshold 400 --presynaptic_stage2_percentage 0.5 --postsynaptic_stage3_threshold 200 --postsynaptic_stage3_percentae 0.001 --postsynaptic_stage4_percentage 0.001
+    ./synapse_pipeline.nf --pipeline presynaptic_n1_to_postsynaptic_n2 --output /OUTPUT_DIR/LOGNAME.log --synapse_model /SYNAPSEMODEL_DIR/SYNAPSEMODELNAME.h5 --n1 /N5_DIR/N5NAME.n5  --n1_in_dataset N1NAME/s0 --postsynapse /N5_DIR/N5NAME.n5 --postsynapse_in_dataset POSTSYNAPSENAME/s0 --presynapse /PRESYNAPSE_DIR/N5NAME.n5 --presynapse_in_dataset PRESYNAPSENAME/s0 --output_dir /OUTPUT_DIR --presynaptic_stage2_threshold 400 --presynaptic_stage2_percentage 0.5 --postsynaptic_stage3_threshold 200 --postsynaptic_stage3_percentae 0.001 --presynaptic_stage4_percentage 0.001
     
 See the [schematic of Workflow B](#synapse-prediction) above. This workflow requires a presynaptic channel, a postsynaptic channel, and a neuron mask channel. It is designed to analyze postsynaptic data that is genetically restricted to identified neurons, but can be utilized in other ways. It will identify presynaptic sites in the neuron mask and connections between the neuron 1 presnaptic sites and the postsynaptic sites. This workflow:
 
