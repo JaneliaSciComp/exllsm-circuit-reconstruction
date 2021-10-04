@@ -38,8 +38,8 @@ mkdir -p $RES_DIR
         --presynaptic_stage2_percentage "0.5" \
         --postsynaptic_stage3_threshold "200" \
         --postsynaptic_stage3_percentage "0.001" \
-        --postsynaptic_stage4_threshold "400" \
-        --postsynaptic_stage4_percentage "0.001" \
+        --presynaptic_stage4_threshold "400" \
+        --presynaptic_stage4_percentage "0.001" \
         -with-tower http://nextflow.int.janelia.org/api "$@"
 
 popd

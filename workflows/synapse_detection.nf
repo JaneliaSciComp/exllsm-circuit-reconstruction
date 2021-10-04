@@ -619,12 +619,12 @@ workflow presynaptic_n1_to_postsynaptic_n2 {
                 n5_stacks['pre_synapse_seg_n1'][2], // size
                 create_post_output_name(output_dirname,
                                         'pre_synapse_seg_n1_post_synapse_seg_pre_synapse_seg_n1',
-                                        params.postsynaptic_stage4_threshold,
-                                        params.postsynaptic_stage4_percentage), // csv output
+                                        params.presynaptic_stage4_threshold,
+                                        params.presynaptic_stage4_percentage), // csv output
             ]
         },
-        params.postsynaptic_stage4_threshold,
-        params.postsynaptic_stage4_percentage,
+        params.presynaptic_stage4_threshold,
+        params.presynaptic_stage4_percentage,
         params.postprocessing_cpus,
         params.postprocessing_memory,
         params.postprocessing_threads,
