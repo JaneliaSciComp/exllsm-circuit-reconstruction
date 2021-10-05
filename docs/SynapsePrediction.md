@@ -52,7 +52,9 @@ These parameters specify computation parameters and key aspects of data analysis
 
 
 
-## Workflow A (Neuron1 Presynaptic to Neuron2)
+## Workflow A 
+
+Neuron 1 Presynaptic to Neuron 2
 
 Usage ([example](../examples/presynaptic_n1_to_n2.sh)):
 
@@ -79,7 +81,9 @@ This workflow requires masked neuron channels (see [Neuron Segmentation Workflow
 | --presynapse | Volume (TIFF series or n5) containing pre-synaptic channel  |
 | --presynapse_in_dataset | Pre-synaptic dataset if the input is N5; i.e. c2/s0  |
 
-## Workflow B (Neuron1 Presynaptic to Neuron2 Restricted Postsynaptic)
+## Workflow B 
+
+Neuron 1 Presynaptic to Neuron 2 Restricted Postsynaptic
 
 Usage ([example](../examples/presynaptic_n1_to_postsynaptic_n2.sh)):
 
@@ -108,7 +112,9 @@ This workflow requires masked neuron channels (see [Neuron Segmentation Workflow
 | --postsynapse_in_dataset | Post-synaptic dataset if the input is N5; i.e. c2/s0  |
 
 
-## Workflow C (Presynaptic in Volume)
+## Workflow C 
+
+Synaptic in Volume
 
 Usage: 
 
