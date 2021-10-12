@@ -23,21 +23,25 @@ Upon starting VVD Viewer for the first time, click the Settings box at the top o
 
 ### VVD Viewer basic controls
 
-| Task       | Description                                                                           |
-|------------|---------------------------------------------------------------------------------------|
-| open VVD pyramid file | Either use the Open Volume button or drag the .vvd file into VVD Viewer |
-| pan image | ctrl+right click and drag the mouse in the Render View window |
-| zoom | scroll the mouse trackball in the Render View window |
-| rotate | right click and drag the mouse in the Render View Window |
-| visualize a subset of the volume | adjust values in the Clipping Planes. checking the link button will allow scrolling through the volume at a given subvolume |
-| change Clipping Plane orientation | rotate image as desired, click Align to View in Clipping Planes Rotations panel |
-| change name of the volume | right click on the volume name in the Workspace panel and click Rename |
-| change volume color | click the box at the bottom of the Properties panel |
-| change scale | set the x/y/z voxel size values at the bottom of the Properties panel |
-| adjust gamma, saturation, etc. | sliders found in the Properties panel |
-| add legend to Render View for image captures and videos | click the Legend button at the top of the Render View window |
-| capture image in the Render View | click the capture button at the top of the Render View window |
-| create videos of the Render View | go to the Advanced tab in the Record/Export Panel. add desired views in the Render View in sequence. set the time between view transitions. click save to generate a video of each view added and the 3D transitions between the added views |
+![VVDbasics](https://user-images.githubusercontent.com/8125635/137042755-4b81b87d-1c46-4a50-8f7d-fa8a0caddebf.png)
+
+| | Task       | Description                                                                           |
+|-|------------|---------------------------------------------------------------------------------------|
+|1| open VVD pyramid file | Either use the Open Volume button or drag the .vvd file into VVD Viewer |
+|2| pan image | ctrl+right click and drag the mouse in the Render View window |
+|3| zoom | scroll the mouse trackball in the Render View window |
+|4| rotate | right click and drag the mouse in the Render View Window |
+|5| view volume details | click the Info box at the top of the Render View window. this will show the VVD pyramid being viewed and additional information |
+|6| increase resolution of rendering | the VVD pyramid being viewed (e.g. full resolution = Max, most downsampled pyramid = Min) can be switched by clicking on the Quality menu at the top of the Render View. zooming will also increase resolution if Standard or above is selected. |
+|7| change name of the volume | right click on the volume name in the Workspace panel and click Rename |
+|8| change volume color | click the box at the bottom of the Properties panel |
+|9| change scale | set the x/y/z voxel size values at the bottom of the Properties panel |
+|10| adjust gamma, saturation, etc. | sliders found in the Properties panel |
+|11| visualize a subset of the volume | adjust values in the Clipping Planes. checking the link button will allow scrolling through the volume at a given subvolume |
+|12| change Clipping Plane orientation | rotate image as desired, click Align to View in Clipping Planes Rotations panel |
+|13| add legend to Render View for image captures and videos | click the Legend button at the top of the Render View window |
+|14| capture image in the Render View | click the capture button at the top of the Render View window |
+|15| create videos of the Render View | go to the Advanced tab in the Record/Export Panel. add desired views in the Render View in sequence. set the time between view transitions. click save to generate a video of each view added and the 3D transitions between the added views |
 
 
 
