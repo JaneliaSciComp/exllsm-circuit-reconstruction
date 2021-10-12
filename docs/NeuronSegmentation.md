@@ -60,21 +60,23 @@ Images can be segmented in VVD Viewer based on a pixel intensity threshold (manu
 
 Semi-automatic segmentation based on pixel intensity and component size can be accomplished via the Component Analyzer tool (found in the Analysis tab of the Analyze window). It may take some trial and error to find an appropriate combination of intensity and size, but this is usually a straight forward process. 
 
-Here, the threshold is too low. The tool selects most of the image.
+Here, the thresholds are too low. The tool selects most of the image.
 
 ![component_analyzer_bad1](https://user-images.githubusercontent.com/8125635/137024605-d09076eb-db8b-4153-b703-44ad1aa02351.png)
 
-By increasing the threshold from 5 to 30, the neurons of interest are grossly selected and most of the background is avoided.
+By increasing the pixel intensity threshold from 5 to 30, the neurons of interest are grossly selected and most of the background is avoided.
 
 ![component_analyzer_good1](https://user-images.githubusercontent.com/8125635/137024721-2f3d00d7-de81-42fb-9b49-0cde549a9366.png)
 
-To inspect the quality of the result, adjust the Clipping Planes, zoom in, and scan through the image in small chunks (or single slices). The automatic segmentation results can be manually adjusted using the Select and Unselect tools (found in the Paint tab of the Analyze window). This process is the same as that described for Manual segmentation. By making manual edits on small subvoumes of the image using the Paint tab tools, it is relatively efficient to select and unselect false negative and false positive voxels from the Component Analzyer result. **Be sure to save the project periodically (plausibly with updated file names so you can return to a previous version if you over-edit the automatic result) to ensure that manual segmentation work is not lost.** 
+To inspect the quality of the result, adjust the Clipping Planes, zoom in, and scan through the image in small chunks (or single slices). The automatic segmentation results can be manually adjusted using the Select and Unselect tools (found in the Paint tab of the Analyze window). This process is the same as that described for Manual segmentation. Making manual edits on small subvoumes of the image using the Paint tab tools allows corrections to be done in a relatively efficient manner. **Be sure to save the project periodically (plausibly with updated file names so you can return to a previous version if accidentally make incorrect edits) to ensure that manual segmentation work is not lost.** 
 
 Here, by looking at 100 z-slices and scanning through the volume, we see that several portions of the neuron bundle were missed by the Component Analyzer.
 
 ![manualedit_1](https://user-images.githubusercontent.com/8125635/137025725-15be7816-cc0b-4174-9de5-1105951b5cb6.png)
 
-We can use the Select tool in the Paint tab of the Analyze window. After finding a suitable threshold, missed voxels can be manually selected as demonstrated on a small region of the neuron bundle below. Repeat this through the volume to cleanly segment the image as desired. If inspection reveals many errors, try running Component Analyzer again with new threshold and/or voxel size thresholds.
+![manualedit_1large](https://user-images.githubusercontent.com/8125635/137029059-fd5a1597-240b-497c-b8fd-c67a6a7aa457.png)
+
+We can use the Select tool in the Paint tab of the Analyze window. After finding a suitable pixel intensity threshold, missed voxels can be manually selected as demonstrated on a small region of the neuron bundle below. Repeat this through the volume to cleanly segment the image as desired. If close inspection reveals many errors, try running Component Analyzer again with new threshold and/or voxel size thresholds.
 
 ![manualedit_2-3](https://user-images.githubusercontent.com/8125635/137026190-f105e9ca-0e7a-4a78-b0ef-64190d3f8c64.png)
 
