@@ -56,6 +56,9 @@ Images can be segmented in VVD Viewer based on a pixel intensity threshold (manu
 | save full resolution segmentation | to save the segmented volume as an 8-bit TIFF series, click the Hide Outside box inthe Properties panel. then click on the save floppy disk icon at the top of the Workspace panel. create a directory for the TIFF series, pick a file name (0 -- subsequent z slices will be saved as 1, 2, 3, etc.). this process may take an hour or more depending on the size of the volume. |
 
 
+![component_analyzer1](https://user-images.githubusercontent.com/8125635/137023848-8d1aa43b-1851-4d55-a226-57ac1bbf7095.png)
+
+
 ## Automatic Pipeline
 
 The automatic neuron segmentation workflow runs 3D U-Net classification followed by optional post-processing steps. 
