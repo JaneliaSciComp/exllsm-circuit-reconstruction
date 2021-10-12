@@ -6,9 +6,23 @@ Neuron segmentation can be accomplished using semi-automatic or automatic workfl
 
 [VVD Viewer](https://github.com/JaneliaSciComp/VVDViewer) is an open-source interactive rendering tool for light microscopy data visualization and analysis. We have developed VVD Viewer to allow user-guided, semi-automatic neuron segmentation of large ExLLSM image volumes. 
 
-ExLLSM image volumes are first [converted to VVD Viewer pyramid files](./ImageProcessing.md). Neurons and are then semi-automatically segmented in VVD Viewer and saved as a TIFF series. A postprocessing workflow is required to convert the TIFF series to the final neuron mask used to [analyze connectivity](./SynapsePrediction.md). These postprocessing steps include pixel intensity thresholding, 3D component connecting, N5 component analysis, voxel shape conversion, and component size filtering. Each step is described in [Image Processing](./ImageProcessing.md) and we have generated a [Post VVD Neuron Segmentation Processing Workflow](./ImageProcessing.md#post-vvd-neuron-segmentation-processingworkflow) to run the entire postprocessing pipeline in sequence. 
+Image volumes stored as N5 files can be dragged directy into VVD Viewer and visualized. However, segmentation has not been optimized for these file types. Instead, it is recommended that VVD pyramid files are used for ExLLSM analysis. 
 
-### VVD Viewer settings and basic controls
+ExLLSM image volumes are first [converted to VVD Viewer pyramid files](./ImageProcessing.md). Neurons are then semi-automatically segmented in VVD Viewer and saved as a TIFF series. A postprocessing workflow is required to convert the TIFF series to the final neuron mask used to [analyze connectivity](./SynapsePrediction.md). These postprocessing steps include pixel intensity thresholding, 3D component connecting, voxel shape conversion, N5 component analysis, and component size filtering. Each of these post VVD segmentation steps is described in [Image Processing](./ImageProcessing.md) and we have generated a [Post VVD Neuron Segmentation Processing Workflow](./ImageProcessing.md#post-vvd-neuron-segmentation-processingworkflow) to run the entire postprocessing pipeline in sequence. 
+
+Recommended VVD Viewer settings, basic controls, and segmentation protocols are documented here. 
+
+VVD Viewer recommended settings for ExLLSM data
+Basic VVD Viewer controls
+Manual and Semi-automatic ExLLSM image segmentation
+Editing and saving semi-automatically generated segmentation results
+
+
+### VVD Viewer recommended settings
+
+Upon starting VVD Viewer for the first time, click the Settings box at the top of the window. In the Project panel, it is recommended that Paint History be set to 1 or 2. This allows actions to be undone which can, of course, be very helpful. If the system allows, in the Rendering panel, Enable Micro Blending and set Mesh Transparency Quality to 10. In the Performance panel, Enable streaming for large datasets. Set the Graphics Memory to the correct value based on your system. Set a Large Data Size of 1000 MB, Brick Size of 512, and Response Time of 100  ms. Set the Buffer Size as high as possible based on your system. The Rendering and Performance settings may require testing to find the optimal values for your system. Try reducing the values if rendering is slow. The Variable Sample Rate options in Performance may also be helpful.  To save Settings, close VVD Viewer and repoen. The updated settings should now be present.
+
+### VVD Viewer basic controls
 
 | Task       | Description                                                                           |
 |------------|---------------------------------------------------------------------------------------|
@@ -16,16 +30,17 @@ ExLLSM image volumes are first [converted to VVD Viewer pyramid files](./ImagePr
 | pan image | ctrl+right click and drag the mouse in the Render View window |
 | zoom | scroll the mouse trackball in the Render View window |
 | rotate | right click and drag the mouse in the Render View Window |
-| visualize a subset of the volume | adjust values in the Clipping Planes |
+| visualize a subset of the volume | adjust values in the Clipping Planes. checking the link button will allow scrolling through the volume at a given subvolume |
 | change Clipping Plane orientation | rotate image as desired, click Align to View in Clipping Planes Rotations panel |
-| change name of the volume | scroll the mouse trackball in the Render View window |
+| change name of the volume | right click on the volume name in the Workspace panel and click Rename |
 | change volume color | click the box at the bottom of the Properties panel |
-| change scale | change the x/y/z voxel size values at the bottom of the Properties panel |
+| change scale | set the x/y/z voxel size values at the bottom of the Properties panel |
 | adjust gamma, saturation, etc. | sliders found in the Properties panel |
 | add legend to Render View for image captures and videos | click the Legend button at the top of the Render View window |
 | capture image in the Render View | click the capture button at the top of the Render View window |
+| create videos of the Render View | go to the Advanced tab in the Record/Export Panel. add desired views in the Render View in sequence. set the time between view transitions. click save to generate a video of each view added and the 3D transitions between the added views |
 
-### Segmentation controls
+### VVD Viewer segmentation controls
 
 | Task       | Description                                                                           |
 |------------|---------------------------------------------------------------------------------------|
