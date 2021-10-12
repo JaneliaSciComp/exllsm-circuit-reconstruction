@@ -62,11 +62,11 @@ Semi-automatic segmentation based on pixel intensity and component size can be a
 
 Here, the thresholds are too low. The tool selects most of the image.
 
-![component_analyzer_bad1](https://user-images.githubusercontent.com/8125635/137024605-d09076eb-db8b-4153-b703-44ad1aa02351.png)
+![component_analyzer_bad1](https://user-images.githubusercontent.com/8125635/137029694-e2476947-67a0-45fb-b929-4a368235c285.png)
 
 By increasing the pixel intensity threshold from 5 to 30, the neurons of interest are grossly selected and most of the background is avoided.
 
-![component_analyzer_good1](https://user-images.githubusercontent.com/8125635/137024721-2f3d00d7-de81-42fb-9b49-0cde549a9366.png)
+![component_analyzer_good1](https://user-images.githubusercontent.com/8125635/137029686-7f963e97-28f8-4036-abff-b1a0b1076001.png)
 
 To inspect the quality of the result, adjust the Clipping Planes, zoom in, and scan through the image in small chunks (or single slices). The automatic segmentation results can be manually adjusted using the Select and Unselect tools (found in the Paint tab of the Analyze window). This process is the same as that described for Manual segmentation. Making manual edits on small subvoumes of the image using the Paint tab tools allows corrections to be done in a relatively efficient manner. **Be sure to save the project periodically (plausibly with updated file names so you can return to a previous version if accidentally make incorrect edits) to ensure that manual segmentation work is not lost.** 
 
