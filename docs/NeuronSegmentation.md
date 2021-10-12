@@ -12,11 +12,10 @@ ExLLSM image volumes are first [converted to VVD Viewer pyramid files](./ImagePr
 
 Recommended VVD Viewer settings, basic controls, and segmentation protocols are documented here. 
 
-VVD Viewer recommended settings for ExLLSM data
-Basic VVD Viewer controls
-Manual and Semi-automatic ExLLSM image segmentation
-Editing and saving semi-automatically generated segmentation results
-
+* VVD Viewer recommended settings for ExLLSM data
+* Basic VVD Viewer controls
+* Manual and Semi-automatic ExLLSM image segmentation
+* Inspecting, editing, and saving semi-automatically generated segmentation results
 
 ### VVD Viewer recommended settings
 
@@ -40,7 +39,11 @@ Upon starting VVD Viewer for the first time, click the Settings box at the top o
 | capture image in the Render View | click the capture button at the top of the Render View window |
 | create videos of the Render View | go to the Advanced tab in the Record/Export Panel. add desired views in the Render View in sequence. set the time between view transitions. click save to generate a video of each view added and the 3D transitions between the added views |
 
+
+
 ### VVD Viewer segmentation controls
+
+Images can be segmented in VVD Viewer based on a pixel intensity threshold (manual) and based on a combination of a pixel intensity threshold and a component size threshold (semi-automatic).
 
 | Task       | Description                                                                           |
 |------------|---------------------------------------------------------------------------------------|
@@ -51,6 +54,7 @@ Upon starting VVD Viewer for the first time, click the Settings box at the top o
 | save project/selection/segmentation mask | click the Save Project button and name the .vrp file |
 | import segmentation mask | to return to a project, you can use the Open Project button. however, you can also import a previously saved mask onto a VVD volume which can be faster. to do this, right click on the name of the image volume in the Workspace panel. click Import Mask. navigate to the appropriate .vrp_files folder. open the .msk file. the .msk must be the same dimensions as the volume to import |
 | save full resolution segmentation | to save the segmented volume as an 8-bit TIFF series, click the Hide Outside box inthe Properties panel. then click on the save floppy disk icon at the top of the Workspace panel. create a directory for the TIFF series, pick a file name (0 -- subsequent z slices will be saved as 1, 2, 3, etc.). this process may take an hour or more depending on the size of the volume. |
+
 
 ## Automatic Pipeline
 
