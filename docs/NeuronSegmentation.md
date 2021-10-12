@@ -11,7 +11,7 @@ ExLLSM image volumes are first [converted to VVD Viewer pyramid files](./ImagePr
 ### VVD Viewer settings and basic controls
 
 | Task   | Description                                                                           |
-|------------|---------|---------------------------------------------------------------------------------------|
+|------------|---------|-------------------------------------------------------------------------|
 | open VVD pyramid file | Either use the Open Volume button or drag the .vvd file into VVD Viewer |
 | pan image | ctrl+right click and drag the mouse in the Render View window |
 | zoom | scroll the mouse trackball in the Render View window |
