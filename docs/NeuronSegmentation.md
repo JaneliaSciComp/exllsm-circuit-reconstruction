@@ -72,13 +72,11 @@ To inspect the quality of the result, adjust the Clipping Planes, zoom in, and s
 
 Here, by looking at 100 z-slices and scanning through the volume, we see that several portions of the neuron bundle were missed by the Component Analyzer.
 
-![manualedit_1](https://user-images.githubusercontent.com/8125635/137025725-15be7816-cc0b-4174-9de5-1105951b5cb6.png)
-
 ![manualedit_1large](https://user-images.githubusercontent.com/8125635/137029059-fd5a1597-240b-497c-b8fd-c67a6a7aa457.png)
 
 We can use the Select tool in the Paint tab of the Analyze window. After finding a suitable pixel intensity threshold, missed voxels can be manually selected as demonstrated on a small region of the neuron bundle below. Repeat this through the volume to cleanly segment the image as desired. If close inspection reveals many errors, try running Component Analyzer again with new threshold and/or voxel size thresholds.
 
-![manualedit_2-3](https://user-images.githubusercontent.com/8125635/137026190-f105e9ca-0e7a-4a78-b0ef-64190d3f8c64.png)
+![manualedit_2-3large](https://user-images.githubusercontent.com/8125635/137029211-45bff703-d19b-4a4a-a0ab-6d4149b0cb25.png)
 
 Once you are satisfied with the result, you can save an 8-bit TIFF series of the segmentation. To do this, click the Mask: Hide Outside box at the bottom of the Properties Panel and click the Save floppy disk icon at the top of the Workspace panel. Create a directory for the TIFF series. Each tiff will be named in ascending sequence. This process may take an hour or more if the volume is large. 
 
