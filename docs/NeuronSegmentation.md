@@ -10,12 +10,32 @@ ExLLSM image volumes are first [converted to VVD Viewer pyramid files](./ImagePr
 
 ### VVD Viewer settings and basic controls
 
-| Task   | Description                                                                           |
-|------------|---------|-------------------------------------------------------------------------|
+| Task       | Description                                                                           |
+|------------|---------------------------------------------------------------------------------------|
 | open VVD pyramid file | Either use the Open Volume button or drag the .vvd file into VVD Viewer |
 | pan image | ctrl+right click and drag the mouse in the Render View window |
 | zoom | scroll the mouse trackball in the Render View window |
+| rotate | right click and drag the mouse in the Render View Window |
+| visualize a subset of the volume | adjust values in the Clipping Planes |
+| change Clipping Plane orientation | rotate image as desired, click Align to View in Clipping Planes Rotations panel |
+| change name of the volume | scroll the mouse trackball in the Render View window |
+| change volume color | click the box at the bottom of the Properties panel |
+| change scale | change the x/y/z voxel size values at the bottom of the Properties panel |
+| adjust gamma, saturation, etc. | sliders found in the Properties panel |
+| add legend to Render View for image captures and videos | click the Legend button at the top of the Render View window |
+| capture image in the Render View | click the capture button at the top of the Render View window |
 
+### Segmentation controls
+
+| Task       | Description                                                                           |
+|------------|---------------------------------------------------------------------------------------|
+| manually segment based on pixel intensity | open the Analyze window, click the Paint Brush tab, set a pixel intensity Threshol value; click Select and right click and drag the mouse to select in the Render View window (or shift+right click and drag the mouse); after selecting, the threshold value can be updated and the selection based on the new threshold will be displayed upon hitting enter |
+| manually unselect | open the Analyze window, click the Paint Brush tab, click Unselect and right click and drag the mouse in the Render View window |
+| reset all segmentation | open the Analyze window, click the Paint Brush tab, click Reset |
+| semi-automatically segment based on pixel intensity and voxel size | open the Analyze window, click the Analysis tab, set a pixel intensity Threshold and Min vx. size values, and click Analyze |
+| save project/selection/segmentation mask | click the Save Project button and name the .vrp file |
+| import segmentation mask | to return to a project, you can use the Open Project button. however, you can also import a previously saved mask onto a VVD volume which can be faster. to do this, right click on the name of the image volume in the Workspace panel. click Import Mask. navigate to the appropriate .vrp_files folder. open the .msk file. the .msk must be the same dimensions as the volume to import |
+| save full resolution segmentation | to save the segmented volume as an 8-bit TIFF series, click the Hide Outside box inthe Properties panel. then click on the save floppy disk icon at the top of the Workspace panel. create a directory for the TIFF series, pick a file name (0 -- subsequent z slices will be saved as 1, 2, 3, etc.). this process may take an hour or more depending on the size of the volume. |
 
 ## Automatic Pipeline
 
