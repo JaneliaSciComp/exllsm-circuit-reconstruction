@@ -1,16 +1,16 @@
 # Neuron Segmentation Workflows
 
-Neuron segmentation can be accomplished using semi-automatic or automatic workflows. This document describes a part of the semi-automatic workflow and describes how to run the automatic neuron segmentation workflow.
+Neuron segmentation can be accomplished using manual, semi-automatic, or automatic workflows. Notably, the semi-automatic and automatic segmentation tools work well to segment neurons from background signals and off-target antibody labeling. As such, they are well-suited to automatically segmenting images that label individual neurons or multiple connected neurons that are being analyzed as a group. However, to segment individual neurons that contact each other, these tools can be used for initial segmentation from background, but the user will need to manually inspect and edit the results to segment individual neurons in the volume. 
 
-## Semi-automatic Pipeline
+## Manual and Semi-automatic Workflows
 
-[VVD Viewer](https://github.com/JaneliaSciComp/VVDViewer) is an open-source interactive rendering tool for light microscopy data visualization and analysis. We have developed VVD Viewer to allow user-guided, semi-automatic neuron segmentation of large ExLLSM image volumes. 
+Manual and semi-automatic segmentation is accomplished using [VVD Viewer](https://github.com/JaneliaSciComp/VVDViewer). VVD Viewer is an open-source interactive rendering tool for light microscopy data visualization and analysis. We have developed VVD Viewer to allow manual and user-guided semi-automatic neuron segmentation of large ExLLSM image volumes. 
 
 Image volumes stored as N5 files can be dragged directy into VVD Viewer and visualized. However, segmentation has not been optimized for these file types. Instead, it is recommended that VVD pyramid files are used for ExLLSM analysis. 
 
-ExLLSM image volumes are first [converted to VVD Viewer pyramid files](./ImageProcessing.md). Neurons are then semi-automatically segmented in VVD Viewer and saved as a TIFF series. A postprocessing workflow is required to convert the TIFF series to the final neuron mask used to [analyze connectivity](./SynapsePrediction.md). These postprocessing steps include pixel intensity thresholding, 3D component connecting, voxel shape conversion, N5 component analysis, and component size filtering. Each of these post VVD segmentation steps is described in [Image Processing](./ImageProcessing.md) and we have generated a [Post VVD Neuron Segmentation Processing Workflow](./ImageProcessing.md#post-vvd-neuron-segmentation-processingworkflow) to run the entire postprocessing pipeline in sequence. 
+Therefore, ExLLSM image volumes are first [converted to VVD Viewer pyramid files](./ImageProcessing.md). Neurons are then segmented in VVD Viewer and saved as a TIFF series. A postprocessing workflow is required to convert the TIFF series to the final neuron mask used to [analyze connectivity](./SynapsePrediction.md). These postprocessing steps include pixel intensity thresholding, 3D component connecting, voxel shape conversion, N5 component analysis, and component size filtering. Each of these post VVD segmentation steps is described in [Image Processing](./ImageProcessing.md) and we have generated a [Post VVD Neuron Segmentation Processing Workflow](./ImageProcessing.md#post-vvd-neuron-segmentation-processingworkflow) to run the entire postprocessing pipeline in sequence. 
 
-Recommended VVD Viewer settings, basic controls, and segmentation protocols are documented here. 
+Recommended VVD Viewer settings, basic controls, and segmentation tools and strategies are documented in this section. 
 
 * VVD Viewer recommended settings for ExLLSM data
 * Basic VVD Viewer controls
@@ -19,7 +19,7 @@ Recommended VVD Viewer settings, basic controls, and segmentation protocols are 
 
 ### VVD Viewer recommended settings
 
-Upon starting VVD Viewer for the first time, click the Settings box at the top of the window. In the Project panel, it is recommended that Paint History be set to 1 or 2. This allows actions to be undone which can, of course, be very helpful. If the system allows, in the Rendering panel, Enable Micro Blending and set Mesh Transparency Quality to 10. In the Performance panel, Enable streaming for large datasets. Set the Graphics Memory to the correct value based on your system. Set a Large Data Size of 1000 MB, Brick Size of 512, and Response Time of 100  ms. Set the Buffer Size as high as possible based on your system. The Rendering and Performance settings may require testing to find the optimal values for your system. Try reducing the values if rendering is slow. The Variable Sample Rate options in Performance may also be helpful.  To save Settings, close VVD Viewer and repoen. The updated settings should now be present.
+Upon starting VVD Viewer for the first time, click the Settings box at the top of the window. In the Project panel, it is recommended that Paint History be set to 1 or 2. This allows actions to be undone which can, of course, be very helpful. The remaining settings depend in large part to the computer being used. If the system allows, in the Rendering panel, Enable Micro Blending and set Mesh Transparency Quality to 10. In the Performance panel, Enable streaming for large datasets. Set the Graphics Memory to the correct value based on your system. Set a Large Data Size of 1000 MB, Brick Size of 512, and Response Time of 100  ms. Set the Buffer Size as high as possible based on your system. The Rendering and Performance settings may require testing to find the optimal values for your system. Try disapling Micro Blending and reducing the Mesh Transparency Quality values if rendering is slow. The Variable Sample Rate options in Performance may also be helpful. To save Settings, close VVD Viewer and repoen. The updated settings should now be present.
 
 ### VVD Viewer basic controls
 
@@ -43,11 +43,9 @@ Upon starting VVD Viewer for the first time, click the Settings box at the top o
 |14| capture image in the Render View | click the capture button at the top of the Render View window |
 |15| create videos of the Render View | go to the Advanced tab in the Record/Export Panel. add desired views in the Render View in sequence. set the time between view transitions. click save to generate a video of each view added and the 3D transitions between the added views |
 
-
-
 ### VVD Viewer segmentation controls
 
-Images can be segmented in VVD Viewer based on a pixel intensity threshold (manual) and based on a combination of a pixel intensity threshold and a component size threshold (semi-automatic).
+Images can be segmented in VVD Viewer based on a voxel intensity threshold (manual) and based on a combination of a voxel intensity threshold and a component size threshold (semi-automatic).
 
 | Task       | Description                                                                           |
 |------------|---------------------------------------------------------------------------------------|
@@ -59,36 +57,112 @@ Images can be segmented in VVD Viewer based on a pixel intensity threshold (manu
 | import segmentation mask | to return to a project, you can use the Open Project button. however, you can also import a previously saved mask onto a VVD volume which can be faster. to do this, right click on the name of the image volume in the Workspace panel. click Import Mask. navigate to the appropriate .vrp_files folder. open the .msk file. the .msk must be the same dimensions as the volume to import |
 | save full resolution segmentation | to save the segmented volume as an 8-bit TIFF series, click the Hide Outside box inthe Properties panel. then click on the save floppy disk icon at the top of the Workspace panel. create a directory for the TIFF series, pick a file name (0 -- subsequent z slices will be saved as 1, 2, 3, etc.). this process may take an hour or more depending on the size of the volume. |
 
+### Manual segmentation
+
+Manual segmentation in VVD Viewer is not entirely manual -- intensity thresholds are utilized to facilitate voxel selections. This makes the even manual segmentation via VVD Viewer reasonably efficient, and in some cases this approach may be sufficient to segment images as desired. Additionally, these manual segmentation tools will come in handy when editing semi-automatic segmentation results. 
+
+To manually segment based on voxel intensity, open the Analyze window and select the Paint Brush tab. Pick an intensity threshold and press Select. In the Render View window, right click the mouse and paint or select the regions of interest. Here, the threshold used was too low and large chunks of background signal were selected.
+
+![manualselect1](https://user-images.githubusercontent.com/8125635/137046058-992f4c67-5c9d-4830-8b48-2e5fb6672e08.png)
+
+With this selection, you can change the threshold value in the Paint Brush toolbox, press enter, and the selection based on the new threshold will appear in the Render View window. You can also Unselect a previous selection using the Unselect tool. Simply click on Unselect, then right click in the Render View window to remove selected voxels from the segmentation by dragging the mouse.
+
+![unselect1](https://user-images.githubusercontent.com/8125635/137046252-7aa4fbda-2ff5-4685-9cee-2907088f51dc.png)
+
+Of course, you can also test additional thresholds to find one that cleanly selects the neurons of interst. Here, the threshold was increased from 20 in the first example to 40. This appears to do a much better job of selecting only voxels of interest. However, there is likely to be significant variability in voxel intensity throughout the sample so the result needs to be inspected closely. See below for efficient segmentation editing and refinement strategies.
+
+![manualselect2](https://user-images.githubusercontent.com/8125635/137046446-93fbe5a7-d26c-4345-9a8f-b3a0593188d7.png)
 
 #### Semi-automatic segmentation
 
-Semi-automatic segmentation based on pixel intensity and component size can be accomplished via the Component Analyzer tool (found in the Analysis tab of the Analyze window). It may take some trial and error to find an appropriate combination of intensity and size, but this is usually a straight forward process. 
+Semi-automatic segmentation is accomplished by using a combination of voxel intensity and component size thresholds. This is done via the Component Analyzer tool (found in the Analysis tab of the Analyze window). It may take some trial and error to find an appropriate combination of voxel intensity and component size that segments the neurons properly (or at least provides a helpful start), but this is usually a straight forward process. 
 
 Here, the thresholds are too low. The tool selects most of the image.
 
 ![component_analyzer_bad1](https://user-images.githubusercontent.com/8125635/137029694-e2476947-67a0-45fb-b929-4a368235c285.png)
 
-By increasing the pixel intensity threshold from 5 to 30, the neurons of interest are grossly selected and most of the background is avoided.
+By increasing the voxel intensity threshold from 5 to 30, the neurons of interest are grossly selected and most of the background is avoided.
 
 ![component_analyzer_good1](https://user-images.githubusercontent.com/8125635/137029686-7f963e97-28f8-4036-abff-b1a0b1076001.png)
 
-To inspect the quality of the result, adjust the Clipping Planes, zoom in, and scan through the image in small chunks (or single slices). The automatic segmentation results can be manually adjusted using the Select and Unselect tools (found in the Paint tab of the Analyze window). This process is the same as that described for Manual segmentation. Making manual edits on small subvoumes of the image using the Paint tab tools allows corrections to be done in a relatively efficient manner. **Be sure to save the project periodically (plausibly with updated file names so you can return to a previous version if accidentally make incorrect edits) to ensure that manual segmentation work is not lost.** 
+To inspect the quality of the result, adjust the Clipping Planes, zoom in, and scan through the image in small chunks (or single slices). If you have what appears to be a solid segmentation result -- or at least a good start -- save the project. This may take some time depending on the size of the volume. However, the mask itself will save very quickly and can be immediately loaded into a new instance of VVD Viewer for editing. 
+
+To do this, open a new VVD Viewer window and open the original .vvd pyramid file. Right click on the volume name in the Workspace panel, select Import Mask, go to the .vrp_files folder that was just generated upon saving the project, and select the .msk. This will import the mask onto the image volume.
+
+Now, the automatic segmentation results can be manually adjusted using the Select and Unselect Paint Brush tools described in the Manual Segmentation section above. Making manual edits using the Paint Brush tools by systematically stepping through small subvoumes of the image allows corrections to be done in a relatively efficient manner. **Be sure to save the project periodically (plausibly with updated file names so you can return to a previous version if accidentally make incorrect edits) to ensure that manual segmentation work is not lost.**
 
 Here, by looking at 100 z-slices and scanning through the volume, we see that several portions of the neuron bundle were missed by the Component Analyzer.
 
 ![manualedit_1large](https://user-images.githubusercontent.com/8125635/137029059-fd5a1597-240b-497c-b8fd-c67a6a7aa457.png)
 
-We can use the Select tool in the Paint tab of the Analyze window. After finding a suitable pixel intensity threshold, missed voxels can be manually selected as demonstrated on a small region of the neuron bundle below. Repeat this through the volume to cleanly segment the image as desired. If close inspection reveals many errors, try running Component Analyzer again with new threshold and/or voxel size thresholds.
+After finding a suitable pixel intensity threshold, missed voxels can be manually selected using the Paint Brush as demonstrated on a small region of the neuron bundle below. Repeat this through the volume to cleanly segment the image as desired. If close inspection reveals many errors, try running Component Analyzer again with new threshold and/or voxel size thresholds.
 
 ![manualedit_2-3large](https://user-images.githubusercontent.com/8125635/137029211-45bff703-d19b-4a4a-a0ab-6d4149b0cb25.png)
 
 Once you are satisfied with the result, you can save an 8-bit TIFF series of the segmentation. To do this, click the Mask: Hide Outside box at the bottom of the Properties Panel and click the Save floppy disk icon at the top of the Workspace panel. Create a directory for the TIFF series. Each tiff will be named in ascending sequence. This process may take an hour or more if the volume is large. 
 
+### Post VVD Neuron Segmentation Processing
 
+![post_vvd](https://user-images.githubusercontent.com/8125635/137052907-a240f8f2-e53b-439d-890c-0478f76d546f.png)
+
+You now have a TIFF series of the segmented volume. However, this segmentation result will overmask the neuron on the edges in most cases. This is because the segmentation result was generated on a downsampled VVD pyramid. This was necessary to allow fast segmentation and smooth 3D editing of the multi-terabyte full resolution image volume. To correct overmasking and to generate a final binary mask of the neuron that can be used for further data analysis, we have developed a Post VVD Viewer segmentation image processing workflow. The steps of this are detailed in the figure above. 
+
+The first step of this is to remove the block overmasking present in the TIFF series. Because the TIFF series retains the original pixel intensities at 8-bit, we can threshold this result. Thresholding removes the overmasking and gives a binary mask that is true to the neural signal. We found that a suitable threshold value could be identified by generating a maximum intensity projection (MIP) of the TIFF series, opening that MIP in Fiji (https://imagej.net/software/fiji/), and identifying the Huang and Li threshold values of the MIP (Image/Adjust/Threshold). In most cases one or both of these values worked well. However in some cases these values were too low and a higher value was used.
+
+To generate a MIP, use the TIFF Converter
+
+#### TIFF Converter
+
+The TIFF converter pipeline operates on TIFF series, and converts the data in various ways. 
+
+Usage:
+
+Generate a maximum intensity projection (MIP):
+
+    ./pipelines/tiff_converter.nf --input_dir INPUT_TIFF_DIR --mips_output_dir OUTPUT_DIR
+
+
+After thresholding, the neuron mask will be true to the fluorescent signal of the neuron. However, at 8X, the fluorescent signal along neurons is not completely continuous due to gaps in antibody labeling along the neuron. To fill these gaps a flexible, 3D component connecting algorithm is used. We connected gaps of 20 voxels or less, and iterated this process four times. This process reliably connected disconnected neuron components that were clearly part of a continuous neuron with minimal unwanted connections. 
+
+The final step of the process is to (optionally) convert the voxel shape from diamond to box, to analyze the connected components, and to remove disconnected components smaller than 2000 voxels. The result of these steps creates a binary mask of the neuron signal in the imaging volume that can be used to analyze connectivity. All of the steps in this process, from thresholding to size filtering can be run using the Post VVD Neuron Segmentation Processing Workflow.   
+
+#### Post VVD Neuron Segmentation Processing Workflow
+
+Each of the components of this Workflow are described in detail in [Image Processing](./ImageProcessing.md). 
+
+Usage:
+
+    ./pipelines/post_vvd_workflow.nf --input_dir INPUT_MASK_DIR --shared_temp_dir SHARED_TEMP_DIR --output_dir OUTPUT_DIR --threshold NUMBER --mask_connection_distance=20 --mask_connection_iterations=4 --connect_mask_mem_gb=100 --output_n5 OUTPUT_N5 --with_connected_comps=true --runtime_opts="-B <OUTPUT_DIR> -B <parent of OUTPUT_N5>"
+
+This is the post-VVD Viewer semi-automatic neuron segmentation workflow. Runs thresholding, 3D mask connection, TIFF to n5 conversion, and n5 connected components.
+
+### Required Parameters
+
+| Argument   | Description                                                                           |
+|------------|---------------------------------------------------------------------------------------|
+| --input_dir | Path to directory containing your neuron mask |
+| &#x2011;&#x2011;shared_temp_dir | Path to a directory for temporary data (shared with all cluster nodes) -- THIS WILL BE DELETED SO BE SURE TO MAKE A UNIQUE DIRECTORY FOR TEMP FILES|
+| --output_dir | Path where the final fully-connected mask should be generated as a TIFF series |
+| --output_n5 | Path where final n5 should be generated (if this is empty, no N5 will be generated which means connected components will not run) |
+
+### Optional Parameters
+
+| Argument   | Default | Description                                                                 |
+|------------|---------|-----------------------------------------------------------------------------|
+| --with_connected_comps | Generated connected components (see *Connected Components* pipeline for other parameters). Accepted valued: true or false |
+| --mask_connection_distance | 20 | Connection distance  |
+| &#x2011;&#x2011;mask_connection_iterations | 4 | Number of iterations |
+| --threshold | | Optional intensity threshold to apply before connecting mask |
+| --threshold_cpus | 4 | Number of CPUs to use for thresholding mask |
+| --threshold_mem_gb | 8 | Amount of memory (GB) to allocate for thresholding mask |
+| --convert_mask_cpus | 3 | Number of CPUs to use for importing mask |
+| --convert_mask_mem_gb | 45 | Amount of memory (GB) to allocate for importing mask |
+| --connect_mask_cpus | 32 | Number of CPUs to use for connecting mask |
+| --connect_mask_mem_gb | 192 | Amount of memory (GB) to allocate for connecting mask |
 
 ## Automatic Pipeline
 
-The automatic neuron segmentation workflow runs 3D U-Net classification followed by optional post-processing steps. 
+The automatic neuron segmentation workflow runs 3D U-Net classification followed by optional post-processing steps. This pipeline has not been used extensively. 
 
 The output of the U-Net is a probability array with voxel values between 0 and 1. The optional postprocessing steps include voxel intensity thresholding to remove low confidence voxels, a voxel shape change, and a voxel size threshold to remove small components. 
 
