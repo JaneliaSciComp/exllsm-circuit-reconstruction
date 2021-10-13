@@ -1,6 +1,6 @@
 # Neuron Segmentation Workflows
 
-Neuron segmentation can be accomplished using manual, semi-automatic, or [automatic workflows](automatic-neuron-segmentation-workflow). The semi-automatic and automatic tools work well to segment neurons from background signals and off-target antibody labeling. However, they are not constructed to segment a group of neurons that contact each other into individual neurons. As such, they are well-suited to quickly segmenting images that label individual neurons or multiple connected neurons that are being analyzed as a group. To segment individual neurons in a volume in which multiple neurons are labeled, the automatic and semi-automatic tools can be used for initial segmentation from background, but the user will need to manually inspect and edit the results to generate individual neuron masks. 
+Neuron segmentation can be accomplished using manual, semi-automatic, or [automatic workflows](#automatic-neuron-segmentation-workflow). The semi-automatic and automatic tools work well to segment neurons from background signals and off-target antibody labeling. However, they are not constructed to segment a group of neurons that contact each other into individual neurons. As such, they are well-suited to quickly segmenting images that label individual neurons or multiple connected neurons that are being analyzed as a group. To segment individual neurons in a volume in which multiple neurons are labeled, the automatic and semi-automatic tools can be used for initial segmentation from background, but the user will need to manually inspect and edit the results to generate individual neuron masks. 
 
 ## Manual and Semi-automatic Neuron Segmentation Workflows
 
@@ -162,8 +162,6 @@ To generate a MIP, use the TIFF Converter
 **TIFF Converter**
 
 The TIFF converter pipeline operates on TIFF series, and converts the data in various ways. For details, check out [Image Processing](./ImageProcessing.md).
-
-Usage:
 
 Generate a maximum intensity projection (MIP):
 
