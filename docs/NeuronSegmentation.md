@@ -157,7 +157,7 @@ We now have a TIFF series of the segmented volume. However, this segmentation re
 
 The first step of this is to remove the blocky overmasking present in the original VVD generated TIFF series. Because the TIFF series retains the original pixel intensities at 8-bit, we can use an intensity threshold to remove the overmasking. Thresholding removes the overmasking and gives a binary mask that is true to the neural signal (Fig. 10C, E, I, K). We found that a suitable threshold value could be identified by generating a maximum intensity projection (MIP) of the TIFF series, opening that MIP in Fiji (https://imagej.net/software/fiji/), and identifying the Huang and Li threshold values of the MIP (Fiji/Image/Adjust/Threshold). In most cases one or both of these values worked well. However in some cases these values were too low and a higher value was used. Inspecting the thresholds on the MIP generally was a reliable indicator of the full resolution result in 3D. However, this was not always the case and the final mask generated should be overlaid on the original image volume and inspected carefully. 
 
-To generate a MIP, use the TIFF Converter
+To generate a MIP, use the TIFF Converter.
 
 **TIFF Converter**
 
@@ -220,7 +220,7 @@ Usage:
 
     ./neuron_segmentation_pipeline.nf [arguments]
 
-## Neuron Segmentation Parameters
+### Neuron Segmentation Parameters
 
 | Argument | Default | Description |
 |----------|---------|-------------|
