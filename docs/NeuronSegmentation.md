@@ -105,7 +105,7 @@ Of course, you can also test additional thresholds to find one that cleanly sele
 
 ![manualselect2](https://user-images.githubusercontent.com/8125635/137046446-93fbe5a7-d26c-4345-9a8f-b3a0593188d7.png)
 
-#### Semi-automatic segmentation
+### Semi-automatic segmentation
 
 Semi-automatic segmentation is accomplished by using a combination of voxel intensity and component size thresholds. This is done via the Component Analyzer tool (found in the Analysis tab of the Analyze window). It may take some trial and error to find an appropriate combination of voxel intensity and component size that segments the neurons properly (or at least provides a helpful start), but this is usually a straight forward process. 
 
