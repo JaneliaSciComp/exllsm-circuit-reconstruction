@@ -10,6 +10,8 @@ Image volumes stored as N5 files can be opened directy into VVD Viewer and visua
 
 Therefore, ExLLSM image volumes are first [converted to VVD Viewer pyramid files](./ImageProcessing.md). Neurons are then segmented in VVD Viewer and saved as a TIFF series. A postprocessing workflow is required to convert the TIFF series to the final neuron mask used to [analyze connectivity](./SynapsePrediction.md). These postprocessing steps include pixel intensity thresholding, 3D component connecting, voxel shape conversion, N5 component analysis, and component size filtering. Each of these post VVD segmentation steps is described in [Image Processing](./ImageProcessing.md) and we have generated a [Post VVD Neuron Segmentation Processing Workflow](post-vvd-neuron-segmentation-processing-workflow) to run the entire postprocessing pipeline in sequence. 
 
+![segmentation_workflow](https://user-images.githubusercontent.com/8125635/137171294-3f6458d7-ddd2-4b1f-acd5-3358dfe4f501.png)
+
 Recommended VVD Viewer settings, basic controls, and segmentation tools and strategies are documented in this section. 
 
 * [Recommended VVD Viewer Settings for ExLLSM data](vvd-viewer-recommended-setings)
@@ -126,7 +128,8 @@ Once you are satisfied with the result, you can save an 8-bit TIFF series of the
 
 You now have a TIFF series of the segmented volume. However, this segmentation result will overmask the neuron on the edges in most cases. This is because the segmentation result was generated on a downsampled VVD pyramid. This was necessary to allow fast segmentation and smooth 3D editing of the multi-terabyte full resolution image volume. To correct overmasking and to generate a final binary mask of the neuron that can be used for further data analysis, we have developed a Post VVD Viewer segmentation image processing workflow. The steps and representative results of this workflow are detailed in the figure below. 
 
-![post_vvd](https://user-images.githubusercontent.com/8125635/137052907-a240f8f2-e53b-439d-890c-0478f76d546f.png)
+** Figure X **
+![post_vvd](https://user-images.githubusercontent.com/8125635/137171504-0cb81c9b-fab1-425b-b237-bb5dd595c2eb.png)
 
 The first step of this is to remove the blocky overmasking present in the original VVD generated TIFF series. Because the TIFF series retains the original pixel intensities at 8-bit, we can threshold this result. Thresholding removes the overmasking and gives a binary mask that is true to the neural signal. We found that a suitable threshold value could be identified by generating a maximum intensity projection (MIP) of the TIFF series, opening that MIP in Fiji (https://imagej.net/software/fiji/), and identifying the Huang and Li threshold values of the MIP (Fiji/Image/Adjust/Threshold). In most cases one or both of these values worked well. However in some cases these values were too low and a higher value was used. Inspecting the thresholds on the MIP generally was a reliable indicator of the full resolution result in 3D. However, this was not always the case and the final mask generated should be overlaid on the original image volume and inspected carefully. 
 
