@@ -4,7 +4,9 @@ Neuron segmentation can be accomplished using manual, semi-automatic, or [automa
 
 ## Manual and Semi-automatic Neuron Segmentation Workflows
 
+
 **Figure 1: Overview of the Manual and Semi-automatic Neuron Segmentation Workflows**
+
 ![segmentation_workflow](https://user-images.githubusercontent.com/8125635/137171294-3f6458d7-ddd2-4b1f-acd5-3358dfe4f501.png)
 
 Manual and semi-automatic segmentation is accomplished using [VVD Viewer](https://github.com/JaneliaSciComp/VVDViewer). VVD Viewer is an open-source interactive rendering tool for light microscopy data visualization and analysis. We have developed VVD Viewer to allow manual and user-guided semi-automatic neuron segmentation of large ExLLSM image volumes. Segmentaion of datasets <5TB has been tested extensively. 
@@ -15,10 +17,10 @@ Therefore, ExLLSM image volumes are first [converted to VVD Viewer pyramid files
 
 Recommended VVD Viewer settings, basic controls, and segmentation tools and strategies are documented in this section. 
 
-* [Recommended VVD Viewer Settings for ExLLSM data](vvd-viewer-recommended-setings)
-* [Basic VVD Viewer Controls](vvd-viewer-basic-controls)
-* [Manual and Semi-automatic ExLLSM Image Segmentation](vvd-viewer-segmentation)
-* [Post VVD Neuron Segmentation Processing](post-vvd-neuron-segmentation-processing)
+* [Recommended VVD Viewer Settings for ExLLSM data](#vvd-viewer-recommended-setings)
+* [Basic VVD Viewer Controls](#vvd-viewer-basic-controls)
+* [Manual and Semi-automatic ExLLSM Image Segmentation](#vvd-viewer-segmentation)
+* [Post VVD Neuron Segmentation Processing](#post-vvd-neuron-segmentation-processing)
 
 ### VVD Viewer recommended settings
 
@@ -44,10 +46,11 @@ The Project, Rendering, and Performance settings may require testing to find the
 ### VVD Viewer basic controls
 
 **Figure 2: The VVD Viewer GUI**
+
 ![VVDbasics](https://user-images.githubusercontent.com/8125635/137042755-4b81b87d-1c46-4a50-8f7d-fa8a0caddebf.png)
 
-| | Task       | Description                                                                           |
-|-|------------|---------------------------------------------------------------------------------------|
+|Key | Task       | Description                                                                           |
+|----|------------|---------------------------------------------------------------------------------------|
 |1| open VVD pyramid file | Either use the Open Volume button or drag the .vvd file into VVD Viewer |
 |2| pan image | ctrl+right click and drag the mouse in the Render View window |
 |3| zoom | scroll the mouse trackball in the Render View window |
@@ -87,16 +90,19 @@ Manual segmentation in VVD Viewer is not entirely manual -- intensity thresholds
 To manually segment based on voxel intensity, open the Analyze window and select the Paint Brush tab. Pick an intensity threshold and press Select. In the Render View window, right click the mouse and paint or select the regions of interest. You can also avoid pressing Select and use shift+right click in the Render View window to make voxel selections. Here, the threshold used was too low and large chunks of background signal were selected (Fig. 3).
 
 **Figure 3: Manual voxel selection using an intensity threshold that is too low**
+
 ![manualselect1](https://user-images.githubusercontent.com/8125635/137046058-992f4c67-5c9d-4830-8b48-2e5fb6672e08.png)
 
 With this selection, you can change the threshold value in the Paint Brush toolbox, press enter, and the selection based on the new threshold will appear in the Render View window. You can also Unselect a previous selection using the Unselect tool. Simply click on Unselect, then right click in the Render View window to remove selected voxels from the segmentation by dragging the mouse (Fig. 4).
 
 **Figure 4: Manually unselecting voxels**
+
 ![unselect1](https://user-images.githubusercontent.com/8125635/137046252-7aa4fbda-2ff5-4685-9cee-2907088f51dc.png)
 
 Of course, you can also test additional thresholds to find one that cleanly selects the neurons of interst. Here, the threshold was increased from 20 in the first example to 40 (Fig. 5). This appears to do a much better job of selecting only voxels of interest. However, there is likely to be significant variability in voxel intensity throughout the sample so the result needs to be inspected closely. See below for efficient segmentation editing and refinement strategies.
 
 **Figure 5: Manual voxel selection using an appropriate intensity threshold**
+
 ![manualselect2](https://user-images.githubusercontent.com/8125635/137046446-93fbe5a7-d26c-4345-9a8f-b3a0593188d7.png)
 
 #### Semi-automatic segmentation
@@ -106,11 +112,13 @@ Semi-automatic segmentation is accomplished by using a combination of voxel inte
 Here, the thresholds are too low. The tool selects most of the image (Fig. 6).
 
 **Figure 6: Semi-automatic segmentation using thresholds that are too low**
+
 ![component_analyzer_bad1](https://user-images.githubusercontent.com/8125635/137029694-e2476947-67a0-45fb-b929-4a368235c285.png)
 
 By increasing the voxel intensity threshold from 5 to 30, the neurons of interest are grossly selected and most of the background is avoided (Fig. 7).
 
 **Figure 7: Semi-automatic segmentation using appropriate thresholds**
+
 ![component_analyzer_good1](https://user-images.githubusercontent.com/8125635/137029686-7f963e97-28f8-4036-abff-b1a0b1076001.png)
 
 To inspect the quality of the result, adjust the Clipping Planes, zoom in, increase the Quality of the rendering to visualize a full or close-to-full resolution pyramid, and scan through the image in small chunks (or single slices) (Fig. 8). If you have what appears to be a solid segmentation result -- or at least a good start -- save the project. This may take some time depending on the size of the volume. However, the mask itself will save very quickly and can be immediately loaded into a new instance of VVD Viewer for editing. 
@@ -122,11 +130,13 @@ Now, the automatic segmentation results can be manually adjusted using the Selec
 Here, by looking at 100 z-slices and scanning through the volume, we see that several portions of the neuron bundle were missed by the Component Analyzer (Fig. 8).
 
 **Figure 8: Voxels labeling neurons of interest that were missed by semi-automatic segmenation**
+
 ![manualedit_1large](https://user-images.githubusercontent.com/8125635/137029059-fd5a1597-240b-497c-b8fd-c67a6a7aa457.png)
 
 After finding a suitable pixel intensity threshold, missed voxels can be manually selected using the Paint Brush as demonstrated on a small region of the neuron bundle in Figure 9. 
 
 **Figure 9: Using manual voxel selection to correct the semi-automatic segmentation results**
+
 ![manualedit_2-3large](https://user-images.githubusercontent.com/8125635/137029211-45bff703-d19b-4a4a-a0ab-6d4149b0cb25.png)
 
 Repeat this through the volume to cleanly segment the image as desired. If close inspection reveals many errors, try running Component Analyzer again with new voxel intensity and/or size thresholds. 
@@ -135,18 +145,21 @@ Once you are satisfied with the result, you can save an 8-bit TIFF series of the
 
 ### Post VVD Neuron Segmentation Processing
 
+
 ![segmentation_workflow](https://user-images.githubusercontent.com/8125635/137175656-7d8e36fb-6449-4e45-a32c-895882edb9b9.png)
+
 
 We now have a TIFF series of the segmented volume. However, this segmentation result will overmask the neuron on the edges in most cases (Fig. 10B, E, H, K). This is because the segmentation result was generated on a downsampled VVD pyramid. This was necessary to allow fast segmentation and smooth 3D editing of the multi-terabyte full resolution image volume. To correct overmasking and to generate a final binary mask of the neuron that can be used for further data analysis, we have developed a Post VVD Viewer segmentation image processing workflow. The steps and representative results of this workflow are detailed in Figure 10. 
 
 **Figure 10: Example of a VVD Viewer segmentation mask and post-VVD mask processing results**
-![post_vvd](https://user-images.githubusercontent.com/8125635/137173475-16d138ef-6ee7-40f1-9182-7d91e5a4a0f1.png)
+
+![post_VVD_examples](https://user-images.githubusercontent.com/8125635/137176640-428164b6-bec8-4faf-ab09-9fb49968f0e6.png)
 
 The first step of this is to remove the blocky overmasking present in the original VVD generated TIFF series. Because the TIFF series retains the original pixel intensities at 8-bit, we can use an intensity threshold to remove the overmasking. Thresholding removes the overmasking and gives a binary mask that is true to the neural signal (Fig. 10C, E, I, K). We found that a suitable threshold value could be identified by generating a maximum intensity projection (MIP) of the TIFF series, opening that MIP in Fiji (https://imagej.net/software/fiji/), and identifying the Huang and Li threshold values of the MIP (Fiji/Image/Adjust/Threshold). In most cases one or both of these values worked well. However in some cases these values were too low and a higher value was used. Inspecting the thresholds on the MIP generally was a reliable indicator of the full resolution result in 3D. However, this was not always the case and the final mask generated should be overlaid on the original image volume and inspected carefully. 
 
 To generate a MIP, use the TIFF Converter
 
-##### TIFF Converter
+**TIFF Converter**
 
 The TIFF converter pipeline operates on TIFF series, and converts the data in various ways. For details, check out [Image Processing](./ImageProcessing.md).
 
@@ -160,7 +173,7 @@ After thresholding, the neuron mask will be true to the fluorescent signal of th
 
 The final steps of the process are to (optionally) convert the pixel shape from diamond to box (doing this will connect some previously disconnected pixels) and to analyze and remove connected components smaller than 2000 pixels (this value can also be changed). The result of these steps creates a binary mask of the neuron signal in the imaging volume that can be used to [analyze connectivity](./SynapsePrediction.md). All of the steps in this process, from thresholding to size filtering can be run using the Post VVD Neuron Segmentation Processing Workflow.   
 
-#### Post VVD Neuron Segmentation Processing Workflow
+**Post VVD Neuron Segmentation Processing Workflow**
 
 Each of the components of this Workflow are described in detail in [Image Processing](./ImageProcessing.md). The Workflow runs thresholding, 3D mask connection, TIFF to N5 conversion, a pixel shape change, a connected components analysis, and a size filter to remove components below a given pixel threshold.
 
