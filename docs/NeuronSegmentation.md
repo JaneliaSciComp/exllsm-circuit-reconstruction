@@ -67,6 +67,10 @@ The Project, Rendering, and Performance settings may require testing to find the
 |14| capture image in the Render View | click the capture button at the top of the Render View window |
 |15| create videos of the Render View | go to the Advanced tab in the Record/Export Panel. add desired views in the Render View in sequence. set the time between view transitions. click save to generate a video of each view added and the 3D transitions between the added views |
 
+**Video 1: Basic VVD Viewer controls**
+
+https://user-images.githubusercontent.com/8125635/138956194-b84cb0d2-8d2e-468b-b447-26bacbd4760c.mp4
+
 ### VVD Viewer segmentation
 
 Images can be segmented in VVD Viewer based on a voxel intensity threshold (manual) and based on a combination of a voxel intensity threshold and a component size threshold (semi-automatic).
