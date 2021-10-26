@@ -47,7 +47,7 @@ The Project, Rendering, and Performance settings may require testing to find the
 
 **Figure 2: The VVD Viewer GUI**
 
-![VVDbasics](https://user-images.githubusercontent.com/8125635/137042755-4b81b87d-1c46-4a50-8f7d-fa8a0caddebf.png)
+![VVD Viewer basics](https://user-images.githubusercontent.com/8125635/137042755-4b81b87d-1c46-4a50-8f7d-fa8a0caddebf.png)
 
 |Key | Task       | Description                                                                           |
 |----|------------|---------------------------------------------------------------------------------------|
@@ -69,7 +69,7 @@ The Project, Rendering, and Performance settings may require testing to find the
 
 **Video 1: Basic VVD Viewer controls**
 
-https://user-images.githubusercontent.com/8125635/138956194-b84cb0d2-8d2e-468b-b447-26bacbd4760c.mp4
+[VVD Viewer basics](https://user-images.githubusercontent.com/8125635/138956194-b84cb0d2-8d2e-468b-b447-26bacbd4760c.mp4)
 
 ### VVD Viewer segmentation
 
