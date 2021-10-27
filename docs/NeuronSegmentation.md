@@ -37,6 +37,8 @@ Usage:
 | --neuron_mask_as_binary | false | Flag to output the neuron mask as binary |
 | --with_neuron_post_segmentation | true | If set run neuron segmentation post-processing |
 | --neuron_model| | location of the U-Net model |
+| --neuron_stack_dir | | Neuron input directory - this can be an N5 container dir or a TIFF stack dir. If it is a tiff stack dir you can also use `--input_imgname_pattern` to filter actual neuron images |
+| --input_imgname_pattern | | Filter for neuron images if the input neuron stack is a TIFF stack |
 | --neuron_input_dataset | /s0 | N5 dataset to segmentation |
 | --neuron_output_dataset | /s0 | Output N5 dataset of the segmentation result |
 | --neuron_seg_model_in_dims | 220,220,220 | Model input shape |
