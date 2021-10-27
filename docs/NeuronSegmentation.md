@@ -111,7 +111,7 @@ Of course, you can also test additional thresholds to find one that cleanly sele
 
 **Video 2: Manual voxel selection using intensity thresholds**
 
-https://user-images.githubusercontent.com/8125635/138980760-fea2bc81-e226-4186-af1a-4af2b9a8bafa.mp4
+https://user-images.githubusercontent.com/8125635/138981603-2774909e-55a9-4c23-9d74-ec1555c1284e.mp4
 
 ### Semi-automatic segmentation
 
