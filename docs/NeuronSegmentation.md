@@ -151,6 +151,10 @@ Repeat this through the volume to cleanly segment the image as desired. If close
 
 Once you are satisfied with the result, you can save an 8-bit TIFF series of the segmentation. To do this, click the Mask: Hide Outside box at the bottom of the Properties Panel and click the Save floppy disk icon at the top of the Workspace panel. Create a directory for the TIFF series. Each tiff will be named in ascending sequence. This process may take an hour or more if the volume is large. 
 
+**Video 3: Semi-automatic neuron segmentation using voxel intensity and connected component size thresholds**
+
+https://user-images.githubusercontent.com/8125635/138980687-929530cf-4577-4ef5-83e6-b1b87535886b.mp4
+
 ### Post VVD Neuron Segmentation Processing
 
 
