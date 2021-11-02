@@ -245,7 +245,7 @@ Usage:
 | --neuron_scaling_cpus | 1 | CPU resources required for calculating the scaling factor |
 | --neuron_scaling_memory| 1 GB | Memory resources needed for scaling factor jobs; for larger `neuron_scaling_partition_size` you may have to increase the memory required by each job |
 | --neuron_mask_as_binary | false | Flag to output the neuron mask as binary |
-| --with_neuron_post_segmentation | true | If set run neuron segmentation post-processing |
+| --with_neuron_post_segmentation | false | If set run neuron segmentation post-processing |
 | --neuron_model| | location of the U-Net model |
 | --neuron_stack_dir | | Neuron input directory - this can be an N5 container dir or a TIFF stack dir. If it is a tiff stack dir you can also use `--input_imgname_pattern` to filter actual neuron images |
 | --input_imgname_pattern | | Filter for neuron images if the input neuron stack is a TIFF stack |
@@ -261,10 +261,10 @@ Usage:
 | --neuron_segmentation_memory | 1 G | Memory resources required for each segmentation job |
 | --with_connected_comps | true | If true runs the N5 spark based connected components analysis. This is necessary to change voxel shape, apply a voxel intensity threhsold on the U-Net probability array, and a component size filter. |
 | --connected_dataset | c1/s0 | default dataset used for connected components |
-| --connected_pixels_shape | diamond | Shape used for connected components. Alternative option is 'box' |
+| --connected_pixels_shape | box | Shape used for connected components. Alternative option is 'diamond' |
 | --min_connected_pixels | 2000 | Components below this size are discarded from final result. |
 | --connected_pixels_threshold | .8 | Pixel intensity threshold value for neuron component analysis. It is a double value < 1 because the result of the segmentation is a probability array. |
-| --connected_comps_block_size | 128,128,128 | Block size used for generating component analysis results. |
+| --connected_comps_block_size | 128,128,64 | Block size used for generating component analysis results. |
 | --connected_comps_pyramid | false | If true generates multiscale N5 pyramids for component analysis results. |
 
 
