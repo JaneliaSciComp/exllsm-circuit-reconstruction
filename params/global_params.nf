@@ -46,14 +46,14 @@ def global_em_params() {
         crop_mem_gb: 16,
 
         // MIP creation params
-        create_mip_cpus: 4,
+        create_mip_cpus: 24,
         create_mip_mem_gb: 8,
 
-        tiff2n5_cpus: 3, // it needs 9 cores for a 512x512x512 chunk size on Janelia's LSF
-        tiff2n5_memory: '3 G', // in fact it needs 126G for a 512x512x512 chunk size
+        tiff2n5_cpus: 24, // it needs 9 cores for a 512x512x512 chunk size on Janelia's LSF
+        tiff2n5_memory: '126 G', // in fact it needs 126G for a 512x512x512 chunk size
         tiff2n5_workers: 0,
-        n52tiff_cpus: 4,
-        n52tiff_memory: '6 G',
+        n52tiff_cpus: 24,
+        n52tiff_memory: '126 G',
 
         multiscale_pyramid: false,
         with_pyramid: false,
