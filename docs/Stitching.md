@@ -2,11 +2,11 @@
 
 The distributed stitching workflows ingests expansion microscopy data as a TIFF slice series and runs the following processing:
 
-- Conversion to n5
+- Conversion to N5
 - Flatfield correction
 - Deconvolution
 - Stitching
-- Export to n5 and TIFF slice series
+- Export to N5 and TIFF slice series
 
 All steps besides deconvolution use the [stitching-spark](https://github.com/saalfeldlab/stitching-spark) code from the Saalfeld Lab at Janelia.
 
@@ -22,7 +22,7 @@ Usage ([example](../examples/stitching.sh)):
 |------------|---------------------------------------------------------------------------------------|
 | --images_dir | Path to directory containing TIFF slices and the ImageList.csv file |
 | --output_dir | Path to output directory |
-| --psf_dir | Path to a point-spread functions for your microscope (details TBD) |
+| --psf_dir | Path to a point-spread function TIFF stack of each channel taken from the microscope |
 
 ## Optional Parameters
 
@@ -50,11 +50,11 @@ Usage ([example](../examples/stitching.sh)):
 | --stitching_padding | 0,0,0 | |
 | --stitching_blur_sigma | 2 | |
 | --deconv_cpus | 4 | Number of CPUs to use for deconvolution |
-| --background | | TBD |
-| --psf_z_step_um | 0.1 | TBD |
-| --iterations_per_channel | 10,10,10 | TBD |
+| --background | 100 | Background value subtracted during deconvolution |
+| --psf_z_step_um | 0.1 | Step size of PSF used during deconvolution |
+| --iterations_per_channel | 10,10,10 | The number of iterations/tile done during deconvolution |
 | --export_level | 0 | Scale level to export after stitching |
-| --allow_fusestage | false | Allow fusing tiles using their stage coordinates |
+| --allow_fusestage | false | Allow fusing tiles using their stage coordinates. Set to true to quickly stitch and export the image volume based on stage coordinates   |
 
 
 ## Tweaking the stitching process
