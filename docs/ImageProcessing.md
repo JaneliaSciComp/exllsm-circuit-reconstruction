@@ -79,7 +79,7 @@ Usage:
 | &#x2011;&#x2011;mask_connection_iterations | 4 | Number of connection interations (i.e. connect components 20 vx apart four times) |
 | --threshold | | Optional pixel intensity threshold to apply before connecting mask |
 | --clean_temp_dirs | true | Remove temporary files created inside `--shared_temp_dir` after a successful pipeline run |
-| --convert_mask_cpus | 3 | Number of CPUs to use for importing mask |
+| --convert_mask_cpus | 32 | Number of CPUs to use for importing mask |
 | --convert_mask_mem_gb | 45 | Amount of memory (GB) to allocate for importing mask |
 | --connect_mask_cpus | 32 | Number of CPUs to use for connecting mask |
 | --connect_mask_mem_gb | 192 | Amount of memory (GB) to allocate for connecting mask |
