@@ -18,16 +18,16 @@ def neuron_params() {
         neuron_scaling_plots_dir: '',
         with_connected_comps: true,
         connected_comps_pyramid: false,
-        connected_comps_block_size: '128,128,128', // block size used for generating connected comps
+        connected_comps_block_size: '128,128,64', // block size used for generating connected comps
         min_connected_pixels: 2000, // minimum pixels in a connected component to be kept
-        connected_pixels_shape: "diamond", // shape of neighborhood (default "diamond", option "box")
+        connected_pixels_shape: "box", // shape of neighborhood (default "diamond", option "box")
         connected_pixels_threshold: 0.8, // threshold for connected components - the segmented image is a probability array so
                                          // the probability must be higher than .8 (in this case)
         neuron_vvd_output: '', // VVD output directory
 
         neuron_segmentation_cpus: 1,
         neuron_segmentation_memory: '1 G',
-        with_neuron_post_segmentation: true,
+        with_neuron_post_segmentation: false,
         use_gpu_mem_growth: true,
         neuron_model: '/groups/dickson/home/lillvisj/UNET_neuron/trained_models/neuron4_p2/neuron4_150.h5',
         neuron_input_dataset: '',
