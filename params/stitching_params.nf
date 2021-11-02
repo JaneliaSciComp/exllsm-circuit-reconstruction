@@ -23,7 +23,7 @@ def stitching_params() {
 
         // deconvolution params
         deconv_cpus: 4,
-        background: '',
+        background: '100',
         psf_z_step_um: '0.1',
         iterations_per_channel: '10,10,10',
     ]
