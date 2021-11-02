@@ -28,7 +28,7 @@ def global_em_params() {
         clean_temp_dirs: true,
         threshold_cpus: 24,
         threshold_mem_gb: 16,
-        convert_mask_cpus: 8,
+        convert_mask_cpus: 32,
         convert_mask_mem_gb: 120,
         connect_mask_cpus: 1,
         connect_mask_mem_gb: 10,
