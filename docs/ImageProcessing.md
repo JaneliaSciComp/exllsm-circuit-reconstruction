@@ -127,10 +127,10 @@ Usage:
 |------------|---------|-----------------------------------------------------------------------------|
 | --input_dataset | /s0 | Input data set to process |
 | --connected_dataset | /connected/s0 | Output data set |
-| --connected_pixels_shape | diamond | Shape used for connected components (alternative: box) |
+| --connected_pixels_shape | box | Shape used for connected components (alternative: diamond) |
 | --min_connected_pixels | 2000 | Components below this number of pixels are removed |
 | --connected_pixels_threshold | .8 | Intensity threshold. Pixels below this threshold are discarded. This process is applied before size thresholding. |
-| &#x2011;&#x2011;connected_comps_block_size | 128,128,128 | Block size used for generating connected components |
+| &#x2011;&#x2011;connected_comps_block_size | 128,128,64 | Block size used for generating connected components |
 | --connected_comps_pyramid | false | If true generates multiscale pyramids for connected components |
 
 ## TIFF Converter
@@ -249,9 +249,9 @@ This is the post-VVD Viewer semi-automatic neuron segmentation workflow. Runs th
 | --mask_connection_distance | 20 | Connection distance  |
 | &#x2011;&#x2011;mask_connection_iterations | 4 | Number of iterations |
 | --threshold | | Optional intensity threshold to apply before connecting mask |
-| --threshold_cpus | 4 | Number of CPUs to use for thresholding mask |
-| --threshold_mem_gb | 8 | Amount of memory (GB) to allocate for thresholding mask |
-| --convert_mask_cpus | 3 | Number of CPUs to use for importing mask |
+| --threshold_cpus | 24 | Number of CPUs to use for thresholding mask |
+| --threshold_mem_gb | 16 | Amount of memory (GB) to allocate for thresholding mask |
+| --convert_mask_cpus | 32 | Number of CPUs to use for importing mask |
 | --convert_mask_mem_gb | 45 | Amount of memory (GB) to allocate for importing mask |
 | --connect_mask_cpus | 32 | Number of CPUs to use for connecting mask |
 | --connect_mask_mem_gb | 192 | Amount of memory (GB) to allocate for connecting mask |
