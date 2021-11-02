@@ -21,7 +21,8 @@ RUN conda clean --tarballs \
     && echo "export TMPDIR=/tmp" > /opt/conda/envs/myenv/etc/conda/activate.d/env_vars.sh
 
 WORKDIR /app
-RUN cp -a /tmp/neuron-segmentation python
+RUN cp -a /tmp/neuron-segmentation python && \
+    rm -rf /tmp/neuron-segmentation
 
 RUN echo "#!/bin/bash" >> /entrypoint.sh \
     && echo "source /opt/conda/etc/profile.d/conda.sh" >> /entrypoint.sh \
