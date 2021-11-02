@@ -2,21 +2,26 @@
 FROM condaforge/mambaforge as builder
 
 # ps is needed by nextflow to collect task metrics
-RUN apt-get install -y procps
+RUN apt-get install -y \
+    procps \
+    git
 
-COPY conda-requirements.yml /tmp/
+WORKDIR /tmp/neuron-segmentation
+
+RUN git clone https://github.com/JaneliaSciComp/neuron-segmentation.git .
 
 ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=all
 
-RUN mamba env create -n myenv python=3.9 -f /tmp/conda-requirements.yml
+RUN mamba env create -n myenv python=3.9 -f /tmp/neuron-segmentation/conda-requirements.yml
 
 RUN conda clean --tarballs \
     && mkdir -p /opt/conda/envs/myenv/etc/conda/activate.d \
     # It's necessary to set TMPDIR for running with Singularity, because /opt/conda will be read-only
     && echo "export TMPDIR=/tmp" > /opt/conda/envs/myenv/etc/conda/activate.d/env_vars.sh
 
-COPY scripts /app
+WORKDIR /app
+RUN cp -a /tmp/neuron-segmentation python
 
 RUN echo "#!/bin/bash" >> /entrypoint.sh \
     && echo "source /opt/conda/etc/profile.d/conda.sh" >> /entrypoint.sh \
