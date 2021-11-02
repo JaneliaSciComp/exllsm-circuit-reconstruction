@@ -221,8 +221,8 @@ Convert N5 to VVD, saving the VVD files inside the N5 container:
 | &#x2011;&#x2011;vvd_max_scale_factor | 10 | Maximum downsampling factor for the VVD multiscale pyramid. |
 | --vvd_pyramid_level | 5 | Number of levels in the multiscale pyramid. |
 | --vvd_scale_levels | | Explicit downsampling factors, delimited by colons (`:`). When specifying multiple factors, each factor builds on the last. This cannot be used with `--vvd_min_scale_factor`, `--vvd_max_scale_factor`, and `--vvd_pyramid_level`. |
-| --n52tiff_cpus | 4 | Number of CPUs to use for Dask-based n5 to TIFF (only used if `--use_n5_spark_tools=false`) |
-| --n52tiff_memory | 6 | Amount of memory (GB) to allocate for Dask-based n5 to TIFF (only used if `--use_n5_spark_tools=false`) |
+| --n52tiff_cpus | 24 | Number of CPUs to use for Dask-based n5 to TIFF (only used if `--use_n5_spark_tools=false`) |
+| --n52tiff_memory | 126 | Amount of memory (GB) to allocate for Dask-based n5 to TIFF (only used if `--use_n5_spark_tools=false`) |
 
 ## Post VVD Neuron Segmentation Processing Workflow
 
