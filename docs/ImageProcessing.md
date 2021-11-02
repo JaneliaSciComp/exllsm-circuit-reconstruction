@@ -164,6 +164,8 @@ Convert from TIFF to VVD format (uses a fork of [n5-spark](https://github.com/Ja
 
 | Argument   | Default | Description                                                                 |
 |------------|---------|-----------------------------------------------------------------------------|
+| --create_mip_cpus | 24 | Number of CPUs to use for generating the MIP |
+| --create_mip_mem_gb | 8 | Amount of memory (GB) to allocate for generating the MIP |
 | --output_dataset | /s0 | N5 data set |
 | --partial_volume | | Comma delimited coordinates defining a bounding box for the partial volume. If set, only this partial volume is processed. |
 | --vvd_block_size | 256,256,256 | Block size to use for VVD output. |
@@ -221,6 +223,8 @@ Convert N5 to VVD, saving the VVD files inside the N5 container:
 | &#x2011;&#x2011;vvd_max_scale_factor | 10 | Maximum downsampling factor for the VVD multiscale pyramid. |
 | --vvd_pyramid_level | 5 | Number of levels in the multiscale pyramid. |
 | --vvd_scale_levels | | Explicit downsampling factors, delimited by colons (`:`). When specifying multiple factors, each factor builds on the last. This cannot be used with `--vvd_min_scale_factor`, `--vvd_max_scale_factor`, and `--vvd_pyramid_level`. |
+| --tiff2n5_cpus | 24 | Number of CPUs to use for TIFF to N5 |
+| --tiff2n5_memory | 126 | Amount of meory (GB) to allocate for TIFF to N5 |
 | --n52tiff_cpus | 24 | Number of CPUs to use for Dask-based n5 to TIFF (only used if `--use_n5_spark_tools=false`) |
 | --n52tiff_memory | 126 | Amount of memory (GB) to allocate for Dask-based n5 to TIFF (only used if `--use_n5_spark_tools=false`) |
 
