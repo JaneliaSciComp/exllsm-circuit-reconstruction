@@ -2,7 +2,7 @@ def synapse_params() {
     [
         // synapse detection params
         pipeline: 'presynaptic_in_volume',
-        synapse_model: '/groups/dickson/dicksonlab/lillvis/ExM/Ding-Ackerman/crops-for-training_Oct2018/DING/model_DNN/saved_unet_model_2020/unet_model_synapse2020_6/unet_model_synapse2020_6.whole.h5',
+        synapse_model: '/groups/dickson/home/lillvisj/NEXTFLOW_BIN/unet_model_synapse2020_6.whole.h5'
 
         presynapse: '',
         presynapse_in_dataset: '',
