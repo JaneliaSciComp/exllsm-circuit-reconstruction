@@ -213,8 +213,8 @@ Usage:
 | --threshold_mem_gb | 8 | Amount of memory (GB) to allocate for thresholding mask |
 | --convert_mask_cpus | 3 | Number of CPUs to use for importing mask |
 | --convert_mask_mem_gb | 45 | Amount of memory (GB) to allocate for importing mask |
-| --connect_mask_cpus | 32 | Number of CPUs to use for connecting mask |
-| --connect_mask_mem_gb | 192 | Amount of memory (GB) to allocate for connecting mask |
+| --connect_mask_cpus | 1 | Number of CPUs to use for connecting mask |
+| --connect_mask_mem_gb | 10 | Amount of memory (GB) to allocate for connecting mask |
 
 
 
