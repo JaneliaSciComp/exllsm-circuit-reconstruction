@@ -4,7 +4,7 @@ Synapse prediction can be run in multiple workflows, depending on the experiment
 
 See below for details about each workflow:
 
-* [Synapse Segmentation](#synapse-segmentation): Synaptic structures are detected using a 3D U-Net convolutional neural network. See [ExLLSM Synapse Detector](  https://github.com/JaneliaSciComp/SynapseDetectorDNN) for code and documentation on training and evaluating the U-Net model used here on new ground truth data. 
+* [Synapse Segmentation](#synapse-segmentation): Synaptic structures are detected using a 3D U-Net convolutional neural network. See [ExLLSM Synapse Detector](  https://github.com/JaneliaSciComp/SynapseDetectorDNN) for code and documentation on training and evaluating the U-Net model used here on new ground truth data. A trained model (unet_model_synapse2020_6.whole.h5) can be found there as well.
 * [Synapse Segmentation Post-processing](#synapse-segmentation-post-processing): Applies image closing, watershed segmentation, optional size filter, and optional colocalization analysis to Synapse Segmentation results. 
 
 The following workflows integrate Synapse Segmentation and Synapse Segmentation Post-processing steps to automatically run frequently used analyses in sequence. 
