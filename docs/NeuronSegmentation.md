@@ -220,7 +220,7 @@ Usage:
 
 ## Automatic Neuron Segmentation Workflow
 
-The automatic neuron segmentation workflow runs 3D U-Net classification followed by optional post-processing steps. See [ExLLSM Neuron Segmentation](https://github.com/JaneliaSciComp/neuron-segmentation/blob/master/README.md) for all of the tools necessary to train a U-Net model that can be used in this workflow.
+The automatic neuron segmentation workflow runs 3D U-Net classification followed by optional post-processing steps. See [ExLLSM Neuron Segmentation](https://github.com/JaneliaSciComp/neuron-segmentation) for all of the tools necessary to train a U-Net model that can be used in this workflow. A trained model (neuron_2021.h5) can be found there as well.
 
 The output of the U-Net is a probability array with voxel values between 0 and 1. The optional postprocessing steps include voxel intensity thresholding to remove low confidence voxels, a voxel shape change, and a voxel size threshold to remove small components. 
 
