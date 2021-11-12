@@ -7,7 +7,7 @@ ARG GIT_TAG=main
 
 # Checkout and build the code
 WORKDIR /tmp/app
-RUN git clone --branch $GIT_TAG --depth 1 https://github.com/JaneliaSciComp/ExM-pipeline.git . \
+RUN git clone --branch $GIT_TAG --depth 1 https://github.com/JaneliaSciComp/exllsm-fiji-plugins.git . \
     && /usr/local/bin/buildinfo.sh
 
 # Create final image
