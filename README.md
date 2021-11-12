@@ -74,6 +74,14 @@ Further detailed documentation is available here:
 * [Troubleshooting](docs/Troubleshooting.md)
 * [Development Guide](docs/Development.md)
 
+## Related Repos
+
+These other repositories contain code bases developed in conjuction with this pipeline. They are cloned during the Docker container build step.
+
+* [exllsm-synapse-detector](https://github.com/JaneliaSciComp/exllsm-synapse-detector)
+* [exllsm-neuron-segmentation](https://github.com/JaneliaSciComp/exllsm-neuron-segmentation)
+* [exllsm-fiji-plugins](https://github.com/JaneliaSciComp/exllsm-fiji-plugins)
+
 ## Open Source License
 
 This software is made available under [Janelia's Open Source Software](https://www.janelia.org/open-science/software-licensing) policy which uses the BSD 3-Clause License.
