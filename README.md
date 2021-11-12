@@ -2,7 +2,7 @@
 
 [![DOI](https://zenodo.org/badge/323991895.svg)](https://zenodo.org/badge/latestdoi/323991895)
 
-This is a pipeline for analyzing expansion lattice light-sheet microscopy data, consisting of several independent workflows, and integration with [VVD Viewer](https://github.com/takashi310/VVD_Viewer).
+This is a pipeline for analyzing expansion lattice light-sheet microscopy (ExLLSM) data, consisting of several independent workflows, and integration with [VVD Viewer](https://github.com/takashi310/VVD_Viewer).
 
 ## Quick Start
 
@@ -40,8 +40,8 @@ The pipeline includes the following workflows:
 
 * **[Stitching](docs/Stitching.md)** - distributed stitching pipeline including flatfield correction and deconvolution
 * **[Image Processing](docs/ImageProcessing.md)** - file conversion, Fiji macros for cropping, cross-talk subtraction, thresholding, and more
-* **[Neuron Segmentation](docs/NeuronSegmentation.md)** - semi-automated workflows for neuron segmentation
-* **[Synapse Prediction](docs/SynapsePrediction.md)** - workflows for synapse masking and prediction
+* **[Neuron Segmentation](docs/NeuronSegmentation.md)** - workflows for neuron segmentation
+* **[Synapse Prediction](docs/SynapsePrediction.md)** - workflows to detect and quantify synaptic sites within and connections between neurons
 
 ## Pipeline Execution
 
