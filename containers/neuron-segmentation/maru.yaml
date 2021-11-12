@@ -3,5 +3,7 @@ name: neuron-segmentation
 version: 1.0.0
 remotes:
   - registry.int.janelia.org/exm-analysis
+build_args:
+  NEURON_SEGMENTATION_GIT_TAG: $version
 template_args:
   flavor: custom

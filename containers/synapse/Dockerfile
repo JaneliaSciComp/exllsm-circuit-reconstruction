@@ -3,11 +3,9 @@ ARG SYNAPSE_DETECTOR_GIT_TAG=master
 
 # Checkout and build the code
 WORKDIR /tmp/app
-RUN git clone --branch $SYNAPSE_DETECTOR_GIT_TAG --depth 1 \
-        https://github.com/JaneliaSciComp/SynapseDetectorDNN.git . \
+RUN git clone --branch ${SYNAPSE_DETECTOR_GIT_TAG} --depth 1 https://github.com/JaneliaSciComp/exllsm-synapse-detector.git . \
     && git submodule update --init --recursive \
     && /usr/local/bin/buildinfo.sh
-
 
 FROM janeliascicomp/matlab-centos8:2020b as matlab-builder
 USER root
@@ -24,7 +22,6 @@ RUN mkdir /tmp-compile/dest && \
     -I /tmp-compile/matlab \
     /tmp-compile/matlab/closing_watershed.m \
     /tmp-compile/matlab/close_and_watershed_transform.m
-
 
 FROM centos:8
 
