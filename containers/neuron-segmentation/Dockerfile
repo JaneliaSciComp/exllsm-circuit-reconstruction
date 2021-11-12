@@ -6,7 +6,7 @@ ARG NEURON_SEGMENTATION_GIT_TAG=master
 WORKDIR /tmp/app/neuron-segmentation
 # clone the repo and the desired version but then remove
 # the h5 model because that will only increase the size of the container
-RUN git clone --branch ${NEURON_SEGMENTATION_GIT_TAG} --depth 1 https://github.com/JaneliaSciComp/neuron-segmentation.git . \
+RUN git clone --branch ${NEURON_SEGMENTATION_GIT_TAG} --depth 1 https://github.com/JaneliaSciComp/exllsm-neuron-segmentation.git . \
     && /usr/local/bin/buildinfo.sh \
     && rm -rf *.h5 .git
 
