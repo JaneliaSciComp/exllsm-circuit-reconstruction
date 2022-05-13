@@ -7,7 +7,7 @@ RUN git clone --branch ${SYNAPSE_DETECTOR_GIT_TAG} --depth 1 https://github.com/
     && git submodule update --init --recursive \
     && /usr/local/bin/buildinfo.sh
 
-FROM janeliascicomp/matlab-centos8:2020b as matlab-builder
+FROM janeliascicomp/matlab-oraclelinux8:2020b as matlab-builder
 USER root
 
 WORKDIR /tmp-compile
@@ -23,7 +23,7 @@ RUN mkdir /tmp-compile/dest && \
     /tmp-compile/matlab/closing_watershed.m \
     /tmp-compile/matlab/close_and_watershed_transform.m
 
-FROM centos:8
+FROM oraclelinux:8
 
 ENV MATLAB_RELEASE=R2020b
 ENV MATLAB_VERSION=v99
@@ -88,11 +88,12 @@ RUN wget ${DOWNLOAD_CONDA_URL} -O miniconda-install.sh && \
 
 ENV PATH=/miniconda/bin:${PATH}
 
-ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:\
+ENV LD_LIBRARY_PATH=\
 /usr/local/MATLAB/MATLAB_Runtime/${MATLAB_VERSION}/runtime/glnxa64:\
 /usr/local/MATLAB/MATLAB_Runtime/${MATLAB_VERSION}/bin/glnxa64:\
 /usr/local/MATLAB/MATLAB_Runtime/${MATLAB_VERSION}/sys/os/glnxa64:\
-/usr/local/MATLAB/MATLAB_Runtime/${MATLAB_VERSION}/sys/opengl/lib/glnxa64
+/usr/local/MATLAB/MATLAB_Runtime/${MATLAB_VERSION}/sys/opengl/lib/glnxa64:\
+${LD_LIBRARY_PATH}
 
 ENV MCR_CACHE_VERBOSE=true
 
