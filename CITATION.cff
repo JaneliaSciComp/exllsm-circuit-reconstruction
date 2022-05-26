@@ -1,0 +1,46 @@
+cff-version: 1.2.0
+title: Rapid reconstruction of neural circuits using tissue expansion and lattice light sheet microscopy
+message: If you use this software, please cite it using the metadata from CITATION.cff
+doi: 10.1101/2021.11.14.468535
+date-released: 2021-11-23
+authors:
+  - given-names: Joshua L.
+    family-names: Lillvis
+  - given-names: Hideo
+    family-names: Otsuna
+  - given-names: Xiaoyu
+    family-names: Ding
+  - given-names: Igor
+    family-names: Pisarev
+  - given-names: Takashi
+    family-names: Kawase
+  - given-names: Jennifer
+    family-names: Colonell
+  - given-names: Konrad
+    family-names: Rokicki
+  - given-names: Cristian
+    family-names: Goina
+  - given-names: Ruixuan
+    family-names: Gao
+  - given-names: Amy
+    family-names: Hu
+  - given-names: Kaiyu
+    family-names: Wang
+  - given-names: John
+    family-names: Bogovic
+  - given-names: Daniel E.
+    family-names: Milkie
+  - given-names: Linus
+    family-names: Meienberg
+  - given-names: Edward S.
+    family-names: Boyden
+  - given-names: Stephan
+    family-names: Saalfeld
+  - given-names: Paul W.
+    family-names: Tillberg
+  - given-names: Barry J.
+    family-names: Dickson
+type: software
+repository-code: 'https://github.com/JaneliaSciComp/exllsm-circuit-reconstruction'
+url: 'https://github.com/JaneliaSciComp/exllsm-circuit-reconstruction'
+license: BSD-3-Clause

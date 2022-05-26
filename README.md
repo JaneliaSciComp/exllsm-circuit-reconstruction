@@ -2,7 +2,7 @@
 
 [![DOI](https://zenodo.org/badge/323991895.svg)](https://zenodo.org/badge/latestdoi/323991895)
 
-This is a pipeline for analyzing expansion lattice light-sheet microscopy (ExLLSM) data, consisting of several independent workflows, and integration with [VVD Viewer](https://github.com/takashi310/VVD_Viewer).
+This is a pipeline, described in [this preprint](https://doi.org/10.1101/2021.11.14.468535), intended for analyzing expansion lattice light-sheet microscopy (ExLLSM) data, consisting of several independent workflows, and integration with [VVD Viewer](https://github.com/takashi310/VVD_Viewer).
 
 ## Quick Start
 
