@@ -1,6 +1,9 @@
 # ExLLSM Circuit Reconstruction Pipeline
 
-[![DOI](https://zenodo.org/badge/323991895.svg)](https://zenodo.org/badge/latestdoi/323991895)
+[![Cite with Zenodo](https://zenodo.org/badge/323991895.svg)](https://zenodo.org/badge/latestdoi/323991895)
+[![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-%E2%89%A521.10.3-23aa62.svg)](https://www.nextflow.io/)
+[![Run with Docker](https://img.shields.io/badge/run%20with-docker-0db7ed?logo=docker)](https://www.docker.com/)
+[![Run with Singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg)](https://sylabs.io/docs/)
 
 This is a pipeline, described in [this preprint](https://doi.org/10.1101/2021.11.14.468535), intended for analyzing expansion lattice light-sheet microscopy (ExLLSM) data, consisting of several independent workflows, and integration with [VVD Viewer](https://github.com/takashi310/VVD_Viewer).
 
