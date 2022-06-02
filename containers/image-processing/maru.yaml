@@ -3,5 +3,6 @@ name: exm-tools-fiji
 version: 1.1.0
 remotes:
 - registry.int.janelia.org/exm-analysis
+- public.ecr.aws/janeliascicomp/exm-analysis
 build_args:
   GIT_TAG: $version

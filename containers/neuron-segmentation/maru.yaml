@@ -2,7 +2,8 @@ maru_version: 0.1.1
 name: neuron-segmentation
 version: 1.0.0
 remotes:
-  - registry.int.janelia.org/exm-analysis
+- registry.int.janelia.org/exm-analysis
+- public.ecr.aws/janeliascicomp/exm-analysis
 build_args:
   NEURON_SEGMENTATION_GIT_TAG: $version
 template_args:

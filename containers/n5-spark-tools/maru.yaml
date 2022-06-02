@@ -3,6 +3,7 @@ name: n5-spark-tools
 version: 3.11.0
 remotes:
 - registry.int.janelia.org/exm-analysis
+- public.ecr.aws/janeliascicomp/exm-analysis
 build_args:
   STITCHING_SPARK_GIT_TAG: exm-$version
 template_args:

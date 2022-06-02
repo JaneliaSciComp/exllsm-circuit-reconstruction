@@ -3,6 +3,7 @@ name: stitching
 version: 1.9.0
 remotes:
 - registry.int.janelia.org/exm-analysis
+- public.ecr.aws/janeliascicomp/exm-analysis
 build_args:
   STITCHING_SPARK_GIT_TAG: $version
 template_args:

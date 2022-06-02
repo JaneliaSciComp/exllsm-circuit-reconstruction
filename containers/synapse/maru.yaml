@@ -3,6 +3,7 @@ name: synapse
 version: 1.4.1
 remotes:
 - registry.int.janelia.org/exm-analysis
+- public.ecr.aws/janeliascicomp/exm-analysis
 build_args:
   SYNAPSE_DETECTOR_GIT_TAG: $version
 template_args:
