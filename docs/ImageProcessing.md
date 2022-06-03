@@ -19,9 +19,9 @@ This set of workflows includes various image processing tasks:
 
 | Argument   | Default | Description                                                                 |
 |------------|---------|-----------------------------------------------------------------------------|
-| --fiji_macro_container | registry.int.janelia.org/exm-analysis/exm-tools-fiji:1.1.0 | Docker container for image processing Fiji macros |
-| --exm_synapse_dask_container | registry.int.janelia.org/exm-analysis/synapse-dask:1.3.1 | Docker container for Dask-based processing scripts |
-| &#x2011;&#x2011;exm_neuron_segmentation_container | registry.int.janelia.org/exm-analysis/neuron-segmentation:1.0.0 | Docker container for neuron segmentation scripts |
+| --fiji_macro_container | public.ecr.aws/janeliascicomp/exm-analysis/exm-tools-fiji:1.1.0 | Docker container for image processing Fiji macros |
+| --exm_synapse_dask_container | public.ecr.aws/janeliascicomp/exm-analysis/synapse-dask:1.3.1 | Docker container for Dask-based processing scripts |
+| &#x2011;&#x2011;exm_neuron_segmentation_container | public.ecr.aws/janeliascicomp/exm-analysis/neuron-segmentation:1.0.0 | Docker container for neuron segmentation scripts |
 | --spark_work_dir | $workDir/spark | Path to directory containing Spark working files and logs |
 | --workers | 4 | Number of Spark workers to use for Spark jobs |
 | --worker_cores | 4 | Number of cores allocated to each Spark worker |

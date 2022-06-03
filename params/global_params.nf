@@ -1,7 +1,7 @@
 def global_em_params() {
     [
-        deconv_repo: 'registry.int.janelia.org/janeliascicomp',
-        exm_repo: 'registry.int.janelia.org/exm-analysis',
+        deconv_repo: 'public.ecr.aws/janeliascicomp/exm-analysis',
+        exm_repo: 'public.ecr.aws/janeliascicomp/exm-analysis',
 
         // global parameters
         partial_volume: '',
@@ -19,7 +19,7 @@ def global_em_params() {
         connected_dataset: '/connected/s0',
 
         // image processing
-        fiji_macro_container: 'registry.int.janelia.org/exm-analysis/exm-tools-fiji:1.1.0',
+        fiji_macro_container: 'public.ecr.aws/janeliascicomp/exm-analysis/exm-tools-fiji:1.1.0',
 
         // 3D mask connection params
         threshold: '',
