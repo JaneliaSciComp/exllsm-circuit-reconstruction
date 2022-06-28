@@ -37,6 +37,9 @@ process unet_classifier {
     script:
     output_image = output_image_arg ? output_image_arg : input_image
     def gpu_mem_growth_arg = params.use_gpu_mem_growth ? '--set_gpu_mem_growth' : ''
+    def predict_threshold = params.synapse_predict_threshold
+        ? "--predict-th ${params.synapse_predict_threshold}"
+        : ''
     def input_dataset_arg = input_dataset
         ? "--input_data_set ${input_dataset}"
         : '' 
@@ -49,6 +52,7 @@ process unet_classifier {
         -m ${synapse_model} \
         --start ${start_subvolume} \
         --end ${end_subvolume} \
+        ${predict_threshold} \
         ${gpu_mem_growth_arg} \
         -o ${output_image} ${output_dataset_arg}
     """

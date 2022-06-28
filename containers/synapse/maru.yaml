@@ -1,6 +1,6 @@
 maru_version: 0.1.1
 name: synapse
-version: 1.4.1
+version: 1.5.0
 remotes:
 - registry.int.janelia.org/exm-analysis
 - public.ecr.aws/janeliascicomp/exm-analysis

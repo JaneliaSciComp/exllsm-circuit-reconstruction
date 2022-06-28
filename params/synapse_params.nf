@@ -3,6 +3,7 @@ def synapse_params() {
         // synapse detection params
         pipeline: 'presynaptic_in_volume',
         synapse_model: '/groups/dickson/home/lillvisj/NEXTFLOW_BIN/unet_model_synapse2020_6.whole.h5',
+        synapse_predict_threshold: '', // defaults to 0.5
 
         presynapse: '',
         presynapse_in_dataset: '',
