@@ -54,6 +54,7 @@ def synapse_params() {
 
         unet_cpus: 1,
         unet_memory: '3 G',
+        unet_completed: false,
         postprocessing_cpus: 3,
         postprocessing_memory: '3 G',
         postprocessing_threads: 3,

@@ -45,9 +45,12 @@ process unet_classifier {
         : '' 
     def output_dataset_arg = output_dataset
         ? "--output_data_set ${output_dataset}"
-        : '' 
+        : ''
+    def unet_runner = params.unet_completed
+        ? 'echo'
+        : ''
     """
-    python /scripts/unet_gpu.py \
+    ${unet_runner} python /scripts/unet_gpu.py \
         -i ${input_image} ${input_dataset_arg} \
         -m ${synapse_model} \
         --start ${start_subvolume} \
