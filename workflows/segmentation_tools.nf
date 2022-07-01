@@ -77,6 +77,7 @@ workflow classify_regions_in_volume {
              image_size) = it
         [ in_image, in_dataset, out_image, out_dataset, image_size, ]
     }
+    def unet_classifier_results_after_pyramid
     if (params.with_pyramid) {
         def n5_pyramid_res = n5_scale_pyramid_nonisotropic(
             unet_classifier_results.map { it[2] }, // UNet N5 container
@@ -94,20 +95,44 @@ workflow classify_regions_in_volume {
             params.pyramid_params.driver_stack_size,
             params.pyramid_params.driver_logconfig
         )
-        n5_pyramid_res.subscribe { log.debug "UNET pyramid result: $it" }
+        | map {
+            log.debug "UNET pyramid result: $it"
+
+            def (pyramid_working_dir,
+                 pyramid_terminate_marker,
+                 pyramid_idx,
+                 pyramid_spark_uri,
+                 pyramid_n5_container,
+                 pyramid_n5_dataset) = it
+
+            [ pyramid_working_dir, pyramid_spark_uri, pyramid_n5_container, pyramid_n5_dataset ]
+        }
+        // this is done only in order to create a dependency on the pyramid
+        unet_classifier_results_after_pyramid = unet_classifier_results
+        | join(n5_pyramid_res, by: [2,3])
+        | map {
+            def (pyramid_image, pyramid_dataset,
+                 in_image, in_dataset,
+                 image_size) = it
+            // restore the results as they were before the pyramid invocation
+            [ in_image, in_dataset, pyramid_image, pyramid_dataset, image_size ]
+        }
+    } else {
+        unet_classifier_results_after_pyramid = unet_classifier_results
     }
+    def unet_classifier_results_after_vvd
     if (params.with_vvd) {
         def vvd_res = n5_to_vvd(
-            unet_classifier_results.map { it[2] }, // N5 container
-            unet_classifier_results.map { it[3] }, // N5 dataset
-            unet_classifier_results.map {
+            unet_classifier_results_after_pyramid.map { it[2] }, // N5 container
+            unet_classifier_results_after_pyramid.map { it[3] }, // N5 dataset
+            unet_classifier_results_after_pyramid.map {
                 get_vvd_output_dir(
                     params.vvd_output_dir ? params.vvd_output_dir : "${it[2]}/vvd",
                     it[3])
             }, // VVD output dir
             params.vvd_params.app,
             params.vvd_params.spark_conf,
-            unet_classifier_results.map {
+            unet_classifier_results_after_pyramid.map {
                 get_spark_working_dir(params.vvd_params.spark_work_dir, 'vvd_unet', it[3])
             },
             params.vvd_params.workers,
@@ -118,11 +143,35 @@ workflow classify_regions_in_volume {
             params.vvd_params.driver_stack_size,
             params.vvd_params.driver_logconfig
         )
-        vvd_res.subscribe { log.debug "UNET VVD result: $it" }
+        | map {
+            log.debug "UNET VVD result: $it"
+
+            def (vvd_working_dir,
+                 vvd_terminate_marker,
+                 vvd_idx,
+                 vvd_spark_uri,
+                 vvd_n5_container,
+                 vvd_n5_dataset) = it
+
+            [ vvd_working_dir, vvd_spark_uri, vvd_n5_container, vvd_n5_dataset ]
+        }
+        // this is done only in order to create a dependency on the VVD
+        unet_classifier_results_after_vvd = unet_classifier_results_after_pyramid
+        | join(vvd_res, by: [2,3])
+        | map {
+            def (vvd_image, vvd_dataset,
+                 in_image, in_dataset,
+                 image_size) = it
+            // restore the results as they were before the VVD invocation
+            [ in_image, in_dataset, vvd_image, vvd_dataset, image_size ]
+        }
+
+    } else {
+        unet_classifier_results_after_vvd = unet_classifier_results_after_pyramid
     }
 
     emit:
-    done = unet_classifier_results
+    done = unet_classifier_results_after_vvd
 }
 
 // connect and select regions from input image that are above a threshold
