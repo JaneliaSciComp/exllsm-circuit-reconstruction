@@ -52,7 +52,7 @@ def neuron_connected_comps_spark_params(Map ps) {
         workers: 1,
         worker_cores: 1,
         driver_cores: 1,
-        gb_per_core: 1,
+        gb_per_core: 15,
     ] +
     spark_params(ps) +
     [
