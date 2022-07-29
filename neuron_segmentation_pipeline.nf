@@ -43,7 +43,7 @@ include {
 } from './workflows/n5_tools' addParams(vvd_params)
 
 workflow {
-    def cluster_id = UUID.randomUUID()
+    def session_id = UUID.randomUUID()
     
     def neuron_res
     if (neuron_seg_params.skip_segmentation) {
@@ -81,7 +81,7 @@ workflow {
             neuron_res.map {
                 // this is just so that it would not start the cluster before
                 // the segmentation completes
-                "${neuron_comp_params.spark_work_dir}/${cluster_id}/connected-comps"
+                "${neuron_comp_params.spark_work_dir}/${session_id}/connected-comps"
             }, // spark_working_dir
             neuron_comp_params.workers,
             neuron_comp_params.worker_cores,
@@ -116,7 +116,7 @@ workflow {
             connected_comps_res.map {
                 // this is just so that it would not start the cluster before
                 // the conneccted components completes
-                "${vvd_params.spark_work_dir}/${cluster_id}/n5-2-vvd"
+                "${vvd_params.spark_work_dir}/${session_id}/n5-2-vvd"
             }, // spark_working_dir
             vvd_params.workers,
             vvd_params.worker_cores,

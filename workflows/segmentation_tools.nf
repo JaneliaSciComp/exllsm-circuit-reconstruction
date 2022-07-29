@@ -455,9 +455,10 @@ workflow classify_and_connect_regions_in_volume {
 def get_spark_working_dir(base_dir, step, target_dataset) {
     def d = base_dir ? base_dir : '/tmp'
     def target_file = file(target_dataset)
+    def session_id = UUID.randomUUID()
     // dataset typically is <synapse-workflow-stage>/s0 and
     // I want to use the <synapse-workflow-stage> value
-    "${d}/${step}/${target_file.parent.name}"
+    "${d}/${step}/${target_file.parent.name}/${session_id}"
 }
 
 def get_vvd_output_dir(vvd_output_dir, target_dataset) {

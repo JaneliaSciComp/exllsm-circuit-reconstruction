@@ -14,8 +14,9 @@ process prepare_stitching_data {
           val(stitching_working_dir)
 
     script:
+    def session_id = UUID.randomUUID()
     stitching_working_dir = working_dir
-        ? working_dir
+        ? "${working_dir}/${session_id}"
         : "${stitching_output_dir}/tmp"
     """
     umask 0002
