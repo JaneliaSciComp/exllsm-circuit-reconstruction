@@ -6,7 +6,6 @@ This set of workflows includes various image processing tasks:
 * [3D component connection](#3d-component-connection)
 * [Pixel intensity thresholding](#pixel-intensity-thresholding)
 * [Connected components analysis](#connected-components-analysis)
-* [Pixel shape change](#connected-components-analysis)
 * [Component size thresholding](#connected-components-analysis)
 * [MIP generation](#tiff-converter)
 * [TIFF to N5/VVD conversion](#tiff-converter)
@@ -109,7 +108,7 @@ Usage:
 
 ## Connected Components Analysis
 
-Uses [n5-spark](https://github.com/saalfeldlab/n5-spark) to find and label all connected components in a binary mask extracted from the input N5 dataset, and saves the relabeled dataset as an uint64 output dataset. This process also saves statistics on the component sizes. Includes options to **Change the Pixel Shape** (diamond or box), to **Apply a Pixel Intensity Threshold**, and to **Apply a Component Size Threshold**.
+Uses [n5-spark](https://github.com/saalfeldlab/n5-spark) to find and label all connected components in a binary mask extracted from the input N5 dataset, and saves the relabeled dataset as an uint64 output dataset. This process also saves statistics on the component sizes. Includes options to **Apply a Pixel Intensity Threshold** and to **Apply a Component Size Threshold**.
 
 Usage:
 
@@ -127,7 +126,7 @@ Usage:
 |------------|---------|-----------------------------------------------------------------------------|
 | --input_dataset | /s0 | Input data set to process |
 | --connected_dataset | /connected/s0 | Output data set |
-| --connected_pixels_shape | box | Shape used for connected components (alternative: diamond) |
+| --connected_pixels_shape | box | Connects +/- 1 pixel in X,Y,Z, and diagonally (alternative: diamond (connects +/-1 pixel in X,Y,Z) |
 | --min_connected_pixels | 2000 | Components below this number of pixels are removed |
 | --connected_pixels_threshold | .8 | Intensity threshold. Pixels below this threshold are discarded. This process is applied before size thresholding. |
 | &#x2011;&#x2011;connected_comps_block_size | 128,128,64 | Block size used for generating connected components |
