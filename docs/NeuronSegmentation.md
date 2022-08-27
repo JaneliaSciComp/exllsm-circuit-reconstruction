@@ -207,7 +207,7 @@ Usage:
 | --mask_connection_distance | 20 | Connection distance (voxels)  |
 | &#x2011;&#x2011;mask_connection_iterations | 4 | Number of iterations |
 | --threshold | | Optional intensity threshold to apply before connecting mask |
-|--connected_pixels_shape | diamond| Additional final connection of +/- 1 pixel in X,Y,Z after conversion to N5 (alternative: box (additionally connects +/-1 pixel diagonally) |
+|--connected_pixels_shape | diamond| Additional connection of +/- 1 pixel in X,Y,Z after conversion to N5 (alternative: box (connects +/-1 pixel in X,Y,Z, and diagonally) |
 | --threshold_cpus | 4 | Number of CPUs to use for thresholding mask |
 | --threshold_mem_gb | 8 | Amount of memory (GB) to allocate for thresholding mask |
 | --convert_mask_cpus | 3 | Number of CPUs to use for importing mask |
