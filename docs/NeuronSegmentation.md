@@ -157,15 +157,14 @@ https://user-images.githubusercontent.com/8125635/138980687-929530cf-4577-4ef5-8
 
 ### Post VVD Neuron Segmentation Processing
 
-
-![segmentation_workflow](https://user-images.githubusercontent.com/8125635/137175656-7d8e36fb-6449-4e45-a32c-895882edb9b9.png)
+![segmentation_workflow](https://user-images.githubusercontent.com/8125635/187046544-4e7f06d5-d8a8-4070-a4b9-fbdad11447e3.png)
 
 
 We now have a TIFF series of the segmented volume. However, this segmentation result will overmask the neuron on the edges in most cases (Fig. 10B, E, H, K). This is because the segmentation result was generated on a downsampled VVD pyramid. This was necessary to allow fast segmentation and smooth 3D editing of the multi-terabyte full resolution image volume. To correct overmasking and to generate a final binary mask of the neuron that can be used for further data analysis, we have developed a Post VVD Viewer segmentation image processing workflow. The steps and representative results of this workflow are detailed in Figure 10. 
 
 **Figure 10: Example of a VVD Viewer segmentation mask and post-VVD mask processing results**
 
-![post_VVD_examples](https://user-images.githubusercontent.com/8125635/137176640-428164b6-bec8-4faf-ab09-9fb49968f0e6.png)
+![post_VVD_examples](https://user-images.githubusercontent.com/8125635/187046576-8eb8b8d0-bb1c-4595-901c-9434b458ee68.png)
 
 The first step of this is to remove the blocky overmasking present in the original VVD generated TIFF series. Because the TIFF series retains the original pixel intensities, we can use an intensity threshold to remove the overmasking. Thresholding removes the overmasking and gives a binary mask that is true to the neural signal (Fig. 10C, E, I, K). We found that a suitable threshold value could be identified by generating a maximum intensity projection (MIP) of the TIFF series, opening that MIP in Fiji (https://imagej.net/software/fiji/), and identifying the Huang and Li threshold values of the MIP (Fiji/Image/Adjust/Threshold). In most cases one or both of these values worked well. However in some cases these values were too low and a higher value was used. Inspecting the thresholds on the MIP generally was a reliable indicator of the full resolution result in 3D. However, this was not always the case and the final mask generated should be overlaid on the original image volume and inspected carefully. 
 
