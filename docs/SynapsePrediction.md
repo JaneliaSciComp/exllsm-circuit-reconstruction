@@ -40,7 +40,7 @@ These parameters specify computation parameters and key aspects of data analysis
 | --unet_cpus | 4 | Number of CPUs to use for each U-NET prediction job |
 | --postprocessing_cpus | 3 | Number of CPUs to use for post-processing (e.g. image closing, watershed, quantification, etc.) |
 | --volume_partition_size | 512 | Size of sub-volumes to process in parallel. Should be a multiple of --block_size. |
-| --synapse_predict_threshold | 0.5 | UNet prediction threshold |
+| --synapse_predict_threshold | 0.5 | U-NET prediction threshold |
 | --presynaptic_stage2_threshold | 400 | Minimum voxel size of each synaptic site in stage 2 of Workflows A-C. |
 | --presynaptic_stage2_percentage | 0.5 | Minimum presynaptic site % overlap with neuron 1 in order to be assigned to neuron 1 in stage 2 of Workflows A-C. Objects below this threshold are removed. 1 = whether the centroid falls within the mask. |
 | --postsynaptic_stage3_threshold | 200 | Minimum voxel size of the postsynaptic site in stage 3 of Workflow B. |
