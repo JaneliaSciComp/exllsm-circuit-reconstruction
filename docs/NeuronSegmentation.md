@@ -8,7 +8,6 @@ Neuron segmentation can be accomplished using manual, semi-automatic, or [automa
 **Figure 1: Overview of the Manual and Semi-automatic Neuron Segmentation Workflows**
 
 ![segmentation_workflow](https://user-images.githubusercontent.com/8125635/187046271-403e34bb-82ac-41b5-b179-0289fec8df9e.png)
-ng)
 
 Manual and semi-automatic segmentation is accomplished using [VVD Viewer](https://github.com/JaneliaSciComp/VVDViewer). VVD Viewer is an open-source interactive rendering tool for light microscopy data visualization and analysis. We have developed VVD Viewer to allow manual and user-guided semi-automatic neuron segmentation of large ExLLSM image volumes. Segmentaion of datasets <5TB has been tested extensively. 
 
