@@ -7,13 +7,14 @@ Neuron segmentation can be accomplished using manual, semi-automatic, or [automa
 
 **Figure 1: Overview of the Manual and Semi-automatic Neuron Segmentation Workflows**
 
-![segmentation_workflow](https://user-images.githubusercontent.com/8125635/137171294-3f6458d7-ddd2-4b1f-acd5-3358dfe4f501.png)
+![segmentation_workflow](https://user-images.githubusercontent.com/8125635/187046271-403e34bb-82ac-41b5-b179-0289fec8df9e.png)
+ng)
 
 Manual and semi-automatic segmentation is accomplished using [VVD Viewer](https://github.com/JaneliaSciComp/VVDViewer). VVD Viewer is an open-source interactive rendering tool for light microscopy data visualization and analysis. We have developed VVD Viewer to allow manual and user-guided semi-automatic neuron segmentation of large ExLLSM image volumes. Segmentaion of datasets <5TB has been tested extensively. 
 
 Image volumes stored as N5 files can be opened directy into VVD Viewer and visualized by dragging the parent N5 directory into the VVD Viewer Render View window. However, segmentation has not been optimized for these file types. Instead, it is recommended that VVD pyramid files are used for ExLLSM analysis. 
 
-Therefore, ExLLSM image volumes are first [converted to VVD Viewer pyramid files](./ImageProcessing.md). Neurons are then segmented in VVD Viewer and saved as a TIFF series. A postprocessing workflow is required to convert the TIFF series to the final neuron mask used to [analyze connectivity](./SynapsePrediction.md). These postprocessing steps include pixel intensity thresholding, 3D component connecting, voxel shape conversion, N5 component analysis, and component size filtering. Each of these post VVD segmentation steps is described in [Image Processing](./ImageProcessing.md) and we have generated a [Post VVD Neuron Segmentation Processing Workflow](post-vvd-neuron-segmentation-processing-workflow) to run the entire postprocessing pipeline in sequence. 
+Therefore, ExLLSM image volumes are first [converted to VVD Viewer pyramid files](./ImageProcessing.md). Neurons are then segmented in VVD Viewer and saved as a TIFF series. A postprocessing workflow is required to convert the TIFF series to the final neuron mask used to [analyze connectivity](./SynapsePrediction.md). These postprocessing steps include pixel intensity thresholding, 3D component connecting, N5 component analysis, and component size filtering. Each of these post VVD segmentation steps is described in [Image Processing](./ImageProcessing.md) and we have generated a [Post VVD Neuron Segmentation Processing Workflow](post-vvd-neuron-segmentation-processing-workflow) to run the entire postprocessing pipeline in sequence. 
 
 Recommended VVD Viewer settings, basic controls, and segmentation tools and strategies are documented in this section. 
 
@@ -167,7 +168,7 @@ We now have a TIFF series of the segmented volume. However, this segmentation re
 
 ![post_VVD_examples](https://user-images.githubusercontent.com/8125635/137176640-428164b6-bec8-4faf-ab09-9fb49968f0e6.png)
 
-The first step of this is to remove the blocky overmasking present in the original VVD generated TIFF series. Because the TIFF series retains the original pixel intensities at 8-bit, we can use an intensity threshold to remove the overmasking. Thresholding removes the overmasking and gives a binary mask that is true to the neural signal (Fig. 10C, E, I, K). We found that a suitable threshold value could be identified by generating a maximum intensity projection (MIP) of the TIFF series, opening that MIP in Fiji (https://imagej.net/software/fiji/), and identifying the Huang and Li threshold values of the MIP (Fiji/Image/Adjust/Threshold). In most cases one or both of these values worked well. However in some cases these values were too low and a higher value was used. Inspecting the thresholds on the MIP generally was a reliable indicator of the full resolution result in 3D. However, this was not always the case and the final mask generated should be overlaid on the original image volume and inspected carefully. 
+The first step of this is to remove the blocky overmasking present in the original VVD generated TIFF series. Because the TIFF series retains the original pixel intensities, we can use an intensity threshold to remove the overmasking. Thresholding removes the overmasking and gives a binary mask that is true to the neural signal (Fig. 10C, E, I, K). We found that a suitable threshold value could be identified by generating a maximum intensity projection (MIP) of the TIFF series, opening that MIP in Fiji (https://imagej.net/software/fiji/), and identifying the Huang and Li threshold values of the MIP (Fiji/Image/Adjust/Threshold). In most cases one or both of these values worked well. However in some cases these values were too low and a higher value was used. Inspecting the thresholds on the MIP generally was a reliable indicator of the full resolution result in 3D. However, this was not always the case and the final mask generated should be overlaid on the original image volume and inspected carefully. 
 
 To generate a MIP, use the TIFF Converter.
 
@@ -181,11 +182,11 @@ Generate a maximum intensity projection (MIP):
 
 After thresholding, the neuron mask will be true to the fluorescent signal of the neuron. However, at 8X, the fluorescent signal along neurons is not completely continuous due to gaps in antibody labeling. To fill these gaps a 3D component connecting algorithm is used. We connected gaps of 20 voxels or less, and iterated this process four times. This reliably connected disconnected neuron components that were clearly part of a continuous neuron with minimal unwanted connections in our 8X ExLLSM images (Fig. 10D, F, J, L). However, different parameters can be used if these do not work well with your data. 
 
-The final steps of the process are to (optionally) convert the pixel shape from diamond to box (doing this will connect some previously disconnected pixels) and to analyze and remove connected components smaller than 2000 pixels (this value can also be changed). The result of these steps creates a binary mask of the neuron signal in the imaging volume that can be used to [analyze connectivity](./SynapsePrediction.md). All of the steps in this process, from thresholding to size filtering can be run using the Post VVD Neuron Segmentation Processing Workflow.   
+The final step of the process is to analyze and remove connected components smaller than 2000 pixels (this value can also be changed). The result of these steps creates a binary mask of the neuron signal in the imaging volume that can be used to [analyze connectivity](./SynapsePrediction.md). All of the steps in this process, from thresholding to size filtering can be run using the Post VVD Neuron Segmentation Processing Workflow.   
 
 **Post VVD Neuron Segmentation Processing Workflow**
 
-Each of the components of this Workflow are described in detail in [Image Processing](./ImageProcessing.md). The Workflow runs thresholding, 3D mask connection, TIFF to N5 conversion, a pixel shape change, a connected components analysis, and a size filter to remove components below a given pixel threshold.
+Each of the components of this Workflow are described in detail in [Image Processing](./ImageProcessing.md). The Workflow runs thresholding, 3D mask connection, TIFF to N5 conversion, a connected components analysis, and a size filter to remove components below a given pixel threshold.
 
 Usage:
 
@@ -208,7 +209,7 @@ Usage:
 | --mask_connection_distance | 20 | Connection distance  |
 | &#x2011;&#x2011;mask_connection_iterations | 4 | Number of iterations |
 | --threshold | | Optional intensity threshold to apply before connecting mask |
-|--connected_pixels_shape | diamond| Changes the pixel shape (alternative: box) |
+|--connected_pixels_shape | diamond| Connects objects +/- 1 pixel in X,Y,Z (alternative: box (additionally connects +/-1 pixel diagonally) |
 | --threshold_cpus | 4 | Number of CPUs to use for thresholding mask |
 | --threshold_mem_gb | 8 | Amount of memory (GB) to allocate for thresholding mask |
 | --convert_mask_cpus | 3 | Number of CPUs to use for importing mask |
