@@ -13,7 +13,7 @@ The following workflows integrate Synapse Segmentation and Synapse Segmentation 
 * [Workflow B](#workflow-b): Quantifies neuron 1 presynaptic sites and connections from neuron 1 to neuron 2. Requires a presynaptic channel, a postsynaptic channel restricted to neuron 2, and a neuron 1 mask.
 * [Workflow C](#workflow-c): Quantifies synaptic sites in a volume. No neuron information is needed, but synaptic sites in a neuron can be quantified. Requires a synaptic channel with optional neuron mask. 
 
-![ExLLSM_synapseworkflows](https://user-images.githubusercontent.com/8125635/133482088-9c448f84-2d21-42fd-99f5-107ae576b4ff.png)
+![workflows_revised](https://user-images.githubusercontent.com/8125635/187047745-634144a8-2bb9-434d-8d80-d090af589452.png)
 
 Details on methods to generate neurons masks for ExLLSM images can be found in the [Neuron Segmentation](NeuronSegmentation.md) and [Image Processing](ImageProcessing.md) sections.
 
