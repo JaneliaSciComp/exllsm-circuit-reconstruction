@@ -95,7 +95,7 @@ workflow {
             final_params.gb_per_core,
             final_params.driver_cores,
             final_params.driver_memory,
-            final_params.driver_stack,
+            final_params.driver_stack_size,
             final_params.driver_logconfig
         ) // [ input_images_dir, stitching_dir ]
         pre_stitching_res.subscribe { log.debug "Pre stitch results: $it" }
@@ -154,7 +154,7 @@ workflow {
             final_params.gb_per_core,
             final_params.driver_cores,
             final_params.driver_memory,
-            final_params.driver_stack,
+            final_params.driver_stack_size,
             final_params.driver_logconfig
         )
         stitching_res | view
