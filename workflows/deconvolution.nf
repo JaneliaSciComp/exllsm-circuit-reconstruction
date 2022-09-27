@@ -148,14 +148,18 @@ workflow deconvolution {
     def deconv_results_to_write = deconv_results
     | map {
         def (ch, input_dir) = it
-        "${input_dir}/${ch}.json"
+        def r = "${input_dir}/${ch}.json"
+        log.debug "Prepare deconvolution result: $it -> $r"
+        r
     }
     | read_file_content_for_update
     | map {
         def (tiles_json_filename, tiles_json_content) = it
         def tiles_json_file = file(tiles_json_filename)
         def ch = tiles_json_file.name.replace('.json','')
-        [ ch, "${tiles_json_file.parent}", tiles_json_content ]
+        def r = [ ch, "${tiles_json_file.parent}", tiles_json_content ]
+        log.debug "Done reading deconvolution results for channel $ch from ${tiles_json_file} -> [$ch,${tiles_json_file.parent}]"
+        r
     }
     | join(deconv_results, by:[0,1])
     | map {
@@ -166,6 +170,7 @@ workflow deconvolution {
             output_dir,
             list_of_tile_files
         ) = it
+        log.debug "Getting ready to write ${ch} deconvolution json to ${input_dir} directory"
         def deconv_tiles_json_content = data_to_json_text(
             json_text_to_data(tiles_json_content)
                 .findAll { tile -> list_of_tile_files.contains(tile.file) }
