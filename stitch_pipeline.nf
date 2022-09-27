@@ -39,7 +39,7 @@ include {
 } from './workflows/deconvolution' addParams(final_params)
 
 workflow {
-    def images_dir = final_params.images_dir
+    def images_dir = get_value_or_default(final_params, 'images_dir', final_params.input_dir)
     def pipeline_output_dir = get_value_or_default(final_params, 'output_dir', images_dir)
     def stitching_dir = final_params.stitching_output 
             ? "${pipeline_output_dir}/${final_params.stitching_output}"
