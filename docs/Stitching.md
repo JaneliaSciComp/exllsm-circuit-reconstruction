@@ -40,7 +40,7 @@ Usage ([example](../examples/stitching.sh)):
 | --worker_cores | 4 | Number of cores allocated to each Spark worker |
 | --gb_per_core | 15 | Size of memory (in GB) that is allocated for each core of a Spark worker. The total memory usage for stitching will be workers *worker_cores* gb_per_core. |
 | --driver_memory | 15g | Amount of memory to allocate for the Spark driver |
-| --driver_stack | 128m | Amount of stack space to allocate for the Spark driver |
+| --driver_stack_size | 128m | Amount of stack space to allocate for the Spark driver |
 | --stitching_output | | Output directory for stitching (relative to --output_dir) |
 | --resolution | 0.104,0.104,0.18 | Resolution of the input imagery |
 | --axis | -y,-x,z | Axis mapping for objective to pixel coordinates conversion when parsing metadata. Minus sign flips the axis. |
