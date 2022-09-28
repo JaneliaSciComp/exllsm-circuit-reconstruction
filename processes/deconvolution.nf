@@ -58,10 +58,11 @@ process deconvolution_job {
         iterations
     ]
     def app_args = app_args_list.join(' ')
+    def deconv_runner = Boolean.valueOf(params.deconv_has_run) ? "echo" : ""
     """
     umask 0002
     if [[ -e ${tile_file} ]]; then
-        /app/entrypoint.sh ${app_args}
+        ${deconv_runner} /app/entrypoint.sh ${app_args}
         output_deconv_file=${output_file}
     else
         output_deconv_file="null"

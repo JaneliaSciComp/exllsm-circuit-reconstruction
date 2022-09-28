@@ -22,6 +22,7 @@ def stitching_params() {
         allow_fusestage: false,
 
         // deconvolution params
+        deconv_has_run: false,
         deconv_cpus: 4,
         background: '100',
         psf_z_step_um: '0.1',
