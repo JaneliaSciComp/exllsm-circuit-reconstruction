@@ -109,8 +109,8 @@ workflow {
         | map {
             def (input_images_dir, stitching_dirname, stitching_working_dir) = it
             def stitching_dir_file = file(stitching_dirname)
-            def stitching_working_dir = file(stitching_working_dir)
-            def r = [ "${stitching_dir_file}", "${stitching_working_dir}" ]
+            def stitching_working_dir_file = file(stitching_working_dir)
+            def r = [ "${stitching_dir_file}", "${stitching_working_dir_file}" ]
             log.info "Prepare stitching input: $r"
             r
         }
@@ -135,8 +135,8 @@ workflow {
         | map {
             def (stitching_dirname, stitching_working_dir) = it[1..2] // [ stitching_dir, stitching_work_dir ]
             def stitching_dir_file = file(stitching_dirname)
-            def stitching_working_dir = file(stitching_working_dir)
-            def r = [ "${stitching_dir_file}", "${stitching_working_dir}" ]
+            def stitching_working_dir_file = file(stitching_working_dir)
+            def r = [ "${stitching_dir_file}", "${stitching_working_dir_file}" ]
             log.info "Prepare stitching input: $r"
             r
         }
