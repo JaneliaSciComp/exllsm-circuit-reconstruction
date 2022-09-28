@@ -143,13 +143,20 @@ workflow deconvolution {
     )
     | filter { it[5] != 'null' } // filter out tiles that do not exist
     | groupTuple(by: [0,1,2])
-    | map { it[0..3] } // [ ch, input_dir, output_dir, list_of_tile_files ]
+    | map {
+        def (ch, input_dir, output_dir, list_of_tile_files) = it
+        def input_dir_file = file(input_dir) // normalize input_dir
+        def output_dir_file = file(output_dir) // normalize output_dir
+        // the result should return the normalized input and output dirs
+        // the reason for this is to avoid a trailing '/' which could prevent the join
+        [ch, "${input_dir_file}", "${output_dir_file}", list_of_tile_files]
+    }
 
     def deconv_results_to_write = deconv_results
     | map {
         def (ch, input_dir) = it
         def r = "${input_dir}/${ch}.json"
-        log.debug "Prepare deconvolution result: $it -> $r"
+        log.debug "Prepare for reading the deconvolution result: $it -> $r"
         r
     }
     | read_file_content_for_update
