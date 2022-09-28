@@ -108,7 +108,11 @@ workflow {
         | join(pre_stitching_res, by:[0,1])
         | map {
             def (input_images_dir, stitching_dirname, stitching_working_dir) = it
-            [ stitching_dirname, stitching_working_dir ]
+            def stitching_dir_file = file(stitching_dirname)
+            def stitching_working_dir = file(stitching_working_dir)
+            def r = [ "${stitching_dir_file}", "${stitching_working_dir}" ]
+            log.info "Prepare stitching input: $r"
+            r
         }
     } else {
         def deconv_res = deconvolution(
@@ -129,7 +133,12 @@ workflow {
 
         stitching_input = stitching_data
         | map {
-            it[1..2] // [ stitching_dir, stitching_work_dir ]
+            def (stitching_dirname, stitching_working_dir) = it[1..2] // [ stitching_dir, stitching_work_dir ]
+            def stitching_dir_file = file(stitching_dirname)
+            def stitching_working_dir = file(stitching_working_dir)
+            def r = [ "${stitching_dir_file}", "${stitching_working_dir}" ]
+            log.info "Prepare stitching input: $r"
+            r
         }
         | join(deconv_res, by: 0) // [ stitching_dir, stitching_work_dir, channels, deconv_json_res ]
 
