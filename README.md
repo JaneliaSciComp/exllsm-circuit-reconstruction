@@ -5,7 +5,7 @@
 [![Run with Docker](https://img.shields.io/badge/run%20with-docker-0db7ed?logo=docker)](https://www.docker.com/)
 [![Run with Singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg)](https://sylabs.io/docs/)
 
-This is a pipeline, described in [this preprint](https://doi.org/10.1101/2021.11.14.468535), intended for analyzing expansion lattice light-sheet microscopy (ExLLSM) data, consisting of several independent workflows, and integration with [VVD Viewer](https://github.com/takashi310/VVD_Viewer).
+This is a pipeline, described in [this research article]( https://doi.org/10.7554/eLife.81248), intended for analyzing expansion lattice light-sheet microscopy (ExLLSM) data, consisting of several independent workflows, and integration with [VVD Viewer](https://github.com/takashi310/VVD_Viewer).
 
 ## Quick Start
 
