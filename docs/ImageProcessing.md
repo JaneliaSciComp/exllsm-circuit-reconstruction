@@ -211,6 +211,7 @@ Convert N5 to VVD, saving the VVD files inside the N5 container:
 |------------|---------|-----------------------------------------------------------------------------|
 | --input_dataset | /s0 | N5 data set to process |
 | --multiscale_pyramid | false | Generate multiscale pyramid (i.e. /s1, /s2, etc.) |
+|--resolution=”0.104,0.104,0.18 --powerOfTwo" | | All multiscale pyramid downsampling factors are forced to be powers of two. If necessary, adjust pixel resolution (in um). |
 | --tiff_output_dir | | Directory where output TIFF slices will be saved |
 | --mips_output_dir | | Directory where MIPs will be saved |
 | --vvd_output_dir | | Directory where output VVD files will be saved |
