@@ -56,7 +56,7 @@ def stitching_container_param(Map ps) {
 def deconvolution_container_param(Map ps) {
     def deconvolution_container = ps.deconvolution_container
     if (!deconvolution_container)
-        "${ps.deconv_repo}/matlab-deconv:1.0"
+        "${ps.deconv_repo}/matlab-deconv:1.1"
     else
         deconvolution_container
 }
