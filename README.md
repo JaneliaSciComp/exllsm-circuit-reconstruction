@@ -23,7 +23,7 @@ To [install Singularity](https://sylabs.io/guides/3.7/admin-guide/installation.h
 
     sudo yum install singularity
 
-Clone the multifish repository with the following command:
+Clone the expansion microscopy pipeline repository with the following command:
 
     git clone https://github.com/JaneliaSciComp/expansion-microscopy-pipeline.git
 
