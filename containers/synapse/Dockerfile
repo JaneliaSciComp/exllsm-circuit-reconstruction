@@ -8,6 +8,7 @@ RUN git clone --branch ${SYNAPSE_DETECTOR_GIT_TAG} --depth 1 https://github.com/
     && /usr/local/bin/buildinfo.sh
 
 FROM janeliascicomp/matlab-oraclelinux8:2020b as matlab-builder
+ARG LICENSE_SERVER
 USER root
 
 WORKDIR /tmp-compile
