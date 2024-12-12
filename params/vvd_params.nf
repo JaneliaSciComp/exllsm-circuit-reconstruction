@@ -22,8 +22,9 @@ def vvd_spark_params(Map ps) {
         : [:]
     spark_params(ps) +
     [
+        spark_container_repo: 'ghcr.io/janeliascicomp',
         spark_container_name: 'n5-spark-tools',
-        spark_container_version: '3.11.0',
+        spark_container_version: '3.11.1',
         workers: 8,
         worker_cores: 16,
         gb_per_core: 14
