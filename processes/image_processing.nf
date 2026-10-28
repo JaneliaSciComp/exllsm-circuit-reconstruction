@@ -227,6 +227,6 @@ process tiff_to_mips {
     script:
     """
     mkdir -p "${output_dir}"
-    /app/fiji/entrypoint.sh --headless -macro MIPmultithread.ijm "${params.create_mip_cpus},${input_dir}/,${output_dir}/"
+    /app/fiji/entrypoint.sh --headless --memory=${task.memory.toGiga() - 1}g -macro MIPmultithread.ijm "${params.create_mip_cpus},${input_dir}/,${output_dir}/"
     """
 }
